@@ -35,4 +35,14 @@ public class TurretZeroPolicyTest {
     public void atPlayAZeroFromAPersonOrTheHandoffIsKept() {
         assertEquals(Action.NOTHING, TurretZeroPolicy.atPlay(true));
     }
+
+    @Test
+    public void theHomeSwitchPutsTheZeroOnTheMarkUnlessAPersonSetIt() {
+        assertEquals(Action.ZERO_AT_SWITCH, TurretZeroPolicy.atSwitchPass(false, false, 170.0, 30.0));
+        assertEquals(Action.ZERO_AT_SWITCH, TurretZeroPolicy.atSwitchPass(false, true, -4.0, 30.0));
+        assertEquals(Action.SWITCH_DISAGREES, TurretZeroPolicy.atSwitchPass(false, true, 31.0, 30.0));
+        assertEquals(Action.ZERO_AT_SWITCH, TurretZeroPolicy.atSwitchPass(false, true, 90.0, Double.NaN));
+        assertEquals(Action.NOTHING, TurretZeroPolicy.atSwitchPass(true, true, -4.0, 30.0));
+        assertEquals(Action.NOTHING, TurretZeroPolicy.atSwitchPass(false, true, Double.NaN, 30.0));
+    }
 }

@@ -19,7 +19,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | Piece | Rule |
 |---|---|
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, started, updated and stopped. |
-| `subsystems/Subsystem` | `initialize()` / `start()` / `update()` / `stop()`. **Nothing moves before PLAY** (G304.H, G403): until `start()`, `update()` writes no servo and no motor power but zero. The one exception is an Autonomous's INIT (R103.B): `RobotOpMode` calls `robot.holdForAutoInit()`, which takes the FLOWER stick in, closes the feed gate, and zeroes the turret where it stands (assumed on its mark) and turns it to its home angle (`aimOffsetDeg`; 0 for one `lockedForward`), and holds all three until PLAY; a TeleOp's INIT, which runs between AUTO and TELEOP, holds nothing, so anything else that leaves the 18 in cube unpowered gets a mechanical stop. `InitMovesNothingTest` enforces it. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). `health()` is one line for the match log on what it found at init; a motor-only subsystem says "presence unknown", never "present". |
+| `subsystems/Subsystem` | `initialize()` / `start()` / `update()` / `stop()`. **Nothing moves before PLAY** (G304.H, G403): until `start()`, `update()` writes no servo and no motor power but zero. The one exception is an Autonomous's INIT (R103.B): `RobotOpMode` calls `robot.holdForAutoInit()`, which takes the FLOWER stick in, closes the feed gate, and zeroes the turret where it stands (assumed on its mark; with a home switch and `TurretSubsystem.homeSweep` on, first turns it up to a full turn to find the switch, then across it slowly both ways and zeroes on the average; the sweep is off shared and a robot's `RobotDifferences` line turns it on once its bench check passes) and turns it to its home angle (`aimOffsetDeg`; 0 for one `lockedForward`), and holds all three until PLAY; a TeleOp's INIT, which runs between AUTO and TELEOP, holds nothing, so anything else that leaves the 18 in cube unpowered gets a mechanical stop. `InitMovesNothingTest` enforces it. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). `health()` is one line for the match log on what it found at init; a motor-only subsystem says "presence unknown", never "present". |
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. A `@Utility` name starts with its group (`Bench:`, `Check:`, `Drive:`, `Measure:`, `Vision:`), so the menu sorts into groups. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `ControlScheme` is the only place an input is chosen: one layout for both teams, mapping each `Action` to an `Input`. The TeleOp asks `controls.held(Action.CHASSIS_AIM)` / `controls.on(Action.X)`, never a raw button. The driver owns every shot (Circle) and the turret mode (R1, AIM or LOCKED), which sets what Circle does; the operator's FIRE and Triangle are bench-only (`ControlScheme.BENCH_ONLY`), and in a match the operator's Circle is only the fine-trim modifier (`MATCH_ONLY`), never a fire. `Input` cannot name Share, Options, the touchpad or PS. `Bindings` underneath labels every binding, and the DS Controls page and the printed cheat sheet (`CheatSheet`, written by `CheatSheetTest` to `TeamCode/build/cheat-sheets/`) are generated from the same layout, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
@@ -67,10 +67,17 @@ Three layers, each written in exactly one place:
   wheels' dip count. Anything that ends on, or subtracts, a launch reads that; `launcher.shots()` is the dip
   detector's own measurement (dip depth for the speed table, PIDF timing). With the lane beam fitted,
   `colorSensor.full()` needs the entrance colour sensor and the beam to agree.
+- We launch only our own alliance's NECTAR. `NectarReject` treats an uncertain piece as wrong, and
+  while `colorSensor.wrongNectarMayBeIn()` the feed gate stays shut to every feed (TeleOp and Auto)
+  until the piece is seen leaving outward or an eject runs; never add a feed path around the gate.
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
-  through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the
-  code never uses for control), and only turret code may reset that count. The turret's servo is
+  through the encoder socket of `TurretSubsystem.encoderHostName()`, the intake's, or with
+  `TurretSubsystem.encoderOnDriveMotor` (a robot's `RobotDifferences` line, the day it is rewired)
+  the back-right drive wheel's, whose own encoder is only logged. Nothing sets that motor's run
+  mode to one that uses its encoder, and only turret code may reset that count. A mechanism's speed
+  decides anything only with its own encoder in its socket: the intake's (`IntakeSubsystem.ownEncoder()`,
+  off while the turret's is there) and the feeder's (`FeederSubsystem.encoderFitted`). The turret's servo is
   continuous and the turret has no stops: `TurretSubsystem` closes the loop on that count, a turret
   angle is a direction (wrap a difference from `angleDegrees()`), and an aim at a point on the
   field passes the target's rate with it (`aim(deg, rateDps)`), which is how the turret cancels the
@@ -117,7 +124,12 @@ the latest loop's state every loop, so a crashed Auto or a restarted TeleOp resu
 is. Triangle (Y) held 1 s in INIT discards a handoff ("start fresh"): pose, alliance and turret zero
 go, as if nothing ran before. The turret zeroes itself: an Autonomous zeroes it at INIT (assumed on its mark; INIT again zeroes
 again, PLAY keeps it, and the TeleOp after it takes it), a TeleOp takes a carried zero, and otherwise the
-turret is assumed at home and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`).
+turret is assumed at home and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`). A turret
+with a home switch (`TurretSubsystem.homeSwitch`, a magnetic switch; an optional device, `DeviceNames.TURRET_HOME_SWITCH`,
+declared in a robot's XML and turned on by its `RobotDifferences` line, as the beam breaks are) re-zeroes on every full pass of its magnet
+across the switch, INIT included (reading it moves nothing), unless the zero was set by hand, and INIT warns when the
+switch sees the turret off the mark it is counted from. Only an Autonomous's INIT sweeps the turret to find the magnet
+(R103.B, mentor, 21 Nov 2026); a TeleOp's INIT never moves it.
 `RobotOpMode` logs an uncaught exception to the match log and rethrows it; it never swallows one.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera

@@ -121,4 +121,82 @@ public class FeedJamClearTest {
         for (long t = 5000; t < 10000; t += 20) assertFalse(j.update(true, true, 0, t * MS, 0.0, 250.0, 2));
         assertEquals(0, j.bursts());
     }
+
+    // ---------------------------------------------------- with the roller's and the feeder's encoders
+
+    private static boolean full(FeedJamClear j, boolean present, boolean rollerStalled, boolean feederStalled,
+                                int shots, long ms) {
+        return j.update(true, present, rollerStalled, feederStalled, shots, ms * MS,
+                1200.0, 600.0, 300.0, 250.0, 2);
+    }
+
+    /** A stalled roller on a still entry piece is called at 0.6 s, not 1.2 s. */
+    @Test
+    public void aStalledRollerCallsItSooner() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 600; t += 20) assertFalse(full(j, true, true, false, 0, t));
+        assertTrue(full(j, true, true, false, 0, 600));
+        assertEquals(FeedJamClear.Cause.ROLLER_STALLED, j.lastCause());
+    }
+
+    /** A roller turning freely says nothing: the still stack (M-1) is still the quiet timer's, at 1.2 s. */
+    @Test
+    public void aFreeRollerLeavesItToTheQuietTimer() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 1200; t += 20) assertFalse(full(j, true, false, false, 0, t));
+        assertTrue(full(j, true, false, false, 0, 1200));
+        assertEquals(FeedJamClear.Cause.QUIET, j.lastCause());
+    }
+
+    /** The roller pressing on a stack that is firing is not a jam: each shot restarts the quiet spell. */
+    @Test
+    public void aStalledRollerBehindAFiringStackIsLeftAlone() {
+        FeedJamClear j = new FeedJamClear();
+        int shots = 0;
+        for (long t = 0; t < 4000; t += 20) {
+            if (t % 440 == 0) shots++;
+            assertFalse(full(j, true, true, false, shots, t));
+        }
+    }
+
+    /** A roller stall needs the entry piece: with none there, no burst from it. */
+    @Test
+    public void aStalledRollerWithNoEntryPieceIsLeftAlone() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 3000; t += 20) assertFalse(full(j, false, true, false, 0, t));
+    }
+
+    /** The feeder stopped while feeding is a jam after 0.3 s, entry piece or not. */
+    @Test
+    public void aStoppedFeederIsAJam() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 1000; t += 20) assertFalse(full(j, false, false, false, 0, t));
+        for (long t = 1000; t < 1300; t += 20) assertFalse(full(j, false, false, true, 0, t));
+        assertTrue(full(j, false, false, true, 0, 1300));
+        assertEquals(FeedJamClear.Cause.FEEDER_STOPPED, j.lastCause());
+    }
+
+    /** A feeder dip shorter than the stall time (a ball going through) is not a jam. */
+    @Test
+    public void aShortFeederDipIsLeftAlone() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 4000; t += 20) {
+            boolean dip = t % 500 < 200;
+            assertFalse(full(j, false, false, dip, 0, t));
+        }
+    }
+
+    /** After a burst the stall is timed afresh, and the two-burst limit holds for stalls too. */
+    @Test
+    public void stallBurstsAreTimedAfreshAndLimited() {
+        FeedJamClear j = new FeedJamClear();
+        int bursts = 0;
+        boolean was = false;
+        for (long t = 0; t < 6000; t += 20) {
+            boolean back = full(j, false, false, true, 0, t);
+            if (back && !was) bursts++;
+            was = back;
+        }
+        assertEquals(2, bursts);
+    }
 }

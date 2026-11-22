@@ -156,6 +156,32 @@ Leave about a second between attempts and before STOP so the response after disa
 SDK state is software readback, not a measured waveform. There is no automatic upload directly from
 the robot; the existing laptop pull/upload step is still needed.
 
+## CELL swings: seeing a TIP coming
+
+Every match log has each CELL's tag row height for every camera frame that saw it
+(`/Hive/Cell/<CELL>/RowHeightIn`, about 50 in UP and 35 in DOWN), with its `/Tags` and `/State`. Two
+commands look for a TIP before the tracker reads the CELL settled:
+
+```
+python3 tools/pull-logs/read_logs.py rising LOG.wpilog [...]
+python3 tools/pull-logs/read_logs.py creep LOG.wpilog [...]
+```
+
+- **`rising`**: a DOWN CELL's tags face away from the camera, so a rising one comes into view partway
+  up. Each row first seen between 37.5 and 46 in and climbing, how high, and how long before it read
+  UP. Fruitport (22 Nov 2026): 23 rises, first seen at about 39-42 in, a median 0.65 s before UP;
+  0.55-1.3 s in the 8 with the robot still and the turret steady.
+- **`creep`**: an UP CELL that fell through 44 in, frame to frame, with the robot still (under 3 in/s)
+  and the turret within 4 degrees for the 5 s before. How long the row had been 0.5, 1 and 2 in below
+  its rest, and how long after our own feed gate closed. Fruitport: 3 such falls; at 0.5 in, 0.4,
+  1.8 and 2.1 s before the crossing, the longest 2.9 s after our own volley. A hint, not a result:
+  while driving the row wanders 1-2 in, so only a robot standing still can see a creep.
+
+`cells` (per settle, when the row was first seen and first moved) counts mostly the camera turning
+onto a CELL that had already tipped, so its leads say little about swings. The match log holds no
+camera images; AdvantageScope's Limelight tab draws the CAD field from the camera's mount, with the
+HIVEs where the robot believed them.
+
 ## Where logs go
 
 Logs go to the team's shared Google Drive, so nobody has to fetch them from a particular laptop:

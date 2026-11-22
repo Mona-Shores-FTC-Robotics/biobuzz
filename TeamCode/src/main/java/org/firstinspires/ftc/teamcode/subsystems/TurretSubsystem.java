@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
@@ -12,11 +13,12 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
 import java.util.Locale;
+import java.util.function.LongSupplier;
 
 /**
  * The turret: a goBILDA 25-3 Speed servo in continuous mode ({@link DeviceNames#TURRET}) turning
  * it, and a REV Through Bore Encoder on its drive gear, read as a relative quadrature count
- * through the encoder socket of {@link DeviceNames#TURRET_ENCODER_HOST}. The turret has no stops
+ * through the encoder socket of {@link #encoderHostName()}. The turret has no stops
  * and no cables: it turns for ever either way, an angle is a direction, and it always goes the
  * shortest way round. A continuous servo has no feedback of its own, so the loop is closed here,
  * on the encoder ({@link TurretServoControl}).
@@ -43,7 +45,20 @@ import java.util.Locale;
  * <p>The encoder host is another mechanism's motor. This class reads its position and velocity and
  * <b>never</b> sets its power, mode or direction, and never resets its count; it undoes the sign
  * the host's own direction puts on the count ({@link #hostSign}). Zero is a software offset, so
- * the intake (today's host) is untouched.
+ * the host (the intake, or a drive wheel with {@link #encoderOnDriveMotor}) is untouched.
+ *
+ * <h2>The home switch</h2>
+ *
+ * <p>A robot with {@link #homeSwitch} (19429 now, 20245 once its switch reads on the bench) has a REV Magnetic Limit Switch
+ * ({@link DeviceNames#TURRET_HOME}) under a magnet on the back of the turret, over it when the
+ * turret is on its mark. Each pass of the turret across it puts the zero on the mark
+ * ({@link TurretHomeSwitch}, {@link TurretZeroPolicy#atSwitchPass}), in INIT too, so a turret turned
+ * by hand across its mark is zeroed, and a zero that drifted is put right the next time the turret
+ * swings through straight ahead. Reading it moves nothing. A zero set by hand wins. An
+ * Autonomous's INIT, and only that, also turns the turret up to a full turn to find the switch, then
+ * past it and back across it slowly both ways, and zeroes on the average of the two slow passes
+ * ({@link #homeSweep}, {@link TurretHomeSweep}, off on both robots until its bench check passes);
+ * then it holds its home angle.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
  * {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
@@ -170,6 +185,23 @@ public class TurretSubsystem implements Subsystem {
     public static boolean lockedForward = true;
 
     /**
+     * Whether this robot's turret encoder is in a drive wheel's encoder socket
+     * ({@link DeviceNames#TURRET_ENCODER_DRIVE_HOST}) rather than the intake's
+     * ({@link DeviceNames#TURRET_ENCODER_HOST}). Off, the shared default: both robots are wired to
+     * the intake's socket until the build team moves the cable (doc/robot-todo.md, "Turret encoder
+     * to a drive socket"). A robot moved gets a {@code RobotDifferences} line turning it on, the
+     * same day its intake's own encoder cable goes back in the intake's socket, which is what this
+     * switch gives back: the intake's stall timing ({@code IntakeSubsystem.ownEncoder()}). Read when
+     * the robot is built, so a Panels edit applies at the next INIT.
+     */
+    public static boolean encoderOnDriveMotor = false;
+
+    /** The motor whose encoder socket the turret's encoder is in on this robot: see {@link #encoderOnDriveMotor}. */
+    public static String encoderHostName() {
+        return encoderOnDriveMotor ? DeviceNames.TURRET_ENCODER_DRIVE_HOST : DeviceNames.TURRET_ENCODER_HOST;
+    }
+
+    /**
      * The firing arc ({@link TurretArc}): how far left of the arc's centre (0, or in the TeleOp the aim trim) the turret may point and still fire
      * clear of the robot, degrees. Behind the arc it holds at the edge and a fire button does not
      * feed. 90 on both robots is the mentor's judgement (18 Nov 2026: the turret is good across
@@ -183,6 +215,74 @@ public class TurretSubsystem implements Subsystem {
     /** The same to the right of 0, degrees, a positive number. */
     public static double arcRightDeg = 90.0;
 
+    // ------------------------------------------------------------ the home switch
+
+    /**
+     * This turret has a home switch, {@link DeviceNames#TURRET_HOME}: a REV Magnetic Limit Switch on
+     * a digital port, and a magnet on the back of the turret over it on the mark. An optional device
+     * ({@link DeviceNames#TURRET_HOME_SWITCH}): false shared, and a robot's
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences} line turns it on once its XML declares
+     * the switch and {@code Bench: Turret} has seen it read the magnet. On, it re-zeroes on each
+     * slow pass across the magnet; reading it moves nothing. It does not sweep: {@link #homeSweep}.
+     */
+    public static boolean homeSwitch = false;
+
+    /**
+     * Where the home mark is from the middle of the switch's band, degrees counter-clockwise: the
+     * band's middle as {@code Bench: Turret} reads it with the encoder zeroed on the mark, negated.
+     * <b>0 until measured</b> (doc/robot-todo.md): the mark is then the band's middle.
+     */
+    public static double homeSwitchOffsetDeg = 0.0;
+
+    /**
+     * A pass whose edge is crossed faster than this is not taken, deg/s: an edge is placed to half a
+     * loop's travel, about 1° at 90°/s and a 20 ms loop.
+     */
+    public static double homeSwitchMaxPassDps = 90.0;
+
+    /** A band narrower than this is a flicker, not the magnet, degrees. */
+    public static double homeSwitchMinBandDeg = 0.5;
+
+    /** A band wider than this is the switch stuck on, degrees. To be narrowed once Bench: Turret has measured the band. */
+    public static double homeSwitchMaxBandDeg = 30.0;
+
+    /**
+     * A pass that puts the mark further than this from the zero is logged and not taken, degrees:
+     * a turret that far out was not on its mark, or the pass was not the magnet. NaN takes any.
+     */
+    public static double homeSwitchMaxCorrectionDeg = 30.0;
+
+    /**
+     * An Autonomous's INIT sweeps the turret to find its mark ({@link TurretHomeSweep}), on a turret
+     * with a {@link #homeSwitch}: R103.B lets an Auto's INIT move it (mentor, 21 Nov 2026). Never a
+     * TeleOp's INIT. Off, an Auto's INIT zeroes where the turret stands, as without a switch.
+     * <b>Off shared until a robot's sweep has passed its bench check</b> (doc/robot-todo.md): then
+     * that robot's {@link org.firstinspires.ftc.teamcode.RobotDifferences} line turns it on.
+     */
+    public static boolean homeSweep = false;
+
+    /** How far the sweep's search turns the turret, counter-clockwise, degrees: a full turn and a band. */
+    public static double homeSweepRangeDeg = 370.0;
+
+    /** The search's speed, deg/s: under {@link #homeSwitchMaxPassDps}. A full turn is about 6 s. */
+    public static double homeSweepSearchDps = 60.0;
+
+    /** The slow passes' speed, deg/s: over the servo's floor (19429 turns steadily from 10 to 13). */
+    public static double homeSweepFineDps = 15.0;
+
+    /** How far past the switch's band the sweep goes before it turns back, degrees. */
+    public static double homeSweepOvershootDeg = 10.0;
+
+    /** The sweep gives up after this long, seconds; the turret then holds where it stood. */
+    public static double homeSweepTimeoutS = 20.0;
+
+    /**
+     * The sweep holds still this long after INIT before it turns, seconds: 19429's turret servo did not
+     * answer for 0.93 s after INIT's first write (21 Nov 2026), and a sweep that started at once was
+     * dropped as jammed.
+     */
+    public static double homeSweepStartDelayS = 1.5;
+
     // ------------------------------------------------------------ state
 
     private enum Mode { IDLE, HOLD }
@@ -193,7 +293,8 @@ public class TurretSubsystem implements Subsystem {
         HAND("zeroed by hand"),
         PLAY("zeroed at PLAY, assumed at home"),
         INIT("zeroed at the Auto's INIT, assumed at home"),
-        AUTO("zero carried from the Auto");
+        AUTO("zero carried from the Auto"),
+        SWITCH("zeroed by the home switch");
 
         public final String text;
 
@@ -205,6 +306,21 @@ public class TurretSubsystem implements Subsystem {
     private final DcMotorEx encoderHost;
     private final CRServo servo;
     private final PwmControl pwm;   // null if this servo cannot switch its pulse off
+    /** The home switch, or null on a robot without one ({@link #homeSwitch}). */
+    private final DigitalChannel homeInput;
+    private final TurretHomeSwitch home = new TurretHomeSwitch();
+    private final TurretHomeSweep sweep = new TurretHomeSweep();
+    private final TurretHomeSweep.Limits sweepLimits = new TurretHomeSweep.Limits();
+    /** The clock, nanoseconds; a test's own. */
+    private LongSupplier clock = System::nanoTime;
+    /** The switch sees the magnet, this loop. */
+    private boolean magnet;
+    /** The switch saw the magnet when an Autonomous's INIT zeroed the turret where it stood. */
+    private boolean magnetAtInitZero;
+    /** How far the last pass moved the zero, degrees; NaN before one, or when it was the first zero. */
+    private double lastSwitchCorrectionDeg = Double.NaN;
+    /** A line for the match log about the last pass, until {@link #takeSwitchEvent()} takes it. */
+    private String switchEvent;
     private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
             kP, kD, minPower, maxPower, topSpeedDps, feedforward, holdToleranceDeg, targetStillDps);
     private final TurretDriveWatch watch = new TurretDriveWatch();
@@ -256,11 +372,30 @@ public class TurretSubsystem implements Subsystem {
     /** The encoder turning at least this fast is "turning", deg/s. */
     private static final double WATCH_MOVING_DPS = 10.0;
 
-    /** Looks both devices up once. A missing one fails init with the SDK's own message. */
+    /**
+     * Looks the devices up once: the encoder host, the servo, and on a robot with {@link #homeSwitch}
+     * the switch. A missing one fails init: the SDK's own message, or for the switch, what to add.
+     */
     public TurretSubsystem(HardwareMap hardwareMap) {
-        encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
+        encoderHost = hardwareMap.get(DcMotorEx.class, encoderHostName());
         servo = hardwareMap.get(CRServo.class, DeviceNames.TURRET);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
+        homeInput = homeSwitch ? lookUpHomeSwitch(hardwareMap) : null;
+        if (homeInput != null) {
+            homeInput.setMode(DigitalChannel.Mode.INPUT);
+        }
+    }
+
+    /** The home switch, which {@link #homeSwitch} says this robot has: fails with what to add if the XML lacks it. */
+    private static DigitalChannel lookUpHomeSwitch(HardwareMap hardwareMap) {
+        DigitalChannel channel = hardwareMap.tryGet(DigitalChannel.class, DeviceNames.TURRET_HOME);
+        if (channel == null) {
+            throw new IllegalStateException("TurretSubsystem.homeSwitch is on, but the active configuration"
+                    + " has no DigitalDevice \"" + DeviceNames.TURRET_HOME + "\". Add <DigitalDevice name=\""
+                    + DeviceNames.TURRET_HOME + "\" port=\"N\" /> to the robot's XML (full TeamCode install,"
+                    + " Activate), or turn the switch off in RobotDifferences.");
+        }
+        return channel;
     }
 
     // ------------------------------------------------------------ requests
@@ -281,6 +416,7 @@ public class TurretSubsystem implements Subsystem {
      * zero button still wins, and PLAY does not zero on top of this one.
      */
     public void holdAtInit() {
+        magnetAtInitZero = magnet;
         if (TurretZeroPolicy.atInit(true, false) == TurretZeroPolicy.Action.ZERO_HERE) {
             zeroCounts = counts;
             zeroed = true;
@@ -288,6 +424,11 @@ public class TurretSubsystem implements Subsystem {
         }
         home();
         initHold = true;
+        if (homeInput != null && homeSweep) {
+            // From the mark it was assumed on, in the hold's frame (counted from the aim offset).
+            sweep.start(clock.getAsLong(), -aimOffset(), sweepLimits());
+            note("turret: sweeping for the home switch");
+        }
     }
 
     /** At PLAY: the turret is assumed at home, so zero here unless a person or the handoff already did. */
@@ -438,6 +579,74 @@ public class TurretSubsystem implements Subsystem {
         return mode == Mode.HOLD;
     }
 
+    /** Whether this robot has a home switch ({@link #homeSwitch}). */
+    public boolean homeSwitchFitted() {
+        return homeInput != null;
+    }
+
+    /** The home switch sees the magnet now: the turret is within the switch's band of its mark. False without one. */
+    public boolean onMark() {
+        return magnet;
+    }
+
+    /** Whether the switch saw the magnet when an Autonomous's INIT zeroed the turret where it stood. */
+    public boolean magnetAtInitZero() {
+        return magnetAtInitZero;
+    }
+
+    /** Where an Autonomous's INIT sweep for the mark stands ({@link TurretHomeSweep}). */
+    public TurretHomeSweep.State sweepState() {
+        return sweep.state();
+    }
+
+    /**
+     * What is wrong with the mark an Autonomous's INIT zeroed the turret on, for the INIT warning, or
+     * null: the sweep did not find the magnet, or with no sweep the switch saw none at the zero.
+     */
+    public String autoInitMarkProblem() {
+        if (homeInput == null || zeroSource != ZeroSource.INIT) return null;
+        if (sweep.state() == TurretHomeSweep.State.NOT_FOUND) return sweep.state().text;
+        if (sweep.sweeping()) return null;
+        if (sweep.state() == TurretHomeSweep.State.IDLE && !magnetAtInitZero) return "zeroed with no magnet over the switch";
+        return null;
+    }
+
+    /**
+     * One line for an Autonomous's INIT page on a turret with a home switch: the sweep's state, the
+     * switch, the angle and the power sent, or why the hold dropped. Null without a switch.
+     */
+    public String initStatus() {
+        if (homeInput == null) return null;
+        if (faultNote != null) return faultNote;
+        return String.format(Locale.US, "%s · switch: %s · %s · power %s",
+                sweep.state().text, magnet ? "MAGNET" : "no magnet",
+                Double.isNaN(encoderAngleDeg) ? "angle unknown"
+                        : String.format(Locale.US, "%.1f\u00b0", TurretEncoder.wrap180(encoderAngleDeg)),
+                Double.isNaN(power) ? "limp" : String.format(Locale.US, "%+.2f", power));
+    }
+
+    /** Whether the INIT status is a fault: the hold dropped, or the sweep found no magnet. */
+    public boolean initStatusFault() {
+        return faultNote != null || sweep.state() == TurretHomeSweep.State.NOT_FOUND;
+    }
+
+    /** A test's clock, nanoseconds. */
+    void useClock(LongSupplier clock) {
+        this.clock = clock;
+    }
+
+    /** How far the home switch's last pass moved the zero, degrees; NaN before one. */
+    public double lastSwitchCorrectionDeg() {
+        return lastSwitchCorrectionDeg;
+    }
+
+    /** A line for the match log about the switch's last pass, once; null when there is nothing new. */
+    public String takeSwitchEvent() {
+        String event = switchEvent;
+        switchEvent = null;
+        return event;
+    }
+
     // ------------------------------------------------------------ lifecycle
 
     /**
@@ -459,12 +668,21 @@ public class TurretSubsystem implements Subsystem {
         zeroSource = ZeroSource.NONE;
         faultNote = null;
         watch.reset();
+        home.reset();
+        sweep.reset();
+        magnet = readMagnet();
+        magnetAtInitZero = false;
+        lastSwitchCorrectionDeg = Double.NaN;
+        switchEvent = null;
     }
 
-    /** PLAY: the servo may be written from now on. */
+    /** PLAY: the servo may be written from now on. A sweep still looking stops, the zero where the turret stood. */
     @Override
     public void start() {
         started = true;
+        if (sweep.stop()) {
+            note("turret: PLAY before the sweep found the mark: zeroed where it stood");
+        }
     }
 
     /** One encoder read, and from PLAY one servo write. */
@@ -475,6 +693,11 @@ public class TurretSubsystem implements Subsystem {
         int hostSign = hostSign(encoderHost.getDirection());
         counts = hostSign * (long) encoderHost.getCurrentPosition();
         double countsPerSecond = hostSign * encoderHost.getVelocity();
+        if (homeInput != null) {
+            // Before the angle: this loop's angle uses a zero this loop's pass put right.
+            magnet = readMagnet();
+            sweepStep(homeSwitchStep(countsPerSecond));
+        }
         if (encoder != null) {
             // Less the aim offset: "0" is where the shots go straight ahead, not the home mark.
             encoderAngleDeg = encoder.degrees(counts, zeroCounts) - aimOffset();
@@ -496,7 +719,11 @@ public class TurretSubsystem implements Subsystem {
         // Locked, the turret holds 0 whatever was asked; the loop is the same one.
         boolean holding = (lockedForward || mode == Mode.HOLD) && faultNote == null && zeroed && encoder != null;
         power = Double.NaN;   // NaN: limp
-        if (holding) {
+        if (holding && sweep.sweeping()) {
+            // The sweep's moving target, locked or not; it turns well inside the firing arc.
+            power = TurretServoControl.power(TurretServoControl.shortestErrorDeg(sweep.targetDeg(), encoderAngleDeg),
+                    encoderRateDps, sweep.rateDps(), gains);
+        } else if (holding) {
             double want = lockedForward ? 0.0 : targetDeg;
             double wantRate = lockedForward ? 0.0 : targetRateDps;
             // Inside the firing arc the way there never crosses the back (TurretArc.errorDeg).
@@ -513,7 +740,7 @@ public class TurretSubsystem implements Subsystem {
             goLimp();
             return;
         }
-        long now = System.nanoTime();
+        long now = clock.getAsLong();
         TurretDriveWatch.Fault fault = watch.step(power, encoderRateDps, WATCH_DRIVE_POWER, WATCH_HARD_POWER,
                 WATCH_MOVING_DPS, watchWrongWayMs, watchStallMs, now);
         if (fault != TurretDriveWatch.Fault.NONE) {
@@ -524,6 +751,7 @@ public class TurretSubsystem implements Subsystem {
                             + " Servo turning? Turret jammed?";
             mode = Mode.IDLE;
             power = Double.NaN;
+            if (sweep.stop()) note("turret: sweep stopped, the hold dropped");
             goLimp();
             return;
         }
@@ -538,9 +766,110 @@ public class TurretSubsystem implements Subsystem {
         }
     }
 
+    /** The switch reads low with the magnet over it (a REV Magnetic Limit Switch is active low). */
+    private boolean readMagnet() {
+        return homeInput != null && !homeInput.getState();
+    }
+
+    /** One step of the home switch: a pass puts the zero on the mark, as {@link TurretZeroPolicy#atSwitchPass} says. */
+    private TurretHomeSwitch.Result homeSwitchStep(double countsPerSecond) {
+        double rate = encoder == null ? Double.NaN : encoder.degreesPerSecond(countsPerSecond);
+        TurretHomeSwitch.Result result = home.step(magnet, counts, encoder, rate, homeSwitchMaxPassDps,
+                homeSwitchMinBandDeg, homeSwitchMaxBandDeg, homeSwitchOffsetDeg);
+        if (result == TurretHomeSwitch.Result.REJECTED) {
+            note("turret: home switch pass not taken: " + home.rejectReason());
+            return result;
+        }
+        if (result != TurretHomeSwitch.Result.PASS) {
+            return result;
+        }
+        long mark = Math.round(home.markCounts());
+        // Wrapped: a turret wound a turn round is still on its mark at 360.
+        double disagree = TurretEncoder.wrap180(encoder.degrees(mark, zeroCounts));
+        String pass = String.format(Locale.US, "turret: home switch pass %s, band %.1f°",
+                home.passDirection() > 0 ? "counter-clockwise" : "clockwise", home.bandDeg());
+        if (sweep.sweeping()) {
+            // The sweep takes its passes itself and moves the zero once, at its end.
+            note(pass + String.format(Locale.US, ", the mark %+.2f° from where it stood", disagree));
+            return result;
+        }
+        switch (TurretZeroPolicy.atSwitchPass(zeroSource == ZeroSource.HAND, zeroed, disagree,
+                homeSwitchMaxCorrectionDeg)) {
+            case ZERO_AT_SWITCH:
+                if (zeroed) {
+                    zeroCounts += Math.round(disagree / (encoder.direction * encoder.degreesPerCount()));
+                    lastSwitchCorrectionDeg = disagree;
+                    note(pass + String.format(Locale.US, ": zero moved %+.1f° (was %s)", disagree,
+                            zeroSource.text));
+                } else {
+                    zeroCounts = mark;
+                    note(pass + ": first zero");
+                }
+                zeroed = true;
+                zeroSource = ZeroSource.SWITCH;
+                break;
+            case SWITCH_DISAGREES:
+                note(pass + String.format(Locale.US,
+                        ": puts the mark %+.1f° from the zero, over the %.0f° limit: zero kept", disagree,
+                        homeSwitchMaxCorrectionDeg));
+                break;
+            default:
+                note(pass + String.format(Locale.US, ": %+.1f° from the zero set by hand, which is kept",
+                        disagree));
+                break;
+        }
+        return result;
+    }
+
+    /** One step of an Autonomous's INIT sweep: it ends on the switch's zero, a zero set by hand, or its range. */
+    private void sweepStep(TurretHomeSwitch.Result pass) {
+        if (!sweep.sweeping()) return;
+        if (zeroSource == ZeroSource.HAND) {
+            sweep.stop();
+            note("turret: sweep stopped, zeroed by hand");
+            return;
+        }
+        double angle = encoder == null ? Double.NaN : encoder.degrees(counts, zeroCounts) - aimOffset();
+        if (!sweep.step(clock.getAsLong(), angle, magnet, pass, home.passDirection(), home.markCounts(),
+                sweepLimits())) {
+            return;
+        }
+        TurretHomeSweep.State state = sweep.state();
+        if (state == TurretHomeSweep.State.FOUND || state == TurretHomeSweep.State.ROUGH) {
+            long mark = Math.round(sweep.markCounts());
+            lastSwitchCorrectionDeg = TurretEncoder.wrap180(encoder.degrees(mark, zeroCounts));
+            // The mark the turret just crossed: the angle reads from it, unwound.
+            zeroCounts = mark;
+            zeroed = true;
+            zeroSource = ZeroSource.SWITCH;
+            note(String.format(Locale.US, "turret: %s, %+.2f° from where it stood", state.text,
+                    lastSwitchCorrectionDeg));
+        } else if (state == TurretHomeSweep.State.NOT_FOUND) {
+            note(String.format(Locale.US, "turret: the sweep did not find the magnet in %.0f°: zeroed where it stood",
+                    homeSweepRangeDeg));
+        }
+    }
+
+    /** The sweep's settings, from the {@code @Configurable} values. */
+    private TurretHomeSweep.Limits sweepLimits() {
+        sweepLimits.searchDps = homeSweepSearchDps;
+        sweepLimits.fineDps = homeSweepFineDps;
+        sweepLimits.searchRangeDeg = homeSweepRangeDeg;
+        sweepLimits.overshootDeg = homeSweepOvershootDeg;
+        sweepLimits.maxBandDeg = homeSwitchMaxBandDeg;
+        sweepLimits.timeoutS = homeSweepTimeoutS;
+        sweepLimits.startDelayS = homeSweepStartDelayS;
+        return sweepLimits;
+    }
+
+    /** A line for the match log; two in one loop are joined. */
+    private void note(String text) {
+        switchEvent = switchEvent == null ? text : switchEvent + "; " + text;
+    }
+
     /**
      * +1 or -1 to turn the host motor's reading back into the hub's own count. The encoder is read
-     * through another mechanism's motor ({@link DeviceNames#TURRET_ENCODER_HOST}), and that
+     * through another mechanism's motor ({@link #encoderHostName()}), and that
      * mechanism may set the motor's direction: the SDK then flips the position and the velocity it
      * reports along with the power. The turret's count must not change sign because the intake was
      * reversed, so the flip is undone here (20245, 17 Nov 2026: the hold worked on the bench, which
@@ -593,7 +922,10 @@ public class TurretSubsystem implements Subsystem {
     public String health() {
         return (lockedForward ? "locked straight ahead (lockedForward): from PLAY holds 0° on the encoder; " : "")
                 + "continuous servo, presence unknown (a servo reports nothing back); encoder read through "
-                + DeviceNames.TURRET_ENCODER_HOST + "; zero: " + zeroSource.text
+                + encoderHostName()
+                + (homeInput != null ? "; home switch " + DeviceNames.TURRET_HOME + ": "
+                        + (magnet ? "magnet (on its mark)" : "no magnet") : "")
+                + "; zero: " + zeroSource.text
                 + (settingsProblem != null ? "; settings: " + settingsProblem : "");
     }
 
@@ -610,6 +942,12 @@ public class TurretSubsystem implements Subsystem {
         String zero = zeroed ? zeroSource.text : "not zeroed yet: it zeroes where it stands at PLAY, or zero it now";
         if (aimOffset() != 0.0) {
             zero += String.format(Locale.US, " · aim offset %+.1f° from the mark", aimOffset());
+        }
+        if (homeInput != null) {
+            zero += " · switch: " + (magnet ? "magnet" : "no magnet")
+                    + (sweep.state() != TurretHomeSweep.State.IDLE ? ", " + sweep.state().text : "")
+                    + (Double.isNaN(lastSwitchCorrectionDeg) ? ""
+                    : String.format(Locale.US, ", last pass moved the zero %+.1f°", lastSwitchCorrectionDeg));
         }
         if (lockedForward) {
             display.status("Turret", Display.Level.OK, String.format(Locale.US,

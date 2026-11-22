@@ -59,6 +59,77 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
       today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
       forward. Move the beam, not the numbers.
 
+## Turret encoder to a drive socket (both robots, before the State Championship from 10 Dec)
+
+Code is ready and off on both robots (PR #712). Today the turret's
+REV Through Bore cable is in the intake's encoder socket, so the intake has no encoder (no wedge
+clear, no position hold, no stall event, no roller stall for the feed jam clear) and the feeder's
+socket is empty. The move frees both. Do one robot at a time; the two robots' drive ports are the
+same, so the steps are the same. A wheel's own encoder is only logged (odometry is the Pinpoint),
+so back-right's log is the whole cost; back-left is never used (20245's reads 0).
+
+**Rewiring, robot powered off** (Control Hub drive ports: 0 frontRight, 1 frontLeft, 2 backRight,
+3 backLeft):
+
+1. **Expansion Hub, encoder socket beside motor port 0:** unplug the turret's Through Bore cable.
+2. **Control Hub, encoder socket beside motor port 2 (backRight):** unplug backRight's own encoder
+   lead; tape and label it ("BR enc, unplugged for turret"), so nobody plugs it back.
+3. **Turret's Through Bore cable → Control Hub, encoder socket beside motor port 2.** It now runs
+   to the other hub: use an extension if it will not reach without tension, keep it clear of the
+   turret's turning and of motor leads, strain-relieved within 2 in of the socket.
+4. **Intake motor's own encoder lead → Expansion Hub, encoder socket beside motor port 0.**
+5. **Feeder motor's own encoder lead → Expansion Hub, encoder socket beside motor port 3.**
+6. **Code, the same day:** under that robot in `RobotDifferences.java`, two lines with the date:
+   ```java
+   differs(RobotIdentity.TEAM_<team>, "Turret encoder moved to backRight's socket, the intake's own"
+           + " encoder back in its socket (<date>)", () -> TurretSubsystem.encoderOnDriveMotor = true);
+   differs(RobotIdentity.TEAM_<team>, "Feeder's own encoder plugged in (<date>)",
+           () -> FeederSubsystem.encoderFitted = true);
+   ```
+   No XML changes (no device is added; the sockets are not in the XML). Sloth Load is enough for
+   these lines; the first install after this PR merges is a full TeamCode install (it changed `res/`
+   comments). Once both robots have moved, the two switches' shared defaults go to true and the
+   lines come out.
+
+**Bench checks, in order:**
+
+- [ ] **Loop time (CLAUDE.md):** `LoopTimeBaseline` before the move and after; both numbers to the
+      PR. The turret is now read from the Control Hub every loop, so expect up to about 1 ms more
+      (that hub's bulk read). **Stop:** more than 1.5 ms → bring both numbers back to a session.
+- [ ] **Check: Hardware:** nothing reported.
+- [ ] **Turret zero and sweep (Bench: Turret):** turret on its mark, Cross zeros it. Turn it
+      counter-clockwise by hand: `angle` rises (the same sign as before the move; if it falls,
+      something other than the socket changed: stop). One full turn reads 360 ±1. Then the bench's
+      servo hold at 0 and a sweep to ±90 and back: it settles on each as it did before. **Stop:** no
+      count at all → the cable is in the wrong socket (it must be beside port **2**, not 3).
+- [ ] **The drive leaves the turret alone (Basic Drive, turret held at home):** 30 s of hard driving,
+      strafing and spinning. **Good:** the Robot page's turret angle stays at its hold (no creep, no
+      jump), the turret points along the nose at the end. In the log, `/Drive/WheelTicksPerSec/BackRight`
+      is NaN and the other three move (20245: back-left still reads 0, as before).
+- [ ] **Turret zero across Auto → TeleOp:** any Auto, INIT (turret zeroes and turns home), PLAY,
+      stop, then Basic Drive: the turret still points along the nose (the handoff's zero).
+- [ ] **Intake count:** Basic Drive, intake in, Robot page: the intake reads about +2400 ticks/s
+      (sign: in is positive, `IntakeSubsystem.reversed`). With the intake off, turning the turret
+      by hand changes nothing on the intake's line. **Stop:** 0 while running → its lead is not in
+      the socket beside Expansion Hub port 0.
+- [ ] **Feeder count:** Basic Drive, launcher on, Square: the Robot page's `Feeder N ticks/s` reads
+      about 2100–2260 while feeding (record its sign). **Stop:** 0 → its lead is not in the socket
+      beside port 3.
+- [ ] **Full-lane position hold comes back:** load 4 POLLEN with the intake on. **Good:** the Robot page
+      reads "holding the last piece (lane full)", the roller holds still under load without creeping
+      or buzzing. **Stop:** it runs away or buzzes → Panels `IntakeSubsystem.positionHoldWhenFull` off.
+- [ ] **Wedge clear (WedgeClear, never run on a robot):** intake in, a piece jammed at the roller so
+      it stalls with nothing under the lane sensor. **Good:** after about 1 s it backs out for a
+      quarter second, at most 3 times, and the log has `intake: wedged (… ticks/s at … A …)`.
+- [ ] **A stuck feed (FeedJamClear with both encoders, never run on a robot):** launcher on, Square,
+      a gloved hand holding a ball against the feeder. **Good:** within about 0.3 s the lane backs out
+      and the log has `feed: stuck (gate open, feeder stopped while feeding; …)`; the feeder's
+      `feeder: commanded for 1.0 s, encoder never moved` event follows if held a second. A piece
+      wedged at the lane entry with the roller grinding is called at about 0.6 s (`roller stalled on
+      the entry piece`). Four clean volleys: no `feed: stuck` at all. **Stop:** a clean volley calls
+      one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
+      `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
+
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
 At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
@@ -128,6 +199,68 @@ wheel got (`/Drive/WheelPower/*`). Same fresh battery for every run; pull the lo
 - [ ] **19429, when it is back:** the same three volleys. Its old −25 offset matches the new rows
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
+
+## Loop time before the State Championship (Fruitport logs, 22 Nov)
+
+From the 15 Fruitport and 17 Belding match logs ([PR: launcher resend stagger]). Auto's loop is a
+median 20 ms on both robots at both events; the subsystems' updates are 18 of it (drive 9, feeder
+4.1, which is the Expansion Hub's bulk read, colour sensor 1.5, launcher 1.3). Same fresh battery, HIVE upright.
+
+- [ ] **20245's colour sensor (I2C bus 2, Control Hub):** at Fruitport one read in about 300 took
+      76–103 ms instead of 6.4 (57 reads, 5–13 a match), and every loop over 100 ms on 20245 was one
+      of them; 19429 had none, Belding 3. Reseat both ends of the sensor's cable, or swap the cable,
+      then 2 min of Basic Drive with the intake running. **Good:** `read_logs.py series` of
+      `/Loop/Subsystem/ColorSensorSubsystemMs` has no value over 30. **Stop:** still slow →
+      swap the sensor (or 19429's onto 20245) to tell the cable from the sensor. The same reseat
+      is the NECTAR gate's "20245's glitches" item below: one cable job covers both.
+- [ ] **`LoopTimeBaseline` and one R-Solo, before and after** today's merges (#703–#708: FeedJamClear,
+      the beam subsystem with no beams fitted, the battery sag check, `/Drive/Path/*` and
+      `/Drive/WheelPower/*` logging) and the launcher resend stagger, on one robot: the Fruitport
+      build, then master. **Good:** `/Robot/LoopMs` median within 0.5 ms (the merges add no hardware
+      call; about 13 log channels and some logic), and `/Loop/Subsystem/LauncherSubsystemMs` no longer
+      shows 8–9 ms loops every 250 ms while spinning, only single 4–5 ms ones. **Stop:** the median up by
+      more than 1 ms → the PR, with both logs.
+
+## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
+
+We may launch only our own alliance's NECTAR (the other alliance's is a penalty: G408, as the
+simulator reads it). From the 15 Fruitport match logs ([PR #709](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/709)): in Q-11, 20245 on BLUE
+saw a red NECTAR clearly (hue 14°, brightness 0.97), burst twice, and launched it 7.5 s later: the
+NECTAR had ended up inside the lane, reading only 0.02 there, below the 0.05 the reject counted. And
+20245's sensor gave 92 glitch readings (brightness 1.00, red 1.0), two of which fired a reject at
+nothing on BLUE (Q-20). Now a glitch decides nothing (`maxPlausibleChannel`); an uncertain piece is
+wrong (`rejectDoubtDeg`, nearest colour, ties wrong); one reading starts a burst
+(`rejectAfterReadings` 1); and from a wrong sighting until the piece is seen leaving outward or
+an eject runs (`wrongNectarEjectClearS` 1.0, a guess), **the feed gate stays shut**
+(`shutGateOnWrongNectar`) and the Match page says `WRONG NECTAR may be in the lane: gate shut.
+EJECT to clear`. 19429's "keep only POLLEN" line is gone, so it now keeps its own NECTAR as 20245
+does. Run this on **both robots**, 19429 first (it has never kept NECTAR).
+
+- [ ] **Own NECTAR kept, the other spat out, the gate holds** (Basic Drive, intake on, Panels
+      open on `ColorSensorSubsystem`, phone filming the intake). As RED (X/B in INIT), feed in by
+      hand ten each: red NECTAR, POLLEN, blue NECTAR; then the same as BLUE with the colours swapped.
+      Feed some slowly and half-covered, and some fast. **Good:** every own NECTAR and every POLLEN
+      stays in and fires; every wrong NECTAR comes back out with a `Lane: REJECT` event, its
+      `Lane: a wrong NECTAR may be in the lane` event, then `Lane: wrong NECTAR seen leaving
+      outward` within about 1.5 s; a fire meanwhile logs `Feed gate: a feed asked, kept SHUT` and
+      nothing leaves. **Stop:** an own NECTAR or a POLLEN spat out → the event's hue says which
+      range or `rejectDoubtDeg` is too wide; to lock a robot out of NECTAR for a match, Panels
+      `rejectAllNectar` on (on 19429 put back its line: `differs(TEAM_19429, "Keeps only POLLEN …",
+      () -> ColorSensorSubsystem.rejectAllNectar = true)`).
+- [ ] **A wrong NECTAR pushed in past the sensor is never launched.** As BLUE, push a red NECTAR
+      by hand through the entrance into the lane behind two POLLEN, then hold Circle. **Good:** the
+      Match page shows the gate shut, nothing fires; the driver's eject held about 1 s brings the
+      NECTAR out and the gate opens (`cleared by an eject`). **Tune:** a full lane's eject needs
+      longer to bring the last piece past the sensor → raise `wrongNectarEjectClearS`.
+- [ ] **The gate shutting mid-feed does no harm.** Start a 4-POLLEN volley and drop a wrong NECTAR
+      into the intake as it fires. **Good:** the gate closes, the plate does not jam on a ball or
+      throw one, and the next feed (after an eject) fires the rest. **Stop:** it pinches a ball →
+      say so on the PR; the gate may need to wait for the shot in progress.
+- [ ] **20245's glitches.** The match log's `Lane: colour sensor glitch ignored` events: 20245 had
+      4 to 24 a match at Fruitport, 19429 none. Reseat the colour sensor's I2C cable on 20245 and
+      look again; a cable or port fault is the likely cause.
+- [ ] **A bench with the other NECTAR on purpose** (Launch Test with a NECTAR) finds the gate
+      shut: Panels `shutGateOnWrongNectar` off for that bench, on again after.
 
 ## 19429's feed jams (Fruitport, 21 Nov): before the State Championship
 
@@ -343,6 +476,56 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
       0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
 - [ ] Orange light on 20245; LOCKED Circle on 20245
+12. **The turret home switch, both robots** (for States; 20 Nov 2026 on 19429, 22 Nov 2026 on 20245;
+    none of it has run on a robot yet). A REV Magnetic Limit Switch (`DeviceNames.TURRET_HOME`, an
+    optional device like the beam breaks) under a magnet on the back of the turret, over it on the
+    mark. Both XMLs declare it on the Control Hub's digital connector 0-1, channel 1. Two switches,
+    both in `RobotDifferences`: `TurretSubsystem.homeSwitch` (read the switch, re-zero on a slow pass;
+    moves nothing; on for 19429, **off for 20245** until step 2 passes there) and
+    `TurretSubsystem.homeSweep` (an Auto's INIT turns the turret to find the mark; **off on both**
+    until step 5 passes on that robot). Full TeamCode install (the XML changed), Activate the robot's
+    config, then, on each robot:
+   1. **20245 only: confirm the port.** `robot_20245.xml` assumes the same channel as 19429's
+      (connector 0-1, `port="1"`), unchecked. Look at where the switch is plugged in; if it is another
+      connector, the channel is that connector's second one (2-3 → 3, 4-5 → 5, 6-7 → 7): fix `port`,
+      full install, Activate.
+   2. **The readout.** **Check: Hardware**: `turretHome` reads `ok - … DigitalChannel`, LOW with the
+      turret on its mark and HIGH turned well off it. **Bench: Turret, INIT only**: the `home switch`
+      line reads MAGNET on the mark and nothing off it. **Stop:** never MAGNET → try the connector's
+      other channel (`port="0"` for 0-1) in the XML, full install, again; still nothing → the magnet is
+      too far from the switch. **Pass on 20245** → its `RobotDifferences` line
+      `() -> TurretSubsystem.homeSwitch = true`, with the port and the date, in a PR.
+   3. **The band.** Cross with the turret on its mark, then turn it slowly by hand right across the
+      mark, both ways, three times each: write down each way's band width and middle. **Good:** the
+      middles agree each way within about 1°. Put `homeSwitchOffsetDeg` (both ways' middle, negated,
+      as the bench shows it) and `homeSwitchMaxBandDeg` (the widest band plus 5°) in a PR (a
+      `RobotDifferences` line if the two robots differ).
+   4. **Passes while driving.** **Basic Drive**, turret AIM, swing the turret across straight ahead a
+      few times. **Good:** the log has `turret: home switch pass … zero moved` events of under 1° each,
+      and the Robot page says `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark
+      warns `Turret off its mark`, and turning it by hand across the mark clears it.
+   5. **The Auto INIT sweep, from each side of the mark.** Turn `homeSweep` on in Panels for this test
+      only (it stays on until the RC app restarts; nothing is committed yet). Panels open, a stopwatch
+      ready. First check the turret stays inside the 18 in cube all the way round (the search may turn
+      it a full turn). The sweep holds still `homeSweepStartDelayS` (1.5 s) for the servo to wake (on
+      19429 it did not answer for 0.93 s after INIT, 21 Nov 2026), then turns counter-clockwise. INIT
+      any Auto with the turret: on its mark; 20° counter-clockwise of it; 20° clockwise of it (the
+      search goes nearly a full turn); and about 180° round. Each time time it from pressing INIT to
+      the turret holding still at its home angle. **Good:** it crosses the switch, goes about 10° past,
+      crosses back slowly, goes 10° past the other side, crosses slowly once more, then turns home and
+      holds; about 5 s from the mark, up to about 11 s from clockwise of it, never the 20 s timeout;
+      the log has `turret: the sweep found the mark, +x.xx° from where it stood`. **Stop:** it turns
+      the wrong way and the hold drops, it stalls on a slow pass (raise `homeSweepFineDps` to 20), or
+      it never stops searching (no pass taken: the log says why) → push the log.
+   6. **The zero agrees with the mark.** Started on the mark, the `found the mark` number is under 1°.
+      After each sweep in step 5, turn the turret by hand back onto the mark (Bench: Turret, or the
+      Robot page's angle): it reads within 1° of 0 from every start. The two slow passes' log lines show
+      how far apart the directions read (the switch's hysteresis): write it down.
+   7. **Pass** (steps 5 and 6 good from all four starts) → that robot's `RobotDifferences` line
+      `() -> TurretSubsystem.homeSweep = true`, with the four times and the date, in a PR.
+
+   - [ ] 19429: readout · band · passes · sweep from each side · zero on the mark · time
+   - [ ] 20245: port · readout (then `homeSwitch` line) · band · passes · sweep from each side · zero on the mark · time
 
 ## Belding work order (agreed 5 Nov)
 
@@ -459,7 +642,11 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       position works, add a 19429 line in `RobotDifferences` setting `LIMP_EXTENDED = true`. Then
       R-Solo on 19429: the first (WALL) pick fires 4 (all season limp, 3 of 15 picks did), and
       `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. Same servo check on 20245 (out
-      at 0.85).
+      at 0.85). **Then the stick decision:** at least 10 R-Solo Auto picks on 19429, held, both
+      FLOWERs, filmed from the robot's side; pull the logs and re-run `tools/flower-picks` (the FLOWER
+      pick study, PR for `claude/flower-pick-study`). **Good:** 4 in at least 8 of 10 → keep the
+      active stick. **Stop:** fewer → fit 20245's passive stick on 19429 (on video, the held passive
+      stick got 4 on every clearly seen Fruitport pick; 19429's limp active stick got 4 in 4 of 10).
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
@@ -540,9 +727,10 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       on the hub photo (§8). [PR #503]
       On 19429 the Pinpoint was declared lost in Q13 and the lower final; that refused 13
       launch-spot presses and 9 FLOWER picks. Check the mount and connector on both robots, not only the cable.
-- [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches.** The turret's encoder belongs
-      in the encoder socket beside **Expansion Hub** motor port 3 (`feeder`,
-      `DeviceNames.TURRET_ENCODER_HOST`); backLeft is **Control Hub** motor port 3. Check that the
+- [ ] **20245: backLeft's encoder read 0 in all 8 Belding matches (and at Fruitport).** The turret's
+      encoder belongs in the encoder socket beside **Expansion Hub** motor port 0 (`intake`), or,
+      after the move above, beside **Control Hub** motor port 2 (`backRight`,
+      `TurretSubsystem.encoderHostName()`); backLeft is Control Hub motor port 3. Check that the
       turret encoder did not go into backLeft's socket, and that backLeft's own encoder is plugged in.
       **Good:** Check: Hardware, then a Basic Drive log with all four wheel speeds moving. [#500]
 - [ ] **Both robots: launcher wheel encoder cables.** A wheel read no speed while spinning in one
@@ -1211,6 +1399,14 @@ measurement is [#255].
       TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
       under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
       R-NoCross as it is.
+      **Fruitport, from the logs (22 Nov 2026):** `cells` misleads here: most "settles" are the camera
+      turning onto a CELL that had already tipped, not a swing it watched. Use `rising` and `creep`
+      instead (`tools/pull-logs/README.md`, "CELL swings"). A rising CELL's tags came into view at
+      about 39-42 in, a median 0.65 s before it read UP (23 rises; 0.55-1.3 s in the 8 with the robot
+      still and the turret steady). An UP CELL's row crept 0.5 in below rest 0.4, 1.8 and 2.1 s
+      before it passed mid-swing, in the only 3 falls watched still; at 1 in the lead was no better
+      than the tracker's own. So the lab test is still needed, for the creep; the rise is enough to
+      try a "seen rising" trigger in the simulator.
 - [ ] **Camera calibration:** done from the Belding and Fruitport logs (22 Nov 2026, `mountfit.py`); see
       the camera-mount check in the 19429 list above. No R1 run needed.
 - [ ] **Continuous fixes, on the home field, before States** (22 Nov 2026). Every run already scores them:
@@ -1954,7 +2150,8 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] **Spit out the other alliance's NECTAR** (`NectarReject`; Panels `ColorSensorSubsystem`:
       `rejectEnemyNectar`, `rejectBurstS` 0.5 and `rejectHoldOffS` 0.3, both guesses, the roller at
       `rejectRollerPower` 1.0 during a burst (0.6 left one at the mouth, 5 Nov),
-      `rejectAfterReadings` 2, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3). Basic Drive, red,
+      `rejectAfterReadings` 1 since 22 Nov, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3; the
+      gate check is "The NECTAR gate (Fruitport, 21 Nov)" above). Basic Drive, red,
       intake on: feed in a blue NECTAR by hand, ten times, then a red NECTAR and POLLEN ten times
       each. **Good:** every blue one comes back out within about 0.2 s of reaching the sensor and
       lands clear of the roller (the whole lane backs out with it: the mentor's call, 5 Nov), and no red NECTAR or
@@ -1969,13 +2166,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
       narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
       every hue the Robot page shows between 35° and 55° with what the piece really was.
-- [ ] **19429 keeps its own alliance's NECTAR** (the 7 Nov `rejectAllNectar` line for 19429 is
-      gone from `RobotDifferences`, so 19429 runs the shared reject: only the other alliance's
-      NECTAR is spat out). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue NECTAR
-      and a POLLEN, five times each. **Good:** our alliance's NECTAR and every POLLEN are kept, the
-      other alliance's NECTAR comes back out, and the match log's Metadata lists no NECTAR line under
-      `RobotDifferences`. **Stop:** our NECTAR spat out → narrow the NECTAR hue ranges as above; to
-      lock 19429 out of NECTAR again for a match, Panels `rejectAllNectar` on.
+- [ ] 19429 keeps its own alliance's NECTAR: now in "The NECTAR gate (Fruitport, 21 Nov)" above.
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
       for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and

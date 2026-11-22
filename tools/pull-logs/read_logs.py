@@ -31,6 +31,12 @@ with Python. Standard library only.
                                                                    pick up, drive loaded, spin-up and aim, feed) with
                                                                    pieces per volley, against the 9.3 s budget
                                                                    (doc/drive-team-cycle-playbook.md); for practice
+  python3 tools/pull-logs/read_logs.py rising LOG.wpilog [...]    every CELL first seen mid-swing on its way up
+                                                                   (its tags face away while DOWN): how far up,
+                                                                   and how long before it read UP
+  python3 tools/pull-logs/read_logs.py creep LOG.wpilog [...]     every UP CELL that fell while the robot stood
+                                                                   still with the turret steady: how long its row
+                                                                   crept down before it passed mid-swing
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -45,9 +51,9 @@ A Driver Hub on USB at the pull adds two files per hub per day beside the robot'
 <date>_DriverHub-<serial>.battery.txt (Android's battery history, one snapshot per pull). Give
 dsbattery all of them and the day's .wpilog files: it sorts them by name.
 """
+import bisect
 import datetime
 import gzip
-import bisect
 import math
 import re
 import struct
@@ -463,6 +469,163 @@ def cells(paths):
                 lead = lambda x: '%9.2fs' % (t - x) if x is not None else '%10s' % '-'
                 print('%-34s %-14s %7.2f %-11s %s %s %9.1f' % (path.split('/')[-1][:34], name, t - t0,
                                                               a + '->' + b, lead(seen), lead(moved), top))
+
+
+def _stepper(series):
+    """at() for many lookups: a function t -> the series' last value at or before t (None before
+    the first). Binary search, so a whole log's frames can be looked up without a quadratic scan."""
+    times = [t for t, _ in series]
+    values = [v for _, v in series]
+
+    def value(t):
+        i = bisect.bisect_right(times, t) - 1
+        return values[i] if i >= 0 else None
+    return value
+
+
+# A CELL's tag row is about 50 in high UP and 35 in DOWN (CellStateTracker.Geometry); the tracker
+# calls it UP or DOWN within 2.5 in of those. MID_SWING_IN is the band between, which a row reaches
+# only while it swings.
+MID_SWING_IN = (37.5, 46.0)
+
+
+def cell_rises(heights, states, unseen_s=1.0, within_s=6.0):
+    """Each time a CELL's row is first seen mid-swing on its way up: (first seen, its height, read
+    UP). A DOWN CELL's tags face away from the camera, so a rising one comes into view partway up.
+    An appearance is the first height sample after unseen_s with none, inside MID_SWING_IN, that
+    climbs over 1 in within its next five samples, reaches 48 in and reads UP within within_s."""
+    state = _stepper(states)
+    out = []
+    for i, (t, h) in enumerate(heights):
+        if i and t - heights[i - 1][0] < unseen_s:
+            continue
+        if not (MID_SWING_IN[0] <= h <= MID_SWING_IN[1]):
+            continue
+        after = [x for x in heights[i:] if x[0] - t <= within_s]
+        if after[min(5, len(after) - 1)][1] <= h + 1.0 or max(x[1] for x in after) < 48.0:
+            continue
+        up = next((ht for ht, _ in after if state(ht) is not None and int(state(ht)) == 0), None)
+        if up is not None:
+            out.append((t, h, up))
+    return out
+
+
+def cell_creeps(heights, states, still, crossing_in=44.0, rest_min_in=48.0, before_s=8.0,
+                still_s=5.0, drops_in=(0.5, 1.0, 2.0)):
+    """Each time an UP CELL's row falls through crossing_in while still(t, t_ref) holds for every
+    frame of the still_s before it, t_ref being the first of those frames; before_s is the whole
+    window looked at: (crossing time, resting height, {drop: lead or None}, left UP lead or
+    None). Only a crossing from one frame to the next counts, so a row that comes back into view
+    already low is not a fall. The resting height is the median of the frames over 4 s before the crossing, at least
+    rest_min_in. A drop's lead is how long before the crossing the row's last unbroken run of
+    frames at least that far below its rest began; the left UP lead starts the last unbroken run
+    of frames, up to the crossing, the tracker no longer read UP."""
+    state = _stepper(states)
+    out, next_ok = [], float('-inf')
+    for i, (t, h) in enumerate(heights):
+        if h > crossing_in or t < next_ok or i == 0:
+            continue
+        if heights[i - 1][1] <= crossing_in or t - heights[i - 1][0] > 0.25:
+            continue  # a falling crossing, seen frame to frame: not a row coming back into view low
+        window = [x for x in heights[max(0, i - 400):i] if t - before_s <= x[0]]
+        rest = sorted(x[1] for x in window if x[0] < t - 4.0)
+        if len(window) < 15 or len(rest) < 5 or rest[len(rest) // 2] < rest_min_in:
+            continue
+        recent = [x[0] for x in window if x[0] >= t - still_s]
+        if not recent or not all(still(x, recent[0]) for x in recent):
+            continue
+        base = rest[len(rest) // 2]
+        leads = {}
+        for drop in drops_in:
+            began = None
+            for ht, x in reversed(window):
+                if base - x < drop:
+                    break
+                began = ht
+            leads[drop] = t - began if began is not None else None
+        left = None
+        for ht, _ in reversed(window):
+            if state(ht) is not None and int(state(ht)) == 0:
+                break
+            left = ht
+        out.append((t, base, leads, t - left if left is not None else None))
+        next_ok = t + before_s
+    return out
+
+
+def _still_and_steady(d, still_in_s=3.0, steady_deg=4.0):
+    """still(t, t_ref) for a log: the robot under still_in_s and the turret within steady_deg of its
+    angle at t_ref (the turret turning moves the camera's view as much as driving does)."""
+    speed = _stepper(d.get('/Drive/OdometrySpeedInPerSec', []))
+    turret = _stepper(d.get('/Turret/AngleDeg', []))
+
+    def check(t, t_ref):
+        v = speed(t)
+        a, b = turret(t), turret(t_ref)
+        return (v is not None and abs(v) < still_in_s
+                and (a is None or b is None or abs(a - b) < steady_deg))
+    return check
+
+
+def rising(paths):
+    """For each log: every CELL first seen rising mid-swing, how high, and how long before it read
+    UP; still/steady says whether the robot stood still and the turret held, which is when the lead
+    is cleanest. For a trigger that fires as the CELL comes up rather than once it reads UP (22 Nov
+    2026: Fruitport, median 0.65 s, 0.55 to 1.3 s with the robot still and the turret steady)."""
+    print('%-34s %-14s %8s %9s %8s  %s' % ('log', 'CELL', 'seen', 'height', 'UP lead', 'robot, turret'))
+    leads = []
+    for path in paths:
+        d = read(path)
+        t0 = _play(d)
+        speed = _stepper(d.get('/Drive/OdometrySpeedInPerSec', []))
+        turret = _stepper(d.get('/Turret/AngleDeg', []))
+        for name in CELL_NAMES:
+            heights = d.get('/Hive/Cell/%s/RowHeightIn' % name, [])
+            for t, h, up in cell_rises(heights, d.get('/Hive/Cell/%s/State' % name, [])):
+                frames = [ht for ht, _ in heights if t <= ht <= up]
+                still = all(speed(x) is not None and abs(speed(x)) < 3.0 for x in frames)
+                steady = all(turret(x) is None or turret(t) is None or abs(turret(x) - turret(t)) < 4.0
+                             for x in frames)
+                leads.append(up - t)
+                print('%-34s %-14s %8.2f %7.1fin %7.2fs  %s, %s' % (path.split('/')[-1][:34], name, t - t0, h,
+                                                                  up - t, 'still' if still else 'moving',
+                                                                  'steady' if steady else 'turning'))
+    if leads:
+        leads.sort()
+        print('%d rises; UP lead median %.2f s, range %.2f to %.2f s' % (len(leads), leads[len(leads) // 2],
+                                                                       leads[0], leads[-1]))
+
+
+def creep(paths):
+    """For each log: every UP CELL that fell through mid-swing (44 in) while the robot stood still
+    with the turret steady for the 5 s before, how long its row had crept 0.5, 1 and 2 in below its
+    rest by then, when the tracker stopped reading it UP, and how long after our own feed gate
+    closed (our volley tipping it). For telling whether a TIP can be seen coming before the CELL
+    leaves UP (22 Nov 2026: Fruitport had 3 such falls; at 0.5 in, 0.4, 1.8 and 2.1 s)."""
+    print('%-34s %-14s %8s %7s %8s %8s %8s %9s  %s' % ('log', 'CELL', 'crossed', 'rest', '0.5 in', '1 in', '2 in',
+                                                       'left UP', 'our volley'))
+    for path in paths:
+        d = read(path)
+        t0 = _play(d)
+        check = _still_and_steady(d)
+        gate = d.get('/FeedGate/Feeding', [])
+        closes = [b[0] for a, b in zip(gate, gate[1:]) if a[1] and not b[1]]
+        for name in CELL_NAMES:
+            found = cell_creeps(d.get('/Hive/Cell/%s/RowHeightIn' % name, []),
+                                d.get('/Hive/Cell/%s/State' % name, []), check)
+            for t, base, leads, left in found:
+                lead = lambda x: '%7.2fs' % x if x is not None else '%8s' % '-'
+                before = [c for c in closes if c < t]
+                ours = ('%.1f s after our gate closed' % (t - before[-1])
+                        if before and t - before[-1] < 10 else 'none in the 10 s before')
+                print('%-34s %-14s %8.2f %5.1fin %s %s %s %s  %s' % (path.split('/')[-1][:34], name, t - t0, base,
+                                                                   lead(leads[0.5]), lead(leads[1.0]),
+                                                                   lead(leads[2.0]), lead(left) + ' ', ours))
+
+
+def _play(d):
+    play = [t for t, v in d.get('/Events', []) if re.match(r'PLAY: (RED|BLUE) alliance', str(v))]
+    return play[0] if play else 0.0
 
 
 def _auto_steps(d):
@@ -1169,6 +1332,10 @@ def main(argv):
         cells(argv[2:])
     elif cmd == 'cycles':
         cycles(argv[2:])
+    elif cmd == 'rising':
+        rising(argv[2:])
+    elif cmd == 'creep':
+        creep(argv[2:])
     elif cmd == 'dsbattery':
         dsbattery(argv[2:])
     elif cmd == 'turret':

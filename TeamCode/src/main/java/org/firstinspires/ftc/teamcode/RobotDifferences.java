@@ -103,6 +103,11 @@ public final class RobotDifferences {
                         + " (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_19429,
+                "Turret home switch fitted: a REV Magnetic Limit Switch in the Control Hub's digital"
+                        + " connector 0-1, under a magnet on the back of the turret on its mark (mentor,"
+                        + " 20 Nov 2026; its port is in robot_19429.xml)",
+                () -> TurretSubsystem.homeSwitch = true);
+        differs(RobotIdentity.TEAM_19429,
                 "Shots sit to one side: turret aimed 5 degrees round from its mark, what worked in"
                         + " Panels with the speed and gate lines here (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.aimOffsetDeg = 5.0);
@@ -131,9 +136,6 @@ public final class RobotDifferences {
                         + " go deep enough into the corner, likely its roller FLOWER stick meeting the wall"
                         + " sooner; -1 was good in Panels (mentor, 21 Nov 2026)",
                 () -> GardenGather.driveIn.extraDepthIn = -1.0);
-        differs(RobotIdentity.TEAM_19429,
-                "Keeps only POLLEN: the reject spits out both NECTAR colours, ours too (mentor, 21 Nov 2026)",
-                () -> ColorSensorSubsystem.rejectAllNectar = true);
         differs(RobotIdentity.TEAM_19429,
                 "Camera mount: fitted from the Belding and Fruitport logs, the camera read -0.92 in"
                         + " forward and +0.90 in left of the robot (each +/-0.15) at 3.55 / 0.95; 20245's"

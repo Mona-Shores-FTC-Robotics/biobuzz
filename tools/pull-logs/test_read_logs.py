@@ -240,6 +240,67 @@ class CellSettles(unittest.TestCase):
         self.assertEqual([], read_logs.cell_settles([(0.5, 50.0)], states))
 
 
+class CellRises(unittest.TestCase):
+    """read_logs.cell_rises: a DOWN CELL's tags face away, so a rising one comes into view mid-swing."""
+
+    def test_a_row_coming_into_view_rising_is_timed_to_its_up(self):
+        # Unseen until 2.0 s, then 40 in and climbing 1 in a frame; reads UP at 2.9 s.
+        heights = [(2.0 + i / 10, min(50.0, 40.0 + i)) for i in range(0, 15)]
+        states = [(0.0, 1), (2.0, 2), (2.9, 0)]
+        rises = read_logs.cell_rises(heights, states)
+        self.assertEqual(1, len(rises))
+        t, h, up = rises[0]
+        self.assertEqual((2.0, 40.0, 2.9), (t, h, up))
+
+    def test_a_row_seen_at_mid_height_but_not_rising_is_not_a_rise(self):
+        # An odd frame or a row seen low from a steep angle: in the band, but it stays there.
+        heights = [(2.0 + i / 10, 41.0) for i in range(0, 15)]
+        states = [(0.0, 1), (3.0, 0)]
+        self.assertEqual([], read_logs.cell_rises(heights, states))
+
+    def test_a_row_already_in_view_is_not_a_new_appearance(self):
+        heights = [(i / 10, 50.0) for i in range(0, 20)] + [(2.0 + i / 10, 40.0 + i) for i in range(0, 11)]
+        states = [(0.0, 0)]
+        self.assertEqual([], read_logs.cell_rises(heights, states))
+
+
+class CellCreeps(unittest.TestCase):
+    """read_logs.cell_creeps: an UP CELL's row sliding down before it falls, with the robot still."""
+
+    @staticmethod
+    def _fall(creep_from_s=8.0):
+        # UP at 50 in, 20 frames a second; from creep_from_s down 0.5 in a second, then from 10 s a
+        # fast fall of 2 in a frame. The tracker leaves UP below 47.5 in.
+        heights, t = [], 0.0
+        while t < 10.6:
+            h = 50.0 if t < creep_from_s else 50.0 - 0.5 * (t - creep_from_s)
+            if t >= 10.0:
+                h = heights[-1][1] - 2.0
+            heights.append((round(t, 2), h))
+            t += 0.05
+        left = next(ht for ht, h in heights if h < 47.5)
+        return heights, [(0.0, 0), (left, 2)]
+
+    def test_a_slow_creep_shows_before_the_fall(self):
+        heights, states = self._fall()
+        found = read_logs.cell_creeps(heights, states, lambda t, ref: True)
+        self.assertEqual(1, len(found))
+        t, rest, leads, left = found[0]
+        self.assertAlmostEqual(50.0, rest)
+        # 0.5 in below rest at 9.0 s; it crosses 44 in on the fast fall, about 1.1 s later.
+        self.assertGreater(leads[0.5], 1.0)
+        self.assertLess(leads[2.0], leads[0.5])
+        self.assertIsNotNone(left)
+
+    def test_nothing_while_the_robot_moves(self):
+        heights, states = self._fall()
+        self.assertEqual([], read_logs.cell_creeps(heights, states, lambda t, ref: t < 7.0))
+
+    def test_a_row_back_in_view_already_low_is_not_a_fall(self):
+        heights = [(i / 20, 50.0) for i in range(0, 120)] + [(7.0 + i / 20, 39.0) for i in range(0, 10)]
+        self.assertEqual([], read_logs.cell_creeps(heights, [(0.0, 0)], lambda t, ref: True))
+
+
 class Legs(unittest.TestCase):
     """leg_rows: a trip between two spots, timed from the kit's own card events."""
 
