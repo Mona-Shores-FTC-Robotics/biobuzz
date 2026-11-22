@@ -651,10 +651,14 @@ public class AutoKitTest {
 
     // ------------------------------------------- a volley before the park (4 Nov 2026)
 
-    /** A kit whose LaunchAll is a volley: 4.5 s long, its last piece out 4.0 s in. */
+    /**
+     * A kit whose LaunchAll is a volley: 4.5 s long, its last piece out 4.0 s in, on the Endgame row's
+     * TIPS FIRST (the 4 Nov rule these tests are about: the volley's last piece out by 30 s, the park may go).
+     */
     private AutoKit volleyKit(AutoRegistry registry) {
         return new AutoKit(drive, registry
-                .volley("LaunchAll", 4.5, 4.0, () -> lasting("LaunchAll", 4.5)), () -> now).trace(trace::add);
+                .volley("LaunchAll", 4.5, 4.0, () -> lasting("LaunchAll", 4.5)), () -> now).trace(trace::add)
+                .picks(TIPS_FIRST);
     }
 
     private boolean traced(String ending) {
@@ -862,12 +866,20 @@ public class AutoKitTest {
         assertTrue("nothing drives", drive.followed.isEmpty());
     }
 
-    /** {@link #volleyKit} with {@link AutoKit#parkAfterVolley} on, its LaunchAll 4.0 s long, as on the robot. */
+    /** {@link #volleyKit} on PARK FIRST (the Endgame row's default), its LaunchAll 4.0 s long, as on the robot. */
     private AutoKit parkKeepingKit(AutoRegistry registry) {
         return new AutoKit(drive, registry
                 .volley("LaunchAll", 4.0, 4.0, () -> lasting("LaunchAll", 4.0)), () -> now)
-                .trace(trace::add).parkAfterVolley(true);
+                .trace(trace::add);
     }
+
+    /** The drive team's Endgame row on TIPS FIRST, and nothing else picked. */
+    static final AutoKit.Picks TIPS_FIRST = new AutoKit.Picks() {
+        @Override public int choice(String option) {
+            return AutoOption.ENDGAME.equals(option) ? AutoOption.TIPS_FIRST_INDEX : -1;
+        }
+        @Override public double seconds(String option) { return Double.NaN; }
+    };
 
     /**
      * R-NoCross on 19429, 6 Nov 18:22: the second volley done at 15.5 s, then a drive to the GARDEN
@@ -940,8 +952,8 @@ public class AutoKitTest {
 
     /**
      * A check that spins up alongside counts as its volley in the look-ahead, as a plain check does:
-     * at 20 s, the drive (2 s) fits with its park, but the volley at its end (4 s) and the park
-     * (3.7 s + margin) would end at 30.7 s, so the guard parks now rather than drive there first.
+     * at 20.5 s, the drive (2 s) fits with its park, but the volley's last piece (4 s in) and the park
+     * (3.7 s) would end at 30.2 s, so the guard parks now rather than drive there first.
      */
     @Test
     public void aCheckThatSpinsUpAlongsideIsPlannedAsItsVolley() {
@@ -949,7 +961,7 @@ public class AutoKitTest {
                 .command("SpinUp", 1.0, () -> lasting("SpinUp", 20.0))
                 .trigger("CellUp", () -> true));
         Path toSpot = line(0, 10), park = line(0, 40);
-        now = 20.0;
+        now = 20.5;
         run(kit.guarded("If LeftCellUp", park, 3.7,
                 kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 3.7),
                 kit.firstOf("L2: RIGHT up?", kit.command("SpinUp"),
@@ -961,14 +973,14 @@ public class AutoKitTest {
     }
 
     /**
-     * The same late trip with the drive team's Priority on the third TIP ({@link AutoOption#PRIORITY},
-     * its first leg, the drawing's): the volley's last piece is out by 30 s, so it goes and fires, and
-     * the park takes what time is left.
+     * The same late trip with the drive team's Endgame on TIPS FIRST, which drives a Priority route's
+     * first leg, the third TIP ({@link AutoOption#PRIORITY}): the volley's last piece is out by 30 s,
+     * so it goes and fires, and the park takes what time is left.
      */
     @Test
-    public void withThePriorityOnTheTipAVolleyComesBeforeThePark() {
+    public void onTipsFirstAPriorityRouteTakesTheTipAndTheVolleyComesBeforeThePark() {
         AutoKit kit = parkKeepingKit(new AutoRegistry()
-                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
+                .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5))).picks(TIPS_FIRST);
         Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
         now = 15.5;
         run(kit.guarded("If CellUp", park, 2.9,
@@ -981,13 +993,16 @@ public class AutoKitTest {
         assertTrue(log.toString(), log.contains("LaunchAll start"));
     }
 
-    /** With the Priority on the park (the second leg), the park's rule stands: the late trip is not begun. */
+    /**
+     * On PARK FIRST, the default, a Priority route drives its second leg, and the park's rule stands: the
+     * late trip is not begun. A pick of "Priority" itself (an old menu's) changes nothing: the Endgame row decides.
+     */
     @Test
-    public void withThePriorityOnTheParkTheParkStillComesFirst() {
+    public void onParkFirstAPriorityRouteTakesTheParkLegAndTheParkStillComesFirst() {
         AutoKit kit = parkKeepingKit(new AutoRegistry()
                 .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
         kit.picks(new AutoKit.Picks() {
-            @Override public int choice(String option) { return AutoOption.PRIORITY.equals(option) ? 1 : -1; }
+            @Override public int choice(String option) { return AutoOption.PRIORITY.equals(option) ? 0 : -1; }
             @Override public double seconds(String option) { return Double.NaN; }
         });
         Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
@@ -1018,6 +1033,59 @@ public class AutoKitTest {
         assertFalse(trace.toString(), traced("no time to park after it, parking now"));
         assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
         assertEquals(java.util.Arrays.asList(toGarden, back, park), drive.followed);
+    }
+
+    /**
+     * The look-ahead's PARK FIRST budget is the volley's last piece out, then the park (mentor, 22 Nov 2026):
+     * at 22.0 s a drive (2.0 s), a LaunchAll whose card is 4.0 s but whose last piece is out 2.5 s in, and
+     * the park (2.9 s) end at 29.4 s, so it goes. The whole card plus the 1 s margin (31.9 s) refused it.
+     */
+    @Test
+    public void parkFirstBudgetsTheVolleyToItsLastPieceAndThePark() {
+        AutoKit kit = lastPieceKit();
+        Path toSpot = line(0, 10), park = line(10, 40);
+        now = 22.0;
+        run(kit.guarded("Auto", park, 2.9,
+                kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 2.9),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.9)), 20);
+        assertFalse(trace.toString(), traced("no time to park after it, parking now"));
+        assertTrue(log.toString(), log.contains("LaunchAll start"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
+    }
+
+    /** The same trip 1 s later: the last piece and the park would end at 30.4 s, so the guard parks first. */
+    @Test
+    public void parkFirstStillParksWhenTheLastPieceAndTheParkDoNotFit() {
+        AutoKit kit = lastPieceKit();
+        Path toSpot = line(0, 10), park = line(10, 40);
+        now = 23.0;
+        run(kit.guarded("Auto", park, 2.9,
+                kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 2.9),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.9)), 20);
+        assertTrue(trace.toString(), traced("its last piece out 2.5 s in, and the park (2.9 s) end at 30.4 s: no time to park after it, parking now"));
+        assertFalse(log.toString(), log.contains("LaunchAll start"));
+        assertEquals("parks from here, without the drive", java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    /** The same late trip on TIPS FIRST: the last piece is out by 27.5 s, so it goes and fires, and the park may be lost. */
+    @Test
+    public void tipsFirstGoesForTheVolleyThatLeavesNoPark() {
+        AutoKit kit = lastPieceKit().picks(TIPS_FIRST);
+        Path toSpot = line(0, 10), park = line(10, 40);
+        now = 23.0;
+        run(kit.guarded("Auto", park, 2.9,
+                kit.path("to RIGHT_AUTO_HIVE", toSpot, 2.0, park, 2.9),
+                kit.command("LaunchAll"),
+                kit.path("to RIGHT_PARK", park, 2.9)), 20);
+        assertTrue(log.toString(), log.contains("LaunchAll start"));
+    }
+
+    /** A kit on PARK FIRST whose LaunchAll card is 4.0 s, its last piece out 2.5 s in. */
+    private AutoKit lastPieceKit() {
+        return new AutoKit(drive, new AutoRegistry()
+                .volley("LaunchAll", 4.0, 2.5, () -> lasting("LaunchAll", 4.0)), () -> now).trace(trace::add);
     }
 
     /**
@@ -1179,8 +1247,8 @@ public class AutoKitTest {
     }
 
     /**
-     * A volley deeper in a block, where the look-ahead cannot see it, asks for itself: 24.5 + 4.0 +
-     * 2.9 + 1.0 = 32.4 s, so it is not fired and the robot parks.
+     * A volley deeper in a block, where the look-ahead cannot see it, asks for itself: its last piece
+     * out (24.5 + 4.0) and the park (2.9) end at 31.4 s, so it is not fired and the robot parks.
      */
     @Test
     public void aVolleyDeepInABlockThatWouldTakeTheParksTimeIsNotFired() {
@@ -1225,10 +1293,10 @@ public class AutoKitTest {
         assertEquals(15.75, drive.followedAt.get(0), 0.05);
     }
 
-    /** Off, the 4 Nov rule holds: the same volley is fired, its last piece out by 28.5 s, and the park comes after. */
+    /** On TIPS FIRST, the 4 Nov rule holds: the same volley is fired, its last piece out by 28.5 s, and the park comes after. */
     @Test
-    public void offTheVolleyComesFirstAsBefore() {
-        AutoKit kit = parkKeepingKit(new AutoRegistry()).parkAfterVolley(false);
+    public void tipsFirstTheVolleyComesFirstAsBefore() {
+        AutoKit kit = parkKeepingKit(new AutoRegistry()).picks(TIPS_FIRST);
         Path park = line(0, 10);
         now = 24.5;
         run(kit.guarded("Auto", park, 2.9,

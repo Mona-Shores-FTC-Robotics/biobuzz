@@ -19,13 +19,28 @@ public final class AutoOption {
     /** The option that picks the PARK spot (the endgame guard's park and the Auto's last drive). */
     public static final String PARK = "Park";
 
-    /** The option that picks what a stop's shot goes by: the camera's sight of the CELL, or the clock. */
     /**
-     * The name of the choice between a third TIP and the park, when there is time for only one: a
-     * route choice (two legs) drawn with this name, the TIP's leg first. {@code AutoKit.route} reads it:
-     * with the TIP picked, a volley comes before the park for that Auto.
+     * The one choice between the park and one more TIP, the same row on every Auto's INIT menu
+     * ({@link #withEndgame}: added by the kit, never drawn), set by the drive team per match after
+     * talking to the partner (mentor, 22 Nov 2026). {@link #PARK_FIRST}, the default: the endgame
+     * guard goes for a volley only when the park still fits after it. {@link #TIPS_FIRST}: a volley
+     * whose last piece is out by 30 s comes first, and the park may be lost.
+     */
+    public static final String ENDGAME = "Endgame";
+    /** {@link #ENDGAME}'s choices, in order: the default first. */
+    public static final String PARK_FIRST = "PARK FIRST";
+    public static final String TIPS_FIRST = "TIPS FIRST";
+    /** {@link #TIPS_FIRST}'s index among {@link #ENDGAME}'s choices. */
+    public static final int TIPS_FIRST_INDEX = 1;
+
+    /**
+     * The reserved name of a drawn route choice between a third TIP and the park (R-Clockwise's), the
+     * TIP's leg first. It is not a row of its own: {@code AutoKit.route} drives its TIP leg on
+     * {@link #TIPS_FIRST} and its park leg on {@link #PARK_FIRST}, so {@link #ENDGAME} decides both
+     * the guard and the leg, and {@link #withEndgame} leaves it off the menu.
      */
     public static final String PRIORITY = "Priority";
+    /** The option that picks what a stop's shot goes by: the camera's sight of the CELL, or the clock. */
     public static final String SHOT_TRIGGER = "Shot trigger";
     /** {@link #SHOT_TRIGGER}'s choices, the camera first: the drawing's. */
     public static final String CAMERA = "CAMERA";
@@ -117,6 +132,26 @@ public final class AutoOption {
     public static AutoOption time(String name, double drawnSeconds) {
         if (!(drawnSeconds >= 0)) throw new IllegalArgumentException(name + ": " + drawnSeconds + " s");
         return new AutoOption(name, Kind.TIME, Collections.<String>emptyList(), drawnSeconds);
+    }
+
+    /** {@link #ENDGAME}: PARK FIRST (the default) or TIPS FIRST. */
+    public static AutoOption endgame() {
+        return choice(ENDGAME, PARK_FIRST, TIPS_FIRST);
+    }
+
+    /**
+     * The INIT menu of an Auto whose generated {@code OPTIONS} are {@code drawn}: those, without a
+     * {@link #PRIORITY} route choice (it follows {@link #ENDGAME}), then the {@link #ENDGAME} row,
+     * which every Auto has. What {@code BuiltAuto} shows and the simulator picks from.
+     */
+    public static AutoOption[] withEndgame(AutoOption... drawn) {
+        List<AutoOption> out = new java.util.ArrayList<>();
+        for (AutoOption option : drawn) {
+            if (PRIORITY.equals(option.name) || ENDGAME.equals(option.name)) continue;
+            out.add(option);
+        }
+        out.add(endgame());
+        return out.toArray(new AutoOption[0]);
     }
 
     /** {@link #SHOT_TRIGGER}: the camera (the drawing's) or the timer. */

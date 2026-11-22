@@ -147,9 +147,10 @@ ends, R on PARK asks only the clock:
 - **After T3b: park straight from the SCORING FLOWER.** The look, a volley and the park after it
   would not fit.
 
-**Priority** is read by the kit (`AutoOption.PRIORITY`): on THREE_TIP the guard asks of a volley
-only that its last ball is out by 30 s; on PARK a volley must leave time for the park, as in every
-other Auto.
+**Priority** follows the Endgame row every Auto has (`AutoOption.ENDGAME`; 22 Nov 2026): on TIPS FIRST R
+drives the THREE_TIP leg and the guard asks of a volley only that its last ball is out by 30 s; on PARK
+FIRST, the default, R drives the PARK leg and a volley must leave time for the park, as in every other
+Auto. The DS shows no Priority row.
 
 **One more clock check**, TS, sits after R's first LEFT volley: go for the SCORING FLOWER only
 before TS. Later than that R parks from LEFT_CLOSE_HIVE at once, before L comes up the lane.

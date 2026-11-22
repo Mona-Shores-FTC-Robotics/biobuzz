@@ -15,6 +15,21 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## The Endgame row (22 Nov 2026, any Auto, either robot): before the State Championship
+
+PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with `Endgame: PARK FIRST`; 20245's
+TIPS FIRST line in `RobotDifferences` is gone, and R-Clockwise shows no Priority row (it follows Endgame). The
+guard's PARK FIRST budget is now a volley's last piece out plus the park, with no 1 s margin.
+
+- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: PARK FIRST`; D-pad down to it,
+      right once: `Endgame ◀▶: TIPS FIRST`, amber. PLAY, then the match log's `auto options` event says
+      `Endgame=TIPS FIRST (drawn PARK FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
+- [ ] **R-NoCross on 20245, PARK FIRST, loaded, HIVE upright, partner stand-in TIPping early:** the GARDEN volley
+      fires only if its last ball and the park fit by 30 s; else the log says `no time to park after it,
+      parking now`. Then the same on TIPS FIRST: the volley goes, its last ball out by 30 s. **Good:** every
+      PARK FIRST run is parked by 30 s on the video. **Stop:** a PARK FIRST park still driving at 30 s → note
+      how late (the margin went from 1 s to none) and tell a mentor; push the logs.
+
 ## Beam breaks, the day they are fitted (Michigan State Championship, from 10 Dec)
 
 Code is ready and off on both robots: `BeamBreakSubsystem` ([PR: beam breaks]), issues #213 and
@@ -410,10 +425,10 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] Backward with a load, 19429 and 20245: all 4 POLLEN stay in, no issue (mentor, 20 Nov 2026)
 - [x] Backward with a load, 20245: R-Solo-Backwards ran clean with the plate (mentor, 20 Nov 2026)
 - [ ] Promoted R-Clockwise (backward outside lanes, waits at 9.8 / 9.9 s), each Pickup, beside L-Clockwise: no contact at `LEFT_AUTO_HIVE`, push the logs
-- [ ] R-Clockwise on Priority THREE_TIP (20 Nov 2026): its new backward leg under the HIVE, `BACKWARD under the HIVE from
+- [ ] R-Clockwise on Endgame TIPS FIRST, which drives Priority's THREE_TIP leg (20 Nov 2026; the row since 22 Nov): its new backward leg under the HIVE, `BACKWARD under the HIVE from
   the scoring FLOWER to RIGHT_AUTO_FIX_TIP`, with its SCORING FLOWER load. **Good:** it clears the HIVE's frame, the
   lane holds its load, it fires at RIGHT and parks by 30 s. **Stop:** it touches the frame or a piece leaves → run
-  Priority PARK until the leg is redrawn; push the logs and a video
+  Endgame PARK FIRST (the default) until the leg is redrawn; push the logs and a video
 - [ ] L-Clockwise's park, `LEFT_AIMED_PARK` (13.0, 119.0, 345°), set from AdvantageScope only (20 Nov 2026): put L on it
   by hand. **Good:** a referee would call it parked in the LOADING ZONE without a second look, and with LEFT up
   **Vision: HIVE & Pose** reads LEFT up from there. **Stop:** either is in doubt → move the spot in the Visualizer and
@@ -909,12 +924,12 @@ Result, with the gap on each own-start run, → [PR #372].
 
 Use the work order above to select checks; the detailed mechanism checks below are not all Belding gates. Run each from its start, alliance from §2.
 
-- [ ] **Autos keep the park (`belding-park`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+- [ ] **Autos keep the park (`belding-park`: Endgame PARK FIRST, then `BuiltAuto.parkAfterVolley` on):** R-NoCross and
       R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks every run; when its second
       volley ends late the Match page and the log say `… no time to park after it, parking now`
       and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its third volley and parks by about
       29 s. **Stop:** R-Solo parks instead of its third volley every run → note the time it gave
-      and tell a mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+      and tell a mentor (the INIT menu's Endgame TIPS FIRST is the old rule; was Panels `BuiltAuto.parkAfterVolley` off).
 - [ ] **Loop-time cuts, before and after:** Loop Time Baseline and one R-Solo run on the selected build,
       then the same on branch `claude/adoring-dirac-3ag180`, then 2 min of Basic Drive on it (intake
       to full, drive, fire four). Compare with `tools/pull-logs/read_logs.py series`:
@@ -1498,13 +1513,13 @@ measurement is [#255].
       INIT, in its list. The log has `gamepad 2 (operator): assigned (SONY_PS4)` and, at its first
       press, `first input`. **Stop:** the warning shows with both pads assigned (the SDK reports
       no gamepad ID before a pad's first input) → note when it clears, and tell a mentor.
-- [ ] **Autos keep the park (`belding-plus`: `BuiltAuto.parkAfterVolley` on):** R-NoCross and
+- [ ] **Autos keep the park (`belding-plus`: Endgame PARK FIRST, then `BuiltAuto.parkAfterVolley` on):** R-NoCross and
       R-Solo once each, loaded, HIVE upright. **Good:** R-NoCross parks
       every run; when its second volley ends late the Match page and the log say `… no time to
       park after it, parking now` and it parks from RIGHT_LAUNCH_CATCH; R-Solo still fires its
       third volley and parks by about 29 s; a full volley still ends at its 4th counted shot.
       **Stop:** R-Solo parks instead of its third volley every run → note the time it gave and tell a
-      mentor (Panels `BuiltAuto.parkAfterVolley` off is the old rule).
+      mentor (the INIT menu's Endgame TIPS FIRST is the old rule; was Panels `BuiltAuto.parkAfterVolley` off).
 - [ ] **GARDEN gather, no standing for the stick (16 Nov; never run):** button, GARDEN loaded, a
       spotter on the stick, 6 gathers, then R-NoCross once. On 14 Nov the robot stood 0.20 to
       0.71 s after its line-up waiting for the stick (34 gathers). Now the stick starts down 16 in

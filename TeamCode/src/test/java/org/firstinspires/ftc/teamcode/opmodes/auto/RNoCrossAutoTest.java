@@ -85,7 +85,7 @@ public class RNoCrossAutoTest {
             @Override public boolean poseReferenced() { return true; }
             @Override public void hold(Pose p) { pose = p; }
         };
-        AutoKit kit = new AutoKit(drive, registry, () -> now).trace(trace::add).parkAfterVolley(true)
+        AutoKit kit = new AutoKit(drive, registry, () -> now).trace(trace::add)
                 .picks(new AutoKit.Picks() {
                     @Override public int choice(String option) { return choices.getOrDefault(option, -1); }
                     @Override public double seconds(String option) { return Double.NaN; }

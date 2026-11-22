@@ -215,8 +215,8 @@ public final class AutoKit {
     /** When the volley the guard is going for has its last piece out, on the match clock. */
     private double volleyLastPieceAt = Double.NaN;
     /**
-     * With {@link #parkAfterVolley}: when the park after that volley is done, margin included, on the
-     * match clock; NaN when no park is planned after it. For {@link #grantGrabSeconds}.
+     * On {@link AutoOption#PARK_FIRST}: when the park after that volley is done (its last piece out,
+     * then the park), on the match clock; NaN when no park is planned after it. For {@link #grantGrabSeconds}.
      */
     private double volleyParkedAt = Double.NaN;
     /** The volley card the guard is going for, and whether "going for it" has been traced for it. */
@@ -225,12 +225,8 @@ public final class AutoKit {
 
     /** {@link #guard}: false only for a practice run that times the whole plan. */
     private boolean guardOn = true;
-    /** {@link #parkAfterVolley}: a volley is gone for only when the park still fits after it. */
-    private boolean parkAfterVolley;
-    /** Set by {@link #route} when the Auto has a Priority row and the TIP is picked: see {@link #parkComesFirst}. */
-    private boolean tipBeforePark;
     /**
-     * Set by {@link #goForVolleyIfItFits} with {@link #parkAfterVolley} on: the cards from here to
+     * Set by {@link #goForVolleyIfItFits} on {@link AutoOption#PARK_FIRST}: the cards from here to
      * the next volley, that volley and then the park do not fit before AUTO ends, so the guard parks
      * now rather than start a trip whose volley would leave no time to park. Why, for the trace.
      */
@@ -249,7 +245,7 @@ public final class AutoKit {
      * A running grab asks for {@code extraS} more seconds than it was planned for (a FLOWER pick's
      * push again after a stall far short, {@code FlowerPicker.Retry}). Yes, and traced, when the
      * grab's planned end moved that much later still leaves what the guard planned around it: the
-     * next volley's last piece out by 30 s and, with {@link #parkAfterVolley}, the park after it
+     * next volley's last piece out by 30 s and, on {@link AutoOption#PARK_FIRST}, the park after it
      * done by 30 s, when the guard is going for that volley; else the park, with its margin, done by
      * 30 s, while a guard watches; and always the grab itself over by 30 s. A yes also lets the
      * grab's card run {@code extraS} past its timeout. No for anything but a running grab. With the
@@ -312,19 +308,6 @@ public final class AutoKit {
         return this;
     }
 
-    /**
-     * True: the guard goes for a volley only when that volley's card and then the park both fit
-     * before AUTO ends (plus {@link #GUARD_MARGIN_S}), and before each card it parks at once if the
-     * cards from there to the next volley, the volley and the park do not. A volley is never fired
-     * into the park's time. False (the default here; {@code BuiltAuto.parkAfterVolley} decides on
-     * the robot): the rule of 4 Nov 2026, where a volley whose last piece is out by 30 s comes first
-     * and the park may be lost. See {@link #guarded}.
-     */
-    public AutoKit parkAfterVolley(boolean on) {
-        this.parkAfterVolley = on;
-        return this;
-    }
-
     /** The drive team's INIT picks, read while the Auto is built. Null runs everything as drawn. */
     public AutoKit picks(Picks picks) {
         this.picks = picks == null ? AS_DRAWN : picks;
@@ -381,21 +364,26 @@ public final class AutoKit {
      * </pre>
      */
     public Command route(String option, int index, Supplier<Command> card) {
-        int picked = picks.choice(option);
+        // A Priority route (AutoOption.PRIORITY) follows the Endgame row: its first leg, the third
+        // TIP, on TIPS FIRST; its second, the park, on PARK FIRST. A pick of "Priority" itself is ignored.
+        int picked = AutoOption.PRIORITY.equals(option) ? (tipsFirst() ? 0 : 1) : picks.choice(option);
         boolean on = (picked < 0 ? 0 : picked) == index;
-        // The Priority row (AutoOption.PRIORITY): with its first leg, the third TIP, picked, a volley
-        // comes before the park for this Auto, whatever parkAfterVolley says.
-        if (on && AutoOption.PRIORITY.equals(option)) tipBeforePark = index == 0;
         return on ? card.get() : OFF_ROUTE;
     }
 
+    /** The drive team's {@link AutoOption#ENDGAME} is {@link AutoOption#TIPS_FIRST}. */
+    private boolean tipsFirst() {
+        return picks.choice(AutoOption.ENDGAME) == AutoOption.TIPS_FIRST_INDEX;
+    }
+
     /**
-     * Whether a volley must leave time for the park after it: {@link #parkAfterVolley}, unless the drive
-     * team's {@link AutoOption#PRIORITY} is the TIP (its first leg, the drawing's). Then the guard asks
-     * only that the volley's last piece is out by 30 s, and the robot ends AUTO where it shot.
+     * Whether a volley must leave time for the park after it: the drive team's {@link AutoOption#ENDGAME}
+     * row, {@link AutoOption#PARK_FIRST} unless {@link AutoOption#TIPS_FIRST} was picked. On TIPS FIRST
+     * the guard asks only that the volley's last piece is out by 30 s, and the robot ends AUTO where it
+     * shot.
      */
     private boolean parkComesFirst() {
-        return parkAfterVolley && !tipBeforePark;
+        return !tipsFirst();
     }
 
     /** {@code cards} without the ones {@link #route} left off; the same array when there are none. */
@@ -475,7 +463,6 @@ public final class AutoKit {
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
         final boolean volley = registry.isVolley(name);
         final boolean parkedVolley = registry.isParkedVolley(name);
-        final double volleySeconds = volley ? registry.typicalSeconds(name) : 0.0;
         final double lastPieceSeconds = volley ? registry.lastPieceSeconds(name) : Double.NaN;
         final AutoRegistry.Approach approach = registry.approach(name);
         final CommandCard card = approach == null ? null : new CommandCard();
@@ -492,7 +479,7 @@ public final class AutoKit {
                     // A grab the guard could not cut must not start unless it and the park both fit.
                     refused[0] = grab && !Double.isNaN(guardParkSeconds)
                             && tooLateToContinue(guardLabel, grabSeconds + guardParkSeconds, "not starting " + name);
-                    // Nor a volley, with parkAfterVolley on: once it feeds it is never cut. The guard's
+                    // Nor a volley, on PARK FIRST: once it feeds it is never cut. The guard's
                     // look-ahead already decides for a volley in its own list or behind a "CELL up?"
                     // check (goingForVolley, or it parked before this card); this is a volley deeper
                     // in a block's row, which the look-ahead cannot see.
@@ -508,8 +495,8 @@ public final class AutoKit {
                         }
                     }
                     if (!refused[0] && volley && !parkedVolley && parkComesFirst() && !Double.isNaN(guardParkSeconds)) {
-                        refused[0] = tooLateToContinue(guardLabel, volleySeconds + guardParkSeconds,
-                                "not starting " + name + ", no time to park after it");
+                        refused[0] = noParkAfterVolley(guardLabel, startedAt[0], lastPieceSeconds,
+                                parkSecondsNow(guardParkSeconds), name);
                     }
                     // Parked already, a refused volley leaves the robot where it is: nothing to park.
                     if (refused[0] && !parkedVolley) parkWanted = true;
@@ -775,7 +762,7 @@ public final class AutoKit {
      * that volley's last piece out before AUTO ends?</b> A volley ({@link AutoRegistry#volley}: a
      * LaunchAll) is what TIPs the HIVE, and an AUTO TIP is worth 20 points and counts toward the
      * POLLINATOR RPs, the AUTO PARK 5 points. AUTO PARK counts toward the SWARM RP (both robots'
-     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU03 Tables 10-2, 10-3), but
+     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU10 Tables 10-2, 10-3, the same at the State Championship by Team Update 10), but
      * both robots' LEAVE and end-of-match PARK already make 16, so ours decides SWARM only when the
      * partner misses one of those. A TIP complete before TELEOP starts is assessed as AUTO
      * (§10.5 B); the same section says achievements scored during the AUTO-to-TELEOP transition
@@ -787,9 +774,13 @@ public final class AutoKit {
      * time, a wait with a command alongside or no limit) ends it with no. If yes, that card goes and
      * nothing parks or cuts it, whatever the park needs.
      *
-     * <p><b>With {@link #parkAfterVolley} on (on the robot since 6 Nov 2026), the park comes too.</b>
-     * The look-ahead then also adds the volley's card time and the guard's park after it, plus
-     * {@link #GUARD_MARGIN_S}; it goes for the volley only if that ends by 30 s, and if the volley is
+     * <p><b>On {@link AutoOption#PARK_FIRST}, the park comes too.</b> The drive team's
+     * {@link AutoOption#ENDGAME} row, on every Auto, decides this (mentor, 22 Nov 2026; before, it was
+     * {@code BuiltAuto.parkAfterVolley}, on since 6 Nov 2026 and off on 20245 from 21 Nov). PARK FIRST,
+     * the default, adds the park after the volley's last piece, with no margin (the robot parks from
+     * the spot it fired on, along a path drawn from there; mentor, 22 Nov 2026: the whole card plus a
+     * 1 s margin refused third volleys that fitted with their park by 0.2 to 0.5 s); it goes for the
+     * volley only if that ends by 30 s, and if the volley is
      * found but that does not fit, the guard parks now, before the card starts: a trip (a drive, a
      * grab) toward a volley that would leave no time to park is never begun, since once there its
      * drive-in may open the gate and a feeding launch is never cut. A chain the look-ahead cannot
@@ -818,9 +809,9 @@ public final class AutoKit {
      * (Belding Q-14, M-7). The look-ahead counts the check as its volley ({@link #checkPlan}), so
      * the rules above hold for it unchanged, though it is its list's last card: each of its
      * outcomes is a guarded list of its own, which parks. A volley deeper in a block, which the
-     * look-ahead cannot see, asks for itself as it starts, with {@link #parkAfterVolley} on: if
-     * it, at its typical time, and the park from here do not fit, it does not fire, the block ends
-     * and the guard parks.
+     * look-ahead cannot see, asks for itself as it starts, on {@link AutoOption#PARK_FIRST}: if its
+     * last piece out and the park from here do not fit, it does not fire, the block ends and the
+     * guard parks.
      *
      * <p><b>Grabs are treated as paths.</b> A grab ({@link AutoRegistry#grab}: a FLOWER pick, a
      * GARDEN gather) drives the robot off its spot and back, so the guard never cuts one either.
@@ -948,15 +939,18 @@ public final class AutoKit {
                 volleyLastPieceAt = at + plan.lastPieceS;
                 goingForVolley = volleyLastPieceAt <= AUTO_LENGTH_S;
                 // A volley fired where the robot has parked has its park behind it, not after it.
+                // On PARK FIRST the park after it must fit too: up to the volley's last piece out, then
+                // the park, no margin (mentor, 22 Nov 2026: the whole card plus 1 s refused third
+                // volleys that fit with their park by 0.2 to 0.5 s). The robot parks from the spot it
+                // fired on, along a path drawn from there, which is what the margin was for.
                 if (parkComesFirst() && !plan.parked && !Double.isNaN(ownParkSeconds)) {
-                    double volleyS = plan.secondsFrom.applyAsDouble(at);
-                    double parkedAt = at + volleyS + ownParkSeconds + GUARD_MARGIN_S;
-                    if (volleyS >= 0) volleyParkedAt = parkedAt;
-                    if (volleyS >= 0 && parkedAt > AUTO_LENGTH_S) {
+                    double parkedAt = at + plan.lastPieceS + ownParkSeconds;
+                    volleyParkedAt = parkedAt;
+                    if (parkedAt > AUTO_LENGTH_S) {
                         goingForVolley = false;
                         volleyLeavesNoPark = String.format(Locale.US,
-                                "%.1f s of cards to the next volley, the volley (%.1f s) and the park (%.1f s + %.1f s margin) end at %.1f s",
-                                at - now, volleyS, ownParkSeconds, GUARD_MARGIN_S, parkedAt);
+                                "%.1f s of cards to the next volley, its last piece out %.1f s in, and the park (%.1f s) end at %.1f s",
+                                at - now, plan.lastPieceS, ownParkSeconds, parkedAt);
                     }
                 }
                 if (goingForVolley) target = cards[i];
@@ -1022,6 +1016,28 @@ public final class AutoKit {
         if (last) stopWatching();
         current[0] = cards[index[0]];
         current[0].start();
+    }
+
+    /**
+     * On {@link AutoOption#PARK_FIRST}, for a volley the look-ahead could not see (deeper in a block):
+     * true, and traced, when its last piece out ({@code lastPieceS} after {@code startedAt}) and then
+     * the park ({@code parkS}) end after AUTO, the look-ahead's own budget; with the guard off, false,
+     * and what it would have done traced once.
+     */
+    private boolean noParkAfterVolley(String label, double startedAt, double lastPieceS, double parkS, String name) {
+        double parkedAt = startedAt + lastPieceS + parkS;
+        if (parkedAt <= AUTO_LENGTH_S) return false;
+        String why = String.format(Locale.US, "its last piece out %.1f s in and the park (%.1f s) end at %.1f s",
+                lastPieceS, parkS, parkedAt);
+        if (!guardOn) {
+            if (!guardWouldHaveActed) {
+                guardWouldHaveActed = true;
+                trace.accept(label + ": guard OFF: " + why + ": would not have started " + name);
+            }
+            return false;
+        }
+        trace.accept(label + ": " + why + ": not starting " + name + ", no time to park after it");
+        return true;
     }
 
     /**

@@ -84,6 +84,43 @@
       "timing": {
         "startDelayS": 6
       }
+    },
+    {
+      "name": "last shot at 12 s, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 12,
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "misses, said 8 s, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses",
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "late: starts 4 s late, wait left as drawn, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 4
+      },
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "late: starts 6 s late, wait left as drawn, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 6
+      },
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
     }
   ],
   "metadata": {

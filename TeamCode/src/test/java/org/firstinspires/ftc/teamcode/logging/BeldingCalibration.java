@@ -49,12 +49,6 @@ final class BeldingCalibration {
     /** On for this JVM's runs; a request or a test may set it. */
     static boolean on = "belding".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"));
 
-    /**
-     * {@code BIOBUZZ_AUTO_BELDING_GUARD=1}: the endgame guard as the Belding build ran it (master at 7ed351f: a volley
-     * before the park), for replaying R-Solo and L-NoCross as they ran there. Off, the guard is master's
-     * ({@code BuiltAuto.parkAfterVolley}), which is what a new Auto will run with.
-     */
-    static boolean guardAsAtBelding = "1".equals(System.getenv("BIOBUZZ_AUTO_BELDING_GUARD"));
 
     /** Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. */
     static final double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.70)},
