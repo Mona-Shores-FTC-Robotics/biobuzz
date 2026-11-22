@@ -234,7 +234,9 @@ def cmd_report(args):
         r['key'] = key
         r.update({('video_' + k if k in ('note', 'clip') else k): v.get(k) for k in
                   ('in_seen', 'out_seen', 'left_on_flower', 'dropped', 'count', 'confidence', 'note', 'clip', 'stick_note')})
-        if r.get('count') is None:
+        if key in video and r.get('count') is None:
+            r['confidence'] = "can't tell"
+        elif r.get('count') is None:
             g = num(r['log_gain'])
             r['count'] = None if g is None else max(0, min(4, g))
             r['confidence'] = 'log only' if r['source'] != 'match' else 'log only (no video yet)'
