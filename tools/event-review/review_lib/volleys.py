@@ -16,6 +16,7 @@ This is the table the cycle, launch and first-volley numbers share. Rules, as at
 """
 import statistics as st
 
+from . import logs
 from .shots import old_shots
 
 SQUARE, CIRCLE = 2, 1           # button bits: Square (auto-drive, gamepad 1), Circle (manual fire, see fire_pad)
@@ -79,15 +80,16 @@ def build(m):
             vol.append([t])
     sq = downs(m['/DriverStation/Joystick0/ButtonValues'], SQUARE)
     fire = downs(m[fire_pad(m)], CIRCLE)
-    gates = [t for t, e in m.events if e.startswith('launch spot: gate open')]
+    gates = [(t, logs.gate_open_before_arriving(e)) for t, e in m.events if e.startswith(logs.GATE_OPEN)]
     arrives = [t for t, e in m.events if e.startswith('launch spot: arrived')]
     out, prev_end = [], te
     for k, v in enumerate(vol):
         f = v[0]
-        g = max([x for x in gates if f - 3 <= x <= f], default=None)
+        g, early = max([x for x in gates if f - 3 <= x[0] <= f], default=(None, False))
         row = {'robot': m.team, 'match': m.name, 'log': m.log, 'balls': len(v), 'first': f - te}
         if g is not None:
-            a = max([x for x in arrives if g - 3 <= x <= g], default=g)
+            # A gate opened on the approach comes before its own `arrived`: the drive ends there.
+            a = g if early else max([x for x in arrives if g - 3 <= x <= g], default=g)
             s = max([x for x in sq if x <= a], default=a)
             row.update(kind='Square', away=s - prev_end, drive=a - s, settle=g - a, feed=f - g)
         else:

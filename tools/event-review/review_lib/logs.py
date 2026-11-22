@@ -161,3 +161,30 @@ def windows(series):
     if start is not None and len(series):
         out.append((start, series.t[-1]))
     return out
+
+
+GATE_OPEN = 'launch spot: gate open'
+_GATE_AFTER = re.compile(r'\(([\d.]+) s after arriving')
+_GATE_BEFORE = re.compile(r'\(before arriving, ([\d.]+) in out\)')
+
+
+def gate_open_after_arriving(e):
+    """Seconds from arriving at the spot to the gate opening, from a `launch spot: gate open` line.
+
+    Two forms: `gate open 0.63 s after the press (0.27 s after arriving), ...` once the robot is
+    there, and `gate open 0.66 s after the press (before arriving, 0.1 in out), on the approach, ...`
+    when the gate opened on the way in. An approach opening spent no time at the spot, so it is 0.
+    Any other form raises, so a new wording is caught here rather than read as nothing.
+    """
+    a = _GATE_AFTER.search(e)
+    if a:
+        return float(a.group(1))
+    if _GATE_BEFORE.search(e):
+        return 0.0
+    raise ValueError('unrecognised gate-open line: %r' % e)
+
+
+def gate_open_before_arriving(e):
+    """True for the approach form of a `launch spot: gate open` line (see gate_open_after_arriving)."""
+    gate_open_after_arriving(e)  # raises on a form neither pattern knows
+    return _GATE_BEFORE.search(e) is not None

@@ -4,32 +4,26 @@
   "name": "Fruitport Qualifier",
   "date": "Nov 21, 2026",
   "match_day": "Saturday",
-  "teams": {
-    "19429": "Infrared",
-    "20245": "Ultraviolet"
-  },
-  "playoff_names": {},
+  "teams": {"19429": "Infrared", "20245": "Ultraviolet"},
+  "playoff_names": {"10": "Final"},
   "match_names": {
     "19429/2026-11-21_11-01-37": "Q2",
-    "20245/2026-11-21_11-12-37": "Q4",
-    "20245/2026-11-21_11-58-05": "Q11",
-    "20245/2026-11-21_12-42-54": "skip",
-    "20245/2026-11-21_12-47-14": "skip",
-    "20245/2026-11-21_13-34-34": "Q20",
-    "20245/2026-11-21_12-56-31": "skip",
+    "19429/2026-11-21_13-23-03": "Q17",
+    "19429/2026-11-21_13-53-40": "Q23",
     "19429/2026-11-21_14-20-15": "Q28",
+    "19429/2026-11-21_15-10-02": "Q39",
     "19429/2026-11-21_16-28-50": "Playoff M1",
     "19429/2026-11-21_16-59-40": "Playoff M6",
-    "19429/2026-11-21_12-41-01": "skip",
-    "19429/2026-11-21_12-45-22": "skip",
-    "20245/2026-11-21_14-56-49": "skip",
-    "20245/2026-11-21_16-08-51": "skip",
-    "20245/2026-11-21_16-16-27": "skip"
+    "20245/2026-11-21_11-12-37": "Q4",
+    "20245/2026-11-21_11-58-05": "Q11",
+    "20245/2026-11-21_13-34-34": "Q20",
+    "20245/2026-11-21_14-13-02": "Q28",
+    "20245/2026-11-21_15-20-25": "Q42",
+    "20245/2026-11-21_16-34-53": "Playoff M3",
+    "20245/2026-11-21_16-58-32": "Playoff M7",
+    "20245/2026-11-21_17-35-45": "Final"
   },
-  "frozen_pose": {},
-  "pose_excluded": {},
-  "exclude": {},
   "notes": {
-    "match_names": "Logs started at INIT 2-3 min before the field's start, so the schedule match missed them; named from FTCScout's actual start times. 20245's 12:42 and 12:47 R-Solo runs are practice before Q-20 (skip). 19429's RC clock runs ~4.5 min ahead of the field (Q17/Q23/Q39 matched at +4-5 min), so Q28, M1 and M6 are pinned at that offset."
+    "match_names": "Named by hand: 19429's hub clock ran about 8 minutes fast all day, and the schedule match named most logs wrongly. Each log's PLAY time, less its hub's offset, is within 25 s of the FTCScout start, on the right alliance (events/2026-11-fruitport README)."
   }
 }

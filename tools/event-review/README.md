@@ -5,12 +5,13 @@ robots' own match logs. The first one is the Belding Qualifier (7 Nov 2026):
 - public page: https://claude.ai/artifact/DVKzXZx26BWwodMMvVPUNu
 - live dashboard: https://claude.ai/artifact/8gfTh8rVJV3aKC1yroG2Pk (Claude login needed)
 
-Match logs reach GitHub through `tools/pull-logs` (Belding's are on `events/2026-11-belding`).
+Match logs reach GitHub through `tools/pull-logs` (Belding's are on `events/2026-11-belding`, Fruitport's on
+`events/2026-11-fruitport`). Fruitport's event code is `USMIFRQ2`; `USMIFRQ` is the Freeland Qualifier.
 
 ## After an event: one command
 
 ```
-python3 tools/event-review/review.py --event USMIFRQ --logs <logs> --out out/fruitport --save-as fruitport
+python3 tools/event-review/review.py --event USMIFRQ2 --logs <logs> --out out/fruitport --save-as fruitport
 python3 tools/event-review/compare.py tools/event-review/data/belding tools/event-review/data/fruitport --out out/fruitport
 ```
 

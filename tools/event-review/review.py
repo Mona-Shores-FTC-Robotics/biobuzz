@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One command from a folder of match logs to the event review: every dataset, the page and the PDF.
 
-  python3 tools/event-review/review.py --event USMIFRQ --logs <dir> --out <dir> [--live]
+  python3 tools/event-review/review.py --event USMIFRQ2 --logs <dir> --out <dir> [--live]
 
 <dir> holds 19429/ and 20245/, each with the robot's match logs (.wpilog or .wpilog.gz) directly
 or in a matches/ subfolder (the layout of the events/<date>-<name> branches; practice/ is never
