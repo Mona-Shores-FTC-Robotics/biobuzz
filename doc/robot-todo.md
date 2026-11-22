@@ -129,6 +129,26 @@ wheel got (`/Drive/WheelPower/*`). Same fresh battery for every run; pull the lo
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
 
+## Loop time before the State Championship (Fruitport logs, 22 Nov)
+
+From the 15 Fruitport and 17 Belding match logs ([PR: launcher resend stagger]). Auto's loop is a
+median 20 ms on both robots at both events; the subsystems' updates are 18 of it (drive 9, feeder
+4.1, which is the Expansion Hub's bulk read, colour sensor 1.5, launcher 1.3). Same fresh battery, HIVE upright.
+
+- [ ] **20245's colour sensor (I2C bus 2, Control Hub):** at Fruitport one read in about 300 took
+      76–103 ms instead of 6.4 (57 reads, 5–13 a match), and every loop over 100 ms on 20245 was one
+      of them; 19429 had none, Belding 3. Reseat both ends of the sensor's cable, or swap the cable,
+      then 2 min of Basic Drive with the intake running. **Good:** `read_logs.py series` of
+      `/Loop/Subsystem/ColorSensorSubsystemMs` has no value over 30. **Stop:** still slow →
+      swap the sensor (or 19429's onto 20245) to tell the cable from the sensor.
+- [ ] **`LoopTimeBaseline` and one R-Solo, before and after** today's merges (#703–#708: FeedJamClear,
+      the beam subsystem with no beams fitted, the battery sag check, `/Drive/Path/*` and
+      `/Drive/WheelPower/*` logging) and the launcher resend stagger, on one robot: the Fruitport
+      build, then master. **Good:** `/Robot/LoopMs` median within 0.5 ms (the merges add no hardware
+      call; about 13 log channels and some logic), and `/Loop/Subsystem/LauncherSubsystemMs` no longer
+      shows 8–9 ms loops every 250 ms while spinning, only single 4–5 ms ones. **Stop:** the median up by
+      more than 1 ms → the PR, with both logs.
+
 ## 19429's feed jams (Fruitport, 21 Nov): before the State Championship
 
 From the 7 Fruitport match logs and the per-match video reviews (PR with `FeedJamClear`). 19429
