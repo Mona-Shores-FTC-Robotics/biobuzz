@@ -103,6 +103,11 @@ public final class RobotDifferences {
                         + " (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.lockedForward = false);
         differs(RobotIdentity.TEAM_19429,
+                "Turret home switch fitted: a REV Magnetic Limit Switch in the Control Hub's digital"
+                        + " connector 0-1, under a magnet on the back of the turret on its mark (mentor,"
+                        + " 20 Nov 2026; its port is in robot_19429.xml)",
+                () -> TurretSubsystem.homeSwitch = true);
+        differs(RobotIdentity.TEAM_19429,
                 "Shots sit to one side: turret aimed 5 degrees round from its mark, what worked in"
                         + " Panels with the speed and gate lines here (mentor, 18 Nov 2026)",
                 () -> TurretSubsystem.aimOffsetDeg = 5.0);

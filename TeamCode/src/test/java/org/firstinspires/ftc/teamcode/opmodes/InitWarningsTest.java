@@ -207,4 +207,26 @@ public class InitWarningsTest {
         assertEquals(0, w.count());
         assertFalse(w.teleOpWarning());
     }
+
+    @Test
+    public void theTurretsHomeSwitchWarnsWhenTheTurretIsCountedFromOffItsMark() {
+        InitWarnings w = new InitWarnings();
+        w.turretMark(false, true, "the sweep did not find the magnet", true, false);
+        assertEquals("no switch, no warning", 0, w.count());
+        w.turretMark(true, true, null, true, false);
+        assertEquals("an Auto's INIT found its mark: fine, wherever the hold took it", 0, w.count());
+        w.turretMark(true, true, "the sweep did not find the magnet", true, true);
+        assertTrue(w.has(Kind.TURRET_MARK));
+        assertEquals("Turret: the sweep did not find the magnet", w.what(Kind.TURRET_MARK));
+        assertEquals("set the turret on its mark, INIT again", w.action(Kind.TURRET_MARK));
+        w.turretMark(true, false, null, false, false);
+        assertEquals("a TeleOp to zero at PLAY, off its mark", 1, w.count());
+        assertTrue(w.teleOpWarning());
+        assertEquals("turn it by hand across its mark: it zeroes itself", w.action(Kind.TURRET_MARK));
+        w.turretMark(true, false, null, true, false);
+        assertEquals("zeroed (by the switch, by hand or from the Auto): fine", 0, w.count());
+        w.turretMark(true, false, null, false, true);
+        assertEquals("on its mark: fine", 0, w.count());
+        assertFalse(w.teleOpWarning());
+    }
 }

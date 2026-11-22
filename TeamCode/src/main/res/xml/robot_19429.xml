@@ -97,6 +97,16 @@
             <!-- The turret servo moved to the Expansion Hub on 13 Nov 2026
                  (below), freeing this hub's port 4 for the right star wheel. -->
 
+            <!-- Turret home switch: a REV Magnetic Limit Switch in this hub's
+                 digital connector 0-1 (mentor, 20 Nov 2026), under a magnet on
+                 the back of the turret that is over it when the turret is on its
+                 mark. A REV digital sensor reports on its connector's second
+                 channel, so channel 1. If Bench: Turret never sees the magnet,
+                 try port="0" (doc/robot-todo.md). Optional
+                 (DeviceNames.TURRET_HOME_SWITCH): read only with
+                 TurretSubsystem.homeSwitch on, 19429's RobotDifferences line. -->
+            <DigitalDevice name="turretHome" port="1" />
+
             <!-- Beam breaks (BeamBreakSubsystem): bought, not fitted yet (22 Nov 2026).
                  When one is wired to a digital channel (0-7), uncomment its line with
                  that channel, and add its RobotDifferences line

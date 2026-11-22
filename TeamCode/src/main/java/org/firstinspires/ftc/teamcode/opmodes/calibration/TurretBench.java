@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
 import org.firstinspires.ftc.teamcode.RobotDifferences;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
+import org.firstinspires.ftc.teamcode.subsystems.TurretHomeSwitch;
 import org.firstinspires.ftc.teamcode.subsystems.TurretServoControl;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
@@ -33,6 +35,15 @@ import java.util.Locale;
  *       {@code encoder turns} = {@code turnsPerTurretTurn} (2.75) and {@code angle} 360. Four times
  *       that, or a quarter: {@code countsPerEncoderTurn} is the other encoder's (8192 for a REV
  *       Through Bore, 2048 for a Cypher Max).</li>
+ *   <li><b>The home switch</b> (either robot whose XML declares {@code DeviceNames.TURRET_HOME}, a REV Magnetic Limit
+ *       Switch under a magnet on the back of the turret), in INIT, nothing powered. {@code home
+ *       switch} reads MAGNET with the turret on its mark: if it never does, the switch is on the
+ *       connector's other channel (the XML's {@code port}) or the magnet is too far from it. Zero
+ *       on the mark (Cross), then turn the turret slowly by hand right across the mark, both ways,
+ *       a few times: each pass shows the band's width and its middle from the zero. The middle,
+ *       both ways' average, negated, is {@code TurretSubsystem.homeSwitchOffsetDeg}; the width,
+ *       with a few degrees spare, is {@code homeSwitchMaxBandDeg}. A pass at power (step 5) shows
+ *       whether a fast pass lands on the same middle.</li>
  *   <li><b>{@code servoStopPower}.</b> PLAY: the servo is sent power 0. If the turret creeps, step
  *       the power (D-pad, 0.005) until it stands still: that power is the value.</li>
  *   <li><b>{@code servoDirection}.</b> One bumper press to the right (+0.05 steps): {@code angle}
@@ -55,7 +66,7 @@ import java.util.Locale;
  * pulse off and on (limp, to turn the turret by hand). The turret has no stops, so a power left
  * on just keeps it turning: Triangle stops it.
  */
-@Utility(name = "Bench: Turret", description = "The turret's continuous servo and encoder: signs, stop power, floor, top speed, and the hold")
+@Utility(name = "Bench: Turret", description = "The turret's continuous servo, encoder and home switch: signs, stop power, floor, top speed, the switch's band, and the hold")
 @Configurable
 public class TurretBench extends OpMode {
 
@@ -76,11 +87,22 @@ public class TurretBench extends OpMode {
     private String configWarning;
     private String encoderFault;
     private String servoFault;
+    /** The home switch, or null on a robot without one ({@link #homeNote} says which). */
+    private DigitalChannel homeInput;
+    private String homeNote;
 
     // ------------------------------------------------------------ state
 
     private TurretEncoder encoder;
     private String encoderProblem;
+    private final TurretHomeSwitch home = new TurretHomeSwitch();
+    private boolean magnet;
+    /** The band's middle from the last pass each way, hub counts; NaN before one. */
+    private double ccwMiddleCounts = Double.NaN;
+    private double cwMiddleCounts = Double.NaN;
+    private double ccwBandDeg = Double.NaN;
+    private double cwBandDeg = Double.NaN;
+    private String homeRejected;
     private long counts;
     private long zeroCounts;
     private boolean zeroed;
@@ -136,6 +158,18 @@ public class TurretBench extends OpMode {
             servo = null;
             servoFault = "servo \"" + DeviceNames.TURRET
                     + "\" is not in the active configuration as a <ContinuousRotationServo>";
+        }
+        if (configHas(DeviceNames.TURRET_HOME)) {
+            try {
+                homeInput = hardwareMap.get(DigitalChannel.class, DeviceNames.TURRET_HOME);
+                homeInput.setMode(DigitalChannel.Mode.INPUT);
+            } catch (RuntimeException e) {
+                homeInput = null;
+                homeNote = "FAULT: \"" + DeviceNames.TURRET_HOME
+                        + "\" is not in the active configuration as a <DigitalDevice>";
+            }
+        } else {
+            homeNote = "none on this robot";
         }
         try {
             panels = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -236,10 +270,45 @@ public class TurretBench extends OpMode {
         }
         angleDeg = encoder == null ? Double.NaN : encoder.degrees(counts, zeroCounts);
         rateDps = encoder == null ? Double.NaN : encoder.degreesPerSecond(countsPerSecond);
+        readHomeSwitch();
         if (started && !limp && !Double.isNaN(rateDps)) {
             fastestCcwDps = Math.max(fastestCcwDps, rateDps);
             fastestCwDps = Math.max(fastestCwDps, -rateDps);
         }
+    }
+
+    /**
+     * The switch, and a pass across it: no speed limit and no offset, so a pass shows the band's own
+     * middle. The limits on the band's width are the subsystem's, so a pass it would not take shows why.
+     */
+    private void readHomeSwitch() {
+        if (homeInput == null) return;
+        try {
+            magnet = !homeInput.getState();   // active low: low with the magnet over it
+        } catch (RuntimeException e) {
+            homeNote = "read failed: " + (e.getMessage() == null ? e.toString() : e.getMessage());
+            return;
+        }
+        TurretHomeSwitch.Result result = home.step(magnet, counts, encoder, rateDps, Double.NaN,
+                TurretSubsystem.homeSwitchMinBandDeg, TurretSubsystem.homeSwitchMaxBandDeg, 0.0);
+        if (result == TurretHomeSwitch.Result.PASS) {
+            homeRejected = null;
+            if (home.passDirection() > 0) {
+                ccwMiddleCounts = home.markCounts();
+                ccwBandDeg = home.bandDeg();
+            } else {
+                cwMiddleCounts = home.markCounts();
+                cwBandDeg = home.bandDeg();
+            }
+        } else if (result == TurretHomeSwitch.Result.REJECTED) {
+            homeRejected = home.rejectReason();
+        }
+    }
+
+    /** A pass's middle as an angle from the current zero, wrapped; NaN before one. */
+    private double middleDeg(double middleCounts) {
+        if (encoder == null || Double.isNaN(middleCounts)) return Double.NaN;
+        return TurretEncoder.wrap180(encoder.degrees(Math.round(middleCounts), zeroCounts));
     }
 
     private void handleButtons() {
@@ -315,6 +384,7 @@ public class TurretBench extends OpMode {
         telemetry.addLine(String.format(Locale.US, "encoder counts %d (zero %d%s)  turns %.3f  angle %s  rate %s",
                 counts, zeroCounts, zeroed ? "" : ", not zeroed",
                 encoder == null ? Double.NaN : encoder.encoderTurns(counts, zeroCounts), deg(angleDeg), dps(rateDps)));
+        reportHomeSwitch();
         telemetry.addLine(String.format(Locale.US, "fastest: %.0f°/s counter-clockwise, %.0f°/s clockwise (Triangle clears)",
                 fastestCcwDps, fastestCwDps));
         if (!started) {
@@ -341,6 +411,33 @@ public class TurretBench extends OpMode {
         telemetry.update();
     }
 
+    private void reportHomeSwitch() {
+        if (homeInput == null) {
+            telemetry.addLine("home switch: " + homeNote);
+            return;
+        }
+        telemetry.addLine("home switch: " + (magnet ? "MAGNET (on its mark)" : "no magnet")
+                + (homeNote != null ? " · " + homeNote : ""));
+        double ccw = middleDeg(ccwMiddleCounts);
+        double cw = middleDeg(cwMiddleCounts);
+        telemetry.addLine(String.format(Locale.US, "  pass counter-clockwise: %s · clockwise: %s",
+                pass(ccwBandDeg, ccw), pass(cwBandDeg, cw)));
+        if (!Double.isNaN(ccw) && !Double.isNaN(cw)) {
+            double middle = (ccw + cw) / 2.0;
+            telemetry.addLine(String.format(Locale.US,
+                    "  middle both ways %+.1f°%s: homeSwitchOffsetDeg %+.1f if Cross zeroed on the mark (now %+.1f)",
+                    middle, zeroed ? "" : " (not zeroed)", -middle, TurretSubsystem.homeSwitchOffsetDeg));
+        } else {
+            telemetry.addLine("  Cross on the mark, then turn it slowly by hand right across the mark, both ways");
+        }
+        if (homeRejected != null) telemetry.addLine("  last pass not taken: " + homeRejected);
+    }
+
+    private static String pass(double bandDeg, double middleDeg) {
+        return Double.isNaN(middleDeg) ? "none yet"
+                : String.format(Locale.US, "band %.1f° wide, middle %+.1f°", bandDeg, middleDeg);
+    }
+
     private void publish() {
         if (panels == null) return;
         try {
@@ -349,6 +446,7 @@ public class TurretBench extends OpMode {
             panels.addData("turret_angle_deg", angleDeg);
             panels.addData("turret_rate_dps", rateDps);
             panels.addData("turret_target_deg", holding ? targetDeg : Double.NaN);
+            if (homeInput != null) panels.addData("turret_home_magnet", magnet ? 1 : 0);
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {
@@ -366,14 +464,24 @@ public class TurretBench extends OpMode {
         } catch (RuntimeException e) {
             return "Could not read the active configuration: " + e.getMessage();
         }
-        RobotIdentity identity = RobotIdentity.fromConfigName(active);
-        if (identity != null) {
-            for (DeviceNames.Device device : identity.devices) {
-                if (DeviceNames.TURRET.equals(device.name)) return null;
-            }
-        }
+        if (configHas(DeviceNames.TURRET)) return null;
         return "Active config is \"" + (active == null ? "none" : active)
                 + "\", which has no turret. Driver Station: Configure Robot -> robot_20245 (or robot_19429) -> Activate.";
+    }
+
+    /** Whether the active configuration's robot has a device of this name; false when it cannot be read. */
+    private static boolean configHas(String name) {
+        RobotIdentity identity;
+        try {
+            identity = RobotIdentity.fromConfigName(ActiveConfig.name());
+        } catch (RuntimeException e) {
+            return false;
+        }
+        if (identity == null) return false;
+        for (DeviceNames.Device device : identity.devices) {
+            if (name.equals(device.name)) return true;
+        }
+        return false;
     }
 
     private static String deg(double value) {

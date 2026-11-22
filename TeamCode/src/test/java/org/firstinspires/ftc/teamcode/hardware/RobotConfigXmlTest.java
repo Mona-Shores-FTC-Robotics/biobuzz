@@ -157,7 +157,7 @@ public class RobotConfigXmlTest {
     }
 
     /**
-     * An optional device ({@link RobotIdentity#optional}, the beam breaks) may be left out, but one
+     * An optional device ({@link RobotIdentity#optional}: the beam breaks, the turret home switch) may be left out, but one
      * that is declared is the kind {@link DeviceNames} says: a beam break is a {@code <DigitalDevice>}.
      */
     @Test

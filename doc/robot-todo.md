@@ -381,6 +381,56 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
       0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
 - [ ] Orange light on 20245; LOCKED Circle on 20245
+12. **The turret home switch, both robots** (for States; 20 Nov 2026 on 19429, 22 Nov 2026 on 20245;
+    none of it has run on a robot yet). A REV Magnetic Limit Switch (`DeviceNames.TURRET_HOME`, an
+    optional device like the beam breaks) under a magnet on the back of the turret, over it on the
+    mark. Both XMLs declare it on the Control Hub's digital connector 0-1, channel 1. Two switches,
+    both in `RobotDifferences`: `TurretSubsystem.homeSwitch` (read the switch, re-zero on a slow pass;
+    moves nothing; on for 19429, **off for 20245** until step 2 passes there) and
+    `TurretSubsystem.homeSweep` (an Auto's INIT turns the turret to find the mark; **off on both**
+    until step 5 passes on that robot). Full TeamCode install (the XML changed), Activate the robot's
+    config, then, on each robot:
+   1. **20245 only: confirm the port.** `robot_20245.xml` assumes the same channel as 19429's
+      (connector 0-1, `port="1"`), unchecked. Look at where the switch is plugged in; if it is another
+      connector, the channel is that connector's second one (2-3 → 3, 4-5 → 5, 6-7 → 7): fix `port`,
+      full install, Activate.
+   2. **The readout.** **Check: Hardware**: `turretHome` reads `ok - … DigitalChannel`, LOW with the
+      turret on its mark and HIGH turned well off it. **Bench: Turret, INIT only**: the `home switch`
+      line reads MAGNET on the mark and nothing off it. **Stop:** never MAGNET → try the connector's
+      other channel (`port="0"` for 0-1) in the XML, full install, again; still nothing → the magnet is
+      too far from the switch. **Pass on 20245** → its `RobotDifferences` line
+      `() -> TurretSubsystem.homeSwitch = true`, with the port and the date, in a PR.
+   3. **The band.** Cross with the turret on its mark, then turn it slowly by hand right across the
+      mark, both ways, three times each: write down each way's band width and middle. **Good:** the
+      middles agree each way within about 1°. Put `homeSwitchOffsetDeg` (both ways' middle, negated,
+      as the bench shows it) and `homeSwitchMaxBandDeg` (the widest band plus 5°) in a PR (a
+      `RobotDifferences` line if the two robots differ).
+   4. **Passes while driving.** **Basic Drive**, turret AIM, swing the turret across straight ahead a
+      few times. **Good:** the log has `turret: home switch pass … zero moved` events of under 1° each,
+      and the Robot page says `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark
+      warns `Turret off its mark`, and turning it by hand across the mark clears it.
+   5. **The Auto INIT sweep, from each side of the mark.** Turn `homeSweep` on in Panels for this test
+      only (it stays on until the RC app restarts; nothing is committed yet). Panels open, a stopwatch
+      ready. First check the turret stays inside the 18 in cube all the way round (the search may turn
+      it a full turn). The sweep holds still `homeSweepStartDelayS` (1.5 s) for the servo to wake (on
+      19429 it did not answer for 0.93 s after INIT, 21 Nov 2026), then turns counter-clockwise. INIT
+      any Auto with the turret: on its mark; 20° counter-clockwise of it; 20° clockwise of it (the
+      search goes nearly a full turn); and about 180° round. Each time time it from pressing INIT to
+      the turret holding still at its home angle. **Good:** it crosses the switch, goes about 10° past,
+      crosses back slowly, goes 10° past the other side, crosses slowly once more, then turns home and
+      holds; about 5 s from the mark, up to about 11 s from clockwise of it, never the 20 s timeout;
+      the log has `turret: the sweep found the mark, +x.xx° from where it stood`. **Stop:** it turns
+      the wrong way and the hold drops, it stalls on a slow pass (raise `homeSweepFineDps` to 20), or
+      it never stops searching (no pass taken: the log says why) → push the log.
+   6. **The zero agrees with the mark.** Started on the mark, the `found the mark` number is under 1°.
+      After each sweep in step 5, turn the turret by hand back onto the mark (Bench: Turret, or the
+      Robot page's angle): it reads within 1° of 0 from every start. The two slow passes' log lines show
+      how far apart the directions read (the switch's hysteresis): write it down.
+   7. **Pass** (steps 5 and 6 good from all four starts) → that robot's `RobotDifferences` line
+      `() -> TurretSubsystem.homeSweep = true`, with the four times and the date, in a PR.
+
+   - [ ] 19429: readout · band · passes · sweep from each side · zero on the mark · time
+   - [ ] 20245: port · readout (then `homeSwitch` line) · band · passes · sweep from each side · zero on the mark · time
 
 ## Belding work order (agreed 5 Nov)
 

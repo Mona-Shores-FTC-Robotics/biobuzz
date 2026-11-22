@@ -31,6 +31,12 @@ public final class InitWarnings {
         /** The robot is on a known start that is not this Auto's: the wrong Auto, or the wrong spot. */
         WRONG_START,
         OFF_MARK,
+        /**
+         * The turret's home switch ({@code TurretSubsystem.homeSwitch}, on per robot) did not find the mark:
+         * an Auto's INIT sweep did not see the magnet (the turret is zeroed where it stood), or a TeleOp
+         * will zero it at PLAY with no magnet there. Shown in a TeleOp's INIT too.
+         */
+        TURRET_MARK,
         CAMERA_NOT_ANSWERING,
         CAMERA_NO_FRAMES,
         BATTERY_LOW,
@@ -208,9 +214,39 @@ public final class InitWarnings {
                 "false FULL likely: raise leaveBelow above it, or fullHoldS off");
     }
 
-    /** What a TeleOp's INIT warns about, with the light flashing: a gamepad, or the lane sensor. */
+    /**
+     * This loop's turret home switch, Auto or TeleOp: whether it says the turret is off the mark it is
+     * about to be counted from. Call it every INIT loop, after {@link #evaluate} in an Auto.
+     *
+     * @param fitted          the robot has a home switch
+     * @param autonomous      an Autonomous's INIT
+     * @param autoMarkProblem in an Autonomous, what is wrong with the mark its INIT zeroed the turret on
+     *                        ({@code TurretSubsystem.autoInitMarkProblem()}), or null
+     * @param zeroed          any zero is in place (carried from the Auto, by hand, by the switch)
+     * @param magnetNow       the switch sees the magnet now
+     */
+    public void turretMark(boolean fitted, boolean autonomous, String autoMarkProblem, boolean zeroed,
+                           boolean magnetNow) {
+        if (what[Kind.TURRET_MARK.ordinal()] != null) {
+            what[Kind.TURRET_MARK.ordinal()] = null;
+            action[Kind.TURRET_MARK.ordinal()] = null;
+            count--;
+        }
+        if (!fitted) return;
+        if (autonomous) {
+            if (autoMarkProblem != null) {
+                set(Kind.TURRET_MARK, "Turret: " + autoMarkProblem,
+                        "set the turret on its mark, INIT again");
+            }
+        } else if (!zeroed && !magnetNow) {
+            set(Kind.TURRET_MARK, "Turret off its mark: the home switch sees no magnet",
+                    "turn it by hand across its mark: it zeroes itself");
+        }
+    }
+
+    /** What a TeleOp's INIT warns about, with the light flashing: a gamepad, the lane sensor, or the turret's mark. */
     public boolean teleOpWarning() {
-        return has(Kind.GAMEPADS) || has(Kind.LANE_SENSOR_EMPTY);
+        return has(Kind.GAMEPADS) || has(Kind.LANE_SENSOR_EMPTY) || has(Kind.TURRET_MARK);
     }
 
     /** A gamepad is not assigned: what a TeleOp's INIT warns about, with the light flashing. */
@@ -262,6 +298,9 @@ public final class InitWarnings {
             if (gamepadMissing()) display.alert(what(Kind.GAMEPADS), action(Kind.GAMEPADS));
             if (has(Kind.LANE_SENSOR_EMPTY)) {
                 display.alert(what(Kind.LANE_SENSOR_EMPTY), action(Kind.LANE_SENSOR_EMPTY));
+            }
+            if (has(Kind.TURRET_MARK)) {
+                display.alert(what(Kind.TURRET_MARK), action(Kind.TURRET_MARK));
             }
             return;
         }
