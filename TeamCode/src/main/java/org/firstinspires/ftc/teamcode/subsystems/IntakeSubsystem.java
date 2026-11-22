@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 
 import java.util.Locale;
 import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.util.Throttle;
 
@@ -211,6 +212,28 @@ public class IntakeSubsystem implements Subsystem {
     /** Bursts in a row, with the roller never running free between them, before it stops trying. */
     public static int wedgeMaxBursts = 3;
 
+    /**
+     * Back the roller and stars (and with them the prefeed) out for a moment when a feed has stuck
+     * ({@link FeedJamClear}): feeding, a piece under the lane's entry sensor, and no shot and no
+     * change at the sensor for {@link #feedJamMs}. On since 22 Nov 2026, from 19429's Fruitport
+     * jams (M-1's preloads never left; M-6's and Q-39's left pieces behind); <b>not run on a
+     * robot</b>. Off, a stuck feed holds until the driver ejects or the Auto's feed timer ends.
+     */
+    public static boolean clearFeedJam = true;
+
+    /**
+     * A feed this long with the entry piece still and no shot counted is stuck, ms. Fruitport's
+     * firing feeds moved within 1.03 s (the slowest, 19429 Q-17 T 28.6 and Q-39's preloads), its
+     * stuck ones never did.
+     */
+    public static double feedJamMs = 1200.0;
+
+    /** How long a feed jam clear backs out, ms. The same guess as {@link #wedgeBackMs}, <b>not measured</b>. Clamped to [0, 1000]. */
+    public static double feedJamBackMs = 250.0;
+
+    /** Feed jam clears in one feed. A jam two bursts do not free is the driver's (eject). */
+    public static int feedJamMaxBursts = 2;
+
     private boolean positionHolding;
     private int holdTargetTicks;
     private int positionTicks;
@@ -241,6 +264,12 @@ public class IntakeSubsystem implements Subsystem {
     private boolean holdingOff;
     private boolean unwedging;
     private final WedgeClear wedge = new WedgeClear();
+    private boolean feedJamming;
+    private final FeedJamClear feedJam = new FeedJamClear();
+    /** Whether a piece is under the lane's entry sensor; never until {@link #feedJamFrom} is called, so no feed jam is cleared. */
+    private BooleanSupplier entryPresent = () -> false;
+    /** The launcher's shot count, read by {@link FeedJamClear}; 0 until {@link #feedJamFrom} is called. */
+    private IntSupplier shotCount = () -> 0;
     /** Whether a stall is the lane backed up, not a wedge; never until {@link #laneBackedUp} is called, so no wedge is cleared. */
     private BooleanSupplier laneBackedUp = () -> true;
     /** Whether a reject's hold-off is running; never until {@link #holdOffWhile} is called. */
@@ -305,6 +334,16 @@ public class IntakeSubsystem implements Subsystem {
      */
     public void laneBackedUp(BooleanSupplier backedUp) {
         laneBackedUp = backedUp;
+    }
+
+    /**
+     * Where to read what {@link FeedJamClear} watches: a piece under the lane's entry sensor, and
+     * the launcher's shot count. Wired once by {@code Robot}, as {@link #laneFull}; the sensor
+     * updates after this subsystem, so its reading is last loop's.
+     */
+    public void feedJamFrom(BooleanSupplier present, IntSupplier shots) {
+        entryPresent = present;
+        shotCount = shots;
     }
 
     /** Where to read whether a reject's hold-off is running. Wired once by {@code Robot}, as {@link #rejectWhile}. */
@@ -416,12 +455,22 @@ public class IntakeSubsystem implements Subsystem {
      * whole time), or backing out of a wedge: the roller's current is not a piece coming in.
      */
     public boolean rejectActive() {
-        return rejecting || holdingOff || unwedging;
+        return rejecting || holdingOff || unwedging || feedJamming;
     }
 
     /** Whether the roller and the stars are backing out of a wedge this loop ({@link WedgeClear}). */
     public boolean unwedging() {
         return unwedging;
+    }
+
+    /** Whether the roller and the stars are backing a stuck feed out this loop ({@link FeedJamClear}). */
+    public boolean feedJamming() {
+        return feedJamming;
+    }
+
+    /** Feed jam clears since this OpMode started. */
+    public int feedJamClears() {
+        return feedJam.bursts();
     }
 
     /** Wedge clears since this OpMode started. */
@@ -464,6 +513,7 @@ public class IntakeSubsystem implements Subsystem {
         holdingForFull = false;
         rejecting = false;
         holdingOff = false;
+        feedJamming = false;
         started = false;
         positionHolding = false;
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -530,7 +580,18 @@ public class IntakeSubsystem implements Subsystem {
             roller = State.OUT;
             starsState = State.OUT;
         }
-        feedAssist = !holdingForFull && !rejecting && !holdingOff && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
+        // A stuck feed: the gate open, the piece at the entry still and nothing fired. The OpMode's
+        // eject and a reject already back out; a stall while taking in is WedgeClear's.
+        feedJamming = feedJam.update(started && clearFeedJam && feed == FeederSubsystem.State.FEED
+                        && request != State.OUT && !rejecting && !holdingOff && !unwedging,
+                entryPresent.getAsBoolean(), shotCount.getAsInt(), System.nanoTime(),
+                feedJamMs, Math.min(Math.max(feedJamBackMs, 0.0), 1000.0), feedJamMaxBursts);
+        if (feedJamming) {
+            holdingForFull = false;
+            roller = State.OUT;
+            starsState = State.OUT;
+        }
+        feedAssist = !holdingForFull && !rejecting && !holdingOff && !feedJamming && request == State.IDLE && (roller != State.IDLE || starsState != State.IDLE);
         boolean ownEject = request == State.OUT;
         positionTicks = motor.getCurrentPosition();
         if (holdingForFull && positionHoldWhenFull && ownEncoder) {
@@ -593,6 +654,7 @@ public class IntakeSubsystem implements Subsystem {
         feedAssist = false;
         rejecting = false;
         holdingOff = false;
+        feedJamming = false;
         holdingForFull = false;
         started = false;
         releasePositionHold();
@@ -612,6 +674,7 @@ public class IntakeSubsystem implements Subsystem {
     public void describe(Display display) {
         boolean moving = roller != State.IDLE || starsState != State.IDLE;
         String what = unwedging ? "backing out of a wedge"
+                : feedJamming ? "backing a stuck feed out"
                 : rejecting ? "spitting out the other alliance's NECTAR"
                 : holdingOff ? "stopped: letting the rejected NECTAR roll clear"
                 : holdingForFull ? String.format(Locale.US,
