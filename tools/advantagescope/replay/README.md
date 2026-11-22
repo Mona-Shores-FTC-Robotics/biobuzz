@@ -66,10 +66,9 @@ AdvantageScope's frame (`logging/AdvantageScopeFrame`).
   Belding from our light): within a few tenths. `open-match Q-14 -Frames` saves a picture every 0.1 s around it,
   named by offset; if our robot is visible, the first picture with its light changed is the `-Shift` to use.
 - "estimated from the stream's start time": the hand was not found either (another overlay, or the match is not
-  where expected); seconds off. `video_shift_s` moves every estimate of an event at once. A stream that stalls
-  leaves the stall out of its video, so every match after it is that much earlier than the clock says: Fruitport's
-  stream froze 09:12-10:18 and its `video_shift_s` is -3958 (measured from the scoreboard's clock, 22 Nov 2026).
-  A match's video downloaded for an old estimate is dropped and downloaded again.
+  where expected); seconds off. `video_shift_s` moves every estimate of an event at once. A match's video downloaded for an old
+  estimate (`video_shift_s` or `video_start` changed since) is dropped and downloaded again, and a wrong copy on the
+  team Drive is replaced.
 
 A `-Shift` re-cuts the clip on the laptop in about half a minute, no download. To keep a hand-checked value, put
 the `video_start` line it prints into `matches.json` and commit it.
