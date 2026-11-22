@@ -71,15 +71,16 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    INIT warning; the lane count goes 1, 2, 3, 4; FULL only with 4 in. **Stop:** the warning shows,
    or FULL with fewer than 4 → push the logs; a session sets both levels from them.
 - [ ] Lane sensor checked with the plate
-4. **Camera mount.** 19429's 17 Nov logs put the camera's robot about 1.5–2 in to the robot's
-   left of odometry at every heading, and the tags about 0.6 in high: the mount, most likely.
-   **Vision: HIVE & Pose**, robot on the Red audience start marks, still: R1 when the
-   Camera calibration line is ready; R2, place it on the Red far wall marks, R1 again.
-   Then measure the lens height and pitch with a tape and a level (§6). **Good:** "Spots so far:
-   AGREE" → the forward/left go into `CameraMount` (the logged `CameraCalibration/<spot>` numbers;
-   `CameraMount` is shared by both robots, so say which robot measured them). **Stop:** DIFFER →
-   don't change anything; push the log.
-- [ ] Camera mount measured (and committed, Sloth Load) before step 5
+4. **Camera mount: set from the Belding and Fruitport logs (22 Nov 2026), check only.** Both
+   robots' forward/left came from `mountfit.py` (the localization-triage skill), which splits the
+   camera from the field: 20245's are the shared `CameraMount` values, 19429's are its
+   `RobotDifferences` line. Nothing to measure: Sloth Load, run any Auto and TeleOp as usual, pull
+   the logs, and a session runs `mountfit.py` on them. **Good:** each robot's camera error within
+   about ±0.3 in, and the start check's camera-minus-start about 1 in to the robot's left or less.
+   **Stop:** a robot's error past ±0.5 in, or larger than before → push the logs, change nothing.
+   The launch speed comes from the camera's range, so a mount change moves each speed by a few
+   ticks/s (20245's forward moved 0.81 in): watch the first volleys at the Auto spots.
+- [ ] Camera mounts checked in the next logs (Sloth Load first)
 5. **Shooting at the Auto spots,** after the mount is in. The launch speed comes from the camera's
    range to the CELL, so a mount change moves every speed. HIVE upright with the CELL being shot
    **up**, 4 POLLEN each time, phone filming the CELL. Fire 5 volleys from each spot by running
@@ -1054,9 +1055,24 @@ measurement is [#255].
       TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
       under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
       R-NoCross as it is.
-- [ ] **Camera calibration, R1 at two spots** (Vision: HIVE & Pose, Red audience then Red far wall).
-      **Good:** "Spots so far: AGREE" → commit the two numbers to `CameraMount` (code 3.55 / 0.95; 2 Nov
-      read 3.13 / 0.89). **Stop:** DIFFER → a HIVE point or the marks, don't commit.
+- [ ] **Camera calibration:** done from the Belding and Fruitport logs (22 Nov 2026, `mountfit.py`); see
+      the camera-mount check in the 19429 list above. No R1 run needed.
+- [ ] **Continuous fixes, on the home field, before States** (22 Nov 2026). Every run already scores them:
+      `FusionShadow` takes the moving frames beside the real pose, and each stop after a drive logs a
+      "fusion shadow: stop N ... camera X in from the real pose, Y in from the shadow" line, with one
+      summary line when the OpMode stops. **Session 1, off (as shipped):** Sloth Load, then two full
+      practice matches per robot, Auto and TeleOp, driven the way the drive team drives at an event
+      (FLOWER picks, GARDEN, volleys from both ends, a wall push or two); pull the logs. **Good:** in
+      the summary lines the shadow's arrival median is under half the real pose's, "over 1 in further"
+      at no more than about 1 stop in 30, and the shadow's worst no worse than the real pose's worst plus
+      1 in. **Session 2, on:** set `LocalizationTuning.continuousFixes` true in Panels (or a
+      `RobotDifferences` line for one robot), the same two matches. **Good:** the real pose's arrival
+      median now matches session 1's shadow (about 0.3-0.5 in), no Auto path or FLOWER pick misses
+      that session 1 did not, nothing odd on the field drawing near the HIVE while a CELL tips.
+      **Stop:** any stop with the real pose 4 in or more off on arrival that session 1 did not have, a
+      path that ends somewhere visibly wrong, or the pose jumping on the field drawing → turn it off,
+      push the logs. Both good → the shared value goes to true in `LocalizationTuning`, in a PR with
+      both sessions' summary lines.
       [handoff](../.claude/handoff/20245-camera-calibration.md), [PR #360]
 - [ ] **Heading-aware camera reset:** lift the robot, turn ~15°, set it down off the mark, still,
       hold D-pad down. **Good:** heading corrected, field-centric drives right again. [handoff], [PR #360]

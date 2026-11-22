@@ -87,6 +87,39 @@ tags it is the fit, and the robot's heading was fine. **The INIT override that m
 that night was a 2-tag fit**: the position-only gap at the same moment was 0.7 in, which is the mark
 confirming itself (a heading wrong by 24° would have put that gap near 20 in).
 
+## 0e. Camera or field? `mountfit.py`, from match logs alone
+
+`python3 -I .claude/skills/localization-triage/mountfit.py DIR [DIR ...]` (numpy) answers the question a
+start check cannot: is a camera-vs-marks gap the camera mount, the HIVE model, or the start spots? A mount
+error turns with the robot and a field error does not. Each still stop's first still fix is the camera's
+disagreement on arrival after the stop before had converged, so stop pairs solve for each robot's mount
+(robot axes) and one HIVE-row error shared by all robots and fields; pairs at the same CELL see no row term
+(`--same-cell` fits the mount alone). The start checks are then compared with the fit: what is left is the
+start spots. Feed it every log of an event, both robots, practice included; it reads the robot from each
+log's `RobotConfig`. **Its camera numbers go straight into `CameraMount` (new = old + error)**, the robot
+whose camera differs as a `RobotDifferences` line; change a number only when it moves past its error.
+22 Nov 2026, Belding + Fruitport (all runs at 3.55 / 0.95): 19429 fwd -0.92 left +0.90, 20245 fwd +0.81
+left +0.55 (each about +/-0.15), HIVE row -0.21 +/-0.13 (the field CAD, the STEP file and every other
+team's model also put the rows centred on the HIVE), and about 1 in to the robots' left left over at the
+start spots on both robots, both fields. The R1 block in Vision: HIVE & Pose cannot make that split: it
+puts everything it sees at one spot into the mount.
+
+## 0f. Would continuous fixes have helped? `fusion_replay.py`
+
+Every gated camera frame is logged, moving or not (`/Drift/Gap*`, `/Drift/Still`), so a match replays with
+`continuousFixes` on: `python3 -I .claude/skills/localization-triage/fusion_replay.py DIR [--gains ...]`.
+The score is the first still fix of each stop: how far the camera disagreed with the pose on arrival.
+22 Nov 2026, Belding + Fruitport matches: off, median 1.6-1.8 in; a small pull per frame (gain 0.05-0.1)
+median 0.2-0.4 and rms halved; a large one (0.5-0.95, which is what Pedro's filter gives a single fix at our
+variances: a still fix moves the pose about 95 % of the way) no better than off. So a continuous fix has its
+own variance, `LocalizationTuning.continuousFixVarianceScale` (25 times a still fix's: the replay's
+best region), a 6 in jump gate, a row-height gate (`continuousFixMaxRowHeightErrorIn`, 1.5 in off the
+settled height: a CELL starting to swing still reads settled, and the camera pitches while driving), and
+is used only while moving. It scores agreement with the camera, so
+calibrate the mount first. Since 22 Nov 2026 every run also scores it live: `FusionShadow` logs
+"fusion shadow: stop N ..." at each stop after a drive and one summary line at the OpMode's end; grep
+the events for those before replaying anything.
+
 ## 1. Which kind of log is it?
 
 | Log has | Means | Use |
@@ -139,10 +172,9 @@ is the real test, so say so in the first report and sanity-check the table by ey
 - A residual that **grows with range** is a rotation: `pitchDeg` (also shows as a height error;
   1 deg is about 1 in at 60 in) or `yawDeg` (sideways). `triage` does not log per-tag range, so
   ask for the same pass from two distances and compare. Do not pick a pitch from one distance.
-- `CameraMount` holds one set of numbers for **both** robots, measured on 19429. If the log is from
-  20245 and its mount differs, the fix is per-robot values keyed off
-  `ActiveConfig.requireIdentity()` (CLAUDE.md "Hardware names and robot configs"), not a shared
-  number that is right for one robot. Say which robot the log is from every time.
+- `CameraMount` holds the shared numbers (20245's, from `mountfit.py`, 22 Nov 2026); 19429's
+  camera differs and has its own `RobotDifferences` line. A robot that differs gets a line there,
+  never a second field or an `if` on the robot. Say which robot the log is from every time.
 
 ### Field point
 - `HiveFieldPoints` came from the field CAD and was checked on RED_AUDIENCE only
@@ -204,8 +236,9 @@ Change **one** camera setting between sessions, or the two logs cannot be compar
   If the user reset to a corner and the pose was off, the fix is measuring the corner on the robot.
 - **`LocalizationTuning` gates and sigmas** are for noise, never for bias. The jitter lines give
   `fixSigmaIn`. Never loosen a gate to make a fix work: that hides a mount or field-point error.
-- **`continuousFixes` / `stillFixes` stay off** unless a with/without comparison on the taped path
-  (#82) shows they help. Do not turn them on to repair a miscalibration.
+- **`stillFixes` is on; `continuousFixes` stays off** until it has a variance of its own that gives a
+  small pull per frame (section 0f), shown on a replay and then on the robot. Never turn either on to
+  repair a miscalibration.
 
 ## 4. A match log, no vision session
 

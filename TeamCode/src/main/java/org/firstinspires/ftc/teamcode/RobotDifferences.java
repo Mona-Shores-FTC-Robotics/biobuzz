@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.vision.CameraMount;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,6 +133,14 @@ public final class RobotDifferences {
         differs(RobotIdentity.TEAM_19429,
                 "Keeps only POLLEN: the reject spits out both NECTAR colours, ours too (mentor, 21 Nov 2026)",
                 () -> ColorSensorSubsystem.rejectAllNectar = true);
+        differs(RobotIdentity.TEAM_19429,
+                "Camera mount: fitted from the Belding and Fruitport logs, the camera read -0.92 in"
+                        + " forward and +0.90 in left of the robot (each +/-0.15) at 3.55 / 0.95; 20245's"
+                        + " camera reads differently (CameraMount has the method; 22 Nov 2026)",
+                () -> {
+                    CameraMount.mountForwardIn = 2.63;
+                    CameraMount.mountLeftIn = 1.85;
+                });
 
         // ---------------------------------------------------------------- 20245 (Ultraviolet)
         // The shared values were mostly measured on 20245.

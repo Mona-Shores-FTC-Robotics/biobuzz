@@ -29,14 +29,17 @@ import com.bylazar.configurables.annotations.Configurable;
  * a tape. If it is ever in doubt, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
  * unit tests will tell you whether the rest of the chain still holds.
  *
- * <p><b>Forward and left are calibrated from match logs, 2 Nov 2026 (20245).</b> Three routes
- * agree: stop pairs in the 1 Nov logs where the robot faced the red HIVE then the blue one within
- * a minute (the field offset cancels, the mount error solves: fwd -0.1 to -0.5, left +0.6 to +1.0);
- * the 31 Oct wall test (wheelbase centre 7.55 in from the wall, camera read 7.1: fwd -0.45); and four
- * placements on the red start (left +1.05). So the lens sits 0.45 in further back and 0.95 in further
- * left than the 3 Oct tape, each about +/-0.25. 19429 is being rebuilt as 20245's copy and shares
- * these until its own R1 calibration says otherwise. Vision: HIVE &amp; Pose's R1 block measures
- * this on the robot; commit what it logs.
+ * <p><b>Forward and left are 20245's, fitted from the Belding and Fruitport logs (22 Nov 2026).</b>
+ * Both robots ran 3.55 / 0.95 at both events. A mount error turns with the robot and a field error
+ * does not, so pairs of still stops seeing the same CELL at different headings solve for the mount
+ * alone, whatever the field and the start marks are (the localization-triage skill's
+ * {@code mountfit.py}; 67 same-CELL pairs, 110 with cross-CELL ones). 20245: the camera read
+ * +0.81 in forward and +0.55 in left of the robot (each +/-0.13), so 3.55 + 0.81 and 0.95 + 0.55.
+ * The same fit put the HIVE tag rows where the field CAD does (sideways -0.21 +/-0.13 in), as every
+ * other team's model and the official STEP file do. 19429's camera differs: its line is in
+ * {@code RobotDifferences}. The 2 Nov values (from stops and placements on one practice field) are
+ * superseded. Re-run the fit on each event's logs; change a number only when it moves past its
+ * error, and after any mechanical work near the camera.
  *
  * <p>The height and pitch below were measured on 19429 on 3 Oct 2026 (#156): tape
  * and level, then checked against a tape at the RED start position (range within
@@ -46,10 +49,10 @@ import com.bylazar.configurables.annotations.Configurable;
 public class CameraMount {
 
     /** Forward (+toward the front) from the robot origin to the lens, inches. */
-    public static double mountForwardIn = 3.55;
+    public static double mountForwardIn = 4.36;
 
     /** Left (+toward the robot's left) from the robot origin to the lens, inches. */
-    public static double mountLeftIn = 0.95;
+    public static double mountLeftIn = 1.50;
 
     /** Height of the lens above the floor, inches. */
     public static double mountUpIn = 14.0;
