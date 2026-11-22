@@ -1,0 +1,146 @@
+[
+ {
+  "robot": "19429",
+  "group": "Filled up",
+  "step": "To first piece",
+  "order": 1,
+  "phase": "collect",
+  "seconds": 4.75,
+  "samples": 16
+ },
+ {
+  "robot": "19429",
+  "group": "Filled up",
+  "step": "Collecting",
+  "order": 2,
+  "phase": "collect",
+  "seconds": 2.82,
+  "samples": 16
+ },
+ {
+  "robot": "19429",
+  "group": "Filled up",
+  "step": "Drive back with pieces",
+  "order": 3,
+  "phase": "collect",
+  "seconds": 2.94,
+  "samples": 16
+ },
+ {
+  "robot": "19429",
+  "group": "Shot before full",
+  "step": "To first piece",
+  "order": 1,
+  "phase": "collect",
+  "seconds": 3.33,
+  "samples": 17
+ },
+ {
+  "robot": "19429",
+  "group": "Shot before full",
+  "step": "Collecting",
+  "order": 2,
+  "phase": "collect",
+  "seconds": 1.33,
+  "samples": 17
+ },
+ {
+  "robot": "19429",
+  "group": "Shot before full",
+  "step": "Drive back with pieces",
+  "order": 3,
+  "phase": "collect",
+  "seconds": 4.44,
+  "samples": 17
+ },
+ {
+  "robot": "20245",
+  "group": "Filled up",
+  "step": "To first piece",
+  "order": 1,
+  "phase": "collect",
+  "seconds": 3.49,
+  "samples": 35
+ },
+ {
+  "robot": "20245",
+  "group": "Filled up",
+  "step": "Collecting",
+  "order": 2,
+  "phase": "collect",
+  "seconds": 3.84,
+  "samples": 35
+ },
+ {
+  "robot": "20245",
+  "group": "Filled up",
+  "step": "Drive back with pieces",
+  "order": 3,
+  "phase": "collect",
+  "seconds": 1.96,
+  "samples": 35
+ },
+ {
+  "robot": "20245",
+  "group": "Shot before full",
+  "step": "To first piece",
+  "order": 1,
+  "phase": "collect",
+  "seconds": 1.72,
+  "samples": 28
+ },
+ {
+  "robot": "20245",
+  "group": "Shot before full",
+  "step": "Collecting",
+  "order": 2,
+  "phase": "collect",
+  "seconds": 2.58,
+  "samples": 28
+ },
+ {
+  "robot": "20245",
+  "group": "Shot before full",
+  "step": "Drive back with pieces",
+  "order": 3,
+  "phase": "collect",
+  "seconds": 2.02,
+  "samples": 28
+ },
+ {
+  "robot": "19429",
+  "group": "Filled up",
+  "step": "Launch, press to moving again",
+  "order": 4,
+  "phase": "launch",
+  "seconds": 3.72,
+  "samples": 16
+ },
+ {
+  "robot": "19429",
+  "group": "Shot before full",
+  "step": "Launch, press to moving again",
+  "order": 4,
+  "phase": "launch",
+  "seconds": 3.15,
+  "samples": 17
+ },
+ {
+  "robot": "20245",
+  "group": "Filled up",
+  "step": "Launch, press to moving again",
+  "order": 4,
+  "phase": "launch",
+  "seconds": 3.64,
+  "samples": 35
+ },
+ {
+  "robot": "20245",
+  "group": "Shot before full",
+  "step": "Launch, press to moving again",
+  "order": 4,
+  "phase": "launch",
+  "seconds": 2.81,
+  "samples": 28
+ }
+]

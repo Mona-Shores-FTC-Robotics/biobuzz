@@ -29,14 +29,15 @@ import traceback
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from review_lib import logs, shots, volleys, battery, launching, pieces, driving, pickup, ftc, schedule  # noqa: E402
+from review_lib import logs, shots, volleys, battery, launching, pieces, driving, pickup, feeder, ftc, schedule  # noqa: E402
 
 TEAMS = {'19429': 'Infrared', '20245': 'Ultraviolet'}
 # Every dataset the page and build.py read. A dataset that cannot be made is written as [].
 DATASETS = ['matches', 'robots', 'shot_recovery', 'mechanisms', 'energy', 'volley_steps', 'spot_outcomes', 'field_opr',
             'top_scores', 'results', 'cycle_steps', 'cycle_groups', 'cycle_group_summary', 'pieces', 'nectar', 'world_ranks',
             'square_issues', 'drive_speed', 'feed_summary', 'feed_volleys', 'feed_nectar', 'drive_trips', 'launch_methods',
-            'volley_pieces', 'launch_volleys', 'stick_cancels', 'floor_pickup', 'floor_tiles', 'flower_picks']
+            'volley_pieces', 'launch_volleys', 'stick_cancels', 'floor_pickup', 'floor_tiles', 'flower_picks',
+            'unjam', 'drive_slip']
 
 
 def load_config(event, path=None):
@@ -162,6 +163,7 @@ def build_datasets(by_team, cfg, fs, say):
         run('drive_trips', lambda: {'drive_trips': driving.trips(present, cfg)})
         run('flower_picks', lambda: {'flower_picks': pickup.flower(present, vols)})
         run('floor', lambda: pickup.floor(present, V, cfg))
+        run('unjam and slip', lambda: feeder.build(present, vols, cfg))
     if fs is not None:
         crashes = {t: sum(1 for m in ms for _, e in m.events if 'CRASH' in e) for t, ms in by_team.items()}
         parks = {t: sum(1 for m in ms if any('park' in e.lower() and e.startswith('auto: path')

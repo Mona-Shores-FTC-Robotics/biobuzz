@@ -1,0 +1,44 @@
+[
+ {
+  "robot": "19429",
+  "outcome": "Sticks took over at the spot",
+  "presses": 1,
+  "shots": 4
+ },
+ {
+  "robot": "19429",
+  "outcome": "Sticks cancelled it on the way",
+  "presses": 1,
+  "shots": 0
+ },
+ {
+  "robot": "19429",
+  "outcome": "Let go at the spot",
+  "presses": 1,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Let go at the spot",
+  "presses": 8,
+  "shots": 29
+ },
+ {
+  "robot": "20245",
+  "outcome": "Let go before arriving",
+  "presses": 4,
+  "shots": 5
+ },
+ {
+  "robot": "20245",
+  "outcome": "Sticks cancelled it on the way",
+  "presses": 1,
+  "shots": 0
+ },
+ {
+  "robot": "20245",
+  "outcome": "Sticks took over at the spot",
+  "presses": 1,
+  "shots": 1
+ }
+]

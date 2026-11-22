@@ -27,6 +27,8 @@ KEYS = [
     '/Odometry/PedroInches/X', '/Odometry/PedroInches/Y', '/Odometry/PedroInches/HeadingDeg',
     '/Drive/OdometrySpeedInPerSec', '/Drive/CommandForward', '/Drive/CommandStrafe', '/Drive/CommandTurn',
     '/Drive/CommandFieldCentric',
+    '/Drive/WheelTicksPerSec/FrontLeft', '/Drive/WheelTicksPerSec/FrontRight',
+    '/Drive/WheelTicksPerSec/BackLeft', '/Drive/WheelTicksPerSec/BackRight',
 ]
 META = ['/RealMetadata/MatchId', '/RealMetadata/OpMode', '/RealMetadata/RobotConfig', '/RealMetadata/Build',
         '/RealMetadata/Tunable/LauncherSubsystem.toleranceTicksPerSecond',

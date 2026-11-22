@@ -1,0 +1,152 @@
+[
+ {
+  "robot": "19429",
+  "match": "Q2",
+  "order": 1,
+  "reverse_s": 3.3,
+  "reverses": 3,
+  "gate_opens": 14,
+  "empty_opens": 7,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "19429",
+  "match": "Q17",
+  "order": 2,
+  "reverse_s": 2.0,
+  "reverses": 2,
+  "gate_opens": 13,
+  "empty_opens": 3,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "19429",
+  "match": "Q23",
+  "order": 3,
+  "reverse_s": 8.7,
+  "reverses": 7,
+  "gate_opens": 18,
+  "empty_opens": 9,
+  "stuck_opens": 7
+ },
+ {
+  "robot": "19429",
+  "match": "Q28",
+  "order": 4,
+  "reverse_s": 2.6,
+  "reverses": 4,
+  "gate_opens": 14,
+  "empty_opens": 3,
+  "stuck_opens": 1
+ },
+ {
+  "robot": "19429",
+  "match": "Q39",
+  "order": 5,
+  "reverse_s": 1.3,
+  "reverses": 3,
+  "gate_opens": 11,
+  "empty_opens": 2,
+  "stuck_opens": 0
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff M1",
+  "order": 6,
+  "reverse_s": 12.3,
+  "reverses": 11,
+  "gate_opens": 21,
+  "empty_opens": 16,
+  "stuck_opens": 13
+ },
+ {
+  "robot": "19429",
+  "match": "Playoff M6",
+  "order": 7,
+  "reverse_s": 1.3,
+  "reverses": 4,
+  "gate_opens": 14,
+  "empty_opens": 5,
+  "stuck_opens": 3
+ },
+ {
+  "robot": "20245",
+  "match": "Q4",
+  "order": 1,
+  "reverse_s": 0.8,
+  "reverses": 2,
+  "gate_opens": 15,
+  "empty_opens": 4,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "20245",
+  "match": "Q11",
+  "order": 2,
+  "reverse_s": 4.0,
+  "reverses": 9,
+  "gate_opens": 22,
+  "empty_opens": 11,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "20245",
+  "match": "Q20",
+  "order": 3,
+  "reverse_s": 0.3,
+  "reverses": 1,
+  "gate_opens": 15,
+  "empty_opens": 3,
+  "stuck_opens": 1
+ },
+ {
+  "robot": "20245",
+  "match": "Q28",
+  "order": 4,
+  "reverse_s": 0.8,
+  "reverses": 2,
+  "gate_opens": 12,
+  "empty_opens": 3,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "20245",
+  "match": "Q42",
+  "order": 5,
+  "reverse_s": 0.4,
+  "reverses": 1,
+  "gate_opens": 13,
+  "empty_opens": 1,
+  "stuck_opens": 0
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff M3",
+  "order": 6,
+  "reverse_s": 1.5,
+  "reverses": 3,
+  "gate_opens": 16,
+  "empty_opens": 4,
+  "stuck_opens": 2
+ },
+ {
+  "robot": "20245",
+  "match": "Playoff M7",
+  "order": 7,
+  "reverse_s": 0.0,
+  "reverses": 0,
+  "gate_opens": 14,
+  "empty_opens": 2,
+  "stuck_opens": 1
+ },
+ {
+  "robot": "20245",
+  "match": "Final",
+  "order": 8,
+  "reverse_s": 0.9,
+  "reverses": 1,
+  "gate_opens": 13,
+  "empty_opens": 3,
+  "stuck_opens": 1
+ }
+]

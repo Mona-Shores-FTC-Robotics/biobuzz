@@ -1,0 +1,22 @@
+{
+  "title": "Belding → Fruitport",
+  "changes": [
+    "The driver owns every shot: the driver's Circle fires, R1 picks AIM or LOCKED, the operator's FIRE is gone (#623, 18 Nov). At Belding a manual volley was the operator's FIRE.",
+    "The TeleOp launcher keeps spinning between volleys (#661), so a press finds it near speed.",
+    "Speed table remeasured on 20245 (#632); aim and launch trim caps (#629), and a fine-trim step on the operator's Circle (#624).",
+    "19429's FLOWER stick rebuilt (#635). 20245 stops enforcing the turret's firing arc in TeleOp (#658).",
+    "A right-start Auto fires its preloads from RIGHT_AUTO_HIVE (#636)."
+  ],
+  "not_comparable": {
+    "manual_time": "A manual volley was the operator's FIRE at Belding and the driver's Circle at Fruitport: a different press by a different person.",
+    "autodrive": "With the driver's Circle as the fire button, auto-drive (Square) stopped being the way to launch; the share says what the drive team chose, not how well it worked.",
+    "prespun": "The TeleOp launcher now keeps spinning between volleys (#661), so 'already at speed' is the new default, not a driver habit."
+  },
+  "notes": {
+    "later": "The feed itself: the one number that should not move, and did not.",
+    "cycle_full": "Fruitport's manual volleys are timed from the driver's Circle (PR #693); Belding's from the operator's FIRE.",
+    "cycle_early": "As above: the press that starts a manual volley changed.",
+    "stuck": "#506 detector gate openings that launched nothing while /Lane/Present read a piece.",
+    "slip": "Within one robot only: the two robots' wheel encoders read differently."
+  }
+}

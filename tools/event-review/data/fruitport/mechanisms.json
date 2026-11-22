@@ -1,0 +1,14 @@
+[
+ {
+  "mechanism": "Launcher (both wheels, at speed)",
+  "amps": 2.81
+ },
+ {
+  "mechanism": "Feeder (running)",
+  "amps": 0.74
+ },
+ {
+  "mechanism": "Intake (running)",
+  "amps": 0.91
+ }
+]
