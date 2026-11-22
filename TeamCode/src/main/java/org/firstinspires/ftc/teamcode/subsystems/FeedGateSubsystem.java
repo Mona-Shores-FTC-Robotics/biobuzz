@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 
 /**
  * The feed gate: a plate on a goBILDA Speed servo that turns between two positions. BLOCKING holds
@@ -18,6 +19,11 @@ import java.util.Locale;
  * bench get the same behaviour. It is updated after the feeder, so it follows this loop's request.
  * Reversing opens it too, so a jam can clear backward. {@link #hold} replaces that for a bench;
  * {@link #follow} gives it back.
+ *
+ * <p>It stays shut to a feed while a wrong NECTAR may be in the lane ({@link #shutWhile}, from
+ * {@code ColorSensorSubsystem.wrongNectarMayBeIn()}): launching the other alliance's NECTAR is a
+ * penalty, and in Fruitport Q-11 20245 launched one the reject bursts had not cleared. TeleOp and
+ * every Auto alike, since every feed opens this gate; a reverse still opens it, so an unjam works.
  *
  * <p><b>The two positions are measured on a robot, never guessed</b> ({@link #blockingPosition},
  * {@link #feedingPosition}): a wrong guess drives the plate into something. While
@@ -64,6 +70,9 @@ public class FeedGateSubsystem implements Subsystem {
     private boolean started;
     /** An Autonomous's INIT: hold the gate closed before PLAY ({@link #holdAtInit()}). */
     private boolean holdAtInit;
+    /** Whether a feed must not open the gate; never until {@link #shutWhile} is called. */
+    private BooleanSupplier shut = () -> false;
+    private boolean shutToFeed;
 
     /**
      * Looks the servo up once. A missing servo fails init with the SDK's own message.
@@ -78,6 +87,19 @@ public class FeedGateSubsystem implements Subsystem {
     /** Hold the gate in {@code state} whatever the feeder asks, for a bench. */
     public void hold(State state) {
         hold = state;
+    }
+
+    /**
+     * Keep the gate shut to a feed while {@code shut} says so: a wrong NECTAR may be in the lane.
+     * Wired once by {@code Robot}. The colour sensor updates after this, so it is last loop's answer.
+     */
+    public void shutWhile(BooleanSupplier shut) {
+        this.shut = shut;
+    }
+
+    /** Whether the last {@link #update()} kept the gate shut to a feed ({@link #shutWhile}). */
+    public boolean shutToFeed() {
+        return shutToFeed;
     }
 
     /** Follow the feeder again ({@link #requestFor}). The default. */
@@ -138,7 +160,8 @@ public class FeedGateSubsystem implements Subsystem {
      */
     @Override
     public void update() {
-        state = hold != null ? hold : requestFor(feeder.state());
+        shutToFeed = hold == null && feeder.state() == FeederSubsystem.State.FEED && shut.getAsBoolean();
+        state = hold != null ? hold : requestFor(feeder.state(), shutToFeed);
         if (!started) {
             if (!holdAtInit) {
                 return;
@@ -173,7 +196,8 @@ public class FeedGateSubsystem implements Subsystem {
         display.status("Feed gate", state == State.BLOCKING ? Display.Level.OK : Display.Level.WARN,
                 (state == State.BLOCKING ? "BLOCKING" : "FEEDING")
                         + (Double.isNaN(lastWritten) ? "" : String.format(Locale.US, " (%.2f)", lastWritten))
-                        + (hold != null ? " · held by the bench" : ""));
+                        + (hold != null ? " · held by the bench" : "")
+                        + (shutToFeed ? " · shut to the feed: a wrong NECTAR may be in the lane" : ""));
     }
 
     /**
@@ -181,7 +205,14 @@ public class FeedGateSubsystem implements Subsystem {
      * reverses (a jam clears backward), BLOCKING otherwise.
      */
     public static State requestFor(FeederSubsystem.State feeder) {
-        return feeder == FeederSubsystem.State.IDLE ? State.BLOCKING : State.FEEDING;
+        return requestFor(feeder, false);
+    }
+
+    /** {@link #requestFor(FeederSubsystem.State)}, but a feed with {@code shutToFeed} stays BLOCKING. Pure. */
+    public static State requestFor(FeederSubsystem.State feeder, boolean shutToFeed) {
+        if (feeder == FeederSubsystem.State.IDLE) return State.BLOCKING;
+        if (feeder == FeederSubsystem.State.FEED && shutToFeed) return State.BLOCKING;
+        return State.FEEDING;
     }
 
     /**

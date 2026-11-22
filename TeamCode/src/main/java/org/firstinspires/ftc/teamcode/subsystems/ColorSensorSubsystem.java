@@ -14,8 +14,11 @@ import java.util.Locale;
 /**
  * The REV Color Sensor V3 in the transfer: what colour is in front of it, and how bright. Its
  * numbers go to the match log ({@code /ColorSensor/*}) and the Robot page. Two things are decided from
- * it: whether the lane is full (below), and whether the piece at the entrance is the other
- * alliance's NECTAR, to spit out (below); its colours are otherwise data only.
+ * it: whether the lane is full (below), and the NECTAR gate ({@link NectarReject}): whether the piece
+ * at the entrance is one to spit out (the other alliance's NECTAR, or any piece of no sure colour),
+ * and whether one may still be in the lane, which keeps the feed gate shut
+ * ({@link #wrongNectarMayBeIn()}). Its colours are otherwise data only. A glitch reading (any channel
+ * at {@link #maxPlausibleChannel}) decides nothing.
  *
  * <p>It is an I2C device, so every read is a round trip to the hub that the bulk cache does not
  * cover: the colour block only. Its proximity side (IR distance) is never read: "full" goes by
@@ -161,9 +164,10 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double blueNectarHueMax = 270;
 
     /**
-     * Whether the other alliance's NECTAR at the entrance is spat out ({@link NectarReject}): the
-     * roller, the stars and the prefeed reverse for {@link #rejectBurstS}, the whole lane. Off: colours are
-     * logged only. Read every loop, so a Panels edit applies at once.
+     * Whether a wrong piece at the entrance is spat out ({@link NectarReject}): the other alliance's
+     * NECTAR, or a piece the reading is not sure of. The roller, the stars and the prefeed reverse for
+     * {@link #rejectBurstS}, the whole lane. Off: colours are logged only, and the feed gate is never
+     * held shut. Read every loop, so a Panels edit applies at once.
      */
     public static boolean rejectEnemyNectar = true;
 
@@ -190,11 +194,75 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double rejectRollerPower = 1.0;
 
     /**
-     * Fresh readings in a row, each the other alliance's NECTAR with a piece present, before a
-     * burst starts. 2, at the 50 ms read rate, decides in about 0.1 s; a piece passing with the
-     * intake running is under the sensor 0.3 to 1.0 s (1 Nov logs). 1 trusts a single reading.
+     * Fresh readings in a row, each a wrong piece ({@link NectarReject#judge}), before a burst
+     * starts. 1: the sensor makes a new reading only about every 100 ms, so at the 50 ms read rate
+     * two in a row were most often the same reading twice (Fruitport, 21 Nov 2026), and a NECTAR
+     * passing the entrance is under the sensor for 0.13 s (20245, Q-28). With the glitches dropped
+     * ({@link #maxPlausibleChannel}) one reading is enough, and a false one costs a POLLEN at most.
      */
-    public static int rejectAfterReadings = 2;
+    public static int rejectAfterReadings = 1;
+
+    /**
+     * A reading with any colour channel at or above this is not of a real piece and is dropped
+     * ({@link NectarReject#plausible}): no lane, full or reject decision sees it. Fruitport, 21 Nov
+     * 2026: real pieces never read a channel above 0.19 (8030 readings at brightness over 0.5), while
+     * 20245 read 92 glitches at brightness 1.00 with red at 1.0, two of which (red 1, green 0, blue
+     * 0, hue 0°) fired a red NECTAR reject on BLUE in Q-20. NaN: only the brightness test (1.00).
+     */
+    public static double maxPlausibleChannel = 0.5;
+
+    /**
+     * A hue this many degrees from the other alliance's NECTAR range is that NECTAR too: an
+     * uncertain piece is treated as wrong (mentor, 22 Nov 2026). The gap that matters is red NECTAR's
+     * top ({@link #redNectarHueMax}, 42°, real red read up to 40° at Belding) against POLLEN's bottom
+     * ({@link #pollenHueMin}, 43°, a dim POLLEN read 44° to 55°): on BLUE, 5 rejects a POLLEN read at
+     * 47° or below. Not used for our own NECTAR, which is 170° from the other colour.
+     */
+    public static double rejectDoubtDeg = 5;
+
+    /**
+     * A dim reading from this brightness up, in or near the other alliance's NECTAR colour, is a
+     * wrong NECTAR just off the sensor's spot ({@link NectarReject.Sighting#WRONG_FAINT}). The empty
+     * lane read 0.006 to 0.012 on 20245 at Fruitport; in Q-11 the red NECTAR that was launched read
+     * 0.018 to 0.022 inside the lane after the bursts. NaN: no faint sightings.
+     */
+    public static double rejectFaintAbove = 0.015;
+
+    /**
+     * A faint sighting needs at least this saturation: the empty lane read 0.33 to 0.42 on 20245
+     * and 0.46 to 0.50 lit on 19429 (at a grey-green hue, never near either NECTAR); the faint red
+     * NECTAR in Q-11 0.50 to 0.73.
+     */
+    public static double rejectFaintMinSaturation = 0.45;
+
+    /**
+     * How long after a bright wrong reading a faint one still counts, seconds; while the lane is
+     * suspect it always does. A faint reading alone never makes the lane suspect: an empty lane on
+     * 20245 once read 0.02 to 0.03 at a blue hue (5 Nov 2026).
+     */
+    public static double rejectFaintWindowS = 3.0;
+
+    /**
+     * Whether the feed gate stays shut while a wrong NECTAR may be in the lane
+     * ({@link #wrongNectarMayBeIn()}). Off: the bursts only, as before 22 Nov 2026, when 20245
+     * launched a red NECTAR on BLUE (Fruitport Q-11). Read every loop.
+     */
+    public static boolean shutGateOnWrongNectar = true;
+
+    /**
+     * After a wrong NECTAR was seen leaving the entrance while the lane ran outward, the sensor must
+     * read clean this long before the lane is clear again, seconds. Q-28 (20245 on RED): the burst
+     * carried a BLUE NECTAR off the spot in 0.4 s and the lane stayed clean.
+     */
+    public static double wrongNectarClearS = 1.0;
+
+    /**
+     * The lane running outward this long with no bright wrong reading (the driver's eject) clears a
+     * suspect lane, seconds: long enough to carry anything in the lane out past the sensor.
+     * <b>Not measured:</b> 1.0 is a guess at a full lane's eject; bench it ({@code doc/robot-todo.md}).
+     * Above {@link #rejectBurstS}, so a burst alone never clears it this way.
+     */
+    public static double wrongNectarEjectClearS = 1.0;
 
     /**
      * After each burst, how long the roller and the stars stay stopped so the piece rolls clear,
@@ -226,6 +294,10 @@ public class ColorSensorSubsystem implements Subsystem {
     /** Our alliance, for which NECTAR to reject; UNKNOWN (never rejects) until {@link #alliance} is called. */
     private Alliance alliance = Alliance.UNKNOWN;
     private LaneTracker.Piece lastPiece = LaneTracker.Piece.UNKNOWN;
+    /** Whether the latest reading could be of a real piece ({@link #maxPlausibleChannel}). */
+    private boolean plausible = true;
+    /** Readings dropped as implausible since init. */
+    private long implausible;
 
     private long lastReadNs;
     private long lastUpdateNs;
@@ -296,14 +368,18 @@ public class ColorSensorSubsystem implements Subsystem {
         watching = canMove;
         if (fresh) {
             read(now);
+            plausible = NectarReject.plausible(red, green, blue, alpha, maxPlausibleChannel);
+            if (!plausible) implausible++;
         }
+        // A glitch reading is logged (fresh) but decides nothing: as if not read.
+        boolean usable = fresh && plausible;
         // The lane runs outward when the stars do, whatever the roller does.
         boolean outward = intake.starsState() == IntakeSubsystem.State.OUT
                 || prefeed.state() == PrefeedSubsystem.State.OUT;
         LaneTracker.Piece piece = LaneTracker.classify(hueDeg, pollenHueMin, pollenHueMax,
                 redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax);
-        if (fresh) lastPiece = piece;
-        lane.step(fresh, alpha, piece, outward, shot, presentAbove, leaveBelow);
+        if (usable) lastPiece = piece;
+        lane.step(usable, alpha, piece, outward, shot, presentAbove, leaveBelow);
         // The OpMode's own eject (driver or operator unjam) clears the whole lane; a NECTAR reject does not.
         boolean ejecting = intake.requested() == IntakeSubsystem.State.OUT;
         if (ejecting) {
@@ -311,10 +387,16 @@ public class ColorSensorSubsystem implements Subsystem {
             laneFull.clear();
         }
         // Seen above leaveBelow, not presentAbove: a NECTAR at the edge of the spot still counts.
-        reject.step(now / 1_000_000L, fresh, alpha, piece, alliance, rejectAllNectar, rejectEnemyNectar,
-                Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove), rejectAfterReadings, rejectBurstS * 1000.0, rejectHoldOffS * 1000.0,
-                rejectMaxBursts, rejectWindowS * 1000.0);
-        if (fresh) {
+        double seenAbove = Double.isNaN(leaveBelow) ? presentAbove : Math.min(leaveBelow, presentAbove);
+        NectarReject.Sighting sighting = usable
+                ? NectarReject.judge(hueDeg, saturation, alpha, alliance, rejectAllNectar, seenAbove,
+                        rejectFaintAbove, rejectFaintMinSaturation, rejectDoubtDeg, pollenHueMin, pollenHueMax,
+                        redNectarHueMin, redNectarHueMax, blueNectarHueMin, blueNectarHueMax)
+                : NectarReject.Sighting.NOTHING;
+        reject.step(now / 1_000_000L, usable, sighting, outward, rejectEnemyNectar, rejectAfterReadings,
+                rejectBurstS * 1000.0, rejectHoldOffS * 1000.0, rejectMaxBursts, rejectWindowS * 1000.0,
+                rejectFaintWindowS * 1000.0, wrongNectarClearS * 1000.0, wrongNectarEjectClearS * 1000.0);
+        if (usable) {
             long nowMs = now / 1_000_000L;
             if (!emptyReadsAboveLeave(alpha, hueDeg, presentAbove, leaveBelow, emptyHueMin, emptyHueMax)) {
                 brightEmptySinceMs = -1;
@@ -322,7 +404,7 @@ public class ColorSensorSubsystem implements Subsystem {
                 brightEmptySinceMs = nowMs;
             }
         }
-        if (fresh) {
+        if (usable) {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
             // (NaN or negative), full is off.
             laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
@@ -418,6 +500,24 @@ public class ColorSensorSubsystem implements Subsystem {
      */
     public boolean rejecting() {
         return reject.rejecting();
+    }
+
+    /**
+     * Whether a wrong NECTAR may be in the lane ({@link NectarReject#suspect()}) and the feed gate
+     * must stay shut ({@link #shutGateOnWrongNectar}). {@code FeedGateSubsystem} reads it.
+     */
+    public boolean wrongNectarMayBeIn() {
+        return shutGateOnWrongNectar && reject.suspect();
+    }
+
+    /** Whether the latest reading could be of a real piece; a glitch decides nothing ({@link #maxPlausibleChannel}). */
+    public boolean plausible() {
+        return plausible;
+    }
+
+    /** Readings dropped as glitches since init ({@link #maxPlausibleChannel}). */
+    public long implausibleReadings() {
+        return implausible;
     }
 
     /** Whether the hold-off after a burst is running: the intake keeps the roller and stars stopped. */
@@ -562,10 +662,14 @@ public class ColorSensorSubsystem implements Subsystem {
                         watching ? "a piece can move" : "nothing moving"));
         if (reject.rejecting() || reject.holdingOff()) {
             display.status("Reject", Display.Level.WARN, reject.rejecting()
-                    ? "spitting out the other alliance's NECTAR" : "letting the rejected NECTAR roll clear");
+                    ? "spitting out a wrong NECTAR" : "letting the rejected NECTAR roll clear");
         } else if (reject.gaveUp()) {
             display.status("Reject", Display.Level.WARN, "gave up after " + rejectMaxBursts
                     + " bursts: the wrong NECTAR may still be in");
+        }
+        if (wrongNectarMayBeIn()) {
+            display.status("Feed gate", Display.Level.WARN,
+                    "SHUT: a wrong NECTAR may be in the lane. Eject (unjam) to clear it");
         }
         display.status("Lane (count, log only)", Double.isNaN(presentAbove) ? Display.Level.WARN : Display.Level.OK,
                 lane.lettersFrontToBack() + " front to back, " + lane.count() + " in"

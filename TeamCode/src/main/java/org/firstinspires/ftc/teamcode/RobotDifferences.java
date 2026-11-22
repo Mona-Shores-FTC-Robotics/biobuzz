@@ -132,9 +132,6 @@ public final class RobotDifferences {
                         + " sooner; -1 was good in Panels (mentor, 21 Nov 2026)",
                 () -> GardenGather.driveIn.extraDepthIn = -1.0);
         differs(RobotIdentity.TEAM_19429,
-                "Keeps only POLLEN: the reject spits out both NECTAR colours, ours too (mentor, 21 Nov 2026)",
-                () -> ColorSensorSubsystem.rejectAllNectar = true);
-        differs(RobotIdentity.TEAM_19429,
                 "Camera mount: fitted from the Belding and Fruitport logs, the camera read -0.92 in"
                         + " forward and +0.90 in left of the robot (each +/-0.15) at 3.55 / 0.95; 20245's"
                         + " camera reads differently (CameraMount has the method; 22 Nov 2026)",
