@@ -6,10 +6,10 @@
       "name": "Fruitport Qualifier",
       "date": "2026-11-21",
       "video": "https://www.youtube.com/watch?v=wW1FrvaVe4E",
-      "video_shift_s": 0,
+      "video_shift_s": -3959.5,
       "logs": "events/2026-11-fruitport",
       "matches": [
-        {"match": "Q-2", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T16:03:27.536Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_11-01-37_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-2", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T16:03:27.536Z", "video_start": "1:30:09", "log": "2026-11-21-19429-RC/2026-11-21_11-01-37_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "Q-4", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T16:15:25.052Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_11-12-37_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "Q-11", "team": 20245, "alliance": "Blue", "start_utc": "2026-11-21T16:58:21.404Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_11-58-05_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "Q-17", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T18:19:10.831Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_13-23-03_R-Solo_11-19_10_35PM.wpilog.gz"},
