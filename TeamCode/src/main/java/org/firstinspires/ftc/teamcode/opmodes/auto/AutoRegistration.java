@@ -134,7 +134,7 @@ public final class AutoRegistration {
      * about 1 s sooner. 4.0 since 6 Nov 2026, measured that night on both robots (every LaunchAll
      * card after a drive, 19429 and 20245): 3.7 to 4.0 s from the card's start to its end, the feed
      * running its full 3.5 s whenever fewer than 4 shots were counted; at PLAY 2.5 to 5.0 s. The
-     * guard now also needs the park to fit after a volley ({@code AutoKit.parkAfterVolley}), so
+     * guard now also needs the park to fit after a volley (on the Endgame row's PARK FIRST, {@code AutoOption.ENDGAME}), so
      * this decides whether a late volley is fired or parked: at 4.5 R-Solo would have parked
      * instead of a third volley that fitted (its park was in by 28.2 s on 6 Nov 19:10).
      * Belding (7 Nov 2026, both robots, 38 LaunchAlls): 2.20 to 4.90 s; after a drive all but two

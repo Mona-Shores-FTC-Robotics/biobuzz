@@ -1444,8 +1444,9 @@ public final class AutoSim {
             final String waitOption = matchSecondsOption(autoClass);
             final double waitUntil = partnerWaitUntilS;
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
-                    // As on the robot (BuiltAuto.parkAfterVolley, on): a volley never takes the park's time.
-                    .parkAfterVolley(!(BeldingCalibration.on && BeldingCalibration.guardAsAtBelding)).picks(new AutoKit.Picks() {
+                    // The Endgame row as the request picks it ("picks": {"Endgame": "TIPS FIRST"}), else
+                    // PARK FIRST, as on the robot: a volley never takes the park's time.
+                    .picks(new AutoKit.Picks() {
                 @Override public int choice(String option) { return pickedChoice(autoClass, picks, option); }
                 @Override public double seconds(String option) {
                     Object picked = picks == null ? null : picks.get(option);
@@ -3275,10 +3276,16 @@ public final class AutoSim {
         /** The index of the choice {@code picks} names for {@code option} in the Auto's OPTIONS; -1: as drawn. */
         private int pickedChoice(Class<?> auto, java.util.Map<String, Object> picks, String option) {
             Object picked = picks == null ? null : picks.get(option);
+            // BIOBUZZ_AUTO_ENDGAME="TIPS FIRST": the Endgame row for every Auto with no pick of its own, for a
+            // study (AutoStudyTest has no picks) or a replay of an Auto as it ran before 22 Nov 2026.
+            if (picked == null && org.firstinspires.ftc.teamcode.autokit.AutoOption.ENDGAME.equals(option)) {
+                picked = System.getenv("BIOBUZZ_AUTO_ENDGAME");
+            }
             if (!(picked instanceof String)) return -1;
             try {
-                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o
-                        : (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null)) {
+                // The menu BuiltAuto shows: the Auto's OPTIONS with the Endgame row every Auto has.
+                for (org.firstinspires.ftc.teamcode.autokit.AutoOption o : org.firstinspires.ftc.teamcode.autokit.AutoOption.withEndgame(
+                        (org.firstinspires.ftc.teamcode.autokit.AutoOption[]) auto.getField("OPTIONS").get(null))) {
                     if (!o.name.equals(option)) continue;
                     int index = o.choices.indexOf(picked);
                     if (index < 0) throw new IllegalArgumentException(auto.getSimpleName() + ": \"" + option + "\" has no choice \"" + picked + "\": " + o.choices);

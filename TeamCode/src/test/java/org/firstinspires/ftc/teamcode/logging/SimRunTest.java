@@ -412,6 +412,27 @@ public class SimRunTest {
      * lag between them, seed by seed), how our Auto's first wait ended ({@link #waits}), the first robot collision and
      * when, and whether we (and the partner) parked.
      */
+    /**
+     * The SWARM RP's threshold, the alliance's LEAVE + PARK points over the match (BIOBUZZ manual TU10, Table 10-3:
+     * 16 at a qualifier and, as printed, a Regional Championship; the footnote says a Team Update may set a
+     * championship's).
+     */
+    static final int SWARM_THRESHOLD_POINTS = 16;
+    /** An end-of-match PARK (Table 10-2), each robot's. */
+    static final int END_PARK_POINTS = 5;
+
+    /**
+     * What the alliance's AUTO LEAVE and PARK points ({@code autoLeavePark}) leave the SWARM RP needing from the
+     * end of the match: "safe with one end PARK missed", "needs both end PARKs", or "out of reach" (not even
+     * both end PARKs make it). Our AUTO PARK decides it whenever it moves a run from the second to the first,
+     * or from the third to the second.
+     */
+    static String swarm(int autoLeavePark) {
+        if (autoLeavePark + END_PARK_POINTS >= SWARM_THRESHOLD_POINTS) return "safe with one end PARK missed";
+        if (autoLeavePark + 2 * END_PARK_POINTS >= SWARM_THRESHOLD_POINTS) return "needs both end PARKs";
+        return "out of reach";
+    }
+
     static Map<String, Object> row(AutoSim.Result r, long seed, String log) {
         Map<String, Object> m = new LinkedHashMap<>();
         AutoSim.RobotResult ours = r.robots.get(0);
@@ -438,6 +459,14 @@ public class SimRunTest {
         m.put("parked", ours.park);
         m.put("partnerParked", partner == null ? null : partner.park);
         m.put("partnerLeave", partner == null ? null : partner.leave);
+        // The SWARM RP from what AUTO left it: the alliance's LEAVE and AUTO PARK points, and what the end of the
+        // match still needs (swarm()), so a report shows what a lost park costs beyond its 5 points.
+        int autoLeavePark = 0;
+        for (AutoSim.RobotResult robot : r.robots) {
+            if (robot.alliance == ours.alliance) autoLeavePark += (robot.leave ? 3 : 0) + (robot.park ? 5 : 0);
+        }
+        m.put("autoLeaveParkPoints", (double) autoLeavePark);
+        m.put("swarm", swarm(autoLeavePark));
         // A pushable partner ("pushable": true): how far we moved it, and the seconds we spent pushing.
         m.put("partnerPushedIn", partner == null || Double.isNaN(partner.pushStartedAt) ? null : partner.pushedIn);
         m.put("pushingS", ours.pushingS > 0 ? ours.pushingS : null);

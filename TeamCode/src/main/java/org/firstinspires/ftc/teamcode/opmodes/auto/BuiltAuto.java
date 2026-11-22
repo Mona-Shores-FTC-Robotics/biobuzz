@@ -106,15 +106,6 @@ public abstract class BuiltAuto extends RobotOpMode {
      */
     public static boolean endgameGuard = true;
 
-    /**
-     * The endgame guard keeps the park: it goes for a volley only when the park still fits after it,
-     * and parks at once rather than start a trip (a drive, a grab) to a volley that would leave no
-     * time to park ({@code AutoKit.parkAfterVolley}). On since 6 Nov 2026: that night R-NoCross's
-     * third volley (after the GARDEN gather) counted 0 to 1 pieces and cost AUTO PARK twice on 19429
-     * and nearly on 20245, and AUTO PARK can decide the SWARM RP whenever a partner misses its LEAVE
-     * or a PARK. Off is the 4 Nov rule: a volley whose last piece is out by 30 s comes first.
-     */
-    public static boolean parkAfterVolley = true;
 
 
     /** How many of the Auto's latest trace lines the Match page shows. */
@@ -167,7 +158,9 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
-        this.options = new InitOptions(options);
+        // Every Auto's menu ends with the Endgame row (PARK FIRST / TIPS FIRST), which also drives a
+        // drawn Priority route; that one is not a row of its own (AutoOption.withEndgame).
+        this.options = new InitOptions(AutoOption.withEndgame(options));
         Alliance drawn = Alliance.valueOf(drawnFor);
         Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
         // A drawing that starts on a declared start takes its name and placement sentence.
@@ -311,8 +304,7 @@ public abstract class BuiltAuto extends RobotOpMode {
                 .trace(trace)
                 .watchPaths(both(pathLog, settle))
                 .picks(options)
-                .guard(endgameGuard)
-                .parkAfterVolley(parkAfterVolley);
+                .guard(endgameGuard);
         if (!endgameGuard) log.event("Endgame guard OFF (practice): every card runs, no park for time");
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());

@@ -117,11 +117,11 @@ volley, into the RIGHT CELL the manual starts up, has no check. Draw a new volle
 the endgame guard counts such a check as its volley, so the park is kept as before. A check that
 waits on the match clock stops early enough for the volley and the park after it (23 s in
 L-NoCross). R-NoCross's check after the GARDEN gather ("RIGHT CELL back up?") waits until 26 s
-(mentor, 21 Nov 2026; was 22), so on 20245 (`BuiltAuto.parkAfterVolley` off) a late GARDEN volley
+(mentor, 21 Nov 2026; was 22), so on the Endgame row's TIPS FIRST a late GARDEN volley
 still goes, its last piece out by 28.5 s, without the park. The guard never cuts an Auto's last
 wait, so 26 s is also the latest that, with the CELL never up, still parks by 28.9 s (park 2.9 s,
-the guard's 1.0 s margin). On a robot that keeps the park the volley is refused as it starts if the
-park would not fit after it, and the robot parks. See `doc/robot-todo.md` for the robot checks.
+the guard's 1.0 s margin). On PARK FIRST, the default, the volley is refused as it starts if its last
+piece out and the park would not fit by 30 s, and the robot parks. See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch
@@ -354,7 +354,7 @@ robot to PARK by 30 s (mentor, 4 Nov 2026, quals and playoffs alike):
   (2.5 s from the Launch all's start to its last ball; 4.0 until 12 Nov 2026). If yes, the robot goes, and nothing parks or
   cuts it until that volley has fired. Why: an AUTO TIP is 20 points and counts toward the
   POLLINATOR RPs; AUTO PARK is 5. AUTO PARK does count toward the SWARM RP (both robots' LEAVE +
-  PARK points, AUTO and end of match, 16 or more of 26: manual TU03 Tables 10-2 and 10-3), but
+  PARK points, AUTO and end of match, 16 or more of 26: manual TU10 Tables 10-2 and 10-3), but
   both robots leaving and both parking at the end already make 16, so our AUTO PARK decides SWARM
   only when the partner misses its LEAVE or its end-of-match park; with a dead partner SWARM is out
   of reach either way. A TIP complete before TELEOP starts is assessed as AUTO (§10.5 B), but
@@ -408,7 +408,7 @@ row has it selected already.
 |---|---|---|
 | The partner wait | the second the wait for the partner's TIP gives up, on the match clock, 1 s a press. The page reads "waiting for TIP 1 until 9 s": the TIP is the one the builder's *It waits for* names (an Auto that names none reads "partner's TIP"). Left to 0 does not wait | a Wait step set to *until the match clock reads …* with *The drive team can change it in INIT* ticked (one per Auto) |
 | Park | the PARK spot: `LEFT_PARK` or `RIGHT_PARK` | a Park step with *Drive team may pick in INIT* ticked; no Auto on master does (below) |
-| A route choice (Clockwise's Pickup and Priority, L-NoCross's `if no TIP 1`, R-NoCross's `if no TIP 2`) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`); in a wait's Otherwise, each leg may end with a check whose every outcome parks (L-NoCross) |
+| A route choice (Clockwise's Pickup, R's Priority (it follows the Endgame row, no row of its own), L-NoCross's `if no TIP 1`, R-NoCross's `if no TIP 2`) | the leg the robot drives | a *Choose in INIT* step (`clockwise.md`); in a wait's Otherwise, each leg may end with a check whose every outcome parks (L-NoCross) |
 
 - **Nothing touched, the Auto runs as drawn.** The INIT page shows the options on one line, green
   as drawn and amber once changed; PLAY locks them, and the match log records them

@@ -211,14 +211,14 @@
       }
     },
     {
-      "name": "R takes the WALL FLOWER: Priority PARK",
+      "name": "R takes the WALL FLOWER: Endgame TIPS FIRST (the THREE_TIP leg)",
       "partner": "LClockwiseAuto",
       "timing": {
         "speed": 50
       },
       "picks": {
         "Pickup": "WALL_FLOWER",
-        "Priority": "PARK"
+        "Endgame": "TIPS FIRST"
       },
       "partnerPicks": {
         "Pickup": "GARDEN"
