@@ -1055,9 +1055,24 @@ measurement is [#255].
       TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
       under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
       R-NoCross as it is.
-- [ ] **Camera calibration, R1 at two spots** (Vision: HIVE & Pose, Red audience then Red far wall).
-      **Good:** "Spots so far: AGREE" → commit the two numbers to `CameraMount` (code 3.55 / 0.95; 2 Nov
-      read 3.13 / 0.89). **Stop:** DIFFER → a HIVE point or the marks, don't commit.
+- [ ] **Camera calibration:** done from the Belding and Fruitport logs (22 Nov 2026, `mountfit.py`); see
+      the camera-mount check in the 19429 list above. No R1 run needed.
+- [ ] **Continuous fixes, on the home field, before States** (22 Nov 2026). Every run already scores them:
+      `FusionShadow` takes the moving frames beside the real pose, and each stop after a drive logs a
+      "fusion shadow: stop N ... camera X in from the real pose, Y in from the shadow" line, with one
+      summary line when the OpMode stops. **Session 1, off (as shipped):** Sloth Load, then two full
+      practice matches per robot, Auto and TeleOp, driven the way the drive team drives at an event
+      (FLOWER picks, GARDEN, volleys from both ends, a wall push or two); pull the logs. **Good:** in
+      the summary lines the shadow's arrival median is under half the real pose's, "over 1 in further"
+      at no more than about 1 stop in 30, and the shadow's worst no worse than the real pose's worst plus
+      1 in. **Session 2, on:** set `LocalizationTuning.continuousFixes` true in Panels (or a
+      `RobotDifferences` line for one robot), the same two matches. **Good:** the real pose's arrival
+      median now matches session 1's shadow (about 0.3-0.5 in), no Auto path or FLOWER pick misses
+      that session 1 did not, nothing odd on the field drawing near the HIVE while a CELL tips.
+      **Stop:** any stop with the real pose 4 in or more off on arrival that session 1 did not have, a
+      path that ends somewhere visibly wrong, or the pose jumping on the field drawing → turn it off,
+      push the logs. Both good → the shared value goes to true in `LocalizationTuning`, in a PR with
+      both sessions' summary lines.
       [handoff](../.claude/handoff/20245-camera-calibration.md), [PR #360]
 - [ ] **Heading-aware camera reset:** lift the robot, turn ~15°, set it down off the mark, still,
       hold D-pad down. **Good:** heading corrected, field-centric drives right again. [handoff], [PR #360]

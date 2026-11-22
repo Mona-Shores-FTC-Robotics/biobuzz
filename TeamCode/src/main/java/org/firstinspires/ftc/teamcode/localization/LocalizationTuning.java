@@ -40,13 +40,25 @@ public final class LocalizationTuning {
     public static double singleTagVarianceIn2 = 14.0;
 
     /**
-     * Whether camera fixes correct the pose all match. <b>Off</b> until it is shown to help: a well
-     * tuned Pinpoint tracks a whole match on its own, the CELLs' tags sit on thin polycarbonate that
-     * flexes and moves, and a bad fix drags the pose somewhere false (Chief Delphi, "Idea about FTC
-     * BIOBUZZ localization", #3, #4, #15). Turn on for #82 session 5, which compares a taped path
-     * with and without it. Fixes are still counted while off, for the start check.
+     * Whether camera frames taken while moving correct the pose (still frames are the still fixes'
+     * job). <b>Off</b> until it is shown to help on the robot: the CELLs' tags sit on thin
+     * polycarbonate that flexes and moves, and a bad fix drags the pose somewhere false (Chief Delphi,
+     * "Idea about FTC BIOBUZZ localization", #3, #4, #15). Every run measures it anyway:
+     * {@link FusionShadow} takes the frames this would take, and the match log's "fusion shadow" lines
+     * score it at each stop. Replayed over the Belding and Fruitport matches (22 Nov 2026,
+     * {@code fusion_replay.py}), it brought the arrival gap at a stop from a median 1.2-1.6 in to
+     * 0.3-0.4 and halved the rms, nearer at about 90 % of 274 stops, over 1 in worse at 3.
      */
     public static boolean continuousFixes = false;
+
+    /**
+     * A continuous fix's variance as a multiple of a still fix's ({@link #fixVariance}). Pedro's filter
+     * grows its variance by {@link #processVarianceXY} per inch driven, so at a still fix's variance a
+     * frame after a drive moves the pose most of the way to the camera; 30 frames a second of that is
+     * the camera with odometry's smoothness lost. At 25 times, a frame moves it a few per cent: the
+     * replay's best region (10 to 50 all close; 1 to 4 followed bad frames further).
+     */
+    public static double continuousFixVarianceScale = 25.0;
 
     /**
      * Whether an unreferenced pose (no declared start, no Auto handoff) is set once from the

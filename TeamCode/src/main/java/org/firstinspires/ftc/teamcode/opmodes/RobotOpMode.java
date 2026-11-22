@@ -42,6 +42,7 @@ import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
+import org.firstinspires.ftc.teamcode.localization.FusionShadow;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -327,6 +328,7 @@ public abstract class RobotOpMode extends OpMode {
     private String cameraStartNote;
     private int loggedAutoHeadingFixes;
     private int loggedShadowFixes;
+    private int loggedFusionArrivals;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
     /** The lane tracker's slots, front first, built once. */
@@ -917,6 +919,10 @@ public abstract class RobotOpMode extends OpMode {
             } catch (RuntimeException e) {
                 log.event("Limelight at end: no status (" + e + ")");
             }
+            // This OpMode's continuous-fix comparison in one line (FusionShadow); continuousFixes as it ran.
+            log.event(robot.drive.fusionShadow().summary()
+                    + (LocalizationTuning.continuousFixes ? "; continuous fixes on, " + robot.drive.continuousFixesApplied()
+                    + " applied" : "; continuous fixes off"));
             robot.stop();
         }
         Scheduler.reset();
@@ -1498,6 +1504,28 @@ public abstract class RobotOpMode extends OpMode {
                         "shadow: still fix %d moved it %.1f in; now %.1f in from the real pose (%+.1f, %+.1f)",
                         loggedShadowFixes, robot.drive.shadow().lastFixMoveIn(), robot.drive.shadow().offsetIn(),
                         robot.drive.shadow().offsetX(), robot.drive.shadow().offsetY()));
+            }
+        }
+        // The pose with continuous fixes on (FusionShadow), and its score at each stop after a drive:
+        // every run is a with/without comparison, whether or not continuousFixes is on.
+        Pose fusionPose = robot.drive.fusionShadowPose();
+        if (fusionPose != null && referenced) {
+            FusionShadow fusion = robot.drive.fusionShadow();
+            log.put("/FusionShadow/X", fusionPose.x());
+            log.put("/FusionShadow/Y", fusionPose.y());
+            log.put("/FusionShadow/OffsetIn", fusion.offsetIn());
+            log.put("/FusionShadow/FramesUsed", fusion.framesUsed());
+            log.pose("/FusionShadow/Robot", fusionPose.x(), fusionPose.y(), fusionPose.heading());
+            if (fusion.arrivals() != loggedFusionArrivals) {
+                loggedFusionArrivals = fusion.arrivals();
+                log.put("/FusionShadow/ArrivalRealIn", fusion.lastArrivalRealIn());
+                log.put("/FusionShadow/ArrivalShadowIn", fusion.lastArrivalShadowIn());
+                log.event(String.format(java.util.Locale.US,
+                        "fusion shadow: stop %d after %.0f in of driving: camera %.1f in from the real pose,"
+                                + " %.1f in from the shadow%s",
+                        loggedFusionArrivals, fusion.lastArrivalDrivenIn(), fusion.lastArrivalRealIn(),
+                        fusion.lastArrivalShadowIn(),
+                        LocalizationTuning.continuousFixes ? " (continuous fixes on: the shadow is the real pose)" : ""));
             }
         }
         if (robot.drive.autoHeadingFixesApplied() != loggedAutoHeadingFixes) {

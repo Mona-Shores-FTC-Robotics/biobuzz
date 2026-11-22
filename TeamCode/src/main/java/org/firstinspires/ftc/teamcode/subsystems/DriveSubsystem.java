@@ -19,6 +19,7 @@ import com.pedropathing.localization.FusionLocalizer;
 import org.firstinspires.ftc.teamcode.localization.CellFix;
 import org.firstinspires.ftc.teamcode.localization.HeadingFix;
 import org.firstinspires.ftc.teamcode.localization.FixAverager;
+import org.firstinspires.ftc.teamcode.localization.FusionShadow;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
@@ -167,6 +168,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** What the pose would be with still fixes on ({@link ShadowPose}): logged, never driven on. */
     private final ShadowPose shadow = new ShadowPose();
+
+    /** What the pose would be with continuous fixes on ({@link FusionShadow}): logged, never driven on. */
+    private final FusionShadow fusionShadow = new FusionShadow();
+
+    /** Continuous fixes the real pose took ({@link LocalizationTuning#continuousFixes} on). */
+    private int continuousFixesApplied;
 
     /** Heading corrections taken from the camera ({@link #relocalizeHeading}): by the button, and by themselves. */
     private int headingFixesApplied;
@@ -323,6 +330,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             localizer.setPose(pose);
             poseSets++;
             shadow.follow();
+            fusionShadow.follow();
             poseReferenced = true;
             pinpointTrust.poseSet(System.nanoTime() / 1_000_000L);
             fixCount = 0;
@@ -437,6 +445,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** The shadow's bookkeeping, for the log. */
     public ShadowPose shadow() { return shadow; }
+
+    /** The pose with continuous fixes on, as {@link FusionShadow} has it; null without a Pinpoint. */
+    public Pose fusionShadowPose() { return fusionShadow.of(pose()); }
+
+    /** The continuous-fix shadow's bookkeeping and arrival scores, for the log. */
+    public FusionShadow fusionShadow() { return fusionShadow; }
+
+    /** Continuous fixes the real pose took this run (0 with {@link LocalizationTuning#continuousFixes} off). */
+    public int continuousFixesApplied() { return continuousFixesApplied; }
 
     /** Camera heading minus the Pinpoint's, degrees, averaged while still; NaN without one. See {@link HeadingFix}. */
     public double cameraHeadingDiffDeg() { return settled.headingDiffDeg(); }
@@ -954,6 +971,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      */
     private void offerSightings() {
         still = trackStillness();
+        if (poseReferenced) fusionShadow.odometry(localizer.pose(), System.nanoTime());
         if (!still) {
             averager.reset();
             settled.reset();
@@ -1011,9 +1029,20 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                 if (fixed != null) poseNote = fixed;
             }
         }
-        if (LocalizationTuning.continuousFixes) {
-            localizer.addMeasurement(fix, newestCaptureNs,
-                    CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount()));
+        if (!still) {
+            // Moving: a continuous fix, on the real pose with continuousFixes on and on its shadow either way.
+            // Its own variance (LocalizationTuning.continuousFixVarianceScale) and the still fix's jump gate.
+            Pose stillVariance = CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount());
+            double v = stillVariance.x() * LocalizationTuning.continuousFixVarianceScale;
+            if (LocalizationTuning.continuousFixes) {
+                if (Math.hypot(fix.x() - current.x(), fix.y() - current.y()) <= LocalizationTuning.maxFixJumpIn) {
+                    localizer.addMeasurement(fix, newestCaptureNs, new Pose(v, v, stillVariance.heading()));
+                    continuousFixesApplied++;
+                }
+                fusionShadow.matchReal();
+            } else {
+                fusionShadow.continuousFix(fix.x(), fix.y(), newestCaptureNs, v, LocalizationTuning.maxFixJumpIn);
+            }
         }
         fixCount++;
         recentFixX[recentFixNext] = fix.x();
@@ -1059,14 +1088,17 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         } else if (stillFixJumpIn > LocalizationTuning.maxFixJumpIn) {
             stillFix = StillFix.TOO_FAR;
         } else if (applyStillFixes) {
-            localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(),
-                    CellFix.variance(averager.nearestRangeIn(), averager.minTags()));
+            Pose variance = CellFix.variance(averager.nearestRangeIn(), averager.minTags());
+            localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(), variance);
             stillFixesApplied++;
             stillFix = StillFix.APPLIED;
             shadow.applyFix(x, y, now);
+            if (LocalizationTuning.continuousFixes) fusionShadow.matchReal();
+            fusionShadow.stillFix(x, y, variance.x(), now, localizer.pose());
         } else {
             stillFix = StillFix.READY;
             shadow.applyFix(x, y, now); // the shadow takes the batch the real pose was only shown
+            fusionShadow.stillFix(x, y, CellFix.variance(averager.nearestRangeIn(), averager.minTags()).x(), now, now);
         }
         averager.reset();
     }
