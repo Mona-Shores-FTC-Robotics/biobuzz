@@ -292,6 +292,8 @@ public abstract class RobotOpMode extends OpMode {
     private boolean loggedLaneFull;
     /** Last logged: the colour sensor read FULL and the lane beam refused it. */
     private boolean loggedBeamRefused;
+    /** Whether the feed gate was last logged shut to a feed for a wrong NECTAR, for one event per change. */
+    private boolean loggedGateShut;
     /** {@code robot.beams.stuckFeeds()} as last logged. */
     private int loggedStuckFeeds;
     private long loggedDepartures;
@@ -1784,6 +1786,13 @@ public abstract class RobotOpMode extends OpMode {
             double hue = robot.colorSensor.hueDegrees();
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
+            // A glitch reading (NectarReject.plausible) is logged as read, and decides nothing.
+            if (!robot.colorSensor.plausible()) {
+                log.event(String.format(Locale.US,
+                        "Lane: colour sensor glitch ignored (R %.2f G %.2f B %.2f brightness %.2f), %d so far",
+                        robot.colorSensor.red(), robot.colorSensor.green(), robot.colorSensor.blue(),
+                        robot.colorSensor.alpha(), robot.colorSensor.implausibleReadings()));
+            }
         }
         // Which read rate ran (1 fast: a piece can move; 0 slow), so a full held between slow reads
         // shows as one in the log (ColorSensorSubsystem, "When it reads").
@@ -1811,6 +1820,25 @@ public abstract class RobotOpMode extends OpMode {
                     "Lane: REJECT gave up: %d bursts in %.1f s, the wrong NECTAR may still be in",
                     ColorSensorSubsystem.rejectMaxBursts, ColorSensorSubsystem.rejectWindowS));
         }
+        // A wrong NECTAR that may still be in the lane, and the feed gate it keeps shut (NectarReject.suspect).
+        log.put("/Lane/WrongNectarSuspect", robot.colorSensor.reject().suspect() ? 1 : 0);
+        if (robot.colorSensor.reject().justSuspected()) {
+            log.event(String.format(Locale.US,
+                    "Lane: a wrong NECTAR may be in the lane (%s, hue %.0f°, sat %.2f, brightness %.3f): feed gate shut%s",
+                    robot.colorSensor.reject().lastSighting(), robot.colorSensor.hueDegrees(),
+                    robot.colorSensor.saturation(), robot.colorSensor.alpha(),
+                    ColorSensorSubsystem.shutGateOnWrongNectar ? " until it is seen leaving or an eject runs"
+                            : " NOT: shutGateOnWrongNectar is off"));
+        }
+        if (robot.colorSensor.reject().justCleared()) {
+            log.event(robot.colorSensor.reject().clearedByEject()
+                    ? "Lane: wrong NECTAR cleared by an eject; the feed gate may open"
+                    : "Lane: wrong NECTAR seen leaving outward, lane clean since; the feed gate may open");
+        }
+        if (robot.feedGate.shutToFeed() != loggedGateShut) {
+            loggedGateShut = robot.feedGate.shutToFeed();
+            if (loggedGateShut) log.event("Feed gate: a feed asked, kept SHUT: a wrong NECTAR may be in the lane");
+        }
         // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
@@ -1829,8 +1857,7 @@ public abstract class RobotOpMode extends OpMode {
             loggedLaneFull = full.full();
             // Full with a rejected NECTAR under the sensor: a reject did not clear it, and an Auto's
             // IntakeFull would move on holding it.
-            if (loggedLaneFull && NectarReject.rejects(robot.colorSensor.lastPiece(), setup.alliance(),
-                    ColorSensorSubsystem.rejectAllNectar)) {
+            if (loggedLaneFull && robot.colorSensor.reject().lastSighting() == NectarReject.Sighting.WRONG) {
                 log.event("Lane: FULL with a rejected NECTAR under the sensor (" + robot.colorSensor.lastPiece()
                         + "): a reject did not clear it");
             }

@@ -891,6 +891,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         } else if (outsideArc) {
             display.status("Fire", Display.Level.WARN, "outside the turret's firing arc: shots may hit the robot");
         }
+        if (robot.colorSensor.wrongNectarMayBeIn()) {
+            // The feed gate stays shut to every fire button (FeedGateSubsystem.shutWhile): say why, and the way out.
+            display.status("Fire", Display.Level.FAULT, "WRONG NECTAR may be in the lane: gate shut. EJECT to clear");
+        }
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
         // the Driver Station mid-match, so it is a few huge lines and one alert, nothing to parse:

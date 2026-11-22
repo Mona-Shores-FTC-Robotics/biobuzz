@@ -159,6 +159,8 @@ public class Robot {
         intake.rejectWhile(colorSensor::rejecting);
         // Then the roller and stars stop a moment, so the piece rolls clear rather than back in.
         intake.holdOffWhile(colorSensor::holdingOffAfterReject);
+        // And no feed opens the gate while a wrong NECTAR may still be in the lane (NectarReject.suspect).
+        feedGate.shutWhile(colorSensor::wrongNectarMayBeIn);
         // A fitted throat beam counts the launches; a fitted lane beam must agree before the lane is full.
         launcher.countLaunchesBy(beams.throat());
         colorSensor.laneBeam(beams.lane());
