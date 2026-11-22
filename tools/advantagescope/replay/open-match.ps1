@@ -98,6 +98,23 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
         $sharedSource = Join-Path (Join-Path $shared "sources") "$name.mp4"
         $sharedSidecar = "$sharedSource.json"
     }
+    # A match's video downloaded for an earlier estimate (video_shift_s or video_start changed since: a stream that
+    # stalled leaves the stall out of its video, so everything after it is earlier than the clock says) does not
+    # hold Auto where it is now looked for. Its info file says where it starts; one that starts after Auto, or more
+    # than a minute before where it would be downloaded from now, is dropped here and the team Drive's skipped.
+    function Test-SourceFits([string]$infoFile) {
+        try { $j = Get-Content -Raw $infoFile | ConvertFrom-Json } catch { return $false }
+        if ($j.PSObject.Properties["url"] -and $j.url -ne $url) { return $false }
+        $f = [double]$j.from
+        return ($f -le $estimate) -and ($f -ge ($estimate - $SourcePreS - 60))
+    }
+    if ((Test-Path $sidecar) -and -not (Test-SourceFits $sidecar)) {
+        Say "  ...     this match's video was cut for an earlier estimate of where Auto is: downloading it again"
+        Remove-Item -Force $source, $sidecar -ErrorAction SilentlyContinue
+    }
+    if ($sharedSidecar -and (Test-Path $sharedSidecar) -and -not (Test-SourceFits $sharedSidecar)) {
+        $sharedSource = $null; $sharedSidecar = $null   # the Drive's copy is the old one too: neither take it nor share over it
+    }
     if (-not ((Test-Path $source) -and (Test-Path $sidecar)) -and $sharedSource -and (Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
         # On the team Drive (its .json is written last, so the video beside it is whole): copy it, no YouTube.
         New-Item -ItemType Directory -Force $SourcesDir | Out-Null
