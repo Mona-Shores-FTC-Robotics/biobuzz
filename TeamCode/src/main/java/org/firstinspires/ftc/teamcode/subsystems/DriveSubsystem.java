@@ -34,6 +34,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
+import org.firstinspires.ftc.teamcode.vision.CellStateTracker;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
@@ -140,6 +141,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** This frame's tags and what the checks made of them. Sized for every HIVE tag. */
     private final TagGate gate = new TagGate(16);
     private long newestCaptureNs;
+    /** This frame's worst row height off its settled height among the CELLs used, inches ({@link #gatherTags}). */
+    private double worstRowHeightErrorIn;
     /** Gated frames while still, toward one stationary fix; and what the last batch came to. */
     private final FixAverager averager = new FixAverager();
     private StillFix stillFix = StillFix.WAITING;
@@ -543,6 +546,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         }
         gate.clear();
         newestCaptureNs = 0;
+        worstRowHeightErrorIn = 0;
         for (int i = 0; i < CELLS.length; i++) {
             CellSighting sighting = vision.sighting(CELLS[i]);
             if (sighting == null) continue;
@@ -564,6 +568,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             }
             if (used) {
                 newestCaptureNs = Math.max(newestCaptureNs, sighting.captureTimeNs());
+                double settledHeight = state == HiveCellState.UP ? CellStateTracker.Geometry.upRowHeightIn
+                        : CellStateTracker.Geometry.downRowHeightIn;
+                worstRowHeightErrorIn = Math.max(worstRowHeightErrorIn,
+                        Math.abs(sighting.rowCentreRobot().z() - settledHeight));
             }
         }
         return true;
@@ -1029,7 +1037,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                 if (fixed != null) poseNote = fixed;
             }
         }
-        if (!still) {
+        // A row reading off its settled height while moving is a CELL starting to swing or the camera
+        // pitching with the robot (its range is off with it): not a continuous fix. Still frames keep
+        // TagGate's wider band, since the still fix's averaging and spread check cover them.
+        if (!still && worstRowHeightErrorIn <= LocalizationTuning.continuousFixMaxRowHeightErrorIn) {
             // Moving: a continuous fix, on the real pose with continuousFixes on and on its shadow either way.
             // Its own variance (LocalizationTuning.continuousFixVarianceScale) and the still fix's jump gate.
             Pose stillVariance = CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount());

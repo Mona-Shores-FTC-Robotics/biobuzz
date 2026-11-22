@@ -113,7 +113,9 @@ The score is the first still fix of each stop: how far the camera disagreed with
 median 0.2-0.4 and rms halved; a large one (0.5-0.95, which is what Pedro's filter gives a single fix at our
 variances: a still fix moves the pose about 95 % of the way) no better than off. So a continuous fix has its
 own variance, `LocalizationTuning.continuousFixVarianceScale` (25 times a still fix's: the replay's
-best region), a 6 in jump gate, and is used only while moving. It scores agreement with the camera, so
+best region), a 6 in jump gate, a row-height gate (`continuousFixMaxRowHeightErrorIn`, 1.5 in off the
+settled height: a CELL starting to swing still reads settled, and the camera pitches while driving), and
+is used only while moving. It scores agreement with the camera, so
 calibrate the mount first. Since 22 Nov 2026 every run also scores it live: `FusionShadow` logs
 "fusion shadow: stop N ..." at each stop after a drive and one summary line at the OpMode's end; grep
 the events for those before replaying anything.

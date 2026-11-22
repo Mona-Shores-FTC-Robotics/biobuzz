@@ -61,6 +61,15 @@ public final class LocalizationTuning {
     public static double continuousFixVarianceScale = 25.0;
 
     /**
+     * A frame taken while moving is a continuous fix only if every CELL it used reads its tag row within
+     * this of the row's settled height ({@code CellStateTracker.Geometry}), inches. Outside it the CELL is
+     * starting to swing (it still reads settled until it leaves the state's 2.5 in band) or the camera is
+     * pitching with the robot, which moves the range too. In the Fruitport matches 0.7 % of gated frames
+     * were 1.5 to 2.5 in off, four in five of them while moving; none further (TagGate drops past 3).
+     */
+    public static double continuousFixMaxRowHeightErrorIn = 1.5;
+
+    /**
      * Whether an unreferenced pose (no declared start, no Auto handoff) is set once from the
      * camera: x, y and heading from two or more tags on settled CELLs ({@code CellFix.fit}),
      * the same frames agreeing {@link #seedFrames} times running. The Pinpoint carries it from

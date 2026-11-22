@@ -9,8 +9,9 @@ localization/FusionShadow on the robot, which is Pedro's FusionLocalizer in x an
   (FusionLocalizer.updateCovariance);
 - each frame taken while moving is a Kalman measurement at its capture time (the log's latency,
   moved back along the logged path), with variance CellFix's still-fix variance times --scale,
-  skipped if it is more than 6 in from the replayed pose (maxFixJumpIn) or the robot turns faster
-  than --max-turn;
+  skipped if it is more than 6 in from the replayed pose (maxFixJumpIn), if a CELL it saw reads its
+  row more than --max-row-error off the settled height (continuousFixMaxRowHeightErrorIn), or if the
+  robot turns faster than --max-turn;
 - each still fix is a measurement for both replays (still-fix variance), and moves the real pose
   onto the camera when the run had stillFixes on (read from the log's metadata).
 
@@ -60,7 +61,7 @@ def kalman(o, P, innov, r):
     return o, P
 
 
-def replay(path, scales, max_turn_dps):
+def replay(path, scales, max_turn_dps, max_row_err=1.5):
     log = Log(path)
     xs, ys, hs = (log.values(k) for k in ("/Odometry/PedroInches/X", "/Odometry/PedroInches/Y",
                                           "/Odometry/PedroInches/HeadingDeg"))
@@ -81,6 +82,21 @@ def replay(path, scales, max_turn_dps):
         s = log.values(key)
         ts = [a for a, _ in s]
         return lambda t: (s[bisect.bisect_right(ts, t) - 1][1] if ts and bisect.bisect_right(ts, t) > 0 else float("nan"))
+
+    # Each frame's worst row height off its settled height (CellStateTracker: 50.2 UP, 35.0 DOWN),
+    # from /Hive/Cell/*/RowHeightIn samples within 0.1 s: LocalizationTuning.continuousFixMaxRowHeightErrorIn.
+    cells = ("RED_AUDIENCE", "RED_SCORING", "BLUE_AUDIENCE", "BLUE_SCORING")
+    rows = {c: log.values(f"/Hive/Cell/{c}/RowHeightIn") for c in cells}
+    row_t = {c: [a for a, _ in v] for c, v in rows.items()}
+
+    def row_error(t):
+        worst = 0.0
+        for c in cells:
+            j = bisect.bisect_right(row_t[c], t) - 1
+            if j >= 0 and t - row_t[c][j] < 0.1:
+                h = rows[c][j][1]
+                worst = max(worst, min(abs(h - 50.2), abs(h - 35.0)))
+        return worst
 
     latency = series_at("/Vision/LatencyMs")
     turn = series_at("/Drive/OdometryTurnRadPerSec")
@@ -113,6 +129,8 @@ def replay(path, scales, max_turn_dps):
                     continue
                 if max_turn_dps and abs(math.degrees(turn(t))) > max_turn_dps:
                     continue
+                if max_row_err and row_error(t) > max_row_err:
+                    continue
                 lat = latency(t)
                 lat = (lat if lat == lat and 0 < lat < 200 else 30.0) / 1000.0
                 a, b = pose(t), pose(t - lat)
@@ -143,12 +161,14 @@ def main():
     ap.add_argument("--scales", default="1,4,10,25,50,100,200",
                     help="continuous-fix variance as a multiple of the still-fix variance")
     ap.add_argument("--max-turn", type=float, default=0.0, help="skip frames turning faster, deg/s (0: no limit)")
+    ap.add_argument("--max-row-error", type=float, default=1.5,
+                    help="skip frames whose CELL row is this far off its settled height, in (0: no limit)")
     a = ap.parse_args()
     scales = [None] + [float(s) for s in a.scales.split(",")]
     total = {s: [] for s in scales}
     for d in a.dirs:
         for p in sorted(glob.glob(os.path.join(d, "**", "*.wpilog*"), recursive=True)):
-            for s, sc in replay(p, scales, a.max_turn).items():
+            for s, sc in replay(p, scales, a.max_turn, a.max_row_error).items():
                 total[s] += sc
     off = [x for x, _, _ in total[None]]
     if not off:
