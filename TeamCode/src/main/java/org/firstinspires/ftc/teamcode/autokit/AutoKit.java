@@ -762,7 +762,7 @@ public final class AutoKit {
      * that volley's last piece out before AUTO ends?</b> A volley ({@link AutoRegistry#volley}: a
      * LaunchAll) is what TIPs the HIVE, and an AUTO TIP is worth 20 points and counts toward the
      * POLLINATOR RPs, the AUTO PARK 5 points. AUTO PARK counts toward the SWARM RP (both robots'
-     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU10 Tables 10-2, 10-3; a Regional Championship's may come in a Team Update), but
+     * LEAVE and PARK points, AUTO and end of match, 16 of 26: manual TU10 Tables 10-2, 10-3, the same at the State Championship by Team Update 10), but
      * both robots' LEAVE and end-of-match PARK already make 16, so ours decides SWARM only when the
      * partner misses one of those. A TIP complete before TELEOP starts is assessed as AUTO
      * (§10.5 B); the same section says achievements scored during the AUTO-to-TELEOP transition

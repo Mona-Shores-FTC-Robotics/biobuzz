@@ -41,6 +41,10 @@ Controls page and the printed cheat sheet are the only place for those.
         is covered without ours) *and* our shots are landing today. A partner with no Auto, or one that
         does not park in AUTO: PARK FIRST, always.
       - **Playoffs (no ranking points): TIPS FIRST** when our shots are landing; the park is only 5 points.
+      What is at stake in a qualification match (manual TU10 Tables 10-2, 10-3; Team Update 10, 19 Nov 2026:
+      the State Championship's thresholds are the qualifiers'): win 3 RP, tie 1; SWARM 1 RP at 16 LEAVE + PARK
+      points for the alliance (both LEAVEs and both end PARKs make exactly 16); POLLINATOR 1 and 2, 1 RP each,
+      at 4 and 7 TIPs in the match. Playoffs award no RPs (§13.7).
       In the simulator (22 Nov 2026) TIPS FIRST gained a TIP only beside a partner that shoots late, and
       with real shot rates it lost the park in 20–40% of the runs where it mattered. R-Clockwise's Priority
       follows this row: TIPS FIRST is its THREE_TIP leg.

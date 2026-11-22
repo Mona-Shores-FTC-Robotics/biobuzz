@@ -414,8 +414,8 @@ public class SimRunTest {
      */
     /**
      * The SWARM RP's threshold, the alliance's LEAVE + PARK points over the match (BIOBUZZ manual TU10, Table 10-3:
-     * 16 at a qualifier and, as printed, a Regional Championship; the footnote says a Team Update may set a
-     * championship's).
+     * 16 at a qualifier and at a Regional Championship, which Team Update 10 of 19 Nov 2026 confirms for the
+     * Michigan State Championship).
      */
     static final int SWARM_THRESHOLD_POINTS = 16;
     /** An end-of-match PARK (Table 10-2), each robot's. */
