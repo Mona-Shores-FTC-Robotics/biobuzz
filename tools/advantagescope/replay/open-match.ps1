@@ -98,7 +98,23 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
         $sharedSource = Join-Path (Join-Path $shared "sources") "$name.mp4"
         $sharedSidecar = "$sharedSource.json"
     }
-    if (-not ((Test-Path $source) -and (Test-Path $sidecar)) -and $sharedSource -and (Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
+    # A match's video downloaded for an earlier estimate (video_shift_s or video_start changed since: a stream that
+    # stalled leaves the stall out of its video, so everything after it is earlier than the clock says) does not
+    # hold Auto where it is now looked for. Its info file says where it starts; one that starts after Auto, or more
+    # than a minute before where it would be downloaded from now, is dropped here, and the team Drive's copy is
+    # not taken but replaced once this laptop has the right one.
+    function Test-SourceFits([string]$infoFile) {
+        try { $j = Get-Content -Raw $infoFile | ConvertFrom-Json } catch { return $false }
+        if ($j.PSObject.Properties["url"] -and $j.url -ne $url) { return $false }
+        $f = [double]$j.from
+        return ($f -le $estimate) -and ($f -ge ($estimate - $SourcePreS - 60))
+    }
+    if ((Test-Path $sidecar) -and -not (Test-SourceFits $sidecar)) {
+        Say "  ...     this match's video was cut for an earlier estimate of where Auto is: downloading it again"
+        Remove-Item -Force $source, $sidecar -ErrorAction SilentlyContinue
+    }
+    $sharedStale = $sharedSidecar -and (Test-Path $sharedSidecar) -and -not (Test-SourceFits $sharedSidecar)
+    if (-not ((Test-Path $source) -and (Test-Path $sidecar)) -and $sharedSource -and -not $sharedStale -and (Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
         # On the team Drive (its .json is written last, so the video beside it is whole): copy it, no YouTube.
         New-Item -ItemType Directory -Force $SourcesDir | Out-Null
         Say "  ...     copying this match's video from the team Google Drive"
@@ -145,7 +161,7 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
     if ($isMarked -and $sharedSource) {
         try {
             $cleanOnDrive = $false
-            if ((Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
+            if (-not $sharedStale -and (Test-Path $sharedSidecar) -and (Test-Path $sharedSource)) {
                 $sj = Get-Content -Raw $sharedSidecar | ConvertFrom-Json
                 $cleanOnDrive = -not ($sj.PSObject.Properties["marked"] -and [bool]$sj.marked)
             }
@@ -170,7 +186,7 @@ function Get-MatchClip($pins, $ev, $m, [double]$autoS, [string]$log) {
             Warn "kept the marked copy, which still plays here but is not shared: $($_.Exception.Message)"
         }
     }
-    if ($sharedSource -and -not $isMarked -and -not (Test-Path $sharedSidecar)) {
+    if ($sharedSource -and -not $isMarked -and ($sharedStale -or -not (Test-Path $sharedSidecar))) {
         try {
             Say "  ...     putting this match's video on the team Google Drive for the other laptops"
             Copy-Whole $source $sharedSource
