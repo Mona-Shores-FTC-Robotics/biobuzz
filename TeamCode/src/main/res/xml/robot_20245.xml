@@ -104,6 +104,16 @@
                  nothing is named on it. The indicator lights moved to the
                  Expansion Hub on 6 Nov 2026 to free port 4 for the turret. -->
 
+            <!-- Turret home switch: a REV Magnetic Limit Switch under a magnet on
+                 the back of the turret, over it when the turret is on its mark
+                 (TurretSubsystem.homeSwitch). Optional (DeviceNames.TURRET_HOME_SWITCH):
+                 the code reads it only once 20245's RobotDifferences line turns
+                 homeSwitch on. PORT UNCONFIRMED (22 Nov 2026): the same digital
+                 connector 0-1, channel 1, as 19429's; if Bench: Turret never sees
+                 the magnet, check where it is plugged in and fix port here
+                 (doc/robot-todo.md). -->
+            <DigitalDevice name="turretHome" port="1" />
+
             <!-- Beam breaks (BeamBreakSubsystem): bought, not fitted yet (22 Nov 2026).
                  When one is wired to a digital channel (0-7), uncomment its line with
                  that channel, and add its RobotDifferences line

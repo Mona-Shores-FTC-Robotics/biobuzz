@@ -143,6 +143,16 @@ public final class DeviceNames {
     public static final String TURRET = "turret";
 
     /**
+     * The turret's home switch: a REV Magnetic Limit Switch on the chassis, with a magnet on the back
+     * of the turret over it when the turret is on its mark. A Control Hub digital channel (connector
+     * 0-1; the channel is in the robot's XML); it reads low with the magnet there.
+     * {@code TurretSubsystem} zeroes the turret from it. <b>Optional</b> ({@link #TURRET_HOME_SWITCH}):
+     * a robot that has it declares it in its XML and turns it on with one {@code RobotDifferences}
+     * line ({@code TurretSubsystem.homeSwitch = true}).
+     */
+    public static final String TURRET_HOME = "turretHome";
+
+    /**
      * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
      * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
      */
@@ -257,9 +267,9 @@ public final class DeviceNames {
 
     /**
      * 19429: {@link #COMPETITION_ROBOT}, a second intake star-wheel servo, the right one
-     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026), and the new FLOWER stick's roller
-     * ({@link #FLOWER_ROLLER}, 17 Nov 2026). 20245 still drives its stars from one servo and has
-     * the old stick.
+     * ({@link #INTAKE_STARS_RIGHT}, 13 Nov 2026) and the new FLOWER stick's roller
+     * ({@link #FLOWER_ROLLER}, 17 Nov 2026). 20245 still drives its stars from one servo and has the
+     * old stick. The turret's home switch is optional on both ({@link #TURRET_HOME_SWITCH}).
      */
     public static final List<Device> ROBOT_19429 = with(COMPETITION_ROBOT,
             new Device(INTAKE_STARS_RIGHT, Kind.CR_SERVO),
@@ -292,7 +302,20 @@ public final class DeviceNames {
             new Device(THROAT_BEAM, Kind.DIGITAL),
             new Device(LANE_BEAM, Kind.DIGITAL)));
 
-    public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH, BEAM_BREAKS);
+    /**
+     * The turret's home switch ({@link #TURRET_HOME}), optional as the {@link #BEAM_BREAKS} are: being
+     * fitted to both robots for the Michigan State Championship (22 Nov 2026). The code looks it up
+     * only with {@code TurretSubsystem.homeSwitch} on (a {@code RobotDifferences} line), and then
+     * fails loudly if the XML lacks it. Once both robots have it for good, move it into
+     * {@link #COMPETITION_ROBOT}.
+     */
+    public static final List<Device> TURRET_HOME_SWITCH = Collections.singletonList(
+            new Device(TURRET_HOME, Kind.DIGITAL));
+
+    /** Every optional device a competition robot may carry: {@link #BEAM_BREAKS} and {@link #TURRET_HOME_SWITCH}. */
+    public static final List<Device> COMPETITION_OPTIONAL = union(BEAM_BREAKS, TURRET_HOME_SWITCH);
+
+    public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH, COMPETITION_OPTIONAL);
 
     private static List<Device> with(List<Device> base, Device... more) {
         List<Device> list = new ArrayList<>(base);

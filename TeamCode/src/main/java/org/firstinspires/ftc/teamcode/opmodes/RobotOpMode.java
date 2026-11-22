@@ -75,6 +75,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The base class for every OpMode that runs the robot. It owns the loop, so your OpMode is only
@@ -282,6 +283,7 @@ public abstract class RobotOpMode extends OpMode {
     private final InitWarnings initWarnings = new InitWarnings();
     /** Whether the match log last said the lane sensor's INIT warning was on. */
     private boolean loggedLaneSensorWarning;
+    private String loggedTurretMarkWarning;
     /** When INIT was pressed, System.nanoTime: the camera's first frame has a grace period from it. */
     private long initStartNs;
     /** What went wrong with the Pinpoint this INIT: a hard fault is kept once seen, a bad read only while it holds. */
@@ -292,6 +294,8 @@ public abstract class RobotOpMode extends OpMode {
     private boolean loggedLaneFull;
     /** Last logged: the colour sensor read FULL and the lane beam refused it. */
     private boolean loggedBeamRefused;
+    /** Whether the feed gate was last logged shut to a feed for a wrong NECTAR, for one event per change. */
+    private boolean loggedGateShut;
     /** {@code robot.beams.stuckFeeds()} as last logged. */
     private int loggedStuckFeeds;
     private long loggedDepartures;
@@ -559,6 +563,7 @@ public abstract class RobotOpMode extends OpMode {
         }
         initWarnings.gamepads(assigned(gamepad1), assigned(gamepad2));
         laneSensorWarning();
+        turretMarkWarning();
         watchGamepads();
         beginPage(true);
         // With no handoff and a declared start, the start line says where the robot is; the
@@ -566,8 +571,13 @@ public abstract class RobotOpMode extends OpMode {
         if (handoffNote != null && (handoffPose || declaredStart == null || startedFresh)) {
             display.status("Start", handoffLevel, handoffNote);
         }
-        String turretNote = turretOffsetNote(TurretSubsystem.aimOffset());
-        if (turretNote != null) display.status("Turret", Display.Level.OK, turretNote);
+        // An Auto's INIT with a home switch says what the sweep is doing, in place of the offset note.
+        String turretHome = isAutonomous() ? robot.turret.initStatus() : null;
+        String turretNote = turretHome != null ? turretHome : turretOffsetNote(TurretSubsystem.aimOffset());
+        if (turretNote != null) {
+            display.status("Turret", robot.turret.initStatusFault() ? Display.Level.FAULT : Display.Level.OK,
+                    turretNote);
+        }
         if (batteryNote != null) {
             // An Auto lists it with the warnings at the top instead.
             if (!isAutonomous()) display.status("Battery", Display.Level.FAULT, batteryNote);
@@ -657,6 +667,21 @@ public abstract class RobotOpMode extends OpMode {
         if (!summary.equals(loggedWarnings)) {
             log.event("INIT warnings: " + summary);
             loggedWarnings = summary;
+        }
+    }
+
+    /**
+     * The turret home switch's INIT warning, Auto or TeleOp ({@link InitWarnings#turretMark}), and an
+     * event in the match log each time it comes or goes.
+     */
+    private void turretMarkWarning() {
+        TurretSubsystem turret = robot.turret;
+        initWarnings.turretMark(turret.homeSwitchFitted(), isAutonomous(), turret.autoInitMarkProblem(),
+                turret.zeroed(), turret.onMark());
+        String warning = initWarnings.what(InitWarnings.Kind.TURRET_MARK);
+        if (!Objects.equals(warning, loggedTurretMarkWarning)) {
+            log.event(warning != null ? "INIT warning: " + warning : "INIT warning cleared: turret on its mark");
+            loggedTurretMarkWarning = warning;
         }
     }
 
@@ -1774,6 +1799,13 @@ public abstract class RobotOpMode extends OpMode {
             double hue = robot.colorSensor.hueDegrees();
             if (!Double.isNaN(hue)) log.put("/ColorSensor/HueDeg", hue);
             log.put("/ColorSensor/Saturation", robot.colorSensor.saturation());
+            // A glitch reading (NectarReject.plausible) is logged as read, and decides nothing.
+            if (!robot.colorSensor.plausible()) {
+                log.event(String.format(Locale.US,
+                        "Lane: colour sensor glitch ignored (R %.2f G %.2f B %.2f brightness %.2f), %d so far",
+                        robot.colorSensor.red(), robot.colorSensor.green(), robot.colorSensor.blue(),
+                        robot.colorSensor.alpha(), robot.colorSensor.implausibleReadings()));
+            }
         }
         // Which read rate ran (1 fast: a piece can move; 0 slow), so a full held between slow reads
         // shows as one in the log (ColorSensorSubsystem, "When it reads").
@@ -1801,6 +1833,25 @@ public abstract class RobotOpMode extends OpMode {
                     "Lane: REJECT gave up: %d bursts in %.1f s, the wrong NECTAR may still be in",
                     ColorSensorSubsystem.rejectMaxBursts, ColorSensorSubsystem.rejectWindowS));
         }
+        // A wrong NECTAR that may still be in the lane, and the feed gate it keeps shut (NectarReject.suspect).
+        log.put("/Lane/WrongNectarSuspect", robot.colorSensor.reject().suspect() ? 1 : 0);
+        if (robot.colorSensor.reject().justSuspected()) {
+            log.event(String.format(Locale.US,
+                    "Lane: a wrong NECTAR may be in the lane (%s, hue %.0f°, sat %.2f, brightness %.3f): feed gate shut%s",
+                    robot.colorSensor.reject().lastSighting(), robot.colorSensor.hueDegrees(),
+                    robot.colorSensor.saturation(), robot.colorSensor.alpha(),
+                    ColorSensorSubsystem.shutGateOnWrongNectar ? " until it is seen leaving or an eject runs"
+                            : " NOT: shutGateOnWrongNectar is off"));
+        }
+        if (robot.colorSensor.reject().justCleared()) {
+            log.event(robot.colorSensor.reject().clearedByEject()
+                    ? "Lane: wrong NECTAR cleared by an eject; the feed gate may open"
+                    : "Lane: wrong NECTAR seen leaving outward, lane clean since; the feed gate may open");
+        }
+        if (robot.feedGate.shutToFeed() != loggedGateShut) {
+            loggedGateShut = robot.feedGate.shutToFeed();
+            if (loggedGateShut) log.event("Feed gate: a feed asked, kept SHUT: a wrong NECTAR may be in the lane");
+        }
         // Full (LaneFull): the signal the light, the full hold and IntakeFull use. Every piece's
         // dwell under the sensor, so normal-play logs can tighten ColorSensorSubsystem.fullHoldS.
         LaneFull full = robot.colorSensor.laneFull();
@@ -1819,8 +1870,7 @@ public abstract class RobotOpMode extends OpMode {
             loggedLaneFull = full.full();
             // Full with a rejected NECTAR under the sensor: a reject did not clear it, and an Auto's
             // IntakeFull would move on holding it.
-            if (loggedLaneFull && NectarReject.rejects(robot.colorSensor.lastPiece(), setup.alliance(),
-                    ColorSensorSubsystem.rejectAllNectar)) {
+            if (loggedLaneFull && robot.colorSensor.reject().lastSighting() == NectarReject.Sighting.WRONG) {
                 log.event("Lane: FULL with a rejected NECTAR under the sensor (" + robot.colorSensor.lastPiece()
                         + "): a reject did not clear it");
             }
@@ -1846,6 +1896,14 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Turret/Power", robot.turret.power());
         log.put("/Turret/Zeroed", robot.turret.zeroed() ? 1 : 0);
         log.put("/Turret/Holding", robot.turret.holding() ? 1 : 0);
+        if (robot.turret.homeSwitchFitted()) {
+            log.put("/Turret/HomeMagnet", robot.turret.onMark() ? 1 : 0);
+            log.put("/Turret/SwitchCorrectionDeg", robot.turret.lastSwitchCorrectionDeg());
+        }
+        String turretSwitch = robot.turret.takeSwitchEvent();
+        if (turretSwitch != null) {
+            log.event(turretSwitch);
+        }
         long now = System.nanoTime();
         // A mechanism asked to move that never does, as one event: the only way a match log can
         // learn a motor is absent, since the hub cannot tell an empty port from a stalled motor.

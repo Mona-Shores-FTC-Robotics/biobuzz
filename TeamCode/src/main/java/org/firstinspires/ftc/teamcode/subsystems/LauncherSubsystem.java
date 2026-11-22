@@ -29,7 +29,8 @@ import java.util.function.BooleanSupplier;
  *
  * <p>The hub's own velocity loop: each motor runs in {@code RUN_USING_ENCODER} and is given a
  * target in encoder ticks per second with {@code setVelocity}. That is one write per wheel when
- * the target changes, and again every {@link #RESEND_MS} (each is a 2–3 ms round trip to the hub,
+ * the target changes, and again every {@link #RESEND_MS}, the two wheels half a period apart (each is a
+ * round trip to the Expansion Hub, about 4.3 ms in the match logs,
  * and the SDK does not skip a repeated velocity; the resend recovers a motor a hub has zeroed), and
  * no controller of ours to run.
  *
@@ -319,7 +320,14 @@ public class LauncherSubsystem implements Subsystem {
     private double rightSent = Double.NaN;
     /** An unchanged velocity is sent again this often, ms. */
     static final double RESEND_MS = 250;
-    private final Throttle resend = new Throttle(RESEND_MS, 0);
+    /**
+     * Each wheel's resend has its own throttle, the right half a period after the left, so the two
+     * Expansion Hub writes (about 4.3 ms each) land in different loops. One throttle for both put
+     * 8.6 ms into a single loop every 250 ms: at Fruitport (21 Nov 2026) the launcher was the largest
+     * part of more loops over 50 ms than anything else, on both robots.
+     */
+    private final Throttle leftResend = new Throttle(RESEND_MS, 0);
+    private final Throttle rightResend = new Throttle(RESEND_MS, RESEND_MS / 2);
     /**
      * Current is not in the bulk read: each wheel's is read every
      * {@link IntakeSubsystem#CURRENT_READ_MS}, at its own offset, so the two reads (2–4 ms each)
@@ -739,12 +747,11 @@ public class LauncherSubsystem implements Subsystem {
             measuring = false;
         }
         if (reverse) {
-            boolean force = resend.due(now);
             leftSent = command(left, leftWatch.cut() ? 0.0 : reverseCommandFor(reverseTicksPerSecond, leftReversed),
-                    leftSent, force);
+                    leftSent, leftResend.due(now));
             if (right != null) {
                 rightSent = command(right, rightWatch.cut() ? 0.0 : reverseCommandFor(reverseTicksPerSecond, rightReversed),
-                        rightSent, force);
+                        rightSent, rightResend.due(now));
             }
             readCurrents(now);
             secondsToSpeed = Double.POSITIVE_INFINITY;
@@ -758,11 +765,11 @@ public class LauncherSubsystem implements Subsystem {
             // Reported, and not "at speed", from the cut until the wheel reads speed again.
             boolean leftFault = leftWatch.fault();
             boolean rightFault = rightWatch.fault();
-            boolean force = resend.due(now);
-            leftSent = command(left, leftWatch.cut() ? 0.0 : commandFor(leftTarget, leftReversed), leftSent, force);
+            leftSent = command(left, leftWatch.cut() ? 0.0 : commandFor(leftTarget, leftReversed), leftSent,
+                    leftResend.due(now));
             if (right != null) {
                 rightSent = command(right, rightWatch.cut() ? 0.0 : commandFor(rightTarget, rightReversed),
-                        rightSent, force);
+                        rightSent, rightResend.due(now));
             }
             readCurrents(now);
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
@@ -806,7 +813,8 @@ public class LauncherSubsystem implements Subsystem {
             if (right != null) right.setPower(0.0);
             leftSent = Double.NaN;
             rightSent = Double.NaN;
-            resend.reset();
+            leftResend.reset();
+            rightResend.reset();
             leftCurrentRead.reset();
             rightCurrentRead.reset();
             leftCurrentAmps = Double.NaN;

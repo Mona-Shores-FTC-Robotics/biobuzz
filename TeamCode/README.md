@@ -547,6 +547,64 @@ absolute encoders on the ring, which would know the angle at power-on with no
 home mark, are parked on the branch `claude/great-pasteur-qhypqt`. Set the
 encoder's voltage switch to 3V3.
 
+**The home switch.** A REV Magnetic Limit Switch on the chassis
+(`DeviceNames.TURRET_HOME`, a `<DigitalDevice>` in the Control Hub's digital
+connector 0-1, so `DeviceNames.Kind.DIGITAL`) sits under a magnet on the back of
+the turret, over it when the turret is on its mark. It is an optional device
+(`DeviceNames.TURRET_HOME_SWITCH`, the beam breaks' pattern): both robots' XML
+declare it (20245's port is the same as 19429's until it is checked), and
+`TurretSubsystem.homeSwitch`, off shared, is on for a robot by its
+`RobotDifferences` line once **Bench: Turret** has seen it read the magnet; on
+with no `turretHome` in the XML, the turret fails at init with what to add. It
+does not replace the rules above, which assume the
+mark; it checks and corrects them. A Hall switch is on across a band a few
+degrees wide, so one reading only says "near the mark": a *pass*, the turret
+entering the band on one side and leaving it on the other, still turning the
+same way and slower than `homeSwitchMaxPassDps`, puts the mark at the band's
+middle plus `homeSwitchOffsetDeg` (measured on **Bench: Turret**), and the zero
+moves there (`TurretHomeSwitch`, `TurretZeroPolicy.atSwitchPass`). The switch
+and the encoder are in the same bulk read, so each edge is placed to half a
+loop's travel. A pass is taken any time, INIT included, since reading a switch
+moves nothing: a turret turned by hand across its mark in a TeleOp's INIT zeroes
+itself, and one whose zero drifted is put right the next time it swings through
+straight ahead. The correction is wrapped, so a turret wound a turn round keeps
+its winding. A zero set by hand still wins, and a pass more than
+`homeSwitchMaxCorrectionDeg` from the zero is logged and not taken. In INIT the
+switch is also a check: a TeleOp about to zero at PLAY with no magnet over the
+switch warns that the turret is off its mark (`InitWarnings.Kind.TURRET_MARK`).
+
+**The sweep (an Auto's INIT only).** An Autonomous's INIT may move the turret
+(R103.B; the mentor's call, 21 Nov 2026), so with `homeSweep` on it zeroes where
+the turret stands and then looks for the mark (`TurretHomeSweep`), each leg a
+moving target with its rate fed forward:
+
+1. **Search**: counter-clockwise at `homeSweepSearchDps` (60°/s) for up to
+   `homeSweepRangeDeg` (370°). With no stops and no cables, a full turn always
+   crosses the magnet, wherever the turret was left.
+2. **Past and back, twice**: once the turret leaves the switch's band it goes on
+   `homeSweepOvershootDeg` (10°) past, turns back and crosses the band slowly
+   (`homeSweepFineDps`, 15°/s), goes 10° past the other side, and crosses it
+   slowly once more the first way.
+3. **The mark** is the average of the two slow passes. A Hall switch turns on a
+   little late one way and off a little late the other, and the loop places each
+   edge a little behind the turret: both errors go with the direction of travel,
+   so two passes in opposite directions cancel them. The zero moves once, onto
+   that mark (unwound, whatever the search's turn), and the turret turns to its
+   home angle and holds.
+
+A full search is about 6 s and the slow passes about 4 s more. No magnet in the
+range, or `homeSweepTimeoutS` (20 s), leaves the zero where the turret stood and
+warns (`Turret: the sweep did not find the magnet`); a fast pass with no slow one
+after it gives that pass's mark and a log line. PLAY, a hand zero or a dropped
+hold stops it. A TeleOp's INIT, which
+runs between AUTO and TELEOP, never moves the turret: there the drive team
+turns it by hand across the mark. With `homeSweep` off, an Auto's INIT only
+warns when the switch saw no magnet where it zeroed. **`homeSweep` is off shared
+and on no robot yet** (22 Nov 2026): it has not run on a robot, so each robot's
+`RobotDifferences` line turns it on only once its bench checks in
+`doc/robot-todo.md` pass (both sides of the mark, the zero on the mark, the
+time).
+
 **The loop.** A continuous servo is sent a speed and has no feedback, so
 nothing holds the turret but the code: `TurretSubsystem.update()` reads the
 encoder and sends one power a loop, worked out by `subsystems/TurretServoControl`
