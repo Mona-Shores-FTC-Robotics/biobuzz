@@ -48,6 +48,28 @@ branches and reads them with `read_logs.py` (below). Nothing to type.
   on the next run that has internet: double-click again at home or school, robot or no robot. A
   laptop with a second Wi-Fi adapter on the internet sends them straight away, and the watcher sends
   each log as it finishes.
+- **A slow or flaky link gets what it can through.** Logs go up newest day first and, within a
+  day, newest file first, one per commit and push (small ones, a Driver Hub's log and battery
+  history, share a push up to 2 MB gzipped). Each is written to the published list (below) the
+  moment its push succeeds, so a failure later on loses nothing that already went. A failed push
+  is tried three times, 10 s and then 30 s apart; a timeout (`HTTP 408`, `RPC failed`, "the remote
+  end hung up") then moves on to the next log, and three logs in a row like that end the run.
+  Anything else (no route to GitHub, sign-in refused) ends the run straight away, since every
+  push would fail the same way. Every push also buffers the whole pack (`http.postBuffer`, so it
+  is not sent chunked) and gives up on a transfer under 1 KB/s for 60 s (`http.lowSpeedLimit` /
+  `http.lowSpeedTime`), so a dead link fails in a minute and is retried instead of hanging until
+  GitHub answers 408. (On 21 Nov, from a phone hotspot, each day's single push of every log
+  failed with 408 and nothing went up.) One log too big for the link can still fail; it stays on
+  Drive and goes up on a later run at home or school.
+- **You can walk away from the robot, or press Ctrl+C, at any time.** The upload needs the
+  internet, not the robot: once `pulled ...` lines are done the robot is free. Each upload starts
+  with a `sending ... (N KB)...` line and git then prints nothing until it is done, which on a
+  hotspot can be minutes. Stopping loses nothing: what went is recorded, a cut-off upload goes
+  again next run, and nothing leaves the robot that has not gone up.
+- **The last line says what happened**: `GitHub: sent 5 of 9 log(s) in 4 push(es), failed 1, 3
+  left for the next run (first error: logs/2026-11-21-19429-RC: ... HTTP 408 ...)`, or `GitHub:
+  nothing new to send (...)`, or that there is no internet now. A run that sent nothing always
+  says why.
 - **Your checkout is never touched.** The branch is written with git's plumbing (a private index,
   `commit-tree`, `push <commit>:refs/heads/...`), not by switching branches, so whatever you have
   checked out and half-edited stays exactly as it was.
@@ -137,13 +159,16 @@ G:\Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs\<rob
 
 That needs **Google Drive for Desktop** on the laptop, signed in as a member of the
 `Robotics Team 3572 - Wavelength` shared drive. The script looks for the folder on every drive
-letter, so it does not matter which one Drive mounts. While the laptop is on the robot's Wi-Fi it
+letter, so it does not matter which one Drive mounts; it tries them all at once and gives up on
+any that has not answered in 5 s (a mapped network drive that is not connected, such as a school
+share away from school, used to make the pull sit there with nothing on screen). While the laptop is on the robot's Wi-Fi it
 has no internet; Drive holds the files and uploads them when the laptop is back on a network, so
 check the folder on drive.google.com after a meeting before trusting `-RemoveFromRobot`.
 
 A laptop without the folder (no Drive, or not a member) falls back to
-`%USERPROFILE%\biobuzz-logs\<robot network>\` and says so in its first lines. Those logs are on
-that laptop only; copy them into the Drive folder by hand, or pass `-Dest` next time.
+`%USERPROFILE%\biobuzz-logs\<robot network>\` and says so in its first lines. Everything else
+works the same: they still go up to GitHub (above) and come off the robot once they have. They
+are just not on Drive; copy them into the Drive folder by hand if the team wants them there.
 
 ## What it does about adb
 
