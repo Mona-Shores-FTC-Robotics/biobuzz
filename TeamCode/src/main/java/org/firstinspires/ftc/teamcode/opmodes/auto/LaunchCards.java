@@ -96,8 +96,27 @@ public final class LaunchCards {
      * shown to be safe. Video of a few volleys decides it. Square's volley in TeleOp does not use
      * this: it feeds while held. A step's time limit never cuts a feed that has started
      * (AutoRegistry.holdTimeLimitsWhile).
+     *
+     * <p><b>2.4 since 22 Nov 2026</b>, for every {@code LaunchAll} after an Auto's first
+     * ({@link #firstLaunchAllFeedS} is the first's), deliberately thin: the mentor's call, to win the
+     * time back until a sensor at the feeder ends the feed as the last ball passes. Read from every Auto
+     * LaunchAll on both robots, 12 to 21 Nov plus the Belding and Fruitport events (311 feeds, balls
+     * timed from the gate opening by the wheels' dips and the shot counter): balls leave on a steady
+     * rhythm about 0.45 s apart, the 4th a median 2.05 s after the gate and 2.32 s in 90% of volleys.
+     * At 2.4 a later volley leaves a ball behind about 9% of the time (13 of 142), almost all of them
+     * a ball that hung up for over a second mid-volley. A ball left behind is not lost: it stays in
+     * the lane for the next volley, though it takes one of the next pick's four places. Each saves
+     * 1.1 s over 3.5 whenever the 4th shot is not counted (44% of volleys, 21 Nov).
      */
-    public static double launchAllFeedS = 3.5;
+    public static double launchAllFeedS = 2.4;
+
+    /**
+     * {@link #launchAllFeedS} for the first {@code LaunchAll} these cards feed, an Auto's preloads:
+     * 2.8 since 22 Nov 2026. That volley starts with the wheels coming up from rest and its balls
+     * run about 0.3 to 0.5 s later than a later volley's; at 2.8 it leaves a ball behind about 4.5%
+     * of the time (6 of 134, same logs). Thin on purpose, as {@link #launchAllFeedS}.
+     */
+    public static double firstLaunchAllFeedS = 2.8;
 
     /**
      * A {@code LaunchAll} ends its feed once the launcher has counted this many shots since the
@@ -229,6 +248,10 @@ public final class LaunchCards {
     /** When the approach opened the gate, seconds; NaN until it has, and once a card takes it over. */
     private double approachFedAt = Double.NaN;
     private int approachShots;
+    /** Whether the approach's open feed is the first volley's ({@link #firstLaunchAllFeedS}). */
+    private boolean approachFirst;
+    /** {@code LaunchAll} and {@code LaunchAllAimed} feeds started so far: the first gets {@link #firstLaunchAllFeedS}. */
+    private int volleyFeedsStarted;
     private final AutoRegistry.Approach launchAllApproach = new AutoRegistry.Approach() {
         @Override public void started(Pose end) {
             approachEnd = end;
@@ -240,6 +263,7 @@ public final class LaunchCards {
             if (!speedReady() || !onApproach.ready(approachEnd, pose, remainingIn)) return;
             approachShots = launcher.shots();
             approachFedAt = secondsNow.getAsDouble();
+            approachFirst = claimFirstVolley();
             feeder.feed();
             feeding++;
             note.accept(String.format(Locale.US, "LaunchAll opened the gate on the approach, %.1f in from the path end%s",
@@ -422,7 +446,7 @@ public final class LaunchCards {
      * nothing and ends {@link #launchAllFeedS} after the gate opened.
      */
     public Command launchAll() {
-        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true);
+        return launch("LaunchAll", () -> launchAllFeedS, () -> firstLaunchAllFeedS, () -> launchAllEndAfterShots, true);
     }
 
     /**
@@ -450,6 +474,7 @@ public final class LaunchCards {
         if (shot == null) throw new IllegalArgumentException("LaunchAllAimed needs a turret to aim");
         final double[] fedAt = {Double.NaN};
         final boolean[] refused = new boolean[1];
+        final boolean[] first = new boolean[1];
         final boolean[] allShotsOut = new boolean[1];
         final int[] shotsAtFeed = new int[1];
         final double[] startedAt = new double[1];
@@ -483,12 +508,13 @@ public final class LaunchCards {
                             aiming ? "the turret on target" : "the turret at home",
                             secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
                     shotsAtFeed[0] = launcher.shots();
+                    first[0] = claimFirstVolley();
                     feed(fedAt, secondsNow.getAsDouble());
                 })
                 .setDone(() -> {
                     if (refused[0]) return true;
                     if (Double.isNaN(fedAt[0])) return false;
-                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(launchAllFeedS)) return true;
+                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(volleyFeedS(first[0]))) return true;
                     double enough = launchAllEndAfterShots;
                     int shots = launcher.shots();
                     allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
@@ -506,7 +532,8 @@ public final class LaunchCards {
                     if (shots >= 0) {
                         note.accept(String.format(Locale.US, "LaunchAllAimed fed %.2f s (%s%s): %d shots detected",
                                 secondsNow.getAsDouble() - fedAt[0], end,
-                                allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
+                                allShotsOut[0] ? ", ended at the last counted shot" : timerNote(true, first[0]),
+                                shots - shotsAtFeed[0]));
                     }
                     if (end == EndCondition.NATURALLY) launchAllsCompleted++;
                 });
@@ -514,7 +541,7 @@ public final class LaunchCards {
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false);
+        return launch("LaunchOne", () -> launchOneFeedS, () -> launchOneFeedS, () -> 0.0, false);
     }
 
     /**
@@ -540,9 +567,10 @@ public final class LaunchCards {
         return () -> launchAllsCompleted > before;
     }
 
-    private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier endAfterShots,
-                           boolean countsAsEmptying) {
+    private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier firstFeedSeconds,
+                           DoubleSupplier endAfterShots, boolean countsAsEmptying) {
         final double[] fedAt = {Double.NaN};
+        final boolean[] first = new boolean[1];
         final boolean[] allShotsOut = new boolean[1];
         final double[] startedAt = new double[1];
         final int[] shotsAtFeed = new int[1];
@@ -555,6 +583,7 @@ public final class LaunchCards {
                     // The drive in already opened the gate: this card only finishes that feed.
                     if (countsAsEmptying && !Double.isNaN(approachFedAt)) {
                         fedAt[0] = approachFedAt;
+                        first[0] = approachFirst;
                         shotsAtFeed[0] = approachShots;
                         approachFedAt = Double.NaN;
                     }
@@ -569,6 +598,7 @@ public final class LaunchCards {
                         note.accept(String.format(Locale.US, "%s fed below launch speed: not at speed %.2f s after it started",
                                 name, now - startedAt[0]));
                         shotsAtFeed[0] = launcher.shots();
+                        first[0] = countsAsEmptying && claimFirstVolley();
                         feed(fedAt, now);
                         return;
                     }
@@ -576,17 +606,20 @@ public final class LaunchCards {
                         String ahead = aheadOfSpeed();
                         if (!ahead.isEmpty()) note.accept(name + " opened the gate" + ahead);
                         shotsAtFeed[0] = launcher.shots();
+                        first[0] = countsAsEmptying && claimFirstVolley();
                         feed(fedAt, now);
                     } else if (now - startedAt[0] >= PathEndSettle.maxWaitS()) {
                         note.accept(String.format(Locale.US, "%s fed before the robot settled: %.2f s since it started",
                                 name, now - startedAt[0]));
                         shotsAtFeed[0] = launcher.shots();
+                        first[0] = countsAsEmptying && claimFirstVolley();
                         feed(fedAt, now);
                     }
                 })
                 .setDone(() -> {
                     if (Double.isNaN(fedAt[0])) return false;
-                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(feedSeconds.getAsDouble())) return true;
+                    double limit = first[0] ? firstFeedSeconds.getAsDouble() : feedSeconds.getAsDouble();
+                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(limit)) return true;
                     double enough = endAfterShots.getAsDouble();
                     int shots = launcher.shots();
                     allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
@@ -601,13 +634,33 @@ public final class LaunchCards {
                         if (shots >= 0) {
                             note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d shots detected",
                                     name, secondsNow.getAsDouble() - fedAt[0], end,
-                                    allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
+                                    allShotsOut[0] ? ", ended at the last counted shot"
+                                            : timerNote(countsAsEmptying, first[0]), shots - shotsAtFeed[0]));
                         }
                     }
                     if (countsAsEmptying && end == EndCondition.NATURALLY) {
                         launchAllsCompleted++;
                     }
                 });
+    }
+
+    /** True for the first volley feed these cards start ({@link #firstLaunchAllFeedS}), and counts it. */
+    private boolean claimFirstVolley() {
+        return volleyFeedsStarted++ == 0;
+    }
+
+    /** A volley's set feed time: {@link #firstLaunchAllFeedS} for the first, else {@link #launchAllFeedS}. */
+    private static double volleyFeedS(boolean first) {
+        return first ? firstLaunchAllFeedS : launchAllFeedS;
+    }
+
+    /**
+     * For the match log, a volley that ended on its set time rather than its last counted shot:
+     * ", ended at its 2.4 s timer". Read beside the next card's lane count, it shows when the thin
+     * timer left a ball behind, which is the case for a sensor at the feeder.
+     */
+    private static String timerNote(boolean volley, boolean first) {
+        return volley ? String.format(Locale.US, ", ended at its %.1f s timer", nonNegative(volleyFeedS(first))) : "";
     }
 
     private void feed(double[] fedAt, double now) {
