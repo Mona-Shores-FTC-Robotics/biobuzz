@@ -16,13 +16,11 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * says what it wants ({@link #extend()}, {@link #retract()}, {@link #toggle()}), {@link #update()}
  * does it, once per loop. Which button triggers it belongs in the OpMode's bindings, not here.
  *
- * <p>The servo only swings the stick. Once the stick is down, its wheels sit on the tile and the
- * push from the FLOWER goes into the tile through the arm, not into the servo, as long as nothing
- * is holding the arm somewhere else. A positional servo cannot "rest" on the tile: a position a
- * hair above the tile carries the stick and takes the push, a hair below stalls against the tile.
- * So after the swing the pulse is switched off ({@link PwmControl#setPwmDisable()}): the servo goes
- * limp and the stick rests on the tile by its own weight. Stowed, the servo keeps holding, because
- * the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there too once it does.
+ * <p>The servo holds the stick out for as long as it is asked out. It used to go limp once the swing
+ * had had {@link #SETTLE_MS} ({@link #LIMP_EXTENDED}), so that the stick rested on the tile by its
+ * own weight and the push went into the tile; but a limp stick is lifted by the FLOWER it is pushed
+ * into, and the logs show it: see {@link #LIMP_EXTENDED}. Stowed, the servo keeps holding too,
+ * because the stowed hard stop may not exist yet; {@link #LIMP_STOWED} releases it there once it does.
  *
  * <p>In a TeleOp's INIT nothing is written, so the stick does not move (G403; see
  * {@link Subsystem}): that INIT runs between AUTO and TELEOP, where a stick swinging in after an
@@ -69,10 +67,14 @@ public class FlowerStickSubsystem implements Subsystem {
     public static final double SERVO_RANGE_DEG = 270.0;
 
     /**
-     * Cut the pulse once the stick is out and settled, so the stick rests on the tile. Off for 20245
-     * in {@code RobotDifferences} (21 Nov 2026): limp, its stick was lifted by the FLOWER mid push.
+     * Cut the pulse once the stick is out and settled ({@link #SETTLE_MS}), so the stick rests on
+     * the tile. Off on both robots since 22 Nov 2026 (mentor): a limp stick is lifted by the FLOWER.
+     * On 20245's SWYFT stick in the Autos of 19 to 21 Nov, a second pick whose pulse was cut early in
+     * the push fired 0, 0, 1 and 4 balls after it; held, every pick of the 21st's afternoon fired 4
+     * (9 of 9). 19429 was limp all season (its Auto picks fired 2.1 to 2.8 on average) and holds
+     * untried: a 19429 line in {@code RobotDifferences} turns this back on if its servo stalls.
      */
-    public static boolean LIMP_EXTENDED = true;
+    public static boolean LIMP_EXTENDED = false;
 
     /** Cut the pulse once the stick is in and settled. Only once a stowed hard stop exists. */
     public static boolean LIMP_STOWED = false;

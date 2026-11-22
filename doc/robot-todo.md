@@ -311,22 +311,25 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
-- [ ] **20245's FLOWER stick now holds out, powered, instead of going limp** (`LIMP_EXTENDED`
-      off, a 20245 line in `RobotDifferences`): in R-Solo practice on 21 Nov the limp stick was
-      lifted by the FLOWER mid push on the second pick, which lowers it 1.3 s before the push, so
-      the 1.5 s `SETTLE_MS` cut the pulse just as IN began. **Check:** R-Solo, the second (SCORING)
-      FLOWER pick: the stick stays down through IN and DWELL, and the pick takes 3 to 4 POLLEN like
-      the first; `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. With the stick
-      resting out and the robot still, the servo is not buzzing or hot: if it is, the out position
-      presses into the tile, so raise `EXTENDED` (0.85) a hair in Bench: FLOWER Stick until it is
-      quiet and the wheels still touch, and put the number in a PR.
+- [ ] **Both robots' FLOWER sticks now hold out, powered, instead of going limp**
+      (`FlowerStickSubsystem.LIMP_EXTENDED` off, the shared value, 22 Nov). A limp stick is lifted
+      by the FLOWER: on 20245 at Fruitport the held stick's Auto picks fired 4 every time (9 of 9),
+      the limp one's second pick 0 to 4. **20245** held all of Fruitport's afternoon: nothing to
+      check but the servo (below). **19429 has never held**, so before Basic Drive: Bench: FLOWER
+      Stick, stick out on the tile, robot still, 10 s: the pivot servo is not buzzing or hot, and the
+      roller still turns. If the servo strains, raise `EXTENDED` (0.44) a hair toward `RETRACTED`
+      (1.00) until it is quiet with the wheels still on the tile, and put the number in a PR; if no
+      position works, add a 19429 line in `RobotDifferences` setting `LIMP_EXTENDED = true`. Then
+      R-Solo on 19429: the first (WALL) pick fires 4 (all season limp, 3 of 15 picks did), and
+      `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. Same servo check on 20245 (out
+      at 0.85).
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
       measured on the goBILDA, so **before Basic Drive:** Bench: FLOWER Stick, step to the in and
       out stops on the SWYFT servo and put the two numbers in a PR (they are the shared values;
       19429 keeps its own line in `RobotDifferences`). Also check the swing finishes inside
-      `SETTLE_MS` (1.5 s), the stick drops onto the tile when the pulse is cut (`LIMP_EXTENDED`),
+      `SETTLE_MS` (1.5 s),
       and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
       and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
