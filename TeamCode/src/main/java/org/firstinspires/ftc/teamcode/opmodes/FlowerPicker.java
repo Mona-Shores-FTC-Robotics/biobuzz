@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.localization.FlowerFieldPoints.Flower;
 
 import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
 
 /**
@@ -153,6 +154,35 @@ public final class FlowerPicker extends GrabRoutine {
 
     /** See {@link Push}. */
     public static Push push = new Push();
+
+    /** In an Auto: one more push after a push that stalled far short of the FLOWER. */
+    public static final class Retry {
+        /**
+         * On: an Auto's push that stalls {@link #retryShortIn} or more short backs off and pushes once
+         * more, if the endgame guard has the time ({@code AutoKit.grantGrabSeconds}). Since 22 Nov 2026
+         * (the FLOWER pick study, doc/flower-picks): every Auto push that stalled 4.0 in or more short
+         * took nothing and left the FLOWER full (Belding Q-4 19429, 4.0 and 4.6 in; Fruitport Q-4
+         * 20245, 4.7 in), and of the 41 that stalled less short only 2 took nothing. Off: such a push
+         * dwells where it stopped, as before. Never on the button: the driver pushes again.
+         */
+        public boolean retryShortPush = true;
+        /**
+         * How short of {@link Push#contactStandoffIn} a stall must be to push again, inches. The study's
+         * empty picks stalled 4.0 to 4.7 in short, its good ones 0.7 to 3.5 in.
+         */
+        public double retryShortIn = 4.0;
+        /** How far the robot backs off before pushing again, inches, the stick still down and the intake on. */
+        public double retryBackOffIn = 3.0;
+        /**
+         * What the retry adds to the pick, seconds, asked of the endgame guard first: an estimate, not
+         * measured. The back-off (3 in took 0.29 s at Belding) and the push back in (about 0.7 s) less
+         * nothing, since the stalled push skips its dwell. Replace it from the first logs.
+         */
+        public double retryExtraS = 1.2;
+    }
+
+    /** See {@link Retry}. */
+    public static Retry retry = new Retry();
 
     /** The dwell at the FLOWER (MASTER's; FAST and MULTI_PUSH have their own lengths in fast and multiPush). */
     public static final class Dwell {
@@ -349,6 +379,8 @@ public final class FlowerPicker extends GrabRoutine {
     private Flower flower;
     /** Why a staying pick leaves the FLOWER, or null while it stays; null itself for a plain pick ({@link #staying}). */
     private final Supplier<String> stay;
+    /** An Auto's card: asks the endgame guard for more seconds ({@link #mayTakeMoreTime}); null asks nobody. */
+    private final DoublePredicate moreTime;
     /** The routine this pick runs, and its pushes: {@link #routine} as it was when the pick started. */
     private Routine running = Routine.MASTER;
     private int runningPushes = 1;
@@ -359,12 +391,14 @@ public final class FlowerPicker extends GrabRoutine {
     }
 
     private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp) {
-        this(robot, event, lineUp, null);
+        this(robot, event, lineUp, null, null);
     }
 
-    private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp, Supplier<String> stay) {
+    private FlowerPicker(Robot robot, Consumer<String> event, boolean lineUp, Supplier<String> stay,
+                         DoublePredicate moreTime) {
         super(robot, event, lineUp);
         this.stay = stay;
+        this.moreTime = moreTime;
     }
 
     /**
@@ -376,7 +410,7 @@ public final class FlowerPicker extends GrabRoutine {
      * The caller runs it with {@link #update}, held, to the end.
      */
     static FlowerPicker staying(Robot robot, Consumer<String> event, Supplier<String> stay) {
-        return new FlowerPicker(robot, event, false, stay);
+        return new FlowerPicker(robot, event, false, stay, null);
     }
 
     /**
@@ -384,12 +418,21 @@ public final class FlowerPicker extends GrabRoutine {
      * FLOWER, and follows the button (let go in the dwell and it backs out; a stick stops it).
      */
     static FlowerPicker stayingButton(Robot robot, Consumer<String> event, Supplier<String> stay) {
-        return new FlowerPicker(robot, event, true, stay);
+        return new FlowerPicker(robot, event, true, stay, null);
     }
 
     /** An Auto's {@code PickFlower} card: a whole pick, squared up from where the robot is. */
     public static Command command(Robot robot, Consumer<String> event) {
-        return GrabRoutine.command(() -> new FlowerPicker(robot, event, false));
+        return command(robot, event, null);
+    }
+
+    /**
+     * {@link #command(Robot, Consumer)}, asking {@code moreTime} (the endgame guard,
+     * {@code AutoRegistry.grantGrabSeconds}) before a push that stalled far short goes in again
+     * ({@link Retry}).
+     */
+    public static Command command(Robot robot, Consumer<String> event, DoublePredicate moreTime) {
+        return GrabRoutine.command(() -> new FlowerPicker(robot, event, false, null, moreTime));
     }
 
     /**
@@ -611,6 +654,10 @@ public final class FlowerPicker extends GrabRoutine {
     @Override protected double backOffTimeoutMs() { return multiPush.multiBackOffTimeoutMs; }
     @Override protected double lastDwellMs() { return multiPush.multiLastDwellMs; }
     @Override protected double dwellQuietMs() { return dwell.dwellQuietMs; }
+    @Override protected double retryShortIn() { return retry.retryShortPush && stay == null ? retry.retryShortIn : 0.0; }
+    @Override protected double retryBackOffIn() { return retry.retryBackOffIn; }
+    @Override protected double retryExtraS() { return retry.retryExtraS; }
+    @Override protected boolean mayTakeMoreTime(double seconds) { return moreTime != null && moreTime.test(seconds); }
     @Override protected boolean dwellStays() { return stay != null; }
     @Override protected String stayOver() { return stay.get(); }
     @Override protected boolean dwellFull() { return dwell.dwellEndsOnFull && robot.colorSensor.full(); }

@@ -269,7 +269,8 @@ public final class AutoRegistration {
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null
                 : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
-        return new AutoRegistry()
+        final AutoRegistry registry = new AutoRegistry();
+        return registry
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
                 .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
@@ -293,7 +294,9 @@ public final class AutoRegistration {
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The
                 // drive before it lowers the stick on the way in (its approach), so the pick's stick
                 // wait is over when the card starts, and its dwell ends when the lane is full.
-                .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note),
+                // A push that stalls far short pushes once more if the endgame guard has the time
+                // (FlowerPicker.Retry, registry.grantGrabSeconds).
+                .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note, registry::grantGrabSeconds),
                         robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract). The

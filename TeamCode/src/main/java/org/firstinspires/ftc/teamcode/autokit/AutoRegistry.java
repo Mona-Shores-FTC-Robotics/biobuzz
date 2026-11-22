@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
 
 /**
@@ -41,6 +42,7 @@ public final class AutoRegistry {
     private final Map<String, Double> lastPieceSeconds = new LinkedHashMap<>();
     private final Map<String, Approach> approaches = new LinkedHashMap<>();
     private BooleanSupplier holdTimeLimits = () -> false;
+    private DoublePredicate grabTime = seconds -> false;
 
     /**
      * What a command does on the drive in to it: while the path card right before the command's
@@ -132,6 +134,21 @@ public final class AutoRegistry {
     public AutoRegistry holdTimeLimitsWhile(BooleanSupplier hold) {
         this.holdTimeLimits = hold == null ? () -> false : hold;
         return this;
+    }
+
+    /**
+     * Whether the grab now running may take {@code seconds} more than planned: the endgame guard of
+     * the {@link AutoKit} built on this registry answers ({@code AutoKit.grantGrabSeconds}), and on a
+     * yes the grab's card waits that much longer before its timeout. No when no kit runs it. For a
+     * grab's factory to hand its grab (a FLOWER pick's push again after a stall far short).
+     */
+    public boolean grantGrabSeconds(double seconds) {
+        return grabTime.test(seconds);
+    }
+
+    /** The kit built on this registry answers {@link #grantGrabSeconds}. */
+    void answerGrabTime(DoublePredicate answer) {
+        this.grabTime = answer == null ? seconds -> false : answer;
     }
 
     /** Whether time limits are held now ({@link #holdTimeLimitsWhile}). */

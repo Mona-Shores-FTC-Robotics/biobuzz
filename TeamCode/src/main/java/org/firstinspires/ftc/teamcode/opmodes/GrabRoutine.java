@@ -69,6 +69,11 @@ import java.util.function.Consumer;
  *       ({@link Phase#BACK_OFF}), and goes in again; the last dwell is at most {@link #lastDwellMs}
  *       under the usual rules, then the Back as above. Letting go of the button during a back-off
  *       or a later In means done, like the dwell.</li>
+ *   <li><b>One more push after a push that stalled far short</b> ({@link #retryShortIn}), on an Auto's
+ *       card only, with one push planned: an In that stalls at least that far short of its pose
+ *       backs off {@link #retryBackOffIn} with the mechanisms still out and goes in once more,
+ *       without dwelling first, if the Auto has the time ({@link #mayTakeMoreTime}); else it dwells
+ *       where it stopped, as before.</li>
  * </ul>
  *
  * <p><b>Its contract: it ends where its In started.</b> On the button that is the line-up pose. On an
@@ -153,6 +158,10 @@ public abstract class GrabRoutine {
     private boolean unprepped;
     /** Ins started in this grab: 1, or more on a grab of several pushes. */
     private int pushes;
+    /** This grab has backed off for one more push after stalling short ({@link #retryShortIn}); only once. */
+    private boolean retried;
+    /** The back-off now running is that retry's, not a grab of several pushes': it starts no new count. */
+    private boolean retryBackingOff;
     /** When the dwell now running counts from: its start, or the In's contact ({@link #dwellFromContact}). */
     private long dwellFromNs;
     /** When the line-up's path was first done, or -1. */
@@ -390,6 +399,33 @@ public abstract class GrabRoutine {
         return 500;
     }
 
+    /**
+     * An Auto's In that stalls at least this far short of its pose, inches, backs off and goes in
+     * once more ({@link #retryPush}); 0 (the default) never. Only on a grab of one push.
+     */
+    protected double retryShortIn() {
+        return 0.0;
+    }
+
+    /** That retry: how far the robot backs off before going in again, inches, mechanisms still out. */
+    protected double retryBackOffIn() {
+        return 3.0;
+    }
+
+    /** That retry: the seconds it adds to the grab, which the Auto must have ({@link #mayTakeMoreTime}). */
+    protected double retryExtraS() {
+        return 0.0;
+    }
+
+    /**
+     * Whether the Auto can give this running grab {@code seconds} more: its endgame guard's answer
+     * ({@code AutoKit.grantGrabSeconds}), which also extends the card's timeout by that much when
+     * it says yes. Never, by default (the button, and a grab with nobody to ask).
+     */
+    protected boolean mayTakeMoreTime(double seconds) {
+        return false;
+    }
+
     /** A current this many amps over the roller's free-running current is a piece. */
     protected abstract double spikeAboveAmps();
     protected abstract double dwellPushPower();
@@ -590,6 +626,25 @@ public abstract class GrabRoutine {
                     pushing = false;
                     robot.drive.setAccelLimited(true);
                     inEnd = pose;
+                    double shortIn = Math.hypot(in.x() - pose.x(), in.y() - pose.y());
+                    double room = Math.hypot(home.x() - pose.x(), home.y() - pose.y());
+                    if (retryPush(nn(retryShortIn()), inAuto(), pushCount(), pushes, retried, inEndWhy, shortIn, room)) {
+                        // Stalled far short: it never reached what it went for. Push once more rather
+                        // than dwell here, if the Auto has the time for it.
+                        if (mayTakeMoreTime(nn(retryExtraS()))) {
+                            retried = true;
+                            retryBackingOff = true;
+                            next(now, Phase.BACK_OFF);
+                            event.accept(String.format(Locale.US,
+                                    "%s: the push stalled %.1f in short (%.1f or more): backing off %.1f in to push once more",
+                                    what(), shortIn, nn(retryShortIn()), nn(retryBackOffIn())));
+                            drivePath(pose, backOffPose(pose, home, nn(retryBackOffIn())), backSpeed());
+                            break;
+                        }
+                        event.accept(String.format(Locale.US,
+                                "%s: the push stalled %.1f in short, but there is no time to push again: dwelling here",
+                                what(), shortIn));
+                    }
                     // Stalled: the robot has been against it since its last progress.
                     dwellFromNs = dwellFromContact() && inEndWhy.startsWith("stalled") ? progressNs : now;
                     next(now, Phase.DWELL);
@@ -613,7 +668,7 @@ public abstract class GrabRoutine {
                 // A grab that stays for something else (a volley fired from the FLOWER) ends its last
                 // dwell on that alone; its own cap, the full lane and the current do not.
                 String why = dwellStays() ? stayOver()
-                        : dwellEnd(ms(now, dwellFromNs) >= nn(pushes >= 2 ? lastDwellMs() : dwellMs()), dwellFull(),
+                        : dwellEnd(ms(now, dwellFromNs) >= nn(pushCount() >= 2 && pushes >= 2 ? lastDwellMs() : dwellMs()), dwellFull(),
                         dwell.done(ms(now, startNs), ms(phaseStartNs, startNs), dwellQuietMs(), dwellEmptyMs()),
                         dwell.sawSpike());
                 if (why != null) {
@@ -626,7 +681,12 @@ public abstract class GrabRoutine {
             case BACK_OFF:
                 // Mechanisms stay out; the roller takes what the first In shook loose.
                 if (robot.drive.pathDone() || ms(now, phaseStartNs) > nn(backOffTimeoutMs())) {
-                    pushes++;
+                    // A retry's In is still the one push the grab planned; another push is the next.
+                    if (retryBackingOff) {
+                        retryBackingOff = false;
+                    } else {
+                        pushes++;
+                    }
                     inEndWhy = "";
                     dwellEndWhy = "";
                     progressNs = now;
@@ -691,6 +751,19 @@ public abstract class GrabRoutine {
     }
 
     /**
+     * Whether the In that just ended earns one more push: {@code retryShortIn} is on (over 0), it is
+     * an Auto's card ({@code auto}), the grab plans one push and this is it, it has not retried
+     * already, the In ended by stalling ({@code inEndWhy}) at least {@code retryShortIn} short of
+     * its pose ({@code shortIn}), and there is at least an inch to back off into ({@code roomIn}).
+     * Whether the Auto has the time is asked after ({@link #mayTakeMoreTime}).
+     */
+    static boolean retryPush(double retryShortIn, boolean auto, int pushCount, int pushes, boolean retried,
+                             String inEndWhy, double shortIn, double roomIn) {
+        return retryShortIn > 0.0 && auto && pushCount == 1 && pushes == 1 && !retried
+                && inEndWhy.startsWith("stalled") && shortIn >= retryShortIn && roomIn >= 1.0;
+    }
+
+    /**
      * Whether the Back has stalled short of where the In started: {@code backStallMs} is on (over 0),
      * the Back is past its first moments (a path ramps up from rest), and the robot has not got
      * {@code stallProgressIn} closer for {@code backStallMs}. The grab is then done where it is.
@@ -736,6 +809,8 @@ public abstract class GrabRoutine {
         prepped = false;
         unprepped = false;
         pushes = 0;
+        retried = false;
+        retryBackingOff = false;
         finishing = false;
         lineUpDoneNs = -1;
         dwell.reset();
@@ -864,7 +939,9 @@ public abstract class GrabRoutine {
                 phaseMs[Phase.PREP.ordinal()] / 1000.0, phaseMs[Phase.IN.ordinal()] / 1000.0, inEndWhy,
                 phaseMs[Phase.DWELL.ordinal()] / 1000.0, phaseMs[Phase.BACK.ordinal()] / 1000.0,
                 pushes >= 2 ? String.format(Locale.US, " · %d pushes: in and dwell add them all, back-offs %.2f",
-                        pushes, phaseMs[Phase.BACK_OFF.ordinal()] / 1000.0) : "");
+                        pushes, phaseMs[Phase.BACK_OFF.ordinal()] / 1000.0)
+                        : retried ? String.format(Locale.US, " · pushed once more after stalling short: in adds both, back-off %.2f",
+                        phaseMs[Phase.BACK_OFF.ordinal()] / 1000.0) : "");
         event.accept(what() + ": done, " + target + ". " + result);
     }
 

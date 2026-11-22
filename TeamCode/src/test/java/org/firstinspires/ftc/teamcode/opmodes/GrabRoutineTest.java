@@ -44,6 +44,38 @@ public class GrabRoutineTest {
         assertEquals("no room behind: the In started here", false, GrabRoutine.anotherInAhead(2, 1, 3.0, 0.2));
     }
 
+    /**
+     * The FLOWER pick study's Auto pushes (doc/flower-picks, 22 Nov 2026), at FlowerPicker.Retry's
+     * 4.0 in: the three that stalled 4.0 in or more short took nothing and left the FLOWER full, so
+     * they push again; the shortest stalls of picks that took 4 (0.7 in, Fruitport Q-39 19429; 3.4 in,
+     * Belding Q-31 20245) and the longest that took some (3.5 in, Belding Q-19 19429) do not.
+     */
+    @Test
+    public void onlyAnAutoPushThatStalledFarShortPushesAgain() {
+        double at = 4.0;
+        double[] emptyPicks = {4.0, 4.6, 4.7}; // Belding Q-4 19429 both picks, Fruitport Q-4 20245 pick 2
+        for (double shortIn : emptyPicks) {
+            assertEquals("stalled " + shortIn + " in short", true,
+                    GrabRoutine.retryPush(at, true, 1, 1, false, String.format("stalled %.1f in short", shortIn), shortIn, 9.0));
+        }
+        double[] goodPicks = {0.7, 2.8, 3.4, 3.5};
+        for (double shortIn : goodPicks) {
+            assertEquals("stalled " + shortIn + " in short", false,
+                    GrabRoutine.retryPush(at, true, 1, 1, false, String.format("stalled %.1f in short", shortIn), shortIn, 9.0));
+        }
+        assertEquals("off", false, GrabRoutine.retryPush(0.0, true, 1, 1, false, "stalled 4.6 in short", 4.6, 9.0));
+        assertEquals("a typo (NaN) is off", false, GrabRoutine.retryPush(Double.NaN, true, 1, 1, false, "stalled 4.6 in short", 4.6, 9.0));
+        assertEquals("the button: the driver pushes again", false, GrabRoutine.retryPush(at, false, 1, 1, false, "stalled 4.6 in short", 4.6, 9.0));
+        assertEquals("only once", false, GrabRoutine.retryPush(at, true, 1, 1, true, "stalled 4.6 in short", 4.6, 9.0));
+        assertEquals("a grab of several pushes already goes in again", false,
+                GrabRoutine.retryPush(at, true, 2, 1, false, "stalled 4.6 in short", 4.6, 9.0));
+        assertEquals("only a stall: a timeout is something else", false,
+                GrabRoutine.retryPush(at, true, 1, 1, false, "timed out 4.6 in short", 4.6, 9.0));
+        assertEquals("a path that ended short is not pressed against anything", false,
+                GrabRoutine.retryPush(at, true, 1, 1, false, "path done 4.6 in short", 4.6, 9.0));
+        assertEquals("no room to back off", false, GrabRoutine.retryPush(at, true, 1, 1, false, "stalled 4.6 in short", 4.6, 0.5));
+    }
+
     @Test
     public void theBackHandsOverOnceBackedFarEnoughAndOnlyWhenAsked() {
         assertEquals("off: back all the way", false, GrabRoutine.handOverNow(0.0, 9.0));
