@@ -115,8 +115,13 @@ the check's Otherwise drives back and "skips the steps below" instead. Either wa
 not seen up means no volley. Two volleys at Belding went at a down CELL (Q-14, M-7). The first
 volley, into the RIGHT CELL the manual starts up, has no check. Draw a new volley the same way;
 the endgame guard counts such a check as its volley, so the park is kept as before. A check that
-waits on the match clock stops early enough for the volley and the park after it (22 s in
-R-NoCross, 23 s in L-NoCross). See `doc/robot-todo.md` for the robot checks.
+waits on the match clock stops early enough for the volley and the park after it (23 s in
+L-NoCross). R-NoCross's check after the GARDEN gather ("RIGHT CELL back up?") waits until 26 s
+(mentor, 21 Nov 2026; was 22), so on 20245 (`BuiltAuto.parkAfterVolley` off) a late GARDEN volley
+still goes, its last piece out by 28.5 s, without the park. The guard never cuts an Auto's last
+wait, so 26 s is also the latest that, with the CELL never up, still parks by 28.9 s (park 2.9 s,
+the guard's 1.0 s margin). On a robot that keeps the park the volley is refused as it starts if the
+park would not fit after it, and the robot parks. See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**
 (pick a branch, tick up to four Autos, Reload latest). A pull request's draft opens with its branch

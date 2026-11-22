@@ -301,7 +301,12 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
   each other, so a shot from the left end cannot go into the RIGHT CELL, nor one from the right
   end into the LEFT. Never plan, draw, register or simulate a launch at the CELL beyond the near
   one, as a fallback or a what-if: a robot that must score the other CELL drives to that end
-  first. `AutoRegistrationTest` fails a launch command that is not at the near CELL.
+  first. `AutoRegistrationTest` fails a launch command that is not at the near CELL. So a
+  partner's missed TIP is fixed only at its end: our robot crosses there and fires at that CELL
+  (the FIX IT fallbacks, L-NoCross's and R-NoCross's CROSS AND FIX IT, our edge: no other team
+  does it). A volley at our own CELL never finishes a TIP of theirs. The crossing is what risks
+  contact, so a FIX IT is chosen only with the partner's path and times known (where it is while
+  we cross, and when), checked on the Auto Match Planning page with that TIP set to miss.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE). Never use Limelight MegaTag
   (`getBotpose*`) or any fixed field map: one position per tag is wrong whenever its CELL has
   tipped. Tag fixes enter the pose only through `localization/`, using the CELL's settled UP/DOWN

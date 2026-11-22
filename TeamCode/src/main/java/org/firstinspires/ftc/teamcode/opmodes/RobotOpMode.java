@@ -309,6 +309,7 @@ public abstract class RobotOpMode extends OpMode {
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private int loggedWedgeClears;
+    private int loggedFeedJamClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     /**
      * The intake motor's encoder socket reads the turret (DeviceNames.TURRET_ENCODER_HOST), not
@@ -1643,6 +1644,12 @@ public abstract class RobotOpMode extends OpMode {
             loggedWedgeClears = robot.intake.wedgeClears();
             log.event(String.format(Locale.US, "intake: wedged (%.0f ticks/s at %.1f A, nothing under the sensor): backing out, clear %d",
                     robot.intake.ticksPerSecond(), intakeAmps, loggedWedgeClears));
+        }
+        log.put("/Intake/FeedJamming", robot.intake.feedJamming() ? 1 : 0);
+        if (robot.intake.feedJamClears() != loggedFeedJamClears) {
+            loggedFeedJamClears = robot.intake.feedJamClears();
+            log.event(String.format(Locale.US, "feed: stuck (gate open, the piece at the entry still and no shot for %.0f ms; roller %.1f A): backing the lane out, clear %d",
+                    IntakeSubsystem.feedJamMs, intakeAmps, loggedFeedJamClears));
         }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         log.put("/Intake/PastFull", robot.intake.pastFull() ? 1 : 0);

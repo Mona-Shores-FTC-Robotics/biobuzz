@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
+import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
@@ -165,6 +166,11 @@ public final class RobotDifferences {
                         + " doc/robot-todo.md step 9 has the backward drive that must pass first, and the lane"
                         + " sensor to re-measure with the plate)",
                 () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
+        differs(RobotIdentity.TEAM_20245,
+                "Endgame guard goes for a volley before the park (BuiltAuto.parkAfterVolley off, the"
+                        + " 4 Nov rule): beside a partner whose TIP 2 comes early, R-NoCross's GARDEN volley"
+                        + " fits by 30 s but not with the park after it (mentor, 21 Nov 2026)",
+                () -> BuiltAuto.parkAfterVolley = false);
     }
 
     /**

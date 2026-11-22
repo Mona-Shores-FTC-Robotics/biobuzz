@@ -271,4 +271,21 @@ public final class TeleOpConfig {
 
     /** Chassis aim: the most turn power it may ask for. Clamped to [0, 1]. */
     public static double chassisAimMaxTurn = 0.5;
+
+    /**
+     * The TeleOp stops launching this many seconds before its own 2:00 ({@link MatchEnd}): from
+     * then the feeder does nothing and the launcher spins down to 0 until stop is pressed. G404:
+     * no powered movement after the end of TELEOP; §10.5: anything scored after 0:00 may be
+     * penalized. 1.0 s (Fruitport, 21 Nov 2026): the field read 0:00 at 119.8 to 120.3 s on the
+     * robot's TeleOp clock, and a ball takes about 0.4 to 0.5 s from gate to air. Clamped to
+     * [0, 10]; NaN or negative is 0, never a later stop.
+     */
+    public static double matchEndMarginS = 1.0;
+
+    /**
+     * On: the TeleOp stops launching at the end of the match ({@link #matchEndMarginS}). Off only
+     * in Panels, for a practice drive longer than a match; Panels edits are lost on restart, so it
+     * is back on for the next match.
+     */
+    public static boolean stopLaunchingAtMatchEnd = true;
 }

@@ -147,6 +147,8 @@ public class Robot {
         // A stalled roller with a piece under the sensor is the lane backed up, not a wedge
         // (WedgeClear); with the sensor not answering nothing can tell, so no wedge is cleared.
         intake.laneBackedUp(() -> colorSensor.silent() || colorSensor.lane().present());
+        // A feed whose piece at the entry sits still with no shot is stuck: the lane backs out a moment (FeedJamClear).
+        intake.feedJamFrom(() -> colorSensor.lane().present(), launcher::shots);
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the
