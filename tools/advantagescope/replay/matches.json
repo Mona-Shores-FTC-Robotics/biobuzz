@@ -18,7 +18,7 @@
         {"match": "Q-28", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-21T19:13:33.563Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_14-20-15_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "Q-28", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T19:13:33.563Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_14-13-02_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "Q-39", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T20:05:20.689Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_15-10-02_R-Solo_11-19_10_35PM.wpilog.gz"},
-        {"match": "Q-42", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T20:20:25.672Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_15-20-25_R-Solo_11-19_10_35PM.wpilog.gz"},
+        {"match": "Q-42", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T20:20:25.672Z", "video_start": "5:47:07", "log": "2026-11-21-20245-RC/2026-11-21_15-20-25_R-Solo_11-19_10_35PM.wpilog.gz"},
         {"match": "M-1", "team": 19429, "alliance": "Red", "start_utc": "2026-11-21T21:21:57.890Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_16-28-50_L-NoCross_11-18_3_40PM.wpilog.gz"},
         {"match": "M-3", "team": 20245, "alliance": "Red", "start_utc": "2026-11-21T21:35:03.156Z", "video_start": "", "log": "2026-11-21-20245-RC/2026-11-21_16-34-53_R-NoCross_11-18_9_06PM.wpilog.gz"},
         {"match": "M-6", "team": 19429, "alliance": "Blue", "start_utc": "2026-11-21T21:54:46.262Z", "video_start": "", "log": "2026-11-21-19429-RC/2026-11-21_16-59-40_R-Solo_11-19_10_35PM.wpilog.gz"},
