@@ -14,19 +14,24 @@ import java.util.Locale;
  *       none at all within {@code firstBallWithinS} of the gate, and the lane does not say it still
  *       holds a piece ({@link Lane}). Balls leave about 0.45 s apart (311 Auto feeds, 12 to 21 Nov
  *       2026), so a gap of twice that is the lane run out.</li>
- *   <li><b>{@link Verdict#STUCK}</b>: a ball has sat in the throat for {@code jamBlockedS} (a piece
+ *   <li><b>{@link Verdict#HELD}</b>: a ball has sat in the throat for {@code jamBlockedS} (a piece
  *       passes in 120 to 250 ms, #505: two balls on top of the wheels, 20245 on 1 Nov 2026, look
- *       like this); or the lane says it holds a piece and none has come for {@code stuckGapS}
- *       (none at all within {@code firstBallWithinS} of the gate, the same). The caller recovers or
- *       gives up; the watch only says so.</li>
+ *       like this). A jam at the wheels: the feeder backing out clears it ({@code LaunchCards}).</li>
+ *   <li><b>{@link Verdict#STUCK}</b>: the lane says it holds a piece and none has come for
+ *       {@code stuckGapS} (none at all within {@code firstBallWithinS} of the gate, the same), the
+ *       throat clear. A jam behind the gate, in the lane: the lane entry's jam clear
+ *       ({@code FeedJamClear}) backs it out.</li>
  * </ul>
+ *
+ * <p>The caller recovers or gives up; the watch only says so. One jam has one handler: the two
+ * kinds are told apart so the throat's unjam and the lane entry's never act on the same jam.
  *
  * <p>Pure: no SDK, no allocation per loop, so a test can drive it.
  */
 public final class FeedWatch {
 
     /** What the feed is doing. */
-    public enum Verdict { FEEDING, ALL_OUT, EMPTY, STUCK }
+    public enum Verdict { FEEDING, ALL_OUT, EMPTY, HELD, STUCK }
 
     /** What the lane says it holds, apart from the throat: pieces, none, or it cannot tell. */
     public enum Lane { HOLDS, EMPTY, UNKNOWN }
@@ -86,7 +91,7 @@ public final class FeedWatch {
             verdict = Verdict.ALL_OUT;
             why = String.format(Locale.US, "ball %d through the throat", balls);
         } else if (jamBlockedS > 0 && blockedS >= jamBlockedS) {
-            verdict = Verdict.STUCK;
+            verdict = Verdict.HELD;
             why = String.format(Locale.US, "a ball held in the throat %.2f s", blockedS);
         } else if (balls == 0) {
             double since = nowS - startS;

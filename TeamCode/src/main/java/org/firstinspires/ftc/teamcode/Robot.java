@@ -148,7 +148,10 @@ public class Robot {
         // (WedgeClear); with the sensor not answering nothing can tell, so no wedge is cleared.
         intake.laneBackedUp(() -> colorSensor.silent() || colorSensor.lane().present());
         // A feed whose piece at the entry sits still with no shot is stuck: the lane backs out a moment (FeedJamClear).
-        intake.feedJamFrom(() -> colorSensor.lane().present(), launcher::shots);
+        // Movement is a launch: with the throat beam, every ball it sees (launcher.launched()). A ball held
+        // in the throat beam is the throat's jam (LaunchCards backs the feeder out), so this stands down.
+        intake.feedJamFrom(() -> colorSensor.lane().present(), launcher::launched,
+                () -> beams.throat() != null && beams.throat().blockedForMs() >= BeamBreakSubsystem.jamBlockedS * 1000.0);
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the

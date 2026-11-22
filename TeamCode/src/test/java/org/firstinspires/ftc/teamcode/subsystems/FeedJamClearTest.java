@@ -27,6 +27,35 @@ public class FeedJamClearTest {
         assertEquals(0, j.bursts());
     }
 
+    /**
+     * With the throat beam, {@code IntakeSubsystem} passes "a ball held in the throat" as no entry
+     * piece: that jam is the throat's (LaunchCards backs the feeder out). No burst while it is held,
+     * and the quiet spell starts afresh once it moves: one jam, one handler.
+     */
+    @Test
+    public void aBallHeldInTheThroatStandsItDown() {
+        FeedJamClear j = new FeedJamClear();
+        for (long t = 0; t < 500; t += 20) assertFalse(step(j, true, true, 0, t));
+        // Held in the throat from 0.5 s to 3.0 s, far past jamMs.
+        for (long t = 500; t < 3000; t += 20) assertFalse("the throat's jam", step(j, true, false, 0, t));
+        // Free again, the entry piece still: quiet counts from 3.0 s, so no burst before 4.2 s.
+        for (long t = 3000; t < 4180; t += 20) assertFalse(step(j, true, true, 0, t));
+        boolean burst = false;
+        for (long t = 4180; t < 4300; t += 20) burst |= step(j, true, true, 0, t);
+        assertTrue("then a lane jam is this one's again", burst);
+    }
+
+    /** Each ball the throat beam counts is movement ({@code launcher.launched()}): a firing feed is left alone. */
+    @Test
+    public void beamBallsAreMovement() {
+        FeedJamClear j = new FeedJamClear();
+        int balls = 0;
+        for (long t = 0; t < 6000; t += 20) {
+            if (t % 1000 == 0) balls++;
+            assertFalse(step(j, true, true, balls, t));
+        }
+    }
+
     @Test
     public void notFeedingIsLeftAlone() {
         FeedJamClear j = new FeedJamClear();

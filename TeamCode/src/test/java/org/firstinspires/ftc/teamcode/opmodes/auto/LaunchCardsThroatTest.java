@@ -12,6 +12,7 @@ import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedWatch;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,7 @@ public class LaunchCardsThroatTest {
 
     private double quietBefore, firstBefore, jamBefore, gapBefore, backstopBefore, reverseBefore;
     private int triesBefore;
+    private boolean laneClearBefore;
 
     @Before
     public void setUp() {
@@ -58,6 +60,8 @@ public class LaunchCardsThroatTest {
         backstopBefore = LaunchCards.throatBackstopS;
         reverseBefore = LaunchCards.unjamReverseS;
         triesBefore = LaunchCards.unjamTries;
+        laneClearBefore = IntakeSubsystem.clearFeedJam;
+        IntakeSubsystem.clearFeedJam = true;
         BeamBreakSubsystem.quietS = 0.9;
         BeamBreakSubsystem.firstBallWithinS = 1.5;
         BeamBreakSubsystem.jamBlockedS = 0.5;
@@ -105,6 +109,7 @@ public class LaunchCardsThroatTest {
         LaunchCards.throatBackstopS = backstopBefore;
         LaunchCards.unjamReverseS = reverseBefore;
         LaunchCards.unjamTries = triesBefore;
+        IntakeSubsystem.clearFeedJam = laneClearBefore;
     }
 
     private String at(String what) {
@@ -176,7 +181,21 @@ public class LaunchCardsThroatTest {
     }
 
     @Test
-    public void aGapWithTheLaneHoldingIsUnjammedAndFedAgain() {
+    public void aLaneJamIsLeftToTheLaneEntrysJamClearAndTheFeedGoesOn() {
+        lane = FeedWatch.Lane.HOLDS;
+        // A hang after two balls, freed by FeedJamClear backing the lane out (not modelled here).
+        balls(0.5, 0.95, 2.9, 3.35);
+        double ended = runToEnd(cards.launchAll(), 8);
+        assertEquals("one jam, one handler: the feeder does not back out", 0, count("reverse"));
+        assertNotNull(notes.toString(), note("left to the lane's jam clear"));
+        assertEquals(1, countNotes("left to the lane's jam clear"));
+        assertEquals(3.35, ended, 0.03);
+        assertNotNull(note("ball 4 through the throat"));
+    }
+
+    @Test
+    public void withTheLaneJamClearOffTheFeederBacksALaneJamOut() {
+        IntakeSubsystem.clearFeedJam = false;
         lane = FeedWatch.Lane.HOLDS;
         // Two balls, then a hang; after the unjam (gap 1.2 s at 2.15, back out 0.3 s, at speed at once)
         // the last two go.
@@ -233,6 +252,7 @@ public class LaunchCardsThroatTest {
 
     @Test
     public void unjamTimeDoesNotCountAgainstTheBackstop() {
+        IntakeSubsystem.clearFeedJam = false;
         lane = FeedWatch.Lane.HOLDS;
         BeamBreakSubsystem.stuckGapS = 1.2;
         LaunchCards.throatBackstopS = 2.5;
@@ -248,6 +268,12 @@ public class LaunchCardsThroatTest {
         }
         assertEquals("ended at ball 4, past 2.5 s from the gate", 3.2, now - LOOP_S, 0.05);
         assertNotNull(notes.toString(), note("ball 4 through the throat"));
+    }
+
+    private int countNotes(String containing) {
+        int n = 0;
+        for (String s : notes) if (s.contains(containing)) n++;
+        return n;
     }
 
     private String firstStarting(String prefix) {

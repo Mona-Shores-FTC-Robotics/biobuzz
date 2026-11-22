@@ -268,8 +268,14 @@ public class IntakeSubsystem implements Subsystem {
     private final FeedJamClear feedJam = new FeedJamClear();
     /** Whether a piece is under the lane's entry sensor; never until {@link #feedJamFrom} is called, so no feed jam is cleared. */
     private BooleanSupplier entryPresent = () -> false;
-    /** The launcher's shot count, read by {@link FeedJamClear}; 0 until {@link #feedJamFrom} is called. */
+    /** The launcher's launch count, read by {@link FeedJamClear}; 0 until {@link #feedJamFrom} is called. */
     private IntSupplier shotCount = () -> 0;
+    /**
+     * A ball is held in the throat beam ({@code BeamBreakSubsystem}): that jam is the throat's to
+     * clear (the feeder backs out, {@code LaunchCards}), not the lane entry's, so
+     * {@link FeedJamClear} stands down. Never, until {@link #feedJamFrom} is given one.
+     */
+    private BooleanSupplier throatHeld = () -> false;
     /** Whether a stall is the lane backed up, not a wedge; never until {@link #laneBackedUp} is called, so no wedge is cleared. */
     private BooleanSupplier laneBackedUp = () -> true;
     /** Whether a reject's hold-off is running; never until {@link #holdOffWhile} is called. */
@@ -342,8 +348,19 @@ public class IntakeSubsystem implements Subsystem {
      * updates after this subsystem, so its reading is last loop's.
      */
     public void feedJamFrom(BooleanSupplier present, IntSupplier shots) {
+        feedJamFrom(present, shots, () -> false);
+    }
+
+    /**
+     * {@link #feedJamFrom(BooleanSupplier, IntSupplier)} on a robot with the throat beam:
+     * {@code launches} is {@code launcher.launched()}, every ball the beam sees, and while
+     * {@code throatHeld} a ball sits in the beam, a jam at the wheels the throat's own unjam
+     * clears, so this one stands down. One jam, one handler.
+     */
+    public void feedJamFrom(BooleanSupplier present, IntSupplier launches, BooleanSupplier throatHeld) {
         entryPresent = present;
-        shotCount = shots;
+        shotCount = launches;
+        this.throatHeld = throatHeld;
     }
 
     /** Where to read whether a reject's hold-off is running. Wired once by {@code Robot}, as {@link #rejectWhile}. */
@@ -584,7 +601,9 @@ public class IntakeSubsystem implements Subsystem {
         // eject and a reject already back out; a stall while taking in is WedgeClear's.
         feedJamming = feedJam.update(started && clearFeedJam && feed == FeederSubsystem.State.FEED
                         && request != State.OUT && !rejecting && !holdingOff && !unwedging,
-                entryPresent.getAsBoolean(), shotCount.getAsInt(), System.nanoTime(),
+                // A ball held in the throat beam is the throat's jam: as if no entry piece, so no
+                // burst, and the quiet timer starts afresh once the ball moves.
+                entryPresent.getAsBoolean() && !throatHeld.getAsBoolean(), shotCount.getAsInt(), System.nanoTime(),
                 feedJamMs, Math.min(Math.max(feedJamBackMs, 0.0), 1000.0), feedJamMaxBursts);
         if (feedJamming) {
             holdingForFull = false;

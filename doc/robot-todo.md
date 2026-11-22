@@ -45,8 +45,11 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
 - [ ] **Throat beam, a stuck feed (Basic Drive, launcher on):** hold a ball against the wheels with a
       gloved hand for a second while Square feeds, then let go. **Good:** the Match page's alert reads
       `FEED STUCK: UNJAM` while held, and a `Throat: feed stuck (a ball held in the throat …)` event
-      is in the log. In an Auto the same backs out once (`LaunchCards.unjamReverseS` 0.3) and feeds
-      again (`fed again after its unjam`).
+      is in the log. In an Auto the same backs the feeder out once (`LaunchCards.unjamReverseS` 0.3) and
+      feeds again (`fed again after its unjam`), and the lane entry's jam clear stays still (no
+      `feed jam` burst in the log while the ball is held). A ball stopped behind the gate instead
+      (throat clear, a piece at the entry) is the lane's: a `feed jam` burst, and the card logs
+      `left to the lane's jam clear`, never both.
 - [ ] **Lane beam, bench loads (Basic Drive, intake on, lane empty):** the beam goes where the third
       piece sits when the lane is packed behind the gate. Load 4 POLLEN → FULL; 3 NECTAR, P-N-P,
       P-P-N, N-P-P → FULL; 3 POLLEN, N-N, N-P → not full (#213's table). Then hold one piece at the

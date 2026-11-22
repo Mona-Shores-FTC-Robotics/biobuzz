@@ -47,7 +47,8 @@ public class FeedWatchTest {
     public void aBallHeldInTheBeamIsStuckWhateverTheLaneSays() {
         watch.start(0, 0);
         assertEquals(FeedWatch.Verdict.FEEDING, at(0.8, 0, 0.45, FeedWatch.Lane.EMPTY));
-        assertEquals(FeedWatch.Verdict.STUCK, at(0.85, 0, 0.5, FeedWatch.Lane.EMPTY));
+        assertEquals("held in the throat: the throat's jam, not the lane's",
+                FeedWatch.Verdict.HELD, at(0.85, 0, 0.5, FeedWatch.Lane.EMPTY));
         assertTrue(watch.why(), watch.why().startsWith("a ball held in the throat"));
     }
 

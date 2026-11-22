@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedWatch;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
@@ -660,10 +661,13 @@ public final class LaunchCards {
      * <p>With the throat beam ({@link Launcher#throatBalls()} not -1) the set time is only a backstop,
      * {@link #throatBackstopS}: a {@code LaunchAll} ends the moment its {@link #launchAllEndAfterShots}th
      * ball passes the throat, or once the throat has gone quiet with the lane empty
-     * ({@link FeedWatch}). A stuck feed (a ball held in the throat, or none coming with the lane
-     * holding) is backed out ({@link #unjamReverseS}: the feeder and the wheels reverse, the gate
-     * open), then fed again once the wheels are back at speed, up to {@link #unjamTries} times; after
-     * that the card ends, the ball left for the next volley. The unjam's time does not count against
+     * ({@link FeedWatch}). A ball held in the throat beam is backed out ({@link #unjamReverseS}: the
+     * feeder and the wheels reverse, the gate open), then fed again once the wheels are back at speed,
+     * up to {@link #unjamTries} times; after that the card ends, the ball left for the next volley. A
+     * jam in the lane (no ball coming, the lane holding, the throat clear) is the lane entry's
+     * ({@code IntakeSubsystem.clearFeedJam}, {@code FeedJamClear}, which stands down while a ball is
+     * held in the throat): the card notes it and feeds on, to its backstop. With that switch off, the
+     * feeder backs a lane jam out here too. The unjam's time does not count against
      * the backstop. Without the beam, nothing here changes: the shot counter and the timer, as before.
      */
     private final class Volley {
@@ -680,6 +684,8 @@ public final class LaunchCards {
         private double phaseAt;
         private double pausedS;
         private int unjams;
+        /** This feed's lane jam has been noted as the lane entry's to clear. */
+        private boolean leftToLane;
 
         Volley(String name, boolean volleyCard) {
             this.name = name;
@@ -694,6 +700,7 @@ public final class LaunchCards {
             phase = 0;
             pausedS = 0;
             unjams = 0;
+            leftToLane = false;
             watch.stop();
         }
 
@@ -775,6 +782,19 @@ public final class LaunchCards {
                     endWhy = ", ended: " + watch.why();
                     return true;
                 case STUCK:
+                    // A jam in the lane, the throat clear: the lane entry's jam clear backs it out
+                    // (IntakeSubsystem.clearFeedJam, FeedJamClear) while this feed goes on. One jam,
+                    // one handler; with that off, the feeder backs it out here instead.
+                    if (IntakeSubsystem.clearFeedJam) {
+                        if (!leftToLane) {
+                            leftToLane = true;
+                            note.accept(String.format(Locale.US, "%s feed stuck (%s): left to the lane's jam clear",
+                                    name, watch.why()));
+                        }
+                        return false;
+                    }
+                    // fall through
+                case HELD:
                     if (unjams < unjamTries) {
                         unjams++;
                         note.accept(String.format(Locale.US, "%s feed stuck (%s): backing out, unjam %d of %d",
