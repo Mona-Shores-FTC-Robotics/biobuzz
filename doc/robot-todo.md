@@ -94,7 +94,7 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
 ## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
 
 We may launch only our own alliance's NECTAR (the other alliance's is a penalty: G408, as the
-simulator reads it). From the 15 Fruitport match logs ([PR: NECTAR gate]): in Q-11, 20245 on BLUE
+simulator reads it). From the 15 Fruitport match logs ([PR #709](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/709)): in Q-11, 20245 on BLUE
 saw a red NECTAR clearly (hue 14°, brightness 0.97), burst twice, and launched it 7.5 s later: the
 NECTAR had ended up inside the lane, reading only 0.02 there, below the 0.05 the reject counted. And
 20245's sensor gave 92 glitch readings (brightness 1.00, red 1.0), two of which fired a reject at
