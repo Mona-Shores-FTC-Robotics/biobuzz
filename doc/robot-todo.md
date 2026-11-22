@@ -1647,6 +1647,16 @@ matches did not show.
 
 The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
 
+- [ ] **Both robots: launching stops at the end of the match** (`MatchEnd`, branch
+      `claude/stop-launch-at-buzzer`; 20245 fed after 0:00 in Fruitport Q-20, Q-42, M-3, M-7). Basic
+      Drive, phone stopwatch started with PLAY, pieces loaded. At about 1:55 hold the driver's Circle
+      and keep holding. **Good:** the feed stops at 1:59 on the stopwatch (`TeleOpConfig.matchEndMarginS`,
+      1.0 s), the launcher's wheels spin down to a stop, the Match page shows "Match end: launcher off",
+      the log has one `match end: launching stopped at 119.0x s ... a feed cut, fire held` line, and
+      Circle, Square, FIRE and unjam then do nothing until stop. Drive and intake still work.
+      **Stop:** a ball leaves after 1:59, or the wheels spin up again → note which button. Then on a
+      field with the real FCS timer, check the field's 0:00 against the robot's log (it was 119.8 to
+      120.3 s after TeleOp PLAY at Fruitport) and tell the drive team: press stop at 0:00 (G404).
 - [ ] **20245: turret aims from PLAY, driver's Circle fires, aim gate on** (branch
       `claude/relaxed-carson-rwuvvl`, 18 Nov). Basic Drive, HIVE upright: at PLAY the turret swings
       onto our CELL by itself (log: `turret at PLAY: AIM`). Driver holds Circle: it fires as the
