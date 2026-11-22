@@ -15,6 +15,88 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## Beam breaks, the day they are fitted (Michigan State Championship, from 10 Dec)
+
+Code is ready and off on both robots: `BeamBreakSubsystem` ([PR: beam breaks]), issues #213 and
+#505. Each beam is turned on per robot, once it is wired: `<DigitalDevice name="throatBeam" port="N" />`
+(or `laneBeam`) inside the Control Hub's `<LynxModule>` in `robot_<team>.xml` (the commented template
+is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFitted = true` (or
+`laneFitted`), with the date. Full TeamCode install (an XML changed), Activate the config.
+
+- [ ] **Loop time (CLAUDE.md):** `LoopTimeBaseline` on 19429 before the beam's switch goes on and
+      after; both numbers to the PR. **Good:** within 0.5 ms (a digital read is in the bulk read).
+- [ ] **Check: Hardware** lists the beam under "Optional devices" as `ok - … DigitalChannel`, reads
+      HIGH (clear) with nothing in it and LOW with a hand in it. **Stop:** inverted (LOW when clear)
+      → `BeamBreakSubsystem.brokenReadsLow` false in Panels, then a `RobotDifferences` line.
+- [ ] **Throat beam, by hand (Basic Drive, Robot page, launcher off):** push 10 balls one at a time
+      through the throat by hand at about the feed's speed. **Good:** "Throat beam … N balls" goes up
+      by exactly one each time, and "last blocked" reads 100 ms or more. **Stop:** a ball missed or
+      counted twice → note its "last blocked" ms; raise `minBlockedReads` (double counts) or move the
+      beam where the ball blocks it longer (misses; #505: never at the flywheel exit, under 10 ms).
+- [ ] **Throat beam, real volleys (Bench or Basic Drive at a launch spot, phone slow-motion side-on):**
+      5 Square volleys of 4, 2 of 3. Pull the log. **Good:** `/Beam/ThroatBalls` goes up by the balls
+      seen on video in every volley, and the `Throat:` events show no "feed stuck" for a clean volley.
+      **Stop:** any miss or extra → bring the log and video back to a session.
+- [ ] **Throat beam in an Auto (R-Solo, 3 runs):** **Good:** each `LaunchAll fed` line says
+      `ended: ball 4 through the throat` (or `throat quiet` after a short pick) well before 2.4 s, with
+      its balls matching the video; the Auto finishes about 1 s sooner than before (the simulator,
+      R-Solo with `"throatBeam": true`: 22.8 s against 24.1 s). **Stop:** `throat quiet` with a ball
+      still in the lane → note the volley; raise `BeamBreakSubsystem.quietS` (0.9).
+- [ ] **Throat beam, a stuck feed (Basic Drive, launcher on):** hold a ball against the wheels with a
+      gloved hand for a second while Square feeds, then let go. **Good:** the Match page's alert reads
+      `FEED STUCK: UNJAM` while held, and a `Throat: feed stuck (a ball held in the throat …)` event
+      is in the log. In an Auto the same backs the feeder out once (`LaunchCards.unjamReverseS` 0.3) and
+      feeds again (`fed again after its unjam`), and the lane entry's jam clear stays still (no
+      `feed jam` burst in the log while the ball is held). A ball stopped behind the gate instead
+      (throat clear, a piece at the entry) is the lane's: a `feed jam` burst, and the card logs
+      `left to the lane's jam clear`, never both.
+- [ ] **Lane beam, bench loads (Basic Drive, intake on, lane empty):** the beam goes where the third
+      piece sits when the lane is packed behind the gate. Load 4 POLLEN → FULL; 3 NECTAR, P-N-P,
+      P-P-N, N-P-P → FULL; 3 POLLEN, N-N, N-P → not full (#213's table). Then hold one piece at the
+      entrance with only one ahead of it. **Good:** the Robot page's Lane line reads `room: a piece held
+      at the entrance, lane beam clear` and the intake keeps running; FULL comes about 0.3 s after the
+      last piece settles (`ColorSensorSubsystem.fullHoldWithBeamS`, `laneBeamHoldS`), against 1.0 s
+      today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
+      forward. Move the beam, not the numbers.
+
+## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
+
+At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
+took 0.6–1.1 s in Auto and 0.3–0.4 s at best in TeleOp, which even ramps its power. Pedro 3.0.2's
+Foresight asks for full drive along the path whenever it is not braking (no speed or acceleration
+caps are set), but it fits the heading correction (P 6.8 on 20245, 8.0 on 19429) and the path
+correction into the wheels first, and the drive gets what is left. The match log now records what
+Foresight asked for (`/Drive/Path/Drive`, `Heading`, `Correction`, `TargetInPerSec`) and what each
+wheel got (`/Drive/WheelPower/*`). Same fresh battery for every run; pull the logs after.
+
+- [ ] **Any Auto, three runs, each robot.** **Look at:** while `/Drive/Path/Drive` is 1, are the
+      `/Drive/WheelPower/*` near 1? **If not**, and `/Drive/Path/Heading` is large, the heading
+      gain is taking the power: re-run the Foresight Tuner's heading step, or lower
+      `headingFeedback` and see if paths still finish on heading. **If the wheels are near 1** and the
+      robot still speeds up slowly, it is electrical: compare `/Robot/BatteryVolts` with the
+      launcher spinning and the launcher off.
+- [ ] **The drive-first switch (`DriveSubsystem.drivePriorityOnPaths`, off; 22 Nov 2026).** In the
+      20–21 Nov logs a path that barely turns went 3 → 20 in/s in 0.26–0.28 s, one turning 90° in
+      0.33–0.37 s, and the 180° hops by the SCORING FLOWER 0.73–1.63 s. Pedro fits heading power into
+      the wheels before the drive. On, the drive goes first until the robot is
+      `drivePriorityHeadingToleranceDeg` (25) behind its heading. Same fresh battery: R-Solo 3 times
+      off, then 3 times on (Panels, no reload). **Good:** `read_logs.py legs` shows the LEFT_AUTO_HIVE ↔
+      SCORING_FLOWER_STAGING legs (median 1.40 and 1.32 s on 21 Nov) shorter, the volleys still
+      fire into the CELL, and the FLOWER picks still square up. **Stop:** a path overshoots its turn
+      or wobbles at its end, or a volley's gate waits longer for the settle → off, and bring the logs
+      back; try 15 before giving up on it.
+- [ ] **Battery sag warning (`opmodes/BatterySag`, 22 Nov 2026).** A run whose steady voltage averages
+      under 10.0 V while it runs logs `battery sagging: …`; the next INIT with the same battery (INIT
+      not 0.3 V or more higher) shows `last run averaged … V under load … Swap it` on the INIT page.
+      Run any Auto on a part-used practice battery, then INIT again without swapping. **Good:** the
+      warning appears only if the log's `battery sagging` event did, and goes away after a swap.
+      **Stop:** it warns after a swap, or never on a battery that dipped near 6 V → bring the log.
+      20245's 11:28 and 12:56 R-Solo on 21 Nov dipped to 5.9 and 6.1 V: check that battery and its
+      leads and connector.
+- [ ] **One straight 72 in path vs full stick**, launcher off, same battery: 3 → 30 in/s time and
+      top speed for each. **Good:** within about 20% of each other. **Stop:** Pedro is still 2×
+      slower with the wheels at 1 → note it for the issue.
+
 ## The new launch speed table (18 Nov, measured on 20245)
 
 `LaunchSpeedTable` now holds 12 rows measured on 20245 on 18 Nov (35 to 74 in), and both robots'
@@ -47,6 +129,36 @@ this is not a claim that every unchecked item below has passed.
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
 
+## 19429's feed jams (Fruitport, 21 Nov): before the State Championship
+
+From the 7 Fruitport match logs and the per-match video reviews (PR with `FeedJamClear`). 19429
+stuck in 22 feeds of its match and practice logs, 20245 in 1 of 37 logs. Two signatures, both with
+the gate open, the launcher at speed (no wheel stall and no brownout in any of them: every wheel
+drop below 1000 ticks/s was the driver's eject reversing the launcher) and a piece sitting under
+the lane's entry sensor: **(a) entry wedge**, the roller grinding at 3.6–10 A on the piece at the
+entry (M-6's preloads 2 of 4, M-6 A 17.5 and T 15.2, Q-39 A 23.6, Q-2 A 23.3); **(b) stack still,
+roller free** at 0.3 A, the feeder never loaded (M-1's 4 preloads, gate open 3.5 s, 0 out; Q-23
+T 88–104). Each time the driver's eject freed it and the next feed fired. The 18 Nov "Feed jam"
+step below was never ticked: this is the same fault.
+
+- [ ] **Find where it binds** (cover off, phone filming the lane from the side, slow motion).
+      Load 4 POLLEN, sit 3 minutes as a long INIT does, then **Bench: Launch Test** and fire; ten
+      times, half with the 4th piece pushed in hard by hand. **Good:** all 4 leave every time.
+      **Stop:** note where the last piece stops: between the roller/stars and the prefeed wheel
+      (signature a), or the stack at the prefeed or the gate (b), and fix the guide or spacing there.
+- [ ] **Right star wheel turns inward.** `IntakeSubsystem.starsRightReversed` is still the
+      13 Nov guess. Intake on, watch both star wheels. **Good:** both turn a piece inward.
+      **Stop:** the right one turns outward → flip it in Panels and add a `RobotDifferences` line.
+- [ ] **Gate opens fully with a load.** With 4 POLLEN in, fire and watch the gate: the servo is
+      sent 1.0 but nothing reads where it went. **Stop:** it stays part-closed on the first piece.
+- [ ] **A stuck feed backs itself out** (`FeedJamClear`; `IntakeSubsystem.clearFeedJam`, on). A
+      feed with the piece at the entry still and no shot for 1.2 s (`feedJamMs`) backs the roller,
+      the stars and the prefeed out for 0.25 s (`feedJamBackMs`), at most twice a feed. Make a jam
+      as above, or hold the last piece by hand, and fire. **Good:** the log says `feed: stuck …
+      backing the lane out, clear N`, the piece then feeds, and a normal volley never logs it.
+      **Stop:** it throws a piece out of the intake, or does not free the jam → try 400 ms, then
+      note what the eject does that this does not (it also reverses the feeder and the launcher).
+
 ## Tonight (18 Nov): 19429, in this order
 
 Each step stands alone: what to run, what good looks like, when to stop. Push the logs
@@ -71,15 +183,16 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
    INIT warning; the lane count goes 1, 2, 3, 4; FULL only with 4 in. **Stop:** the warning shows,
    or FULL with fewer than 4 → push the logs; a session sets both levels from them.
 - [ ] Lane sensor checked with the plate
-4. **Camera mount.** 19429's 17 Nov logs put the camera's robot about 1.5–2 in to the robot's
-   left of odometry at every heading, and the tags about 0.6 in high: the mount, most likely.
-   **Vision: HIVE & Pose**, robot on the Red audience start marks, still: R1 when the
-   Camera calibration line is ready; R2, place it on the Red far wall marks, R1 again.
-   Then measure the lens height and pitch with a tape and a level (§6). **Good:** "Spots so far:
-   AGREE" → the forward/left go into `CameraMount` (the logged `CameraCalibration/<spot>` numbers;
-   `CameraMount` is shared by both robots, so say which robot measured them). **Stop:** DIFFER →
-   don't change anything; push the log.
-- [ ] Camera mount measured (and committed, Sloth Load) before step 5
+4. **Camera mount: set from the Belding and Fruitport logs (22 Nov 2026), check only.** Both
+   robots' forward/left came from `mountfit.py` (the localization-triage skill), which splits the
+   camera from the field: 20245's are the shared `CameraMount` values, 19429's are its
+   `RobotDifferences` line. Nothing to measure: Sloth Load, run any Auto and TeleOp as usual, pull
+   the logs, and a session runs `mountfit.py` on them. **Good:** each robot's camera error within
+   about ±0.3 in, and the start check's camera-minus-start about 1 in to the robot's left or less.
+   **Stop:** a robot's error past ±0.5 in, or larger than before → push the logs, change nothing.
+   The launch speed comes from the camera's range, so a mount change moves each speed by a few
+   ticks/s (20245's forward moved 0.81 in): watch the first volleys at the Auto spots.
+- [ ] Camera mounts checked in the next logs (Sloth Load first)
 5. **Shooting at the Auto spots,** after the mount is in. The launch speed comes from the camera's
    range to the CELL, so a mount change moves every speed. HIVE upright with the CELL being shot
    **up**, 4 POLLEN each time, phone filming the CELL. Fire 5 volleys from each spot by running
@@ -206,33 +319,56 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [x] LOCKED Circle on 19429 with `chassisAimMinTurn` 0.2: all 6 presses turned onto the CELL and stopped
       0.4 to 1.3° off it (19 Nov 2026, 00:18 logs). Leave 0.2 unless it swings past.
 - [ ] Orange light on 20245; LOCKED Circle on 20245
-12. **19429's turret home switch** (20 Nov 2026, not yet on a robot): a REV Magnetic Limit Switch in
-    the Control Hub's digital connector 0-1 (`DeviceNames.TURRET_HOME`, channel 1 in
-    `robot_19429.xml`). Full TeamCode install (the XML changed), Activate `robot_19429`, then:
-   1. **Check: Hardware**: `turretHome` reads ok, a `DigitalChannel`.
-   2. **Bench: Turret, INIT only**: the `home switch` line reads MAGNET with the turret on its mark and
-      no magnet turned well off it. **Stop:** it never reads MAGNET → change `port="1"` to `port="0"`
-      in `robot_19429.xml`, full install, again; still nothing → the magnet is too far from the switch.
-   3. Cross with the turret on its mark, then turn it slowly by hand right across the mark, both ways,
-      three times each: write down each way's band width and middle. **Good:** the middles agree each
-      way within about 1°. Put `homeSwitchOffsetDeg` (both ways' middle, negated, as the bench
-      shows it) and `homeSwitchMaxBandDeg` (the widest band plus 5°) in a PR.
-   4. **Basic Drive**, turret AIM, swing the turret across straight ahead a few times. **Good:** the
-      log has `turret: home switch pass … zero moved` events of under 1° each, and the Robot page says
-      `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark warns `Turret off its
-      mark`, and turning it by hand across the mark clears it.
-   5. **An Auto's INIT sweep** (21 Nov 2026, first try: the servo did not answer for 0.93 s after INIT,
-      and the sweep, which started at once, was dropped as jammed at 0.67 s; it now waits 1.5 s,
-      `homeSweepStartDelayS`, and keeps its target within 15° of the turret), Panels open: first check that the turret stays inside the 18 in cube
-      all the way round (the search may turn it a full turn). INIT any Auto with the turret on its
-      mark, then 20° left of it, 20° right, and about 180° round. **Good:** each time it turns
-      counter-clockwise until it crosses the switch, goes about 10° past, crosses back slowly, goes
-      10° past the other side, crosses slowly once more, then turns to its home angle and holds, in
-      under 10 s; the log has `turret: the sweep found the mark, +x.xx° from where it stood`, and on
-      the mark that number is under 1°. The two slow passes' lines show how far apart the two
-      directions read (the switch's hysteresis). **Stop:** it turns the wrong way and the hold drops,
-      it stalls on a slow pass (raise `homeSweepFineDps` to 20), or it never stops searching (no pass
-      taken: the log says why) → push the log.
+12. **The turret home switch, both robots** (for States; 20 Nov 2026 on 19429, 22 Nov 2026 on 20245;
+    none of it has run on a robot yet). A REV Magnetic Limit Switch (`DeviceNames.TURRET_HOME`, an
+    optional device like the beam breaks) under a magnet on the back of the turret, over it on the
+    mark. Both XMLs declare it on the Control Hub's digital connector 0-1, channel 1. Two switches,
+    both in `RobotDifferences`: `TurretSubsystem.homeSwitch` (read the switch, re-zero on a slow pass;
+    moves nothing; on for 19429, **off for 20245** until step 2 passes there) and
+    `TurretSubsystem.homeSweep` (an Auto's INIT turns the turret to find the mark; **off on both**
+    until step 5 passes on that robot). Full TeamCode install (the XML changed), Activate the robot's
+    config, then, on each robot:
+   1. **20245 only: confirm the port.** `robot_20245.xml` assumes the same channel as 19429's
+      (connector 0-1, `port="1"`), unchecked. Look at where the switch is plugged in; if it is another
+      connector, the channel is that connector's second one (2-3 → 3, 4-5 → 5, 6-7 → 7): fix `port`,
+      full install, Activate.
+   2. **The readout.** **Check: Hardware**: `turretHome` reads `ok - … DigitalChannel`, LOW with the
+      turret on its mark and HIGH turned well off it. **Bench: Turret, INIT only**: the `home switch`
+      line reads MAGNET on the mark and nothing off it. **Stop:** never MAGNET → try the connector's
+      other channel (`port="0"` for 0-1) in the XML, full install, again; still nothing → the magnet is
+      too far from the switch. **Pass on 20245** → its `RobotDifferences` line
+      `() -> TurretSubsystem.homeSwitch = true`, with the port and the date, in a PR.
+   3. **The band.** Cross with the turret on its mark, then turn it slowly by hand right across the
+      mark, both ways, three times each: write down each way's band width and middle. **Good:** the
+      middles agree each way within about 1°. Put `homeSwitchOffsetDeg` (both ways' middle, negated,
+      as the bench shows it) and `homeSwitchMaxBandDeg` (the widest band plus 5°) in a PR (a
+      `RobotDifferences` line if the two robots differ).
+   4. **Passes while driving.** **Basic Drive**, turret AIM, swing the turret across straight ahead a
+      few times. **Good:** the log has `turret: home switch pass … zero moved` events of under 1° each,
+      and the Robot page says `zeroed by the home switch`. TeleOp INIT with the turret 20° off its mark
+      warns `Turret off its mark`, and turning it by hand across the mark clears it.
+   5. **The Auto INIT sweep, from each side of the mark.** Turn `homeSweep` on in Panels for this test
+      only (it stays on until the RC app restarts; nothing is committed yet). Panels open, a stopwatch
+      ready. First check the turret stays inside the 18 in cube all the way round (the search may turn
+      it a full turn). The sweep holds still `homeSweepStartDelayS` (1.5 s) for the servo to wake (on
+      19429 it did not answer for 0.93 s after INIT, 21 Nov 2026), then turns counter-clockwise. INIT
+      any Auto with the turret: on its mark; 20° counter-clockwise of it; 20° clockwise of it (the
+      search goes nearly a full turn); and about 180° round. Each time time it from pressing INIT to
+      the turret holding still at its home angle. **Good:** it crosses the switch, goes about 10° past,
+      crosses back slowly, goes 10° past the other side, crosses slowly once more, then turns home and
+      holds; about 5 s from the mark, up to about 11 s from clockwise of it, never the 20 s timeout;
+      the log has `turret: the sweep found the mark, +x.xx° from where it stood`. **Stop:** it turns
+      the wrong way and the hold drops, it stalls on a slow pass (raise `homeSweepFineDps` to 20), or
+      it never stops searching (no pass taken: the log says why) → push the log.
+   6. **The zero agrees with the mark.** Started on the mark, the `found the mark` number is under 1°.
+      After each sweep in step 5, turn the turret by hand back onto the mark (Bench: Turret, or the
+      Robot page's angle): it reads within 1° of 0 from every start. The two slow passes' log lines show
+      how far apart the directions read (the switch's hysteresis): write it down.
+   7. **Pass** (steps 5 and 6 good from all four starts) → that robot's `RobotDifferences` line
+      `() -> TurretSubsystem.homeSweep = true`, with the four times and the date, in a PR.
+
+   - [ ] 19429: readout · band · passes · sweep from each side · zero on the mark · time
+   - [ ] 20245: port · readout (then `homeSwitch` line) · band · passes · sweep from each side · zero on the mark · time
 
 ## Belding work order (agreed 5 Nov)
 
@@ -338,13 +474,25 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       that it is mounted mirror-image to the left), see it turn inward, and put the value that
       worked in a PR (the shared field, or a 19429 line in `RobotDifferences`). Eject: both back
       out. Turret: still sits at home after PLAY, as before.
+- [ ] **Both robots' FLOWER sticks now hold out, powered, instead of going limp**
+      (`FlowerStickSubsystem.LIMP_EXTENDED` off, the shared value, 22 Nov). A limp stick is lifted
+      by the FLOWER: on 20245 at Fruitport the held stick's Auto picks fired 4 every time (9 of 9),
+      the limp one's second pick 0 to 4. **20245** held all of Fruitport's afternoon: nothing to
+      check but the servo (below). **19429 has never held**, so before Basic Drive: Bench: FLOWER
+      Stick, stick out on the tile, robot still, 10 s: the pivot servo is not buzzing or hot, and the
+      roller still turns. If the servo strains, raise `EXTENDED` (0.44) a hair toward `RETRACTED`
+      (1.00) until it is quiet with the wheels still on the tile, and put the number in a PR; if no
+      position works, add a 19429 line in `RobotDifferences` setting `LIMP_EXTENDED = true`. Then
+      R-Solo on 19429: the first (WALL) pick fires 4 (all season limp, 3 of 15 picks did), and
+      `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. Same servo check on 20245 (out
+      at 0.85).
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were
       measured on the goBILDA, so **before Basic Drive:** Bench: FLOWER Stick, step to the in and
       out stops on the SWYFT servo and put the two numbers in a PR (they are the shared values;
       19429 keeps its own line in `RobotDifferences`). Also check the swing finishes inside
-      `SETTLE_MS` (1.5 s), the stick drops onto the tile when the pulse is cut (`LIMP_EXTENDED`),
+      `SETTLE_MS` (1.5 s),
       and whether the SWYFT's range is the 270 degrees `SERVO_RANGE_DEG` assumes (only the bench's
       and the logs' degrees read it). Then Basic Drive's operator Square swings it between them.
 - [ ] **19429 rewired 17 Nov: the new FLOWER stick.** Pivot servo on **Expansion Hub servo
@@ -1065,6 +1213,14 @@ measurement is [#255].
       write the values they keep in `TeleOpConfig`, pull the log. **Stop:** normal feels sluggish
       off the line compared with the old turbo → the ramp is the difference (turbo skipped it);
       tell a mentor. [PR #425]
+- [ ] **Faster acceleration ramp (21 Nov 2026, both robots, TeleOp only):** `DriveSubsystem.accelPerSec`
+      2 → 8 and `turnAccelPerSec` 4 → 8, after a mentor's test showed it a huge improvement. An Auto
+      keeps 2 and 4 (`autoAccelPerSec`, `autoTurnAccelPerSec`): at 8 an Auto turned and moved on oddly
+      before its last volley; pull that run's log if it is ever repeated. Hold Circle
+      on a CELL a few times, run one FLOWER grab, and slam the stick forward once with four pieces
+      in the lane. **Good:** the chassis aim settles without hunting, the grab is clean, nothing
+      shifts or rocks. **Stop:** the aim overshoots or wobbles → lower `turnAccelPerSec` in Panels
+      first (4 was the old value); the robot lurches or pieces shift → lower `accelPerSec`.
 
 ## 5. Pose and camera (Basic Drive / Vision: HIVE & Pose)
 
@@ -1081,9 +1237,24 @@ measurement is [#255].
       TIPs, never in a log without a TIP. Then a swing trigger can be built. **Stop:** the lead is
       under 0.5 s or the height wanders as much with nothing tipping → the camera cannot tell; leave
       R-NoCross as it is.
-- [ ] **Camera calibration, R1 at two spots** (Vision: HIVE & Pose, Red audience then Red far wall).
-      **Good:** "Spots so far: AGREE" → commit the two numbers to `CameraMount` (code 3.55 / 0.95; 2 Nov
-      read 3.13 / 0.89). **Stop:** DIFFER → a HIVE point or the marks, don't commit.
+- [ ] **Camera calibration:** done from the Belding and Fruitport logs (22 Nov 2026, `mountfit.py`); see
+      the camera-mount check in the 19429 list above. No R1 run needed.
+- [ ] **Continuous fixes, on the home field, before States** (22 Nov 2026). Every run already scores them:
+      `FusionShadow` takes the moving frames beside the real pose, and each stop after a drive logs a
+      "fusion shadow: stop N ... camera X in from the real pose, Y in from the shadow" line, with one
+      summary line when the OpMode stops. **Session 1, off (as shipped):** Sloth Load, then two full
+      practice matches per robot, Auto and TeleOp, driven the way the drive team drives at an event
+      (FLOWER picks, GARDEN, volleys from both ends, a wall push or two); pull the logs. **Good:** in
+      the summary lines the shadow's arrival median is under half the real pose's, "over 1 in further"
+      at no more than about 1 stop in 30, and the shadow's worst no worse than the real pose's worst plus
+      1 in. **Session 2, on:** set `LocalizationTuning.continuousFixes` true in Panels (or a
+      `RobotDifferences` line for one robot), the same two matches. **Good:** the real pose's arrival
+      median now matches session 1's shadow (about 0.3-0.5 in), no Auto path or FLOWER pick misses
+      that session 1 did not, nothing odd on the field drawing near the HIVE while a CELL tips.
+      **Stop:** any stop with the real pose 4 in or more off on arrival that session 1 did not have, a
+      path that ends somewhere visibly wrong, or the pose jumping on the field drawing → turn it off,
+      push the logs. Both good → the shared value goes to true in `LocalizationTuning`, in a PR with
+      both sessions' summary lines.
       [handoff](../.claude/handoff/20245-camera-calibration.md), [PR #360]
 - [ ] **Heading-aware camera reset:** lift the robot, turn ~15°, set it down off the mark, still,
       hold D-pad down. **Good:** heading corrected, field-centric drives right again. [handoff], [PR #360]
@@ -1256,11 +1427,15 @@ measurement is [#255].
       swings wide → `curveToWall` off (the old diagonal); `raiseAfterStopMs` -1 is the old stick
       rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (2.0 since 14 Nov, with `inSpeed` 1.0, `dwellPushPower` 1.0, `lowerWithinIn` 10, `lowerWithinDeg` 30, `settledInPerSec` 20, `maxRangeIn` 45: 8 gathers on 19429, 4 in a row) and `extraDepthIn` in Panels and
       write down what works.
-- [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
-      phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
-      write down each ball's time after the gate opens and the launcher's counted shots.
-      **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
-      where the count fell short show which way the shot counter misses.
+- [ ] **Thin Auto feed timers (22 Nov 2026, both robots):** `LaunchCards.launchAllFeedS` 3.5 → 2.4
+      for every volley after the first, and `firstLaunchAllFeedS` 2.8 for the preloads, from 311 Auto
+      feeds in the logs (4th ball a median 2.05 s after the gate, 2.32 s in 90%). Thin on purpose
+      until a sensor at the feeder exists. Run R-Solo or R-NoCross 3 times, filmed side-on if you
+      can, and pull the logs. **Good:** volleys that fired 4 still fire 4; the match log's
+      "ended at its 2.4 s timer" lines are followed by a pick whose lane count starts at 0.
+      **Stop (and the case for the sensor):** a pick starting with a ball already in the lane, or
+      a ball seen leaving after the gate shut → note the volley; raise the timer in Panels only if
+      it happens most runs.
 - [ ] **Superseded 11 Nov by "Square launch spots" in §7f (Square no longer drives to
       the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,
@@ -1638,6 +1813,16 @@ matches did not show.
 
 The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
 
+- [ ] **Both robots: launching stops at the end of the match** (`MatchEnd`, branch
+      `claude/stop-launch-at-buzzer`; 20245 fed after 0:00 in Fruitport Q-20, Q-42, M-3, M-7). Basic
+      Drive, phone stopwatch started with PLAY, pieces loaded. At about 1:55 hold the driver's Circle
+      and keep holding. **Good:** the feed stops at 1:59 on the stopwatch (`TeleOpConfig.matchEndMarginS`,
+      1.0 s), the launcher's wheels spin down to a stop, the Match page shows "Match end: launcher off",
+      the log has one `match end: launching stopped at 119.0x s ... a feed cut, fire held` line, and
+      Circle, Square, FIRE and unjam then do nothing until stop. Drive and intake still work.
+      **Stop:** a ball leaves after 1:59, or the wheels spin up again → note which button. Then on a
+      field with the real FCS timer, check the field's 0:00 against the robot's log (it was 119.8 to
+      120.3 s after TeleOp PLAY at Fruitport) and tell the drive team: press stop at 0:00 (G404).
 - [ ] **20245: turret aims from PLAY, driver's Circle fires, aim gate on** (branch
       `claude/relaxed-carson-rwuvvl`, 18 Nov). Basic Drive, HIVE upright: at PLAY the turret swings
       onto our CELL by itself (log: `turret at PLAY: AIM`). Driver holds Circle: it fires as the

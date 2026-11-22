@@ -196,6 +196,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private final FreshSticks spotSticks = new FreshSticks();
     /** Who has the launcher, and so when it idles: Square's press or the operator ({@link LauncherOwner}). */
     private final LauncherOwner launcherOwner = new LauncherOwner();
+    /** From 2:00 less a margin after PLAY, no feed and the launcher stopped ({@link MatchEnd}). */
+    private final MatchEnd matchEnd = new MatchEnd();
     /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
     private double launcherTrimTps;
     private boolean chassisAimCancelled;
@@ -463,6 +465,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private void applyLauncher(LauncherOwner.Effect effect) {
         if (effect == LauncherOwner.Effect.KEEP) return;
+        // After the match's end nothing spins the wheels up again, not even an idle (MatchEnd).
+        if (launchingEnded()) {
+            sentLaunchTps = Double.NaN;
+            robot.launcher.spinDown();
+            return;
+        }
         if (effect == LauncherOwner.Effect.SPIN_UP) {
             sendLaunchSpeed();
             log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s (%s)",
@@ -494,6 +502,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * line per change.
      */
     private void reapplyLaunchSpeed() {
+        if (launchingEnded()) return;
         double now = launchSpeed();
         if (!resendLaunchSpeed(launcherOwner.spinning(), robot.feeder.state() == FeederSubsystem.State.FEED,
                 sentLaunchTps, now)) {
@@ -748,8 +757,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
         boolean leftStick = Math.abs(forward) > CANCEL_STICK || Math.abs(strafe) > CANCEL_STICK;
         boolean rightStick = Math.abs(turn) > CANCEL_STICK;
+        // The drive command as the sticks gave it, and whether it is past CANCEL_STICK: a pick, a
+        // gather or a launch-spot drive ended "sticks moved" shows here how far, and which stick
+        // (Fruitport, 21 Nov 2026: 41 of 89 picks ended so in the dwell, with nothing to say why).
+        log.put("/Controls/StickForward", forward);
+        log.put("/Controls/StickStrafe", strafe);
+        log.put("/Controls/StickTurn", turn);
+        log.put("/Controls/SticksMoved", leftStick || rightStick ? 1 : 0);
 
         holdResets(now, false);
+        endOfMatch();
 
         // The firing arc is centred on the aim trim: the trim is where the robot's real forward
         // reads on a turret zeroed off its mark (TurretArc).
@@ -1126,6 +1143,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * and amber. A lost Pinpoint has its own alert above the page (RobotOpMode).
      */
     private String matchAlert() {
+        // The throat beam sees a ball held at the wheels, or none coming with the lane holding:
+        // unjam (hold) backs it out. Only with the beam fitted (BeamBreakSubsystem).
+        if (robot.beams.feedStuck()) return "FEED STUCK: UNJAM";
         if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
         if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
         if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
@@ -1262,6 +1282,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 fireHeld ? open : spotFeed && !arcBlocked, true, robot.feeder.state() == FeederSubsystem.State.FEED);
         // Unlike the other gates, the arc also stops a feed already going: the robot turned the CELL behind.
         if (arcBlocked && feed == FeederSubsystem.State.FEED) feed = FeederSubsystem.State.IDLE;
+        // The match is over (MatchEnd): nothing feeds, not a press, a Square volley or an unjam.
+        if (launchingEnded()) feed = FeederSubsystem.State.IDLE;
         switch (feed) {
             case FEED:
                 robot.feeder.feed();
@@ -1272,6 +1294,34 @@ public class BasicDriveTeleOp extends RobotOpMode {
             default:
                 robot.feeder.idle();
         }
+    }
+
+    /**
+     * The end of the match on the robot's clock ({@link MatchEnd}): from 2:00 less
+     * {@link TeleOpConfig#matchEndMarginS} after PLAY the feeder stops, the launcher spins down to 0
+     * and stays there, and the Match page says so. G404: no powered movement after the end of
+     * TELEOP. One log line, with whether a fire or a feed was cut.
+     */
+    private void endOfMatch() {
+        if (TeleOpConfig.stopLaunchingAtMatchEnd
+                && matchEnd.update(secondsSincePlay(), TeleOpConfig.matchEndMarginS)) {
+            boolean feeding = robot.feeder.state() == FeederSubsystem.State.FEED;
+            robot.feeder.idle();
+            sentLaunchTps = Double.NaN;
+            robot.launcher.spinDown();
+            log.event(String.format(Locale.US,
+                    "match end: launching stopped at %.2f s after PLAY (2:00 less %.2f s): feeder idle, launcher off%s%s",
+                    secondsSincePlay(), TeleOpConfig.matchEndMarginS,
+                    feeding ? ", a feed cut" : "", fireButtonHeld() ? ", fire held" : ""));
+        }
+        if (launchingEnded()) {
+            display.status("Match end", Display.Level.WARN, "launcher off: press stop (G404)");
+        }
+    }
+
+    /** The match is over and launching has stopped: {@link #endOfMatch}. */
+    private boolean launchingEnded() {
+        return TeleOpConfig.stopLaunchingAtMatchEnd && matchEnd.over();
     }
 
     /** The firing arc's part of the robot's indicator light: {@link ArcLight}, decided in {@link #fire()}. */

@@ -305,6 +305,8 @@ public class LauncherSubsystem implements Subsystem {
     /** {@link #secondsToSpeed()}, as the last {@link #update()} worked it out. */
     private double secondsToSpeed = Double.POSITIVE_INFINITY;
     private final ShotDetector shots = new ShotDetector();
+    /** The throat beam that counts launches ({@link #countLaunchesBy}); null: the dip count does. */
+    private BeamBreak throatBeam;
     /** Whether the feed gate is open, so a dip may be a shot ({@link #countShotsWhile}). */
     private BooleanSupplier gateOpen;
     private final LauncherResponse response = new LauncherResponse();
@@ -484,6 +486,35 @@ public class LauncherSubsystem implements Subsystem {
      */
     public double secondsToSpeed() {
         return secondsToSpeed;
+    }
+
+    /**
+     * Pieces launched since this OpMode started: the throat beam's count when one is fitted
+     * ({@link #countLaunchesBy}), every ball that passed it; otherwise {@link #shots()}, the dip
+     * count. What a volley ends on and the lane tracker loses a piece by. The dip count itself stays
+     * {@link #shots()}, the launcher's own measurement (dip depth for the speed table, PIDF timing).
+     */
+    public int launched() {
+        return throatBeam != null ? throatBeam.passes() : shots.shots();
+    }
+
+    /** {@link #launched()} went up in the latest {@link #update()} (the beam's update, with one fitted). */
+    public boolean launchedThisLoop() {
+        return throatBeam != null ? throatBeam.passedThisStep() : shots.justCounted();
+    }
+
+    /** Whether {@link #launched()} is the throat beam's count rather than the dip count. */
+    public boolean countsByBeam() {
+        return throatBeam != null;
+    }
+
+    /**
+     * Count launches by the throat beam ({@code BeamBreakSubsystem.throat()}) from now on; null
+     * keeps the dip count. Wired once by {@code Robot}, which updates the beam before anything
+     * reads {@link #launched()}.
+     */
+    public void countLaunchesBy(BeamBreak throat) {
+        this.throatBeam = throat;
     }
 
     /** Shots counted from speed dips since this OpMode started (class comment). Not cleared by {@link #spinDown()}. */

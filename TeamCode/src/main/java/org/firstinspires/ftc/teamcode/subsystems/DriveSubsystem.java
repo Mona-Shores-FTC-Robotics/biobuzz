@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.algorithm.Foresight;
+import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.algorithm.ForesightPowerAllocator;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
@@ -19,6 +22,7 @@ import com.pedropathing.localization.FusionLocalizer;
 import org.firstinspires.ftc.teamcode.localization.CellFix;
 import org.firstinspires.ftc.teamcode.localization.HeadingFix;
 import org.firstinspires.ftc.teamcode.localization.FixAverager;
+import org.firstinspires.ftc.teamcode.localization.FusionShadow;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
@@ -33,6 +37,7 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
+import org.firstinspires.ftc.teamcode.vision.CellStateTracker;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
@@ -94,11 +99,56 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 @Configurable
 public class DriveSubsystem implements Subsystem, AutoDrive {
 
-    /** How fast drive power may rise, in power per second. Slowing and stopping are instant. */
-    public static double accelPerSec = 2.0;
+    /**
+     * How fast drive power may rise outside an Autonomous, in power per second. Slowing and stopping
+     * are instant. 8 (full power in about 0.13 s) on both robots, from the drivers' test before
+     * Fruitport (21 Nov 2026): 2 felt sluggish off the line and 8 was a huge improvement. Paths skip this.
+     */
+    public static double accelPerSec = 8.0;
 
-    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. */
-    public static double turnAccelPerSec = 4.0;
+    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. 8 with {@link #accelPerSec}. */
+    public static double turnAccelPerSec = 8.0;
+
+    /**
+     * {@link #accelPerSec} in an Autonomous ({@link #useAutonomousRamp}), where it reaches only what
+     * drives off a path: a grab's dwell. 2, the value every Auto was tested with: at 8 an Auto turned
+     * and moved on oddly before its last volley (21 Nov 2026, Fruitport).
+     */
+    public static double autoAccelPerSec = 2.0;
+
+    /** {@link #turnAccelPerSec} in an Autonomous; 4, as {@link #autoAccelPerSec}. */
+    public static double autoTurnAccelPerSec = 4.0;
+
+    /**
+     * On a path, the drive keeps the wheels' power ahead of the heading's correction while the robot
+     * is within {@link #drivePriorityHeadingToleranceDeg} of the heading Pedro wants. <b>Off</b> (Pedro
+     * 3.0.2's own split) until the robot check in {@code doc/robot-todo.md} shows paths speed up and
+     * still arrive on heading.
+     *
+     * <p>Why (22 Nov 2026). Foresight asks for full drive along a path whenever it is not braking,
+     * then fits the requests into the wheels in order ({@code ForesightPowerAllocator}): heading
+     * feedforward first, then path correction, then the drive, then heading feedback; and with
+     * {@code headingDriveRatio} at its default 0.5 it moves half of the heading feedback (P 6.8 on
+     * 20245, 8.0 on 19429: 0.7 of power for a 6° error) into that first, feedforward share. In the
+     * 20 and 21 Nov Auto logs (both robots) a path that barely turns went from 3 to 20 in/s in 0.26 to
+     * 0.28 s, as fast as a driver; one that turns 90° in 0.33 to 0.37 s; the 180° hops by the SCORING
+     * FLOWER and the cross to fix a TIP, turning 150 to 220°/s, took 0.73 to 1.63 s. On, it sets
+     * {@code headingDriveRatio} to 0 and {@code headingDeviationTolerance} to
+     * {@link #drivePriorityHeadingToleranceDeg}, so heading feedback comes after the drive until the
+     * robot falls that far behind its heading, when Pedro's heading-first order takes over again.
+     * Read before and after with {@code /Drive/Path/*} and {@code /Drive/WheelPower/*}.
+     */
+    public static boolean drivePriorityOnPaths = false;
+
+    /**
+     * How far behind Pedro's heading, degrees, before {@link #drivePriorityOnPaths} gives the heading
+     * the wheels first again. 25; Pedro's own is 11.25. Clamped to 5 to 90; NaN is Pedro's.
+     */
+    public static double drivePriorityHeadingToleranceDeg = 25.0;
+
+    /** Pedro 3.0.2's own {@code headingDriveRatio} and {@code headingDeviationTolerance}, put back when the switch is off. */
+    static final double PEDRO_HEADING_DRIVE_RATIO = 0.5;
+    static final double PEDRO_HEADING_TOLERANCE_DEG = 11.25;
 
     /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
     private static final double MAX_LOOP_DT_SEC = 0.1;
@@ -139,6 +189,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** This frame's tags and what the checks made of them. Sized for every HIVE tag. */
     private final TagGate gate = new TagGate(16);
     private long newestCaptureNs;
+    /** This frame's worst row height off its settled height among the CELLs used, inches ({@link #gatherTags}). */
+    private double worstRowHeightErrorIn;
     /** Gated frames while still, toward one stationary fix; and what the last batch came to. */
     private final FixAverager averager = new FixAverager();
     private StillFix stillFix = StillFix.WAITING;
@@ -168,6 +220,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** What the pose would be with still fixes on ({@link ShadowPose}): logged, never driven on. */
     private final ShadowPose shadow = new ShadowPose();
 
+    /** What the pose would be with continuous fixes on ({@link FusionShadow}): logged, never driven on. */
+    private final FusionShadow fusionShadow = new FusionShadow();
+
+    /** Continuous fixes the real pose took ({@link LocalizationTuning#continuousFixes} on). */
+    private int continuousFixesApplied;
+
     /** Heading corrections taken from the camera ({@link #relocalizeHeading}): by the button, and by themselves. */
     private int headingFixesApplied;
     private int autoHeadingFixesApplied;
@@ -195,9 +253,13 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** No wheel gets more than this ({@link WheelPowerCap}); 1 unless a speed mode asked for less. */
     private double maxWheelPower = 1.0;
     private boolean accelLimited = true;
+    /** Set by {@link #useAutonomousRamp}: which pair of ramp values {@link #update()} uses. */
+    private boolean autonomousRamp;
 
     /** Built by {@link #preparePathFollowing()}; null until then. */
     private Follower follower;
+    /** The follower's Foresight, for what it asked of the wheels ({@link #pathDriveRequest}); null until then. */
+    private Foresight foresight;
     /** The path last given to {@link #follow}, for progress. */
     private Path followedPath;
     /** True while a path or hold, not the sticks, drives the robot. */
@@ -292,6 +354,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         robotCentricCommand = true;
     }
 
+    /** True for an Autonomous: the ramp uses {@link #autoAccelPerSec} and {@link #autoTurnAccelPerSec}. */
+    public void useAutonomousRamp(boolean autonomous) {
+        autonomousRamp = autonomous;
+    }
+
     /** False skips the acceleration limit, for a driver who wants speed now. */
     public void setAccelLimited(boolean limited) {
         accelLimited = limited;
@@ -323,6 +390,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             localizer.setPose(pose);
             poseSets++;
             shadow.follow();
+            fusionShadow.follow();
             poseReferenced = true;
             pinpointTrust.poseSet(System.nanoTime() / 1_000_000L);
             fixCount = 0;
@@ -438,6 +506,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     /** The shadow's bookkeeping, for the log. */
     public ShadowPose shadow() { return shadow; }
 
+    /** The pose with continuous fixes on, as {@link FusionShadow} has it; null without a Pinpoint. */
+    public Pose fusionShadowPose() { return fusionShadow.of(pose()); }
+
+    /** The continuous-fix shadow's bookkeeping and arrival scores, for the log. */
+    public FusionShadow fusionShadow() { return fusionShadow; }
+
+    /** Continuous fixes the real pose took this run (0 with {@link LocalizationTuning#continuousFixes} off). */
+    public int continuousFixesApplied() { return continuousFixesApplied; }
+
     /** Camera heading minus the Pinpoint's, degrees, averaged while still; NaN without one. See {@link HeadingFix}. */
     public double cameraHeadingDiffDeg() { return settled.headingDiffDeg(); }
 
@@ -526,6 +603,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         }
         gate.clear();
         newestCaptureNs = 0;
+        worstRowHeightErrorIn = 0;
         for (int i = 0; i < CELLS.length; i++) {
             CellSighting sighting = vision.sighting(CELLS[i]);
             if (sighting == null) continue;
@@ -547,6 +625,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             }
             if (used) {
                 newestCaptureNs = Math.max(newestCaptureNs, sighting.captureTimeNs());
+                double settledHeight = state == HiveCellState.UP ? CellStateTracker.Geometry.upRowHeightIn
+                        : CellStateTracker.Geometry.downRowHeightIn;
+                worstRowHeightErrorIn = Math.max(worstRowHeightErrorIn,
+                        Math.abs(sighting.rowCentreRobot().z() - settledHeight));
             }
         }
         return true;
@@ -732,7 +814,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (localizer == null) {
             throw new IllegalStateException("Following a path needs the Pinpoint: " + localizerFault);
         }
-        follower = new Follower(localizer, drivetrain, Constants.createAlgorithm());
+        foresight = Constants.createAlgorithm();
+        follower = new Follower(localizer, drivetrain, foresight);
     }
 
     /**
@@ -742,6 +825,21 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * STOP) left them there for every later path until the app restarted: on 6 Nov the nudge test's
      * 4 in/s cap stopped R-Solo-Nudge's full-speed paths. So every way out of path control clears it.
      */
+    /**
+     * Writes {@link #drivePriorityOnPaths}' two settings into a Foresight config, or Pedro's own when
+     * off. The Follower reads its config every loop, so a Panels change takes effect at the next path.
+     */
+    static void applyPathPriority(ForesightConfig config, boolean drivePriority, double toleranceDeg) {
+        if (drivePriority) {
+            double deg = Double.isNaN(toleranceDeg) ? PEDRO_HEADING_TOLERANCE_DEG : Math.max(5.0, Math.min(90.0, toleranceDeg));
+            config.headingDriveRatio.set(0.0);
+            config.headingDeviationTolerance.set(Math.toRadians(deg));
+        } else {
+            config.headingDriveRatio.set(PEDRO_HEADING_DRIVE_RATIO);
+            config.headingDeviationTolerance.set(Math.toRadians(PEDRO_HEADING_TOLERANCE_DEG));
+        }
+    }
+
     private void releasePath() {
         if (follower != null) follower.stop();
     }
@@ -749,6 +847,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     @Override
     public void follow(Path path) {
         preparePathFollowing();
+        applyPathPriority(Constants.forActiveRobot().foresightConfig, drivePriorityOnPaths,
+                drivePriorityHeadingToleranceDeg);
         followedPath = path;
         follower.follow(path);
         pathControl = true;
@@ -785,6 +885,50 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** Drive wheel {@code i}'s encoder speed, ticks/s (0 FL, 1 FR, 2 BL, 3 BR), as of the last read. */
     public double wheelTicksPerSec(int i) { return wheelTicksPerSec[i]; }
+
+    /**
+     * Drive wheel {@code i}'s power as Pedro's drivetrain last set it (0 FL, 1 FR, 2 BL, 3 BR),
+     * under a path or the sticks: the number the motor was given, after Pedro scaled the four to
+     * fit in 1. Read from the drivetrain's own array, so no hardware read.
+     */
+    public double wheelPower(int i) { return drivetrain.wheelPowers[i]; }
+
+    // What Foresight asked for on this loop's path step, before it fit the requests into the
+    // wheels' power, highest priority first (heading feedforward, path correction, drive, heading
+    // feedback). Beside the wheel powers they say why a path drives slowly: drive asked 1 and the
+    // wheels got less (a turn or a correction took the power), or the wheels got 1 and the robot
+    // still sped up slowly (the motors and the battery). NaN unless a path is being followed.
+
+    /** The drive along the path: 1 is full power; negative while Foresight brakes for the end. */
+    public double pathDriveRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        if (a == null || a.getDriveVector() == null) return Double.NaN;
+        double m = a.getDriveVector().magnitude();
+        return foresight.isBraking() ? -m : m;
+    }
+
+    /** The turn asked for, feedforward and feedback together. */
+    public double pathHeadingRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        return a == null ? Double.NaN : a.getHeadingFeedforward() + a.getHeadingPower();
+    }
+
+    /** The push back onto the path, the size of the correction asked for. */
+    public double pathCorrectionRequest() {
+        ForesightPowerAllocator a = followingAllocator();
+        if (a == null || a.getTranslationalVector() == null) return Double.NaN;
+        return a.getTranslationalVector().magnitude();
+    }
+
+    /** The speed Foresight aimed for along the path, inches/s. */
+    public double pathTargetInPerSec() {
+        return followingAllocator() == null ? Double.NaN : foresight.targetVelocity();
+    }
+
+    private ForesightPowerAllocator followingAllocator() {
+        return follower != null && pathControl && followedPath != null && follower.following()
+                ? foresight.allocator : null;
+    }
 
     /** Whether the sticks' command was field-centric (then {@link #appliedForward} is field "away"). */
     public boolean commandFieldCentric() {
@@ -920,9 +1064,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         double s = strafe;
         double t = turn;
         if (accelLimited) {
-            f = forwardLimiter.step(f, accelPerSec, dt);
-            s = strafeLimiter.step(s, accelPerSec, dt);
-            t = turnLimiter.step(t, turnAccelPerSec, dt);
+            double rise = autonomousRamp ? autoAccelPerSec : accelPerSec;
+            double turnRise = autonomousRamp ? autoTurnAccelPerSec : turnAccelPerSec;
+            f = forwardLimiter.step(f, rise, dt);
+            s = strafeLimiter.step(s, rise, dt);
+            t = turnLimiter.step(t, turnRise, dt);
         } else {
             // Keep the limiters in step with what the wheels really get, so turning the limit back on drops
             // straight to the new command rather than ramping from wherever they were before.
@@ -954,6 +1100,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      */
     private void offerSightings() {
         still = trackStillness();
+        if (poseReferenced) fusionShadow.odometry(localizer.pose(), System.nanoTime());
         if (!still) {
             averager.reset();
             settled.reset();
@@ -1011,9 +1158,23 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                 if (fixed != null) poseNote = fixed;
             }
         }
-        if (LocalizationTuning.continuousFixes) {
-            localizer.addMeasurement(fix, newestCaptureNs,
-                    CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount()));
+        // A row reading off its settled height while moving is a CELL starting to swing or the camera
+        // pitching with the robot (its range is off with it): not a continuous fix. Still frames keep
+        // TagGate's wider band, since the still fix's averaging and spread check cover them.
+        if (!still && worstRowHeightErrorIn <= LocalizationTuning.continuousFixMaxRowHeightErrorIn) {
+            // Moving: a continuous fix, on the real pose with continuousFixes on and on its shadow either way.
+            // Its own variance (LocalizationTuning.continuousFixVarianceScale) and the still fix's jump gate.
+            Pose stillVariance = CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount());
+            double v = stillVariance.x() * LocalizationTuning.continuousFixVarianceScale;
+            if (LocalizationTuning.continuousFixes) {
+                if (Math.hypot(fix.x() - current.x(), fix.y() - current.y()) <= LocalizationTuning.maxFixJumpIn) {
+                    localizer.addMeasurement(fix, newestCaptureNs, new Pose(v, v, stillVariance.heading()));
+                    continuousFixesApplied++;
+                }
+                fusionShadow.matchReal();
+            } else {
+                fusionShadow.continuousFix(fix.x(), fix.y(), newestCaptureNs, v, LocalizationTuning.maxFixJumpIn);
+            }
         }
         fixCount++;
         recentFixX[recentFixNext] = fix.x();
@@ -1059,14 +1220,17 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         } else if (stillFixJumpIn > LocalizationTuning.maxFixJumpIn) {
             stillFix = StillFix.TOO_FAR;
         } else if (applyStillFixes) {
-            localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(),
-                    CellFix.variance(averager.nearestRangeIn(), averager.minTags()));
+            Pose variance = CellFix.variance(averager.nearestRangeIn(), averager.minTags());
+            localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(), variance);
             stillFixesApplied++;
             stillFix = StillFix.APPLIED;
             shadow.applyFix(x, y, now);
+            if (LocalizationTuning.continuousFixes) fusionShadow.matchReal();
+            fusionShadow.stillFix(x, y, variance.x(), now, localizer.pose());
         } else {
             stillFix = StillFix.READY;
             shadow.applyFix(x, y, now); // the shadow takes the batch the real pose was only shown
+            fusionShadow.stillFix(x, y, CellFix.variance(averager.nearestRangeIn(), averager.minTags()).x(), now, now);
         }
         averager.reset();
     }

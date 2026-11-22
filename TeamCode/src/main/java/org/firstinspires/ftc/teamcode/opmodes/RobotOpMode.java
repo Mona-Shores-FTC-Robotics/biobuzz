@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.logging.BuildStamp;
 import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreak;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -42,6 +43,7 @@ import org.firstinspires.ftc.teamcode.subsystems.NectarReject;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherResponse;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
+import org.firstinspires.ftc.teamcode.localization.FusionShadow;
 import org.firstinspires.ftc.teamcode.localization.ImpactWatch;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.CalibrationSpots;
@@ -269,6 +271,10 @@ public abstract class RobotOpMode extends OpMode {
     private boolean batteryRumbled;
     /** The battery at INIT, volts; NaN with no sensor. */
     private double batteryAtInitVolts = Double.NaN;
+    /** How the battery holds up under load once the robot runs, for the next INIT's warning. */
+    private final BatterySag batterySag = new BatterySag();
+    /** The "battery sagging" event has gone, once per run. */
+    private boolean batterySagLogged;
 
     /**
      * What the drive team must fix before PLAY: an Autonomous's every warning, a TeleOp's unassigned
@@ -286,6 +292,10 @@ public abstract class RobotOpMode extends OpMode {
     private PinpointTrust.State loggedPinpointTrust = PinpointTrust.State.TRUSTED;
     private String loggedWarnings;
     private boolean loggedLaneFull;
+    /** Last logged: the colour sensor read FULL and the lane beam refused it. */
+    private boolean loggedBeamRefused;
+    /** {@code robot.beams.stuckFeeds()} as last logged. */
+    private int loggedStuckFeeds;
     private long loggedDepartures;
     /** Between INIT and PLAY. */
     /**
@@ -305,6 +315,7 @@ public abstract class RobotOpMode extends OpMode {
     // A mechanism asked to move whose encoder never does: one event each, from the log alone.
     private final MotionWatch intakeWatch = new MotionWatch("intake");
     private int loggedWedgeClears;
+    private int loggedFeedJamClears;
     private final MotionWatch feederWatch = new MotionWatch("feeder");
     /**
      * The intake motor's encoder socket reads the turret (DeviceNames.TURRET_ENCODER_HOST), not
@@ -329,6 +340,7 @@ public abstract class RobotOpMode extends OpMode {
     private String cameraStartNote;
     private int loggedAutoHeadingFixes;
     private int loggedShadowFixes;
+    private int loggedFusionArrivals;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
     /** The lane tracker's slots, front first, built once. */
@@ -336,6 +348,8 @@ public abstract class RobotOpMode extends OpMode {
     private static final String[] WHEEL_KEYS = {"/Drive/WheelTicksPerSec/FrontLeft",
             "/Drive/WheelTicksPerSec/FrontRight", "/Drive/WheelTicksPerSec/BackLeft",
             "/Drive/WheelTicksPerSec/BackRight"};
+    private static final String[] WHEEL_POWER_KEYS = {"/Drive/WheelPower/FrontLeft",
+            "/Drive/WheelPower/FrontRight", "/Drive/WheelPower/BackLeft", "/Drive/WheelPower/BackRight"};
     private final Throttle frameRate = new Throttle(1000, 0);
     private long frameRateCount;
     private long frameRateNs;
@@ -472,6 +486,7 @@ public abstract class RobotOpMode extends OpMode {
         if (isAutonomous()) {
             robot.colorSensor.lane().fill(LaneTracker.Piece.POLLEN, LaneTracker.AUTO_PRELOAD);
             robot.holdForAutoInit();
+            robot.drive.useAutonomousRamp(true); // a TeleOp builds a new Robot, so it gets its own ramp
         }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
@@ -502,6 +517,12 @@ public abstract class RobotOpMode extends OpMode {
             if (volts < lowBatteryVolts()) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, lowBatteryVolts());
                 log.event("battery low: " + batteryNote);
+            }
+            // A battery that sagged under load last run and is still in: its resting voltage hides it.
+            String sagged = BatterySag.initNote(volts, Handoff.lastRunBatteryInitVolts(), Handoff.lastRunBatteryMeanVolts());
+            if (sagged != null) {
+                batteryNote = batteryNote == null ? sagged : batteryNote + "; " + sagged;
+                log.event("battery sagged last run: " + sagged);
             }
         }
 
@@ -940,6 +961,10 @@ public abstract class RobotOpMode extends OpMode {
             } catch (RuntimeException e) {
                 log.event("Limelight at end: no status (" + e + ")");
             }
+            // This OpMode's continuous-fix comparison in one line (FusionShadow); continuousFixes as it ran.
+            log.event(robot.drive.fusionShadow().summary()
+                    + (LocalizationTuning.continuousFixes ? "; continuous fixes on, " + robot.drive.continuousFixesApplied()
+                    + " applied" : "; continuous fixes off"));
             robot.stop();
         }
         Scheduler.reset();
@@ -1410,6 +1435,12 @@ public abstract class RobotOpMode extends OpMode {
         // Beside CommandTurn: a turn rate nobody commanded is the clearest sign of a hit (#498).
         log.put("/Drive/OdometryTurnRadPerSec", robot.drive.odometryTurnRadPerSec());
         for (int i = 0; i < WHEEL_KEYS.length; i++) log.put(WHEEL_KEYS[i], robot.drive.wheelTicksPerSec(i));
+        // Why a path drives slowly: what Foresight asked for, and what each wheel was given.
+        for (int i = 0; i < WHEEL_POWER_KEYS.length; i++) log.put(WHEEL_POWER_KEYS[i], robot.drive.wheelPower(i));
+        log.put("/Drive/Path/Drive", robot.drive.pathDriveRequest());
+        log.put("/Drive/Path/Heading", robot.drive.pathHeadingRequest());
+        log.put("/Drive/Path/Correction", robot.drive.pathCorrectionRequest());
+        log.put("/Drive/Path/TargetInPerSec", robot.drive.pathTargetInPerSec());
         log.put("/FlowerStick/Out", robot.flowerStick.extended() ? 1 : 0);
         log.put("/FlowerStick/Powered", robot.flowerStick.limp() ? 0 : 1);
         log.put("/FlowerStick/RollerPower", robot.flowerStick.rollerPowerNow());
@@ -1523,6 +1554,28 @@ public abstract class RobotOpMode extends OpMode {
                         robot.drive.shadow().offsetX(), robot.drive.shadow().offsetY()));
             }
         }
+        // The pose with continuous fixes on (FusionShadow), and its score at each stop after a drive:
+        // every run is a with/without comparison, whether or not continuousFixes is on.
+        Pose fusionPose = robot.drive.fusionShadowPose();
+        if (fusionPose != null && referenced) {
+            FusionShadow fusion = robot.drive.fusionShadow();
+            log.put("/FusionShadow/X", fusionPose.x());
+            log.put("/FusionShadow/Y", fusionPose.y());
+            log.put("/FusionShadow/OffsetIn", fusion.offsetIn());
+            log.put("/FusionShadow/FramesUsed", fusion.framesUsed());
+            log.pose("/FusionShadow/Robot", fusionPose.x(), fusionPose.y(), fusionPose.heading());
+            if (fusion.arrivals() != loggedFusionArrivals) {
+                loggedFusionArrivals = fusion.arrivals();
+                log.put("/FusionShadow/ArrivalRealIn", fusion.lastArrivalRealIn());
+                log.put("/FusionShadow/ArrivalShadowIn", fusion.lastArrivalShadowIn());
+                log.event(String.format(java.util.Locale.US,
+                        "fusion shadow: stop %d after %.0f in of driving: camera %.1f in from the real pose,"
+                                + " %.1f in from the shadow%s",
+                        loggedFusionArrivals, fusion.lastArrivalDrivenIn(), fusion.lastArrivalRealIn(),
+                        fusion.lastArrivalShadowIn(),
+                        LocalizationTuning.continuousFixes ? " (continuous fixes on: the shadow is the real pose)" : ""));
+            }
+        }
         if (robot.drive.autoHeadingFixesApplied() != loggedAutoHeadingFixes) {
             loggedAutoHeadingFixes = robot.drive.autoHeadingFixesApplied();
             log.event("pose: automatic " + robot.drive.lastHeadingFix());
@@ -1633,6 +1686,12 @@ public abstract class RobotOpMode extends OpMode {
             log.event(String.format(Locale.US, "intake: wedged (%.0f ticks/s at %.1f A, nothing under the sensor): backing out, clear %d",
                     robot.intake.ticksPerSecond(), intakeAmps, loggedWedgeClears));
         }
+        log.put("/Intake/FeedJamming", robot.intake.feedJamming() ? 1 : 0);
+        if (robot.intake.feedJamClears() != loggedFeedJamClears) {
+            loggedFeedJamClears = robot.intake.feedJamClears();
+            log.event(String.format(Locale.US, "feed: stuck (gate open, the piece at the entry still and no shot for %.0f ms; roller %.1f A): backing the lane out, clear %d",
+                    IntakeSubsystem.feedJamMs, intakeAmps, loggedFeedJamClears));
+        }
         log.put("/Intake/HoldingForFull", robot.intake.holdingForFull() ? 1 : 0);
         log.put("/Intake/PastFull", robot.intake.pastFull() ? 1 : 0);
         log.put("/Intake/PositionHolding", robot.intake.positionHolding() ? 1 : 0);
@@ -1647,6 +1706,24 @@ public abstract class RobotOpMode extends OpMode {
         double toSpeed = robot.launcher.secondsToSpeed();
         log.put("/Launcher/SecondsToSpeed", Double.isInfinite(toSpeed) ? -1.0 : toSpeed);
         log.put("/Launcher/Shots", robot.launcher.shots());
+        // The beams (BeamBreakSubsystem), only when fitted: the throat's balls beside the dip count above.
+        BeamBreak throatBeam = robot.beams.throat();
+        if (throatBeam != null) {
+            log.put("/Beam/ThroatBlocked", throatBeam.blocked() ? 1 : 0);
+            log.put("/Beam/ThroatBalls", throatBeam.passes());
+            if (throatBeam.passedThisStep()) log.put("/Beam/ThroatBlockedMs", throatBeam.lastPassBlockedMs());
+            log.put("/Beam/FeedStuck", robot.beams.feedStuck() ? 1 : 0);
+            if (robot.beams.stuckFeeds() != loggedStuckFeeds) {
+                loggedStuckFeeds = robot.beams.stuckFeeds();
+                log.event("Throat: feed stuck (" + robot.beams.feedStuckWhy() + "), " + throatBeam.passes()
+                        + " balls so far");
+            }
+        }
+        BeamBreak laneBeam = robot.beams.lane();
+        if (laneBeam != null) {
+            log.put("/Beam/LaneBlocked", laneBeam.blocked() ? 1 : 0);
+            log.put("/Beam/LaneFull", robot.colorSensor.full() ? 1 : 0);
+        }
         log.put("/Launcher/InDip", robot.launcher.inDip() ? 1 : 0);
         double lastDip = robot.launcher.lastShotDipTicksPerSecond();
         if (!Double.isNaN(lastDip)) {
@@ -1763,6 +1840,14 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Lane/Full", full.full() ? 1 : 0);
         log.put("/Lane/HeldWhileIntakingMs", full.heldWhileIntakingMs());
         // Full on and off as events, with the tracker's count: full then three or four shots means it was.
+        // With the lane beam the robot's full needs the beam too: say when the two disagree.
+        boolean refusedByBeam = robot.colorSensor.usesLaneBeam() && full.full() && !robot.colorSensor.full();
+        if (refusedByBeam != loggedBeamRefused) {
+            loggedBeamRefused = refusedByBeam;
+            if (refusedByBeam) {
+                log.event("Lane: colour sensor FULL, lane beam clear: not full, the intake keeps taking in");
+            }
+        }
         if (full.full() != loggedLaneFull) {
             loggedLaneFull = full.full();
             // Full with a rejected NECTAR under the sensor: a reject did not clear it, and an Auto's
@@ -1840,6 +1925,16 @@ public abstract class RobotOpMode extends OpMode {
             // For the launcher's F and the feeder's power when they compensate: this read, no other.
             robot.batteryVolts(steadyBattery.update(lastBatteryVolts));
             log.put("/Robot/BatteryVoltsSteady", steadyBattery.volts());
+            if (mode != MatchLog.Mode.DISABLED) {
+                batterySag.add(steadyBattery.volts());
+                if (batterySag.readings() >= BatterySag.MIN_READINGS) {
+                    Handoff.recordBattery(batteryAtInitVolts, batterySag.meanVolts());
+                }
+                if (!batterySagLogged && batterySag.sagged()) {
+                    batterySagLogged = true;
+                    log.event(batterySag.event());
+                }
+            }
         }
         log.commit();
     }

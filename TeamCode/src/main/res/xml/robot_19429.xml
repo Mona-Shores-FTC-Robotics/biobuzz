@@ -102,8 +102,19 @@
                  the back of the turret that is over it when the turret is on its
                  mark. A REV digital sensor reports on its connector's second
                  channel, so channel 1. If Bench: Turret never sees the magnet,
-                 try port="0" (doc/robot-todo.md). -->
+                 try port="0" (doc/robot-todo.md). Optional
+                 (DeviceNames.TURRET_HOME_SWITCH): read only with
+                 TurretSubsystem.homeSwitch on, 19429's RobotDifferences line. -->
             <DigitalDevice name="turretHome" port="1" />
+
+            <!-- Beam breaks (BeamBreakSubsystem): bought, not fitted yet (22 Nov 2026).
+                 When one is wired to a digital channel (0-7), uncomment its line with
+                 that channel, and add its RobotDifferences line
+                 (BeamBreakSubsystem.throatFitted or laneFitted = true). Full TeamCode
+                 install, then Activate. doc/robot-todo.md has the bench checks.
+            <DigitalDevice name="throatBeam" port="N" />
+            <DigitalDevice name="laneBeam" port="N" />
+            -->
 
         </LynxModule>
 

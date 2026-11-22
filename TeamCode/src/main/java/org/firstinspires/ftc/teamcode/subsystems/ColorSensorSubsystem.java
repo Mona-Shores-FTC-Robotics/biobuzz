@@ -122,6 +122,23 @@ public class ColorSensorSubsystem implements Subsystem {
     public static double fullHoldS = 1.0;
 
     /**
+     * With the lane beam fitted ({@code BeamBreakSubsystem.laneFitted}), {@link #fullHoldS}'s place:
+     * the entrance hold that, with the beam broken for {@link #laneBeamHoldS}, is full. Shorter,
+     * because the beam rules out the false fulls the long hold was guarding against. 0.3 s: a piece
+     * passing the entrance is under the sensor a median 0.29 s (19429) to 0.42 s (20245), and a
+     * piece cannot pass the entrance once the beam's place ahead of it is filled, so the hold only
+     * has to outlast one reading's jitter. <b>Not measured on a beam</b>: bench it.
+     */
+    public static double fullHoldWithBeamS = 0.3;
+
+    /**
+     * How long the lane beam must have been broken for "full", seconds. 0.3: longer than a piece
+     * takes to pass it (120 to 250 ms at lane speed, #505), so it means a piece is sitting there:
+     * the lane packed up to the beam behind the gate.
+     */
+    public static double laneBeamHoldS = 0.3;
+
+    /**
      * Red NECTAR's hue range, degrees; it wraps through 0. Bench, 2 Nov 2026: 9° to 22°, saturation
      * 0.76. In the Belding matches it read mostly 10° to 24°, and 33° to 39° for a piece the lane
      * logged as red NECTAR (19429, the 16:39 playoff; a second run of 35° to 40° readings in its
@@ -203,6 +220,8 @@ public class ColorSensorSubsystem implements Subsystem {
     private final FeederSubsystem feeder;
     private final LaneTracker lane = new LaneTracker();
     private final LaneFull laneFull = new LaneFull();
+    /** The lane beam ({@code BeamBreakSubsystem.lane()}); null while none is fitted, and full is the colour sensor's alone. */
+    private BeamBreak laneBeam;
     private final NectarReject reject = new NectarReject();
     /** Our alliance, for which NECTAR to reject; UNKNOWN (never rejects) until {@link #alliance} is called. */
     private Alliance alliance = Alliance.UNKNOWN;
@@ -266,7 +285,8 @@ public class ColorSensorSubsystem implements Subsystem {
     public void update() {
         long now = System.nanoTime();
         lastUpdateNs = now;
-        boolean shot = launcher.shotJustDetected();
+        // A piece out of the lane: the throat beam's ball when one is fitted, else a counted dip.
+        boolean shot = launcher.launchedThisLoop();
         // A reject's hold-off stops everything, but the piece may roll back under the sensor:
         // keep the fast rate (5 Nov 2026, the slow rate missed one rolling back in).
         boolean canMove = pieceCanMove(intake.state(), intake.starsState(), intake.holdingForFull(),
@@ -306,13 +326,54 @@ public class ColorSensorSubsystem implements Subsystem {
             // Full is the sensor alone: a piece held under it for fullHoldS. With fullHoldS off
             // (NaN or negative), full is off.
             laneFull.step(now / 1_000_000L, alpha, intake.requested() == IntakeSubsystem.State.IN,
-                    presentAbove, leaveBelow, fullHoldS * 1000.0);
+                    presentAbove, leaveBelow, (laneBeam == null ? fullHoldS : fullHoldWithBeamS) * 1000.0);
         }
     }
 
-    /** The lane is full: a piece held under the sensor ({@link LaneFull}). As of the last reading. */
+    /**
+     * The lane is full: a piece held under the sensor ({@link LaneFull}), as of the last reading;
+     * with the lane beam fitted, and the beam broken for {@link #laneBeamHoldS} too
+     * ({@link #fullWithBeam}). The indicator's green, the intake's hold and the Autos'
+     * {@code IntakeFull} all read this.
+     */
     public boolean full() {
+        return fullWithBeam(laneFull.full(), laneBeam, laneBeamHoldS);
+    }
+
+    /** The colour sensor's own full, whatever the lane beam says: for the match log, to compare the two. */
+    public boolean colourFull() {
         return laneFull.full();
+    }
+
+    /**
+     * Full by the colour sensor and the lane beam together: with no beam ({@code null}), the colour
+     * sensor's alone; with one, both must agree, the beam broken for {@code beamHoldS} (NaN or
+     * negative: as 0, any break).
+     *
+     * <p>Why both (Fruitport, 21 Nov 2026, 15 match logs): the colour sensor read FULL 37 s a match
+     * on 19429 and 29 s on 20245. Judged by what the next feed fired, 20 s a match of 19429's (0.8 s
+     * of 20245's) was a piece held at the entrance with two or fewer ahead of it: the intake stopped
+     * with room for two. A beam where the third piece sits refuses every one of those; with three
+     * ahead the lane really is full. Pure, so a test can check it.
+     */
+    static boolean fullWithBeam(boolean colourFull, BeamBreak beam, double beamHoldS) {
+        if (!colourFull) return false;
+        if (beam == null) return true;
+        double holdMs = beamHoldS > 0 ? beamHoldS * 1000.0 : 0.0;
+        return beam.blocked() && beam.blockedForMs() >= holdMs;
+    }
+
+    /**
+     * Decide full with the lane beam from now on ({@code BeamBreakSubsystem.lane()}); null keeps the
+     * colour sensor alone. Wired once by {@code Robot}, which updates the beam before this subsystem.
+     */
+    public void laneBeam(BeamBreak beam) {
+        this.laneBeam = beam;
+    }
+
+    /** Whether full needs the lane beam to agree ({@link #laneBeam}). */
+    public boolean usesLaneBeam() {
+        return laneBeam != null;
     }
 
     /**
@@ -491,7 +552,8 @@ public class ColorSensorSubsystem implements Subsystem {
         display.status("Color sensor", allZero() ? Display.Level.WARN : Display.Level.OK,
                 allZero() ? "reads all zero: unplugged?" : summary());
         display.status("Lane", Display.Level.OK,
-                (laneFull.full() ? "FULL (a piece held under the sensor)"
+                (full() ? (laneBeam == null ? "FULL (a piece held under the sensor)" : "FULL (sensor and lane beam)")
+                        : laneFull.full() ? "room: a piece held at the entrance, lane beam clear"
                         : laneFull.present() ? String.format(Locale.US, "piece under the sensor, %.0f ms",
                                 laneFull.heldWhileIntakingMs())
                         : "room")

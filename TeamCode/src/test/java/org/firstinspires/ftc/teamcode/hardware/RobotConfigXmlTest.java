@@ -63,7 +63,7 @@ public class RobotConfigXmlTest {
     /** The SDK's element for a continuous-rotation servo ({@code BuiltInConfigurationType.CONTINUOUS_ROTATION_SERVO}). */
     private static final String CR_SERVO_TAG = "ContinuousRotationServo";
 
-    /** The SDK's element for a digital input ({@code BuiltInConfigurationType.DIGITAL_DEVICE}). */
+    /** The SDK's element for a digital channel ({@code BuiltInConfigurationType.DIGITAL_DEVICE}). */
     private static final String DIGITAL_TAG = "DigitalDevice";
 
     /**
@@ -139,6 +139,9 @@ public class RobotConfigXmlTest {
             for (DeviceNames.Device expected : identity.devices) {
                 known.add(expected.name);
             }
+            for (DeviceNames.Device optional : identity.optional) {
+                known.add(optional.name);
+            }
 
             Set<String> unknown = new TreeSet<>(devicesIn(file).keySet());
             unknown.removeAll(known);
@@ -149,6 +152,39 @@ public class RobotConfigXmlTest {
                         + " them. Last season shipped configs containing devices nothing used"
                         + " and code referring to devices no config declared, in both"
                         + " directions at once.");
+            }
+        }
+    }
+
+    /**
+     * An optional device ({@link RobotIdentity#optional}: the beam breaks, the turret home switch) may be left out, but one
+     * that is declared is the kind {@link DeviceNames} says: a beam break is a {@code <DigitalDevice>}.
+     */
+    @Test
+    public void everyDeclaredOptionalDeviceIsItsKind() {
+        for (File file : configFiles()) {
+            RobotIdentity identity = identityOf(file);
+            Map<String, Element> devices = devicesIn(file);
+            for (DeviceNames.Device optional : identity.optional) {
+                Element element = devices.get(optional.name);
+                if (element != null && kindOf(element) != optional.kind) {
+                    fail(file.getName() + " declares \"" + optional.name + "\" as <" + element.getTagName()
+                            + ">, which is a " + kindOf(element) + ", but DeviceNames says it is a "
+                            + optional.kind + ".");
+                }
+            }
+        }
+    }
+
+    /** No device is both required and optional on one robot: that would make "optional" meaningless. */
+    @Test
+    public void noDeviceIsBothRequiredAndOptional() {
+        for (RobotIdentity identity : RobotIdentity.values()) {
+            for (DeviceNames.Device optional : identity.optional) {
+                for (DeviceNames.Device required : identity.devices) {
+                    assertFalse(identity + " lists \"" + optional.name + "\" as required and optional",
+                            optional.name.equals(required.name));
+                }
             }
         }
     }

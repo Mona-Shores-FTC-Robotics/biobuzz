@@ -35,7 +35,7 @@ import java.util.Locale;
  *       {@code encoder turns} = {@code turnsPerTurretTurn} (2.75) and {@code angle} 360. Four times
  *       that, or a quarter: {@code countsPerEncoderTurn} is the other encoder's (8192 for a REV
  *       Through Bore, 2048 for a Cypher Max).</li>
- *   <li><b>The home switch</b> (19429: {@code DeviceNames.TURRET_HOME}, a REV Magnetic Limit
+ *   <li><b>The home switch</b> (either robot whose XML declares {@code DeviceNames.TURRET_HOME}, a REV Magnetic Limit
  *       Switch under a magnet on the back of the turret), in INIT, nothing powered. {@code home
  *       switch} reads MAGNET with the turret on its mark: if it never does, the switch is on the
  *       connector's other channel (the XML's {@code port}) or the magnet is too far from it. Zero

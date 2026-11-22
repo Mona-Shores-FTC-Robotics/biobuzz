@@ -523,11 +523,16 @@ absolute encoders on the ring, which would know the angle at power-on with no
 home mark, are parked on the branch `claude/great-pasteur-qhypqt`. Set the
 encoder's voltage switch to 3V3.
 
-**The home switch (19429).** A REV Magnetic Limit Switch on the chassis
+**The home switch.** A REV Magnetic Limit Switch on the chassis
 (`DeviceNames.TURRET_HOME`, a `<DigitalDevice>` in the Control Hub's digital
 connector 0-1, so `DeviceNames.Kind.DIGITAL`) sits under a magnet on the back of
-the turret, over it when the turret is on its mark; `TurretSubsystem.homeSwitch`
-is on for 19429 only. It does not replace the rules above, which assume the
+the turret, over it when the turret is on its mark. It is an optional device
+(`DeviceNames.TURRET_HOME_SWITCH`, the beam breaks' pattern): both robots' XML
+declare it (20245's port is the same as 19429's until it is checked), and
+`TurretSubsystem.homeSwitch`, off shared, is on for a robot by its
+`RobotDifferences` line once **Bench: Turret** has seen it read the magnet; on
+with no `turretHome` in the XML, the turret fails at init with what to add. It
+does not replace the rules above, which assume the
 mark; it checks and corrects them. A Hall switch is on across a band a few
 degrees wide, so one reading only says "near the mark": a *pass*, the turret
 entering the band on one side and leaving it on the other, still turning the
@@ -570,7 +575,11 @@ after it gives that pass's mark and a log line. PLAY, a hand zero or a dropped
 hold stops it. A TeleOp's INIT, which
 runs between AUTO and TELEOP, never moves the turret: there the drive team
 turns it by hand across the mark. With `homeSweep` off, an Auto's INIT only
-warns when the switch saw no magnet where it zeroed.
+warns when the switch saw no magnet where it zeroed. **`homeSweep` is off shared
+and on no robot yet** (22 Nov 2026): it has not run on a robot, so each robot's
+`RobotDifferences` line turns it on only once its bench checks in
+`doc/robot-todo.md` pass (both sides of the mark, the zero on the mark, the
+time).
 
 **The loop.** A continuous servo is sent a speed and has no feedback, so
 nothing holds the turret but the code: `TurretSubsystem.update()` reads the

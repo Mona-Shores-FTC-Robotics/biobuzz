@@ -7,6 +7,8 @@ sample above 1 V; TeleOp from the Driver Station's teleop.
 import re
 import statistics as st
 
+from . import logs
+
 r2 = lambda x: None if x is None else round(x, 2)
 
 OUTCOMES = {'let go': 'Let go at the spot', 'sticks moved': 'Sticks took over at the spot',
@@ -82,7 +84,7 @@ def build(by_team):
                 if e.startswith('launch spot: arrived'):
                     arrive.append(float(re.search(r'in ([\d.]+) s', e).group(1)))
                 if e.startswith('launch spot: gate open'):
-                    gate.append(float(re.search(r'\(([\d.]+) s after arriving', e).group(1)))
+                    gate.append(logs.gate_open_after_arriving(e))
                 mm = re.match(r'launch spot: (let go early|let go|sticks moved early|sticks moved|refused)', e)
                 if mm:
                     k = OUTCOMES[mm.group(1)]

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
+
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -54,7 +56,9 @@ import java.util.regex.Pattern;
  * goes wide, counted from 1 ({@code "misses preloads"} is volley 1). {@code "scenario": "best"} is the best case in one
  * switch ({@link BeldingCalibration#bestCase}, mentor, 19 Nov 2026): the calibration's HIVEs and TIP dwell, every FLOWER
  * pick and GARDEN gather four POLLEN on every robot, every shot in, every volley ending at its fourth shot; then each
- * failure is an entry of its own.
+ * failure is an entry of its own. {@code "throatBeam": true} runs our robot with the throat beam fitted
+ * ({@code BeamBreakSubsystem.throatFitted}): each volley ends at its last ball, 0.9 s after it when fewer than four
+ * went, with {@code LaunchCards.throatBackstopS} its backstop, and the Belding counter's missed 4th shots gone.
  * {@code timing} is the raw override for studies ({@link AutoStudyTest.PartnerTiming}: a start delay, a drive
  * speed, seconds per launch volley, seconds at a FLOWER; each optional, and each wins over what {@code lastShotS}
  * derives). An entry may name its own {@code seeds}; otherwise it runs
@@ -83,6 +87,7 @@ public class SimRunTest {
         out.put("designs", new ArrayList<>(AutoStudyTest.designs().keySet()));
         // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
         boolean beldingBefore = BeldingCalibration.on;
+        boolean throatBefore = BeamBreakSubsystem.throatFitted;
         double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
             Map<String, Object> request = request(dir);
@@ -97,6 +102,12 @@ public class SimRunTest {
                 out.put("scenario", "best");
             }
             BeldingCalibration.dwellOverride = dwell(request.get("tipDwellS"));
+            // "throatBeam": true: our robot with the throat beam fitted (BeamBreakSubsystem.throatFitted), its
+            // volleys ending at their last ball rather than the feed timer.
+            if (Boolean.TRUE.equals(request.get("throatBeam"))) {
+                BeamBreakSubsystem.throatFitted = true;
+                out.put("throatBeam", true);
+            }
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
                 out.put("calibration", "belding");
@@ -118,6 +129,7 @@ public class SimRunTest {
             BeldingCalibration.dwellOverride = null;
             BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.on = beldingBefore;
+            BeamBreakSubsystem.throatFitted = throatBefore;
             BeldingCalibration.bestCase = false;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);

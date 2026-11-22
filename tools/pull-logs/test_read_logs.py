@@ -240,5 +240,33 @@ class CellSettles(unittest.TestCase):
         self.assertEqual([], read_logs.cell_settles([(0.5, 50.0)], states))
 
 
+class Legs(unittest.TestCase):
+    """leg_rows: a trip between two spots, timed from the kit's own card events."""
+
+    def log(self):
+        t0 = 100.0
+        events = [(t0, 'PLAY: RED alliance'), (t0, 'auto: path to RIGHT_AUTO_HIVE'),
+                  (t0 + 1.0, 'auto: command LaunchAll'), (t0 + 3.0, 'auto: path BACKWARD to WALL_FLOWER_STAGING'),
+                  (t0 + 5.0, 'auto: command PickFlower'), (t0 + 8.0, 'auto: path to RIGHT_PARK')]
+        ts = [t0 + i * 0.1 for i in range(300)]
+        speed = [(t, 30.0 if t0 + 3.5 <= t <= t0 + 4.5 else 5.0) for t in ts]
+        heading = [(t, 90.0 + (min(max(t - t0 - 3.0, 0.0), 2.0) * 45.0)) for t in ts]  # 90 to 180 over the leg
+        return {'/Events': events, '/Drive/OdometrySpeedInPerSec': speed, '/Odometry/PedroInches/HeadingDeg': heading,
+                '/Drive/OdometryTurnRadPerSec': [(t, 0.5) for t in ts], '/Robot/BatteryVoltsSteady': [(t, 12.0) for t in ts]}
+
+    def test_each_drive_is_a_leg_from_the_last_spot_and_the_park_is_left_out(self):
+        rows = read_logs.leg_rows(self.log())
+        self.assertEqual([('start', 'RIGHT_AUTO_HIVE'), ('RIGHT_AUTO_HIVE', 'WALL_FLOWER_STAGING')],
+                         [(r['came_from'], r['to']) for r in rows])
+        back = rows[1]
+        self.assertAlmostEqual(2.0, back['s'], places=6)
+        self.assertEqual(30.0, back['peak_in_s'])
+        self.assertAlmostEqual(90.0, back['turned_deg'], delta=1.0)
+        self.assertAlmostEqual(12.0, back['volts'])
+
+    def test_a_log_with_no_auto_has_no_legs(self):
+        self.assertEqual([], read_logs.leg_rows({'/Events': [(1.0, 'OpMode init: Basic Drive')]}))
+
+
 if __name__ == '__main__':
     unittest.main()

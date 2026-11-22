@@ -49,7 +49,7 @@ import java.util.function.LongSupplier;
  *
  * <h2>The home switch</h2>
  *
- * <p>A robot with {@link #homeSwitch} (19429) has a REV Magnetic Limit Switch
+ * <p>A robot with {@link #homeSwitch} (19429 now, 20245 once its switch reads on the bench) has a REV Magnetic Limit Switch
  * ({@link DeviceNames#TURRET_HOME}) under a magnet on the back of the turret, over it when the
  * turret is on its mark. Each pass of the turret across it puts the zero on the mark
  * ({@link TurretHomeSwitch}, {@link TurretZeroPolicy#atSwitchPass}), in INIT too, so a turret turned
@@ -57,7 +57,8 @@ import java.util.function.LongSupplier;
  * swings through straight ahead. Reading it moves nothing. A zero set by hand wins. An
  * Autonomous's INIT, and only that, also turns the turret up to a full turn to find the switch, then
  * past it and back across it slowly both ways, and zeroes on the average of the two slow passes
- * ({@link #homeSweep}, {@link TurretHomeSweep}); then it holds its home angle.
+ * ({@link #homeSweep}, {@link TurretHomeSweep}, off on both robots until its bench check passes);
+ * then it holds its home angle.
  *
  * <p>The values below are both robots'. One that a robot measures differently is a line in
  * {@link org.firstinspires.ftc.teamcode.RobotDifferences}, not a second field here.
@@ -201,8 +202,11 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * This turret has a home switch, {@link DeviceNames#TURRET_HOME}: a REV Magnetic Limit Switch on
-     * a digital port, and a magnet on the back of the turret over it on the mark. False shared; 19429
-     * has one (its line in {@link org.firstinspires.ftc.teamcode.RobotDifferences}).
+     * a digital port, and a magnet on the back of the turret over it on the mark. An optional device
+     * ({@link DeviceNames#TURRET_HOME_SWITCH}): false shared, and a robot's
+     * {@link org.firstinspires.ftc.teamcode.RobotDifferences} line turns it on once its XML declares
+     * the switch and {@code Bench: Turret} has seen it read the magnet. On, it re-zeroes on each
+     * slow pass across the magnet; reading it moves nothing. It does not sweep: {@link #homeSweep}.
      */
     public static boolean homeSwitch = false;
 
@@ -235,8 +239,10 @@ public class TurretSubsystem implements Subsystem {
      * An Autonomous's INIT sweeps the turret to find its mark ({@link TurretHomeSweep}), on a turret
      * with a {@link #homeSwitch}: R103.B lets an Auto's INIT move it (mentor, 21 Nov 2026). Never a
      * TeleOp's INIT. Off, an Auto's INIT zeroes where the turret stands, as without a switch.
+     * <b>Off shared until a robot's sweep has passed its bench check</b> (doc/robot-todo.md): then
+     * that robot's {@link org.firstinspires.ftc.teamcode.RobotDifferences} line turns it on.
      */
-    public static boolean homeSweep = true;
+    public static boolean homeSweep = false;
 
     /** How far the sweep's search turns the turret, counter-clockwise, degrees: a full turn and a band. */
     public static double homeSweepRangeDeg = 370.0;
@@ -351,16 +357,28 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * Looks the devices up once: the encoder host, the servo, and on a robot with {@link #homeSwitch}
-     * the switch. A missing one fails init with the SDK's own message.
+     * the switch. A missing one fails init: the SDK's own message, or for the switch, what to add.
      */
     public TurretSubsystem(HardwareMap hardwareMap) {
         encoderHost = hardwareMap.get(DcMotorEx.class, DeviceNames.TURRET_ENCODER_HOST);
         servo = hardwareMap.get(CRServo.class, DeviceNames.TURRET);
         pwm = servo instanceof PwmControl ? (PwmControl) servo : null;
-        homeInput = homeSwitch ? hardwareMap.get(DigitalChannel.class, DeviceNames.TURRET_HOME) : null;
+        homeInput = homeSwitch ? lookUpHomeSwitch(hardwareMap) : null;
         if (homeInput != null) {
             homeInput.setMode(DigitalChannel.Mode.INPUT);
         }
+    }
+
+    /** The home switch, which {@link #homeSwitch} says this robot has: fails with what to add if the XML lacks it. */
+    private static DigitalChannel lookUpHomeSwitch(HardwareMap hardwareMap) {
+        DigitalChannel channel = hardwareMap.tryGet(DigitalChannel.class, DeviceNames.TURRET_HOME);
+        if (channel == null) {
+            throw new IllegalStateException("TurretSubsystem.homeSwitch is on, but the active configuration"
+                    + " has no DigitalDevice \"" + DeviceNames.TURRET_HOME + "\". Add <DigitalDevice name=\""
+                    + DeviceNames.TURRET_HOME + "\" port=\"N\" /> to the robot's XML (full TeamCode install,"
+                    + " Activate), or turn the switch off in RobotDifferences.");
+        }
+        return channel;
     }
 
     // ------------------------------------------------------------ requests

@@ -38,11 +38,11 @@ import java.util.List;
  */
 public enum RobotIdentity {
 
-    TEAM_19429("robot_19429", DeviceNames.ROBOT_19429),
-    TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT),
+    TEAM_19429("robot_19429", DeviceNames.ROBOT_19429, DeviceNames.COMPETITION_OPTIONAL),
+    TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT, DeviceNames.COMPETITION_OPTIONAL),
 
     /** The BIOBUZZ launcher on a spare Control Hub: two flywheels and the feeder, the robots' motor numbers (#80). */
-    LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH);
+    LAUNCHER_BENCH("robot_launcher_bench", DeviceNames.LAUNCHER_BENCH, java.util.Collections.<DeviceNames.Device>emptyList());
 
     /**
      * The bundled configuration's name, which is also its resource entry name,
@@ -61,14 +61,22 @@ public enum RobotIdentity {
 
     /**
      * Every device this configuration must declare, and may declare nothing
-     * beyond. {@code RobotConfigXmlTest} holds the XML to it; {@code
+     * beyond but its {@link #optional} ones. {@code RobotConfigXmlTest} holds the XML to it; {@code
      * ValidateHardware} holds the live hardware to it.
      */
     public final List<DeviceNames.Device> devices;
 
-    RobotIdentity(String configName, List<DeviceNames.Device> devices) {
+    /**
+     * Devices this configuration may declare or leave out ({@link DeviceNames#COMPETITION_OPTIONAL}): a
+     * part bought and not yet fitted. The code asks for one only once its subsystem's switch says
+     * the robot has it. {@code RobotConfigXmlTest} checks the kind of any that is declared.
+     */
+    public final List<DeviceNames.Device> optional;
+
+    RobotIdentity(String configName, List<DeviceNames.Device> devices, List<DeviceNames.Device> optional) {
         this.configName = configName;
         this.devices = devices;
+        this.optional = optional;
     }
 
     /**

@@ -57,6 +57,7 @@ public class LaunchCardsTest {
         PathEndSettle.maxSettleWaitS = 1.0;
         LaunchCards.maxSpinUpWaitS = 2.5;
         LaunchCards.launchAllFeedS = 2.0;
+        LaunchCards.firstLaunchAllFeedS = 2.0;
         LaunchCards.launchOneFeedS = 0.5;
         cards = new LaunchCards(
                 new LaunchCards.Launcher() {
@@ -244,6 +245,7 @@ public class LaunchCardsTest {
     public void launchAllEndsItsFeedAtTheFourthCountedShot() {
         atSpeed = true;
         LaunchCards.launchAllFeedS = 3.5;
+        LaunchCards.firstLaunchAllFeedS = 3.5;
         shots = 7;                               // shots from earlier volleys do not count
         Command launch = cards.launchAll();
         launch.schedule();
@@ -266,6 +268,7 @@ public class LaunchCardsTest {
     public void aShortCountFeedsForTheWholeSetTime() {
         atSpeed = true;
         LaunchCards.launchAllFeedS = 3.5;
+        LaunchCards.firstLaunchAllFeedS = 3.5;
         shots = 0;
         Command launch = cards.launchAll();
         launch.schedule();
@@ -277,6 +280,45 @@ public class LaunchCardsTest {
         finish(launch, 2.0);
         assertEquals("a count too low costs nothing: the set time", 3.5, timeOf(first("idle")) - fed, LOOP_S + EPS);
         assertFalse(notes.toString(), notes.get(notes.size() - 1).contains("last counted shot"));
+        assertTrue("a timer end says so, for the feeder sensor's case: " + notes,
+                notes.get(notes.size() - 1).contains("ended at its 3.5 s timer"));
+    }
+
+    /** 22 Nov 2026: the first volley (the preloads, wheels from rest) feeds longer than the ones after it. */
+    @Test
+    public void theFirstVolleyFeedsForItsOwnTimeAndLaterOnesForTheShorterOne() {
+        atSpeed = true;
+        shots = -1;
+        LaunchCards.firstLaunchAllFeedS = 2.8;
+        LaunchCards.launchAllFeedS = 2.4;
+        run(cards.launchAll(), 5.0);
+        double firstFed = timeOf(first("feed"));
+        double firstIdle = timeOf(first("idle"));
+        assertEquals("the first volley: firstLaunchAllFeedS", 2.8, firstIdle - firstFed, LOOP_S + EPS);
+
+        log.clear();
+        run(cards.launchAll(), 5.0);
+        assertEquals("a later volley: launchAllFeedS", 2.4, timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+
+        log.clear();
+        run(cards.launchOne(), 5.0);
+        assertEquals("LaunchOne keeps its own time and is not a volley", 0.5,
+                timeOf(first("idle")) - timeOf(first("feed")), LOOP_S + EPS);
+    }
+
+    /** A gate the approach opens for the first volley is the first volley: it gets the first's time. */
+    @Test
+    public void aFirstVolleyOpenedOnTheApproachKeepsTheFirstTime() {
+        atSpeed = true;
+        shots = -1;
+        readyOnApproach = true;
+        LaunchCards.firstLaunchAllFeedS = 2.8;
+        LaunchCards.launchAllFeedS = 2.4;
+        cards.approach().started(new Pose(0, 0, 0));
+        cards.approach().approaching(new Pose(0, 0, 0), 1.0);
+        double fed = timeOf(first("feed"));
+        run(cards.launchAll(), 5.0);
+        assertEquals(2.8, timeOf(first("idle")) - fed, LOOP_S + EPS);
     }
 
     @Test
@@ -393,9 +435,11 @@ public class LaunchCardsTest {
     public void aBadFeedTimeMakesAShortFeedNotAStuckCard() {
         atSpeed = true;
         LaunchCards.launchAllFeedS = Double.NaN;
+        LaunchCards.firstLaunchAllFeedS = Double.NaN;
         run(cards.launchAll(), 1.0);
         assertTrue(first("feed") != null && first("idle") != null);
         LaunchCards.launchAllFeedS = -3.0;
+        LaunchCards.firstLaunchAllFeedS = -3.0;
         run(cards.launchAll(), 1.0);
         assertEquals(2, cards.launchAllsCompleted());
     }
@@ -444,6 +488,7 @@ public class LaunchCardsTest {
         atSpeed = true;
         readyOnApproach = true;
         LaunchCards.launchAllFeedS = 3.5;
+        LaunchCards.firstLaunchAllFeedS = 3.5;
         shots = 2;                               // from the volley before
         approach(cards.approach(), 15);          // gate opens at 0, the drive runs to 0.3 s
         shots += 2;                              // two leave before the path ends

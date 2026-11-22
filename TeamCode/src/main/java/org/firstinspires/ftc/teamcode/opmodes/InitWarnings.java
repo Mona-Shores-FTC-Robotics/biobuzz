@@ -32,7 +32,7 @@ public final class InitWarnings {
         WRONG_START,
         OFF_MARK,
         /**
-         * The turret's home switch ({@code TurretSubsystem.homeSwitch}, 19429) did not find the mark:
+         * The turret's home switch ({@code TurretSubsystem.homeSwitch}, on per robot) did not find the mark:
          * an Auto's INIT sweep did not see the magnet (the turret is zeroed where it stood), or a TeleOp
          * will zero it at PLAY with no magnet there. Shown in a TeleOp's INIT too.
          */

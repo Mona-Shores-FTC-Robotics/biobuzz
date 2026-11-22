@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -112,6 +113,7 @@ public class TurretHomeSwitchTest {
     private double savedOffset;
     private double savedMax;
     private boolean savedLocked;
+    private boolean savedSweep;
 
     @Before
     public void saveStatics() {
@@ -120,7 +122,10 @@ public class TurretHomeSwitchTest {
         savedOffset = TurretSubsystem.homeSwitchOffsetDeg;
         savedMax = TurretSubsystem.homeSwitchMaxCorrectionDeg;
         savedLocked = TurretSubsystem.lockedForward;
+        savedSweep = TurretSubsystem.homeSweep;
         TurretSubsystem.lockedForward = false;
+        // Off shared until a robot's bench check passes; these tests are of the sweep itself.
+        TurretSubsystem.homeSweep = true;
         TurretSubsystem.homeSwitch = true;
         TurretSubsystem.direction = 1;
         TurretSubsystem.homeSwitchOffsetDeg = 0.0;
@@ -134,6 +139,7 @@ public class TurretHomeSwitchTest {
         TurretSubsystem.homeSwitchOffsetDeg = savedOffset;
         TurretSubsystem.homeSwitchMaxCorrectionDeg = savedMax;
         TurretSubsystem.lockedForward = savedLocked;
+        TurretSubsystem.homeSweep = savedSweep;
     }
 
     @Test
@@ -320,6 +326,36 @@ public class TurretHomeSwitchTest {
     }
 
     @Test
+    public void theSweepAndTheSwitchAreOffSharedUntilARobotTurnsThemOn() {
+        // A fresh JVM's values, read from the source of truth, not this class's @Before.
+        assertFalse("homeSweep is turned on per robot by a RobotDifferences line once its bench check passes",
+                savedSweep);
+        assertFalse("homeSwitch is an optional device, turned on per robot", savedSwitch);
+    }
+
+    @Test
+    public void aSwitchTurnedOnThatTheConfigLacksFailsWithWhatToAdd() {
+        HardwareMap map = new HardwareMap(null, null) {
+            @Override
+            public <T> T get(Class<? extends T> type, String name) {
+                if (DeviceNames.TURRET_HOME.equals(name)) throw new IllegalArgumentException("no " + name);
+                return type.cast(Rig.proxy(type, (m, args) -> m.equals("getVelocity") ? 0.0 : null));
+            }
+
+            @Override
+            public <T> T tryGet(Class<? extends T> type, String name) {
+                return DeviceNames.TURRET_HOME.equals(name) ? null : get(type, name);
+            }
+        };
+        try {
+            new TurretSubsystem(map);
+            fail("a robot with homeSwitch on and no turretHome in its XML must not start");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage(), expected.getMessage().contains("<DigitalDevice name=\"turretHome\""));
+        }
+    }
+
+    @Test
     public void withTheSweepOffAnAutosInitOnlyChecksTheSwitch() {
         boolean was = TurretSubsystem.homeSweep;
         try {
@@ -426,6 +462,11 @@ public class TurretHomeSwitchTest {
             HardwareMap map = new HardwareMap(null, null) {
                 @Override
                 public <T> T get(Class<? extends T> type, String name) {
+                    return type.cast(fakes.get(name));
+                }
+
+                @Override
+                public <T> T tryGet(Class<? extends T> type, String name) {
                     return type.cast(fakes.get(name));
                 }
             };

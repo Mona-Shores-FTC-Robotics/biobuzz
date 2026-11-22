@@ -90,7 +90,7 @@ public final class FlowerVolley {
     public static double loadShots = 4;
     /**
      * Fire the load, keep the FLOWER's: the feed ends this long after the gate opened whatever was
-     * counted, seconds. {@code LaunchCards.launchAllFeedS}' 3.5, for the same four balls.
+     * counted, seconds. {@code LaunchCards.launchAllFeedS}' old 3.5 (an Auto's is 2.4 since 22 Nov 2026), for the same four balls.
      */
     public static double loadFeedCapS = 3.5;
     /**
@@ -241,7 +241,7 @@ public final class FlowerVolley {
             if (gateMayOpen(atSpeed, aimed, ms(now, armedNs), nn(gateWaitMs))) {
                 fedNs = now;
                 lastShotNs = now;
-                shotsAtFeed = robot.launcher.shots();
+                shotsAtFeed = robot.launcher.launched();
                 aimErrorAtGateDeg = error;
                 robot.feeder.feed();
                 event.accept(String.format(Locale.US, "FLOWER volley: gate open in %s%s, aim error %+.1f°, launcher %s",
@@ -250,7 +250,7 @@ public final class FlowerVolley {
             }
         }
         if (fedNs != 0 && !gateClosed) {
-            int shots = robot.launcher.shots() - shotsAtFeed;
+            int shots = robot.launcher.launched() - shotsAtFeed;
             if (shots > shotsSeen) {
                 for (int i = shotsSeen; i < shots && i < MAX_SHOTS_LOGGED; i++) shotAtS[i] = ms(now, fedNs) / 1000.0;
                 shotsSeen = shots;

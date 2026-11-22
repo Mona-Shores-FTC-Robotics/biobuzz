@@ -6,14 +6,17 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.RobotDifferences;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,13 +55,27 @@ public class ValidateHardware extends LinearOpMode {
         List<String> problems = new ArrayList<>();
 
         RobotIdentity identity = reportActiveConfig(problems);
+        // The optional devices' switches are RobotDifferences lines: apply them, so the optional
+        // devices below are judged against this robot's switches.
+        if (identity != null) {
+            try {
+                RobotDifferences.applyForActiveRobot();
+            } catch (RuntimeException e) {
+                problems.add("robot differences not applied: " + e.getMessage());
+            }
+        }
         // An unrecognised config is already a problem; checking it against every
         // name the code knows still says which devices are there.
-        List<DeviceNames.Device> expected = identity == null ? DeviceNames.ALL : identity.devices;
+        List<DeviceNames.Device> expected = identity == null ? requiredSomewhere() : identity.devices;
+        List<DeviceNames.Device> optional = identity == null ? DeviceNames.COMPETITION_OPTIONAL : identity.optional;
         line("");
         reportExpectedDevices(expected, problems);
         line("");
-        reportUnexpectedDevices(expected);
+        reportOptionalDevices(optional, problems);
+        line("");
+        List<DeviceNames.Device> known = new ArrayList<>(expected);
+        known.addAll(optional);
+        reportUnexpectedDevices(known);
         line("");
 
         if (problems.isEmpty()) {
@@ -188,6 +205,71 @@ public class ValidateHardware extends LinearOpMode {
                 data(expected.name, "ok - " + actualType);
             }
         }
+    }
+
+    /** Every name the code knows, less the ones no robot is required to have. */
+    private static List<DeviceNames.Device> requiredSomewhere() {
+        List<DeviceNames.Device> list = new ArrayList<>(DeviceNames.ALL);
+        list.removeAll(DeviceNames.COMPETITION_OPTIONAL);
+        return list;
+    }
+
+    /**
+     * Devices the robot may have (the beam breaks and the turret's home switch,
+     * {@link RobotIdentity#optional}): each one's
+     * configured state beside its switch. A switch on with no device is a problem (the OpModes
+     * will refuse to start); a device configured with its switch off is only a reminder.
+     */
+    private void reportOptionalDevices(List<DeviceNames.Device> devices, List<String> problems) {
+        line("=== Optional devices ===");
+        if (devices.isEmpty()) {
+            line("  (none)");
+            return;
+        }
+        for (DeviceNames.Device optional : devices) {
+            HardwareDevice found = hardwareMap.tryGet(HardwareDevice.class, optional.name);
+            boolean on = fitted(optional.name);
+            String switchLine = switchName(optional.name) + (on ? " on" : " off");
+            if (found == null) {
+                data(optional.name, "not configured (" + switchLine + ")");
+                if (on) problems.add(optional.name + ": " + switchLine + " but the active configuration has no "
+                        + optional.name + ". Add it to the robot's XML, or turn the switch off.");
+                continue;
+            }
+            Class<?> required = requiredClassFor(optional.kind);
+            if (required != null && !required.isInstance(found)) {
+                data(optional.name, "WRONG TYPE - is " + found.getClass().getSimpleName() + ", needs "
+                        + required.getSimpleName());
+                problems.add(optional.name + " is configured as " + found.getClass().getSimpleName()
+                        + " but the code uses it as a " + required.getSimpleName() + ".");
+            } else {
+                String state = found instanceof DigitalChannel
+                        ? digitalState(optional.name, ((DigitalChannel) found).getState())
+                        : "";
+                data(optional.name, "ok - " + found.getClass().getSimpleName() + state + ", " + switchLine
+                        + (on ? "" : ": add its RobotDifferences line to use it"));
+            }
+        }
+    }
+
+    /** Whether the optional device {@code name} has its switch on. */
+    private static boolean fitted(String name) {
+        if (DeviceNames.TURRET_HOME.equals(name)) return TurretSubsystem.homeSwitch;
+        return BeamBreakSubsystem.fitted(name);
+    }
+
+    /** The switch that turns the optional device {@code name} on. */
+    private static String switchName(String name) {
+        if (DeviceNames.TURRET_HOME.equals(name)) return "TurretSubsystem.homeSwitch";
+        return BeamBreakSubsystem.switchName(name);
+    }
+
+    /** What an optional digital device's reading means. Both read low when they see something. */
+    private static String digitalState(String name, boolean high) {
+        if (DeviceNames.TURRET_HOME.equals(name)) {
+            return high ? " (reads HIGH: no magnet)" : " (reads LOW: magnet, the turret on its mark)";
+        }
+        return high ? " (reads HIGH: beam clear)" : " (reads LOW: beam broken)";
     }
 
     /**

@@ -7,10 +7,10 @@ import collections
 import re
 import statistics as st
 
-from .volleys import md, nn, downs, SQUARE, CIRCLE
+from .volleys import md, nn, downs, driver_fires, fire_pad, SQUARE, CIRCLE
 from .shots import old_shots
 
-NAMES = {'Square': 'Auto-drive', 'FIRE': 'Operator FIRE'}
+NAMES = {'Square': 'Auto-drive', 'FIRE': 'Operator FIRE'}  # the data's names; the page shows FIRE as Manual (a Circle press)
 
 
 def cycle_sets(V, team):
@@ -45,6 +45,7 @@ def cycles(V, teams):
             k = collections.Counter(v['kind'] for v in sub)
             summ.append(dict(robot=t, group=g, cycles=len(sub), cycle_median_s=md([v['cycle'] for v in sub]),
                              balls_per_volley=round(st.mean(v['balls'] for v in sub), 1) if sub else None,
+                             balls_per_s=round(sum(v['balls'] for v in sub) / sum(v['cycle'] for v in sub), 2) if sub else None,
                              share=round(len(sub) / len(c), 2) if c else None,
                              lost_4th_by_shot=sum(1 for v in sub if not v['present_at_press']) if full else None,
                              auto_drive=k.get('Square', 0), fire=k.get('FIRE', 0)))
@@ -137,10 +138,10 @@ def feed(ms_by_team, V, cfg):
 
 
 def fire_presses(m):
-    """Operator Circle (FIRE) holds of 0.5 s or more in TeleOp, with the launcher's state
+    """Manual Circle holds (fire_pad: the driver's, or Belding's operator's) of 0.5 s or more in TeleOp, with the launcher's state
     (archive/belding-scripts/ctl/fire2.py, classified as in the Belding cycle sheet)."""
     te, end = m.tele_start, m['/Robot/BatteryVolts'].t[-1]
-    g2 = m['/DriverStation/Joystick1/ButtonValues']
+    g2 = m[fire_pad(m)]
     g1, gate, tgt, ats, lane = (m[k] for k in ('/DriverStation/Joystick0/ButtonValues', '/FeedGate/Feeding',
                                                 '/Launcher/TargetTicksPerSecond', '/Launcher/AtSpeed', '/Lane/Count'))
     sh = m['/Launcher/Shots']
@@ -213,7 +214,7 @@ def launch(ms_by_team, V, spot):
                 pre.setdefault((team, v['kind']), []).append(at)
                 if v['kind'] == 'Square':
                     sq_gate[at].append(v['first'] - v['feed'] - v['press'])
-                else:
+                elif not driver_fires(m):
                     g = v['first'] - v['feed'] + te
                     aimed = any((int(g1.at(g + dt / 10) or 0) >> CIRCLE) & 1 for dt in range(-15, int(v['feed'] * 10) + 1))
                     pre.setdefault((team, 'aim'), []).append(aimed)
@@ -239,7 +240,7 @@ def launch(ms_by_team, V, spot):
                 r['presses_launched_of'] = '%d of %d' % (spot[team]['launched'], spot[team]['presses'])
             else:
                 aim = pre.get((team, 'aim'), [])
-                r['driver_aim_of'] = '%d of %d' % (sum(aim), len(aim))
+                r['driver_aim_of'] = '%d of %d' % (sum(aim), len(aim)) if aim else None
             lm.append(r)
     lm.sort(key=lambda r: (-int(r['robot']), r['method']))
     return {'launch_volleys': lv, 'launch_methods': lm}

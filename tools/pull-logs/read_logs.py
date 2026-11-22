@@ -21,6 +21,9 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py steps LOG.wpilog [...]     every Auto card, the same table for every Auto:
                                                                    start, length, pieces held, and for a volley
                                                                    the gate wait, gate to last ball and balls
+  python3 tools/pull-logs/read_logs.py legs LOG.wpilog [...]      every Auto drive between two spots, grouped by
+                                                                   trip: count, seconds (median, best, worst), peak
+                                                                   speed and turn rate, heading turned
   python3 tools/pull-logs/read_logs.py cells LOG.wpilog [...]     every CELL that settled the other way: when its
                                                                    tag row was first seen and first moved before
                                                                    the settle, and the robot's speed meanwhile
@@ -107,7 +110,7 @@ KNOBS = ['LauncherSubsystem.targetTicksPerSecond', 'FeederSubsystem.feedPower', 
          'FeederSubsystem.reversePower', 'LaunchCards.launchAllFeedS', 'PrefeedSubsystem.inPower',
          'PrefeedSubsystem.gateClearSeconds', 'PrefeedSubsystem.gateClearPower', 'LauncherSubsystem.leftReversed',
          'LauncherSubsystem.rightReversed', 'LauncherSubsystem.toleranceTicksPerSecond']
-EVENT_WORDS = ['battery', 'launch', 'fed', 'fault', 'play', 'stall', 'never moved', 'auto:', 'timed out']
+EVENT_WORDS = ['battery', 'launch', 'fed', 'fault', 'play', 'stall', 'stuck', 'never moved', 'auto:', 'timed out']
 
 
 def summary(path):
@@ -916,6 +919,68 @@ def hold(paths):
                len(c), 100 * sum(1 for _, r in c if r) / len(c) if c else 0.0))
 
 
+def _leg_to(card):
+    """The spot a path card drives to, from its name ("BACKWARD to LEFT_AUTO_HIVE" -> LEFT_AUTO_HIVE), or None."""
+    m = re.search(r'\bto (\S+)\s*$', card)
+    return m.group(1) if m else None
+
+
+def leg_rows(d):
+    """One row per path card of a log's Autonomous, the last (which runs to 30 s) left out: the spot it
+    left from (the previous path's end, 'start' for the first), the spot it drove to, its seconds, its
+    peak speed (in/s), its peak turn rate (deg/s), the heading it turned through (deg) and the steady
+    battery meanwhile (V). A leg is the trip between two spots, whatever Auto drove it."""
+    cards, t0 = _auto_steps(d)
+    paths = [c for c in cards if c[0] == 'path']
+    if not paths:
+        return []
+    speed =[(t - t0, v) for t, v in d.get('/Drive/OdometrySpeedInPerSec', []) if v == v]
+    turn = [(t - t0, abs(math.degrees(v))) for t, v in d.get('/Drive/OdometryTurnRadPerSec', []) if v == v]
+    heading = [(t - t0, v) for t, v in d.get('/Odometry/PedroInches/HeadingDeg', [])]
+    battery = [(t - t0, v) for t, v in d.get('/Robot/BatteryVoltsSteady', [])]
+    rows, came_from = [], 'start'
+    for kind, name, a, b in paths:
+        to = _leg_to(name) or name
+        if (kind, name, a, b) != cards[-1]:
+            during = lambda series: [v for t, v in series if a <= t <= b]
+            hs = during(heading)
+            turned = sum(abs((y - x + 180) % 360 - 180) for x, y in zip(hs, hs[1:])) if len(hs) > 1 else float('nan')
+            volts = during(battery)
+            rows.append(dict(came_from=came_from, to=to, card=name, s=b - a,
+                             peak_in_s=max(during(speed), default=float('nan')),
+                             peak_deg_s=max(during(turn), default=float('nan')),
+                             turned_deg=turned,
+                             volts=sum(volts) / len(volts) if volts else float('nan')))
+        came_from = to
+    return rows
+
+
+def legs(paths):
+    """Every Auto drive between two spots across the logs given, grouped by Auto as saved and by trip
+    (from -> to): how many, the seconds (median, fastest, slowest), the median peak speed, turn rate,
+    heading turned and steady battery. Grouping by the saved Auto keeps one trip drawn two ways apart
+    (R-Solo's WALL FLOWER leg turned 270 degrees the long way until 19 Nov and 88 degrees after).
+    The leg library's times come from here (from 22 Nov 2026)."""
+    by = {}
+    for path in paths:
+        try:
+            d = read(path)
+        except (OSError, ValueError, EOFError):
+            continue
+        # Grouped by the Auto as saved too ("R-Solo 11-19|10:35PM"): one trip drawn two ways is two legs.
+        auto = str((d.get('/RealMetadata/OpMode') or [(0, '?')])[0][1])
+        for r in leg_rows(d):
+            by.setdefault((auto, r['came_from'], r['to']), []).append(r)
+    print('%-24s %-22s %-22s %3s  %6s %6s %6s  %5s %6s %6s %5s' % (
+        'auto', 'from', 'to', 'n', 'median', 'best', 'worst', 'in/s', 'deg/s', 'turned', 'volts'))
+    med = lambda xs: sorted(xs)[len(xs) // 2] if xs else float('nan')
+    for (auto, a, b), rs in sorted(by.items(), key=lambda kv: (kv[0][0], -len(kv[1]), kv[0])):
+        ss = [r['s'] for r in rs]
+        print('%-24s %-22s %-22s %3d  %6.2f %6.2f %6.2f  %5.0f %6.0f %6.0f %5.1f' % (
+            auto[:24], a[:22], b[:22], len(rs), med(ss), min(ss), max(ss), med([r['peak_in_s'] for r in rs]),
+            med([r['peak_deg_s'] for r in rs]), med([r['turned_deg'] for r in rs]), med([r['volts'] for r in rs])))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -935,6 +1000,8 @@ def main(argv):
         volleys(argv[2:])
     elif cmd == 'steps':
         steps(argv[2:])
+    elif cmd == 'legs':
+        legs(argv[2:])
     elif cmd == 'cells':
         cells(argv[2:])
     elif cmd == 'dsbattery':

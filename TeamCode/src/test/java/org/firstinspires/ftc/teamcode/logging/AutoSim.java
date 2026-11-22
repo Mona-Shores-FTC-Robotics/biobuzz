@@ -10,6 +10,7 @@ import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
@@ -1385,6 +1386,10 @@ public final class AutoSim {
         double crossedAt = Double.NaN;
         boolean crossArrivedReported;
         int shotsFired;
+        /** When this robot's last ball left, s; NaN before the first. The throat beam's quiet gap counts from it. */
+        double lastShotFiredAt = Double.NaN;
+        /** {@link #shotsFired} when the active fire step began. */
+        int shotsAtStep;
         int shotTarget;
         double nextShotAt;
 
@@ -1652,6 +1657,7 @@ public final class AutoSim {
                     pending.add("misses volley " + missesVolley + ": this volley goes wide (forced fallback)");
                 }
                 shotsFired++;
+                lastShotFiredAt = now;
                 lastArc = FieldSim.arc(from, v, aim[2] - 4, 30);
                 log.putEvent((index == 0 ? "" : "robot " + (index + 1) + " ") + "launcher: shot "
                         + new String[] {"left", "center", "right"}[lane], us);
@@ -2348,13 +2354,34 @@ public final class AutoSim {
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
         private int launchAllsStarted;
 
+        /** LaunchAll feeds this robot has started: the first takes {@code LaunchCards.firstLaunchAllFeedS}. */
+        private int launchAllFeeds;
+
         /**
-         * A LaunchAll's set feed time: the robot's {@code LaunchCards.launchAllFeedS}, or
-         * {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
+         * A LaunchAll's set feed time: the robot's {@code LaunchCards.firstLaunchAllFeedS} for its first
+         * volley and {@code LaunchCards.launchAllFeedS} after, or {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for
+         * every volley, for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
          */
-        private double launchAllFeedS() {
+        private double launchAllFeedS(boolean first) {
             String v = System.getenv("BIOBUZZ_SIM_LAUNCH_ALL_FEED_S");
-            return v == null || v.isEmpty() ? LaunchCards.launchAllFeedS : Double.parseDouble(v);
+            if (v != null && !v.isEmpty()) return Double.parseDouble(v);
+            // The throat beam ends a volley at its last ball, so the set time is only its backstop.
+            if (BeamBreakSubsystem.throatFitted) return LaunchCards.throatBackstopS;
+            return first ? LaunchCards.firstLaunchAllFeedS : LaunchCards.launchAllFeedS;
+        }
+
+        /**
+         * Whether a fire step with nothing left to fire is over. Without the throat beam the robot has
+         * no way to know it is empty, and the simulator lets it stop at once (its shot counter ending
+         * the feed, as {@code LaunchCards} does at its 4th shot). With the beam
+         * ({@code BeamBreakSubsystem.throatFitted}) the robot sees the lane run dry the way
+         * {@code FeedWatch} does: {@code BeamBreakSubsystem.quietS} after the last ball, or
+         * {@code firstBallWithinS} after the gate with no ball at all.
+         */
+        private boolean emptyStepOver() {
+            if (!BeamBreakSubsystem.throatFitted || Double.isNaN(activeFeedAt)) return true;
+            if (shotsFired == shotsAtStep) return now - activeFeedAt >= BeamBreakSubsystem.firstBallWithinS;
+            return now - lastShotFiredAt >= BeamBreakSubsystem.quietS;
         }
 
         private Command launch(int count) {
@@ -2362,19 +2389,22 @@ public final class AutoSim {
                     .setStart(() -> {
                         wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
                         if (count == Integer.MAX_VALUE) volleysStarted++;
-                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE && launchAllsStarted++ > 0;
+                        // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
+                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE
+                                && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted;
+                        shotsAtStep = shotsFired;
                         spinUp();
                         fireStepBegins();
                         firing = true;
                         activeFeedAt = Double.NaN;
-                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS() : LaunchCards.launchOneFeedS;
+                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
                                 ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
                                     ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
                                 : shotsFired + count;
                     })
-                    .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE) || shotsFired >= shotTarget
+                    .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE && emptyStepOver()) || shotsFired >= shotTarget
                             || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> firing = false);

@@ -10,6 +10,9 @@ import com.pedropathing.math.Pose;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeedWatch;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
@@ -63,7 +66,12 @@ import java.util.function.Supplier;
  *
  * <h2>What "Empty" means today</h2>
  *
- * <p>There is no piece sensor yet, so the robot cannot know it is empty. The nearest honest fact is
+ * <p>With the throat beam fitted ({@code BeamBreakSubsystem}), a volley ends on its balls: the
+ * moment the 4th passes the throat, or once the throat goes quiet with the lane empty, and a stuck
+ * feed is backed out and fed again ({@link #throatBackstopS}, {@link #unjamTries}; the private
+ * {@code Volley} class). Without it, everything below holds.
+ *
+ * <p>Without a beam the robot cannot know it is empty. The nearest honest fact is
  * that a {@code LaunchAll} has run its whole feed since the wait began: the Autos use
  * {@code Empty} to end the step that fires, so this moves them on as soon as the shots are out
  * instead of at the step's time limit. A sensor (#164, #181) replaces this with the real thing.
@@ -96,8 +104,47 @@ public final class LaunchCards {
      * shown to be safe. Video of a few volleys decides it. Square's volley in TeleOp does not use
      * this: it feeds while held. A step's time limit never cuts a feed that has started
      * (AutoRegistry.holdTimeLimitsWhile).
+     *
+     * <p><b>2.4 since 22 Nov 2026</b>, for every {@code LaunchAll} after an Auto's first
+     * ({@link #firstLaunchAllFeedS} is the first's), deliberately thin: the mentor's call, to win the
+     * time back until a sensor at the feeder ends the feed as the last ball passes. Read from every Auto
+     * LaunchAll on both robots, 12 to 21 Nov plus the Belding and Fruitport events (311 feeds, balls
+     * timed from the gate opening by the wheels' dips and the shot counter): balls leave on a steady
+     * rhythm about 0.45 s apart, the 4th a median 2.05 s after the gate and 2.32 s in 90% of volleys.
+     * At 2.4 a later volley leaves a ball behind about 9% of the time (13 of 142), almost all of them
+     * a ball that hung up for over a second mid-volley. A ball left behind is not lost: it stays in
+     * the lane for the next volley, though it takes one of the next pick's four places. Each saves
+     * 1.1 s over 3.5 whenever the 4th shot is not counted (44% of volleys, 21 Nov).
      */
-    public static double launchAllFeedS = 3.5;
+    public static double launchAllFeedS = 2.4;
+
+    /**
+     * {@link #launchAllFeedS} for the first {@code LaunchAll} these cards feed, an Auto's preloads:
+     * 2.8 since 22 Nov 2026. That volley starts with the wheels coming up from rest and its balls
+     * run about 0.3 to 0.5 s later than a later volley's; at 2.8 it leaves a ball behind about 4.5%
+     * of the time (6 of 134, same logs). Thin on purpose, as {@link #launchAllFeedS}.
+     */
+    public static double firstLaunchAllFeedS = 2.8;
+
+    /**
+     * With the throat beam fitted ({@code BeamBreakSubsystem.throatFitted}), every volley's set feed
+     * time, in place of {@link #launchAllFeedS} and {@link #firstLaunchAllFeedS}: only a backstop. The
+     * beam ends a volley the moment its {@link #launchAllEndAfterShots}th ball leaves (median 2.05 s
+     * after the gate, 12 to 21 Nov 2026), or 0.9 s after a short volley's last ball with the lane
+     * empty ({@code BeamBreakSubsystem.quietS}), so the thin timers that leave a hung ball behind
+     * are not needed: 3.5, the timer before 22 Nov, lets a ball that hung over a second still go.
+     */
+    public static double throatBackstopS = 3.5;
+
+    /**
+     * How long a stuck feed is backed out, seconds (throat beam only): the feeder reverses and the
+     * wheels back up gently ({@code LauncherSubsystem.reverseTicksPerSecond}), then the card waits for
+     * launch speed and feeds again. 0.3: the TeleOp's unjam backs out a ball in a tap. <b>Not measured.</b>
+     */
+    public static double unjamReverseS = 0.3;
+
+    /** Unjams a stuck volley gets before it gives up and the card ends (throat beam only). 1; 0: none. */
+    public static int unjamTries = 1;
 
     /**
      * A {@code LaunchAll} ends its feed once the launcher has counted this many shots since the
@@ -175,12 +222,23 @@ public final class LaunchCards {
          * 0 at speed, infinite when it is not coming. The default knows only {@link #atSpeed()}.
          */
         default double secondsToSpeed() { return atSpeed() ? 0.0 : Double.POSITIVE_INFINITY; }
+        /**
+         * Balls the throat beam has seen pass since the OpMode started, or -1 with none fitted. With a
+         * beam, a volley ends on it ({@code FeedWatch}) and the shot count is only logged.
+         */
+        default int throatBalls() { return -1; }
+        /** How long the throat beam has been broken now, seconds; 0 while clear or with none fitted. */
+        default double throatBlockedS() { return 0.0; }
+        /** What the lane holds apart from the throat ({@code Robot.laneHolds}): it tells an empty lane from a stuck feed. */
+        default FeedWatch.Lane lane() { return FeedWatch.Lane.UNKNOWN; }
     }
 
     /** What a launch card needs from the feeder. {@code FeederSubsystem} has both methods. */
     public interface Feeder {
         void feed();
         void idle();
+        /** Back a stuck ball out: the robot's feeder reverses (the gate open, the wheels backing up). */
+        default void reverse() { idle(); }
     }
 
     /**
@@ -229,6 +287,11 @@ public final class LaunchCards {
     /** When the approach opened the gate, seconds; NaN until it has, and once a card takes it over. */
     private double approachFedAt = Double.NaN;
     private int approachShots;
+    private int approachBalls;
+    /** Whether the approach's open feed is the first volley's ({@link #firstLaunchAllFeedS}). */
+    private boolean approachFirst;
+    /** {@code LaunchAll} and {@code LaunchAllAimed} feeds started so far: the first gets {@link #firstLaunchAllFeedS}. */
+    private int volleyFeedsStarted;
     private final AutoRegistry.Approach launchAllApproach = new AutoRegistry.Approach() {
         @Override public void started(Pose end) {
             approachEnd = end;
@@ -239,7 +302,9 @@ public final class LaunchCards {
             if (!launchOnApproach || approachEnd == null || !Double.isNaN(approachFedAt)) return;
             if (!speedReady() || !onApproach.ready(approachEnd, pose, remainingIn)) return;
             approachShots = launcher.shots();
+            approachBalls = launcher.throatBalls();
             approachFedAt = secondsNow.getAsDouble();
+            approachFirst = claimFirstVolley();
             feeder.feed();
             feeding++;
             note.accept(String.format(Locale.US, "LaunchAll opened the gate on the approach, %.1f in from the path end%s",
@@ -347,10 +412,18 @@ public final class LaunchCards {
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
             @Override public int shots() { return robot.launcher.shots(); }
             @Override public double secondsToSpeed() { return robot.launcher.secondsToSpeed(); }
+            @Override public int throatBalls() {
+                return robot.beams.throat() == null ? -1 : robot.beams.throat().passes();
+            }
+            @Override public double throatBlockedS() {
+                return robot.beams.throat() == null ? 0.0 : robot.beams.throat().blockedForMs() / 1000.0;
+            }
+            @Override public FeedWatch.Lane lane() { return robot.laneHolds(); }
         };
         Feeder feeder = new Feeder() {
             @Override public void feed() { robot.feeder.feed(); }
             @Override public void idle() { robot.feeder.idle(); }
+            @Override public void reverse() { robot.feeder.reverse(); }
         };
         return new LaunchCards(launcher, feeder, settle::settled, settle::readyOnApproach, note,
                 () -> System.nanoTime() / 1e9);
@@ -422,7 +495,7 @@ public final class LaunchCards {
      * nothing and ends {@link #launchAllFeedS} after the gate opened.
      */
     public Command launchAll() {
-        return launch("LaunchAll", () -> launchAllFeedS, () -> launchAllEndAfterShots, true);
+        return launch("LaunchAll", true);
     }
 
     /**
@@ -448,15 +521,12 @@ public final class LaunchCards {
      */
     public Command launchAllAimed(AimedShot shot) {
         if (shot == null) throw new IllegalArgumentException("LaunchAllAimed needs a turret to aim");
-        final double[] fedAt = {Double.NaN};
+        final Volley volley = new Volley("LaunchAllAimed", true);
         final boolean[] refused = new boolean[1];
-        final boolean[] allShotsOut = new boolean[1];
-        final int[] shotsAtFeed = new int[1];
         final double[] startedAt = new double[1];
         return new CommandBuilder()
                 .setStart(() -> {
-                    fedAt[0] = Double.NaN;
-                    allShotsOut[0] = false;
+                    volley.reset();
                     startedAt[0] = secondsNow.getAsDouble();
                     String why = shot.refusal();
                     refused[0] = why != null;
@@ -470,7 +540,7 @@ public final class LaunchCards {
                 .setExecute(() -> {
                     if (refused[0]) return;
                     boolean aiming = shot.aim();
-                    if (!Double.isNaN(fedAt[0])) return;
+                    if (volley.fed()) return;
                     String why = shot.refusal();
                     if (why != null) {
                         refused[0] = true;
@@ -482,39 +552,23 @@ public final class LaunchCards {
                     note.accept(String.format(Locale.US, "LaunchAllAimed opened the gate, %s, %.2f s after it started%s",
                             aiming ? "the turret on target" : "the turret at home",
                             secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
-                    shotsAtFeed[0] = launcher.shots();
-                    feed(fedAt, secondsNow.getAsDouble());
+                    volley.begin(secondsNow.getAsDouble(), claimFirstVolley());
                 })
-                .setDone(() -> {
-                    if (refused[0]) return true;
-                    if (Double.isNaN(fedAt[0])) return false;
-                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(launchAllFeedS)) return true;
-                    double enough = launchAllEndAfterShots;
-                    int shots = launcher.shots();
-                    allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
-                    return allShotsOut[0];
-                })
+                .setDone(() -> refused[0] || volley.done(secondsNow.getAsDouble()))
                 .setEnd(end -> {
                     shot.done();
-                    if (Double.isNaN(fedAt[0])) {
+                    if (!volley.fed()) {
                         if (!refused[0]) note.accept("LaunchAllAimed ended before the gate opened (" + end + "): nothing fed");
                         return;
                     }
-                    feeder.idle();
-                    feeding--;
-                    int shots = launcher.shots();
-                    if (shots >= 0) {
-                        note.accept(String.format(Locale.US, "LaunchAllAimed fed %.2f s (%s%s): %d shots detected",
-                                secondsNow.getAsDouble() - fedAt[0], end,
-                                allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
-                    }
+                    volley.end(end);
                     if (end == EndCondition.NATURALLY) launchAllsCompleted++;
                 });
     }
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch("LaunchOne", () -> launchOneFeedS, () -> 0.0, false);
+        return launch("LaunchOne", false);
     }
 
     /**
@@ -540,69 +594,48 @@ public final class LaunchCards {
         return () -> launchAllsCompleted > before;
     }
 
-    private Command launch(String name, DoubleSupplier feedSeconds, DoubleSupplier endAfterShots,
-                           boolean countsAsEmptying) {
-        final double[] fedAt = {Double.NaN};
-        final boolean[] allShotsOut = new boolean[1];
+    private Command launch(String name, boolean countsAsEmptying) {
+        final Volley volley = new Volley(name, countsAsEmptying);
         final double[] startedAt = new double[1];
-        final int[] shotsAtFeed = new int[1];
         return new CommandBuilder()
                 .setStart(() -> {
-                    fedAt[0] = Double.NaN;
-                    allShotsOut[0] = false;
+                    volley.reset();
                     startedAt[0] = secondsNow.getAsDouble();
                     launcher.spinUp();
                     // The drive in already opened the gate: this card only finishes that feed.
                     if (countsAsEmptying && !Double.isNaN(approachFedAt)) {
-                        fedAt[0] = approachFedAt;
-                        shotsAtFeed[0] = approachShots;
+                        volley.adopt(approachFedAt, approachFirst, approachShots, approachBalls);
                         approachFedAt = Double.NaN;
                     }
                     approachEnd = null;
                 })
                 .setExecute(() -> {
-                    if (!Double.isNaN(fedAt[0])) return;
+                    if (volley.fed()) return;
                     double now = secondsNow.getAsDouble();
                     if (!speedReady()) {
                         if (now - startedAt[0] < nonNegative(maxSpinUpWaitS)) return;
                         // Not at speed in time: a slightly slow shot beats driving off with every ball.
                         note.accept(String.format(Locale.US, "%s fed below launch speed: not at speed %.2f s after it started",
                                 name, now - startedAt[0]));
-                        shotsAtFeed[0] = launcher.shots();
-                        feed(fedAt, now);
+                        volley.begin(now, countsAsEmptying && claimFirstVolley());
                         return;
                     }
                     if (settled.getAsBoolean()) {
                         String ahead = aheadOfSpeed();
                         if (!ahead.isEmpty()) note.accept(name + " opened the gate" + ahead);
-                        shotsAtFeed[0] = launcher.shots();
-                        feed(fedAt, now);
+                        volley.begin(now, countsAsEmptying && claimFirstVolley());
                     } else if (now - startedAt[0] >= PathEndSettle.maxWaitS()) {
                         note.accept(String.format(Locale.US, "%s fed before the robot settled: %.2f s since it started",
                                 name, now - startedAt[0]));
-                        shotsAtFeed[0] = launcher.shots();
-                        feed(fedAt, now);
+                        volley.begin(now, countsAsEmptying && claimFirstVolley());
                     }
                 })
-                .setDone(() -> {
-                    if (Double.isNaN(fedAt[0])) return false;
-                    if (secondsNow.getAsDouble() - fedAt[0] >= nonNegative(feedSeconds.getAsDouble())) return true;
-                    double enough = endAfterShots.getAsDouble();
-                    int shots = launcher.shots();
-                    allShotsOut[0] = enough >= 1 && shots >= 0 && shots - shotsAtFeed[0] >= enough;
-                    return allShotsOut[0];
-                })
+                .setDone(() -> volley.done(secondsNow.getAsDouble()))
                 .setEnd(end -> {
-                    feeder.idle();
-                    if (!Double.isNaN(fedAt[0])) {
-                        feeding--;
-                        int shots = launcher.shots();
-                        // Logged to judge the shot detector against what was seen (video).
-                        if (shots >= 0) {
-                            note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d shots detected",
-                                    name, secondsNow.getAsDouble() - fedAt[0], end,
-                                    allShotsOut[0] ? ", ended at the last counted shot" : "", shots - shotsAtFeed[0]));
-                        }
+                    if (volley.fed()) {
+                        volley.end(end);
+                    } else {
+                        feeder.idle();
                     }
                     if (countsAsEmptying && end == EndCondition.NATURALLY) {
                         launchAllsCompleted++;
@@ -610,10 +643,192 @@ public final class LaunchCards {
                 });
     }
 
-    private void feed(double[] fedAt, double now) {
-        feeder.feed();
-        fedAt[0] = now;
-        feeding++;
+    /** True for the first volley feed these cards start ({@link #firstLaunchAllFeedS}), and counts it. */
+    private boolean claimFirstVolley() {
+        return volleyFeedsStarted++ == 0;
+    }
+
+    /** A volley's set feed time: {@link #firstLaunchAllFeedS} for the first, else {@link #launchAllFeedS}. */
+    private static double volleyFeedS(boolean first) {
+        return first ? firstLaunchAllFeedS : launchAllFeedS;
+    }
+
+    /**
+     * One card's feed, from the gate opening to the card's end: when it ends (the throat beam's
+     * verdict with one fitted, else the shot counter or the set time) and its recovery from a stuck
+     * feed. One per card, reset each time the card starts.
+     *
+     * <p>With the throat beam ({@link Launcher#throatBalls()} not -1) the set time is only a backstop,
+     * {@link #throatBackstopS}: a {@code LaunchAll} ends the moment its {@link #launchAllEndAfterShots}th
+     * ball passes the throat, or once the throat has gone quiet with the lane empty
+     * ({@link FeedWatch}). A ball held in the throat beam is backed out ({@link #unjamReverseS}: the
+     * feeder and the wheels reverse, the gate open), then fed again once the wheels are back at speed,
+     * up to {@link #unjamTries} times; after that the card ends, the ball left for the next volley. A
+     * jam in the lane (no ball coming, the lane holding, the throat clear) is the lane entry's
+     * ({@code IntakeSubsystem.clearFeedJam}, {@code FeedJamClear}, which stands down while a ball is
+     * held in the throat): the card notes it and feeds on, to its backstop. With that switch off, the
+     * feeder backs a lane jam out here too. The unjam's time does not count against
+     * the backstop. Without the beam, nothing here changes: the shot counter and the timer, as before.
+     */
+    private final class Volley {
+        private final String name;
+        private final boolean volleyCard;
+        private final FeedWatch watch = new FeedWatch();
+        private double fedAt = Double.NaN;
+        private boolean first;
+        private int shotsAtFeed;
+        private boolean allShotsOut;
+        private String endWhy = "";
+        /** 0 feeding, 1 backing out an unjam, 2 waiting for speed after it. */
+        private int phase;
+        private double phaseAt;
+        private double pausedS;
+        private int unjams;
+        /** This feed's lane jam has been noted as the lane entry's to clear. */
+        private boolean leftToLane;
+
+        Volley(String name, boolean volleyCard) {
+            this.name = name;
+            this.volleyCard = volleyCard;
+        }
+
+        void reset() {
+            fedAt = Double.NaN;
+            first = false;
+            allShotsOut = false;
+            endWhy = "";
+            phase = 0;
+            pausedS = 0;
+            unjams = 0;
+            leftToLane = false;
+            watch.stop();
+        }
+
+        boolean fed() {
+            return !Double.isNaN(fedAt);
+        }
+
+        /** The gate opens now: the feed starts. */
+        void begin(double now, boolean firstVolley) {
+            shotsAtFeed = launcher.shots();
+            first = firstVolley;
+            int balls = launcher.throatBalls();
+            if (balls >= 0) watch.start(now, balls);
+            feed(now);
+        }
+
+        /** The approach already opened the gate at {@code at}: carry its feed on. */
+        void adopt(double at, boolean firstVolley, int shots, int balls) {
+            fedAt = at;
+            first = firstVolley;
+            shotsAtFeed = shots;
+            if (balls >= 0) watch.start(at, balls);
+        }
+
+        private void feed(double now) {
+            feeder.feed();
+            fedAt = now;
+            feeding++;
+        }
+
+        private double limitS() {
+            if (!volleyCard) return nonNegative(launchOneFeedS);
+            return launcher.throatBalls() >= 0 ? nonNegative(throatBackstopS) : nonNegative(volleyFeedS(first));
+        }
+
+        private double endAfter() {
+            return volleyCard ? launchAllEndAfterShots : 1;
+        }
+
+        boolean done(double now) {
+            if (!fed()) return false;
+            int balls = launcher.throatBalls();
+            if (phase == 1) {
+                if (now - phaseAt < nonNegative(unjamReverseS)) return false;
+                feeder.idle();
+                phase = 2;
+                phaseAt = now;
+                return false;
+            }
+            if (phase == 2) {
+                if (!speedReady() && now - phaseAt < nonNegative(maxSpinUpWaitS)) return false;
+                pausedS += now - phaseAt + nonNegative(unjamReverseS);
+                feeder.feed();
+                watch.restart(now);
+                phase = 0;
+                note.accept(String.format(Locale.US, "%s fed again after its unjam, %d ball%s out so far",
+                        name, watch.balls(), watch.balls() == 1 ? "" : "s"));
+                return false;
+            }
+            if (now - fedAt - pausedS >= limitS()) {
+                endWhy = balls >= 0
+                        ? String.format(Locale.US, ", ended at its %.1f s backstop", limitS())
+                        : volleyCard ? String.format(Locale.US, ", ended at its %.1f s timer", limitS()) : "";
+                return true;
+            }
+            if (balls < 0) {
+                double enough = endAfter();
+                int shots = launcher.shots();
+                allShotsOut = volleyCard && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
+                if (allShotsOut) endWhy = ", ended at the last counted shot";
+                return allShotsOut;
+            }
+            FeedWatch.Verdict verdict = watch.step(now, balls, launcher.throatBlockedS(), launcher.lane(), endAfter(),
+                    BeamBreakSubsystem.quietS, BeamBreakSubsystem.firstBallWithinS, BeamBreakSubsystem.jamBlockedS,
+                    BeamBreakSubsystem.stuckGapS);
+            switch (verdict) {
+                case ALL_OUT:
+                case EMPTY:
+                    endWhy = ", ended: " + watch.why();
+                    return true;
+                case STUCK:
+                    // A jam in the lane, the throat clear: the lane entry's jam clear backs it out
+                    // (IntakeSubsystem.clearFeedJam, FeedJamClear) while this feed goes on. One jam,
+                    // one handler; with that off, the feeder backs it out here instead.
+                    if (IntakeSubsystem.clearFeedJam) {
+                        if (!leftToLane) {
+                            leftToLane = true;
+                            note.accept(String.format(Locale.US, "%s feed stuck (%s): left to the lane's jam clear",
+                                    name, watch.why()));
+                        }
+                        return false;
+                    }
+                    // fall through
+                case HELD:
+                    if (unjams < unjamTries) {
+                        unjams++;
+                        note.accept(String.format(Locale.US, "%s feed stuck (%s): backing out, unjam %d of %d",
+                                name, watch.why(), unjams, unjamTries));
+                        feeder.reverse();
+                        phase = 1;
+                        phaseAt = now;
+                        return false;
+                    }
+                    endWhy = String.format(Locale.US, ", gave up: %s after %d unjam%s", watch.why(), unjams,
+                            unjams == 1 ? "" : "s");
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        void end(EndCondition end) {
+            feeder.idle();
+            feeding--;
+            double now = secondsNow.getAsDouble();
+            int balls = launcher.throatBalls();
+            if (balls >= 0) {
+                // Logged against the dip count, to judge the beam (and the dips) by video.
+                note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d balls through the throat, %d shots detected",
+                        name, now - fedAt, end, endWhy, watch.balls(), launcher.shots() - shotsAtFeed));
+            } else if (launcher.shots() >= 0) {
+                // Logged to judge the shot detector against what was seen (video).
+                note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d shots detected",
+                        name, now - fedAt, end, endWhy, launcher.shots() - shotsAtFeed));
+            }
+            watch.stop();
+            fedAt = Double.NaN;
+        }
     }
 
     /** A Panels-editable time clamped to [0, ∞), NaN as 0: a typo makes a short feed, never a stuck card. */
