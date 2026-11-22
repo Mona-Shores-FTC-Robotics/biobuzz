@@ -240,19 +240,32 @@ final class FieldSim {
     static final double[] FILMED_TIP_SECONDS = {0.58, 1.12};
     static double[] tipSecondsRange = FILMED_TIP_SECONDS;
     /**
-     * The dwell: how long a raised CELL whose load has crossed its tipping weight sits before the rocker leaves
-     * its stop, drawn afresh per TIP (issue #167; eleven AUTO TIPs on the Saline stream, doc/saline-tip-measurements.md:
-     * 0.25–3.4 s, median about 2 s; the simulator had none, so its TIPs came about 2 s early). A CELL at exactly
-     * its threshold draws from this range; one a full POLLEN past it waits at most
-     * {@link #FILMED_TIP_DWELL_OVERLOADED_S} (Q26's and Q9's volleys: 0.25–0.5 s), in between in proportion, and
-     * pieces arriving during the dwell shorten it. The {@code Tip} trigger and the robot's HiveTracker see the
-     * rocker start to move, so this is a state before the swing, not a longer swing. Null: no dwell.
+     * The dwell: how long a raised CELL whose load is over its tipping weight sits on its stop before the rocker moves,
+     * counted from the last piece to land in it, drawn afresh per TIP. Counted from the last piece because that is how
+     * the TIP lag is measured (last ball leaves to CELL settled, {@code TeamCode/autos/timing-terms.md}) and how the
+     * films show it: the rocker creeps from the moment the last ball lands, and a CELL at its weight that sat still for
+     * 7 s went 2.4 s after a partner added three more (M-3, Belding). The length depends on how far past its tipping
+     * weight the CELL is, in POLLEN at the load's mean lever: up to {@link #AT_WEIGHT_UP_TO_POLLEN} past it is "at its
+     * tipping weight" and draws from {@link #MEASURED_TIP_DWELL_SECONDS}, skewed by {@link #MEASURED_TIP_DWELL_SKEW}
+     * toward the short end with a slow tail; from {@link #WELL_PAST_FROM_POLLEN} past it is "well past" and waits
+     * {@link #MEASURED_TIP_DWELL_WELL_PAST_S}; in between in proportion. The two bands are the films': four POLLEN on the
+     * three NECTAR a raised CELL starts with (1 to 2 POLLEN past, by field) and eight in an empty CELL were at weight,
+     * last ball to CELL settled 3.4 to 6.5 s, median 3.9 (13 films); nine or more pieces were well past, 2.2 to 2.5 s
+     * (3 films). The values are set so the simulator's last ball to TIP lands on those ({@code TipLagTest}). The
+     * {@code Tip} trigger and the robot's HiveTracker see the rocker start to move, so this is a state before the swing,
+     * not a longer swing. Null: no dwell. Until 22 Nov 2026 the default was Saline's 0.25 to 3.4 s from the ball that
+     * took the CELL over, which with the hits (below) gave a last ball to TIP of about 1 s.
      */
-    static final double[] FILMED_TIP_DWELL_SECONDS = {0.25, 3.4};
-    static final double FILMED_TIP_DWELL_OVERLOADED_S = 0.5;
-    /** The longest dwell of a CELL a full POLLEN past its threshold; {@link BeldingCalibration} sets its own. */
-    static double tipDwellOverloadedS = FILMED_TIP_DWELL_OVERLOADED_S;
-    static double[] tipDwellRange = FILMED_TIP_DWELL_SECONDS;
+    static final double[] MEASURED_TIP_DWELL_SECONDS = {2.0, 5.1};
+    /** The at-weight draw is the range's low end plus its width times a uniform draw to this power: median near the low end, a slow tail. */
+    static final double MEASURED_TIP_DWELL_SKEW = 2.6;
+    /** The dwell of a CELL well past its tipping weight, seconds. */
+    static final double MEASURED_TIP_DWELL_WELL_PAST_S = 1.1;
+    /** POLLEN past the tipping weight that still count as at it, and from which a CELL is well past it. */
+    static final double AT_WEIGHT_UP_TO_POLLEN = 2.0, WELL_PAST_FROM_POLLEN = 2.5;
+    /** The dwell of a CELL well past its tipping weight; a calibration may set its own. */
+    static double tipDwellOverloadedS = MEASURED_TIP_DWELL_WELL_PAST_S;
+    static double[] tipDwellRange = MEASURED_TIP_DWELL_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = ROBOT_RESTITUTION;
 
@@ -414,6 +427,8 @@ final class FieldSim {
         /** When the load first beat the hold on this stop (NaN: it has not), and this dwell's draw in 0–1. */
         private double dwellFrom = Double.NaN;
         private double dwellDraw;
+        /** The most pieces this HIVE's CELLs have held in this dwell: one more restarts it ({@link #tipDwellRange}). */
+        private int dwellPieces;
         /**
          * TIPs started: counts up once a rocker has swung {@link #TIP_STARTED_RAD} off its stop,
          * like the robot's {@code HiveTracker.tipsStarted()}; a piece rolling in that lifts it a
@@ -1556,9 +1571,14 @@ final class FieldSim {
      * with no hit at all on 6.95 to 7.0. So the video cannot fit this number; it agrees with the picture above. 0 turns
      * the hits off. 1 until the launcher fired at its one
      * setpoint (4 Nov 2026); its steeper arc lands harder, so 0.6 gives the same picture.
+     *
+     * <p><b>Off by default since 22 Nov 2026</b> ({@link #impulseScale} 0): with it on, a hit knocked a CELL off its stop
+     * the moment the deciding ball landed, so the simulator's last ball to TIP was about 1 s where the films measure
+     * 4.1 s at the CELL's weight, and it tipped CELLs under their weight that no film shows. {@code HiveImpulseTest} and
+     * a study that wants the hits set it to this.
      */
     static final double PLACEHOLDER_IMPULSE_SCALE = 0.6;
-    static double impulseScale = PLACEHOLDER_IMPULSE_SCALE;
+    static double impulseScale = 0;
     /**
      * Only a piece arriving at least this fast, in/s, counts as a hit: a launched or tossed piece. Slower contacts are
      * a piece settling, rolling, or chattering against a plate, or being carried by the swinging rocker, and the
@@ -1606,16 +1626,12 @@ final class FieldSim {
     }
 
     /**
-     * Whether a rocker at its stop, with its load past the hold, is still in its dwell ({@link #tipDwellRange}).
-     * {@code torque} is the net push off the stop, POLLEN-weight inches; its size against one POLLEN's at the
-     * load's mean lever says how far past the threshold the CELL is.
+     * Whether a rocker at its stop, with its load past the hold, is still in its dwell ({@link #tipDwellRange}), counted
+     * from the last piece to land. {@code torque} is the net push off the stop, POLLEN-weight inches; its size against
+     * one POLLEN's at the load's mean lever says how far past the threshold the CELL is.
      */
     private boolean dwelling(Rocker r, double torque) {
         if (tipDwellRange == null || Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12) return false;
-        if (Double.isNaN(r.dwellFrom)) {
-            r.dwellFrom = time;
-            r.dwellDraw = tipDwell.nextDouble();
-        }
         double lever = 0;
         int n = 0;
         for (Piece p : pieces) {
@@ -1624,12 +1640,22 @@ final class FieldSim {
                 n++;
             }
         }
+        if (Double.isNaN(r.dwellFrom)) {
+            r.dwellFrom = time;
+            r.dwellDraw = tipDwell.nextDouble();
+            r.dwellPieces = n;
+        } else if (n > r.dwellPieces) {
+            r.dwellFrom = time;  // another piece landed: the TIP lag counts from the last one
+            r.dwellPieces = n;
+        }
         lever = n > 0 ? lever / n : (CELL_BACK_IN + CELL_OPENING_IN) / 2;
-        double excessPollen = Math.min(1, Math.abs(torque) / (weight(Kind.POLLEN) * lever));
-        double longest = tipDwellRange[1] + (tipDwellOverloadedS - tipDwellRange[1]) * excessPollen;
-        double dwell = Math.min(tipDwellRange[0], longest) + r.dwellDraw * Math.max(0, longest - tipDwellRange[0]);
+        double pastPollen = Math.abs(torque) / (weight(Kind.POLLEN) * lever);
+        double wellPast = Math.max(0, Math.min(1, (pastPollen - AT_WEIGHT_UP_TO_POLLEN) / (WELL_PAST_FROM_POLLEN - AT_WEIGHT_UP_TO_POLLEN)));
+        double atWeight = tipDwellRange[0] + Math.pow(r.dwellDraw, MEASURED_TIP_DWELL_SKEW) * (tipDwellRange[1] - tipDwellRange[0]);
+        double dwell = atWeight + (tipDwellOverloadedS - atWeight) * wellPast;
         if (time - r.dwellFrom < dwell) return true;
-        events.add(String.format(Locale.ROOT, "%s HIVE over its tipping weight for %.2f s; the rocker moves", r.alliance, time - r.dwellFrom));
+        events.add(String.format(Locale.ROOT, "%s HIVE over its tipping weight (%.1f POLLEN past) for %.2f s after its last piece; the rocker moves",
+                r.alliance, pastPollen, time - r.dwellFrom));
         return false;
     }
 
