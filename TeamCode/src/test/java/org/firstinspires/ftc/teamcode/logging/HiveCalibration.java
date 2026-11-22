@@ -349,7 +349,7 @@ final class HiveCalibration {
     /**
      * Lets a piece settle, and a rocker that has started to move finish: a piece rolling to the
      * back of the CELL can lift it off its stop for a moment without tipping it. A rocker over its
-     * tipping weight in its dwell (FieldSim.tipDwellRange, up to 3.4 s) is waited out too.
+     * tipping weight in its dwell (FieldSim.tipDwellRange, up to 5.6 s) is waited out too.
      */
     static void settleRocker(FieldSim sim) {
         settle(sim);

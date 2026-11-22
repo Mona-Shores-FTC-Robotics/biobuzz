@@ -62,6 +62,26 @@ A camera facing the HIVE read the CELL up 0.14 to 0.23 s after it settled (six f
 - **A limit of last ball + 5.5 s** (`PARTNER_TIP_LAG_S`) catches 11 of the 13 at-weight TIPs.
   Last ball + 4.5 s, used until 12 Nov 2026, caught 9; + 6.7 s catches all 13.
 
+### Checked against the match logs (22 Nov 2026)
+
+Every Fruitport and Belding match and practice log was read for our own volley's last ball (the
+launcher's shot count) to the camera reading the other CELL up, kept only where the camera watched
+the whole time and the HIVE state was seen, not assumed (`/Hive/<alliance>/Assumed`). Only a few
+qualify: after the preloads every Auto drives off to a FLOWER, so the preload TIP is read up when the
+robot next faces the HIVE, 7 to 9 s later, which is not a TIP lag. What is left agrees with the films:
+
+- **At weight:** 19429's second volley in Fruitport playoff M6 (five of ours on the three starting
+  pieces; its first volley fed only two), last ball 19.24 s, read up 23.22 s: **3.98 s**. 19429's
+  practice R-Solo at Belding (6 Nov, 18:13), its second volley, load not known: 4.33 s.
+- **Well past:** Q-7 at Belding (20245, six POLLEN on two or three), last ball 19.95 s, read up
+  22.25 s: **2.30 s**, the film's 2.17 s to settled plus the camera's read.
+- **TeleOp** lags of 3.3 to 5.1 s with 6 to 12 of our pieces in the CELL are an upper bound only: a
+  partner's balls go into the same CELL and are not in our log.
+
+So the figures stand: **about 4.1 s at a CELL's tipping weight (up to 6.7 s), about 2.5 s (2.3 to 2.7)
+well past it.** The Belding logs record an *assumed* CELL up at the preloads' expected TIP; never time a
+TIP from a sample with `Assumed` set.
+
 A CELL at its weight can also hold. Eight of our own balls sat in the LEFT CELL for 7 s in M-3
 without moving, and it went only when the partner added three. Six pieces (three POLLEN on the
 three it starts with) sagged the CELL a pixel in Q-31 and held.
@@ -114,16 +134,13 @@ three it starts with) sagged the CELL a pixel in Q-31 and held.
 | `PARTNER_TIP_LAG_S` 5.5 | `AutoRegistration` (robot) | TIP lag; `PartnerWaitTest` keeps it equal to `partnerTipLagS` | The same |
 | `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S` 2.5 | `AutoRegistration` (robot's guard) | Volley; and 1 → 4, as planned | The last ball left 2.6 to 3.4 s after a preload launch started, 2.1 to 4.5 s after a later one |
 | `launchAllFeedS` 3.5, `launchAllEndAfterShots` 4 | `LaunchCards` (robot) | Feed | Agrees |
-| `tipDwellRange`, `DWELL_S` 3.6 to 4.2 | `FieldSim`, `BeldingCalibration` (simulator) | From the ball that takes the CELL over landing to the rocker leaving its stop | See "Still to change" |
+| `tipDwellRange` 2.0 to 5.1, `tipDwellOverloadedS` 1.1 | `FieldSim` (simulator, every run) | From the last piece landing to the rocker leaving its stop, at the CELL's weight and well past it | 4 → 7 comes out at 2.8 to 6.2 s, median 3.9, at weight, and 2.4 s well past (`TipLagTest`) |
 
 ## Still to change
 
-Recorded here so no session re-derives them; none is changed by the PR that added this page.
+Recorded here so no session re-derives them. The simulator's TIP lag (an overloaded CELL, the slow tail, the
+knock) was changed on 22 Nov 2026: every run now has the films' TIP lag.
 
-- **The simulator's Belding calibration treats an overloaded CELL like one at its weight**
-  (`tipDwellOverloadedS` is set to 3.6 s). The films show 2.2 to 2.5 s to settled for nine or more
-  pieces. It also has no slow tail: its last ball to `CellUp` is 3.9 to 4.5 s where the films run
-  to 6.7 s. Changing it moves every simulator count, so it needs its own PR with before and after.
 - **The robot does not yet fire a 2.5 s volley every time.** The preview and the endgame guard plan on
   one (`volleyS`; `LAUNCH_ALL_TYPICAL_S`, `LAUNCH_ALL_LAST_PIECE_S`). On the robot the feed still runs
   its set 3.5 s whenever the launcher counts fewer than four shots, which was most volleys at Belding.
@@ -133,8 +150,6 @@ Recorded here so no session re-derives them; none is changed by the PR that adde
   "at most" from the wait's start and "until" on the match clock.
 - **The preview counts a TIP from the feed's end.** Counting from the last ball, with the load,
   would remove the exception above. It is a Visualizer change.
-- **`BeldingCalibration`'s comment still gives the old 4.0 to 4.4 s** as Belding's TIP lag. It
-  changes with the calibration it describes.
 - **The robot's TRANSITION on drive-off** is a `HiveTracker` artefact worth an issue: every log
   has false ones.
 

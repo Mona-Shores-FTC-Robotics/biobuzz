@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,9 +26,18 @@ public class HiveImpulseTest {
 
     static final int SEEDS = 20;
 
+    private double impulseBefore;
+
     @Before
     public void optIn() {
         assumeTrue("set BIOBUZZ_SIM_CHECKS=1 to run the simulator's HIVE checks", "1".equals(System.getenv("BIOBUZZ_SIM_CHECKS")));
+        impulseBefore = FieldSim.impulseScale;
+        FieldSim.impulseScale = FieldSim.PLACEHOLDER_IMPULSE_SCALE;  // off by default; these check the hits themselves
+    }
+
+    @After
+    public void restoreHits() {
+        FieldSim.impulseScale = impulseBefore;
     }
 
     // ---- §12.3, with the hits on ----------------------------------------------------------------

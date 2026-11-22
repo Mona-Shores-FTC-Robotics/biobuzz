@@ -1274,7 +1274,19 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   mentor's videos (4 Nov 2026): the real robot's 4-ball volley from RIGHT_START onto 4 POLLEN + 2 NECTAR (7.3
   weights) tips 13 runs in 20, onto 7 POLLEN 1, onto 6.3 weights or less never. `HiveImpulseTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   and the Guide's six §12.3 rows; `BIOBUZZ_SIM_SWEEP=0.5,1,2` prints every case at each strength, for
-  refitting it to the video counts in `doc/robot-todo.md`.
+  refitting it to the video counts in `doc/robot-todo.md`. **Off by default since 22 Nov 2026** (`FieldSim.impulseScale`
+  0): with it on, a hit knocked a CELL off its stop as the deciding ball landed, so every TIP came about 1 s after the
+  last ball, and no Belding film shows a CELL knocked over under its weight. A study that wants the hits sets
+  `FieldSim.impulseScale` to the placeholder, as `HiveImpulseTest` does.
+- **The TIP lag** (`FieldSim.tipDwellRange`, since 22 Nov 2026 in every run). A raised CELL over its tipping weight
+  sits on its stop for a dwell counted from the last piece to land, then swings. Up to 2 POLLEN past its weight it
+  is "at its tipping weight" and draws 2.0 to 5.1 s, skewed to the short end; from 2.5 POLLEN past it is "well past"
+  and waits 1.1 s. With the flight and the swing, the last ball leaving to the CELL settled comes out as Belding's
+  films (`TeamCode/autos/timing-terms.md`): four POLLEN on the three starting NECTAR 2.8 to 6.2 s, median 3.9
+  (films 3.4 to 6.5, median 3.9); eight in an empty CELL median 4.3 (films 3.8 and 5.0); six POLLEN on the three
+  NECTAR median 2.4 (films of nine or more pieces 2.2 to 2.5). `TipLagTest` (`BIOBUZZ_SIM_CHECKS=1`) checks it. A
+  request's `"tipDwellS"` with the Belding calibration still replaces it. Before, the default was Saline's 0.25 to
+  3.4 s from the ball that took the CELL over, with the hits on: about 1 s from the last ball.
 - **Where a field's HIVEs tip.** The Guide's cases leave a band: a CELL tips somewhere above 7.0 POLLEN
   weights and at or below 7.95. The simulation tips in the band's middle (`HiveCalibration.GUIDE_MIDDLE`).
   **Measured** at the Belding Qualifier (7 Nov 2026, stream video and the 44 scoresheets): Field 1 tipped at
@@ -1298,8 +1310,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     reaches a raised CELL stays in; the ones lost go wide, fall short or go at a down CELL.
     A request's `"ourInRate"` and `"partnerInRate"` (0 to 1) replace these rows for our Auto and for every other
     robot: 0.92 is our robots' share from the AUTO launch spots (mentor, 19 Nov 2026).
-  - **The dwell before a TIP,** 3.6 to 4.2 s, and no knock from a hit: every AUTO TIP there sat out its dwell,
-    where the placeholder knock tipped the CELL 0.7 s after the last ball left.
+  - **No knock from a hit,** as every run now has by default: every AUTO TIP there sat out its dwell. The dwell
+    itself is every run's (above), measured on Belding's films.
   - **Where the HIVE tips:** Field 1's point on odd seeds, Field 2's on even ones, both set for launched pieces:
     Field 1 wandered, so seven launched POLLEN tip it on two odd seeds in three and eight on the third; eight tip
     Field 2.

@@ -22,10 +22,9 @@ package org.firstinspires.ftc.teamcode.logging;
  *       balls from LEFT_LAUNCH_CLOSE drop in front of the HIVE. Every counted Auto shot was aimed within 0.8
  *       degrees by the pose, fired standing still, with the wheels at or above their target, so the logs do not
  *       say which shots went wide or short.</li>
- *   <li><b>The dwell before a TIP</b> ({@link #DWELL_S}): the partner's TIP was seen 4.0 to 4.4 s after its last
- *       shot left (M-3, M-4; PR #517), and R-Solo's preload TIP came at about 7.5 s (Q-4). Less the flight, the
- *       swing and the camera's settle, and counted from the ball that takes the CELL over (often the third, half a
- *       second before the last), the CELL sat 3.6 to 4.2 s, overloaded or not.</li>
+ *   <li><b>The dwell before a TIP</b>: no longer set here. The simulator's own ({@link FieldSim#tipDwellRange}) is
+ *       Belding's films since 22 Nov 2026, at the CELL's weight and well past it, counted from the last ball, so every
+ *       run has it. A request's {@code "tipDwellS"} still replaces it ({@link #dwellOverride}).</li>
  *   <li><b>Where the HIVE tips</b> ({@link #tipPoint}): Field 1 at about 7.0 POLLEN weights, Field 2 at about
  *       7.95 to 8.0 (PR #519). Odd qualification matches were on Field 1, so odd seeds are Field 1 and even
  *       seeds Field 2. The points are set for launched pieces, which rest nearer the axle than the Guide's
@@ -85,9 +84,6 @@ final class BeldingCalibration {
     static boolean wholeFeed() {
         return WHOLE_FEED && !bestCase;
     }
-
-    /** Seconds a CELL over its tipping weight sits before the rocker moves: {shortest, longest}. */
-    static final double[] DWELL_S = {3.6, 4.2};
 
     /**
      * A request's in-rates ({@code "ourInRate"}, {@code "partnerInRate"}): the fraction of a robot's launched pieces
@@ -217,22 +213,24 @@ final class BeldingCalibration {
     private static double impulseBefore = Double.NaN;
 
     /**
-     * Sets the simulator's statics for a calibrated run (call only when {@link #on}): the dwell, overloaded or not,
-     * and no knock from a hit. At Belding every AUTO TIP sat out its dwell, however hard the volley landed; the
-     * placeholder knock tipped the CELL the moment the last ball hit, 0.7 s after it left.
+     * Sets the simulator's statics for a calibrated run (call only when {@link #on}): no knock from a hit at all (no
+     * CELL at Belding was knocked over under its tipping weight), and a request's dwell ({@link #dwellOverride}) if it
+     * has one.
      */
     /**
      * A request's {@code "tipDwellS"} (seconds, or {@code [least, most]}): the dwell before every TIP, in place of
-     * {@link #DWELL_S}, for a designed slow-swing case; null keeps {@link #DWELL_S}. Set before {@link #apply}.
+     * the simulator's measured at-weight range, and as the well-past dwell its shortest, for a designed slow-swing case;
+     * null keeps the simulator's own ({@link FieldSim#tipDwellRange}). Set before {@link #apply}.
      */
     static double[] dwellOverride;
 
     static void apply() {
         dwellBefore = FieldSim.tipDwellRange;
         impulseBefore = FieldSim.impulseScale;
-        double[] dwell = dwellOverride != null ? dwellOverride : DWELL_S;
-        FieldSim.tipDwellRange = dwell;
-        FieldSim.tipDwellOverloadedS = dwell[0];
+        if (dwellOverride != null) {
+            FieldSim.tipDwellRange = dwellOverride;
+            FieldSim.tipDwellOverloadedS = dwellOverride[0];
+        }
         FieldSim.impulseScale = 0;
     }
 
@@ -240,7 +238,7 @@ final class BeldingCalibration {
     static void restore() {
         if (Double.isNaN(impulseBefore)) return;
         FieldSim.tipDwellRange = dwellBefore;
-        FieldSim.tipDwellOverloadedS = FieldSim.FILMED_TIP_DWELL_OVERLOADED_S;
+        FieldSim.tipDwellOverloadedS = FieldSim.MEASURED_TIP_DWELL_WELL_PAST_S;
         FieldSim.impulseScale = impulseBefore;
         impulseBefore = Double.NaN;
     }
