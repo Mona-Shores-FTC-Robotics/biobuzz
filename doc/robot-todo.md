@@ -1265,11 +1265,15 @@ measurement is [#255].
       swings wide → `curveToWall` off (the old diagonal); `raiseAfterStopMs` -1 is the old stick
       rule. Tune `dwellMs`, `backSpeed`, `laneTowardWallIn` (2.0 since 14 Nov, with `inSpeed` 1.0, `dwellPushPower` 1.0, `lowerWithinIn` 10, `lowerWithinDeg` 30, `settledInPerSec` 20, `maxRangeIn` 45: 8 gathers on 19429, 4 in a row) and `extraDepthIn` in Panels and
       write down what works.
-- [ ] **Film the Auto volleys (decides `LaunchCards.launchAllFeedS`, 3.5):** 5–6 LaunchAlls,
-      phone slow-motion side-on, the launcher and the Driver Station both in frame. Per volley,
-      write down each ball's time after the gate opens and the launcher's counted shots.
-      **Good:** no ball after 3.0 s in any → `launchAllFeedS` 3.05 in Panels, and the volleys
-      where the count fell short show which way the shot counter misses.
+- [ ] **Thin Auto feed timers (22 Nov 2026, both robots):** `LaunchCards.launchAllFeedS` 3.5 → 2.4
+      for every volley after the first, and `firstLaunchAllFeedS` 2.8 for the preloads, from 311 Auto
+      feeds in the logs (4th ball a median 2.05 s after the gate, 2.32 s in 90%). Thin on purpose
+      until a sensor at the feeder exists. Run R-Solo or R-NoCross 3 times, filmed side-on if you
+      can, and pull the logs. **Good:** volleys that fired 4 still fire 4; the match log's
+      "ended at its 2.4 s timer" lines are followed by a pick whose lane count starts at 0.
+      **Stop (and the case for the sensor):** a pick starting with a ball already in the lane, or
+      a ball seen leaving after the gate shut → note the volley; raise the timer in Panels only if
+      it happens most runs.
 - [ ] **Superseded 11 Nov by "Square launch spots" in §7f (Square no longer drives to
       the starts or the corners).** **Square's start and corner spots aim the turret (`belding-plus`, 7 Nov):** turret locked,
       hold Square from near each start and each corner (RIGHT_START now 89°, LEFT_START 267°,

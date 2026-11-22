@@ -90,7 +90,7 @@ public final class FlowerVolley {
     public static double loadShots = 4;
     /**
      * Fire the load, keep the FLOWER's: the feed ends this long after the gate opened whatever was
-     * counted, seconds. {@code LaunchCards.launchAllFeedS}' 3.5, for the same four balls.
+     * counted, seconds. {@code LaunchCards.launchAllFeedS}' old 3.5 (an Auto's is 2.4 since 22 Nov 2026), for the same four balls.
      */
     public static double loadFeedCapS = 3.5;
     /**

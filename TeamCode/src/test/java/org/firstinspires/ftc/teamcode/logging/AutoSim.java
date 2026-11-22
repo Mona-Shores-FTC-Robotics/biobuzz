@@ -2348,13 +2348,18 @@ public final class AutoSim {
         /** LaunchAll cards this robot has started: the Belding calibration's later volleys run their whole feed. */
         private int launchAllsStarted;
 
+        /** LaunchAll feeds this robot has started: the first takes {@code LaunchCards.firstLaunchAllFeedS}. */
+        private int launchAllFeeds;
+
         /**
-         * A LaunchAll's set feed time: the robot's {@code LaunchCards.launchAllFeedS}, or
-         * {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
+         * A LaunchAll's set feed time: the robot's {@code LaunchCards.firstLaunchAllFeedS} for its first
+         * volley and {@code LaunchCards.launchAllFeedS} after, or {@code BIOBUZZ_SIM_LAUNCH_ALL_FEED_S} for
+         * every volley, for "what would a shorter feed buy" (three-tips study, 11 Nov 2026).
          */
-        private double launchAllFeedS() {
+        private double launchAllFeedS(boolean first) {
             String v = System.getenv("BIOBUZZ_SIM_LAUNCH_ALL_FEED_S");
-            return v == null || v.isEmpty() ? LaunchCards.launchAllFeedS : Double.parseDouble(v);
+            if (v != null && !v.isEmpty()) return Double.parseDouble(v);
+            return first ? LaunchCards.firstLaunchAllFeedS : LaunchCards.launchAllFeedS;
         }
 
         private Command launch(int count) {
@@ -2367,7 +2372,7 @@ public final class AutoSim {
                         fireStepBegins();
                         firing = true;
                         activeFeedAt = Double.NaN;
-                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS() : LaunchCards.launchOneFeedS;
+                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : LaunchCards.launchOneFeedS;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE
                                 ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
