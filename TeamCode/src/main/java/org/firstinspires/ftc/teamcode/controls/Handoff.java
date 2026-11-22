@@ -6,7 +6,8 @@ import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
- * What one OpMode leaves for the next: the alliance, where the robot is, the turret's zero, and (from
+ * What one OpMode leaves for the next: the alliance, where the robot is, the turret's zero, how the
+ * battery held up under load ({@link #recordBattery}), and (from
  * an Autonomous) the match log, still open, so TeleOp writes the rest of the match into the same file.
  *
  * <p><b>This is the one piece of static robot state in the codebase, on purpose.</b> The SDK builds
@@ -170,8 +171,34 @@ public final class Handoff {
         return recorded;
     }
 
+    private static double batteryInitVolts = Double.NaN;
+    private static double batteryMeanVolts = Double.NaN;
+
+    /**
+     * The last run's battery: its INIT reading and its average steady voltage under load
+     * ({@code opmodes/BatterySag}), written about once a second while it runs. The next INIT warns
+     * if that battery sagged and looks still to be in. Kept apart from the pose: Triangle's "start
+     * fresh" does not clear it, since the battery did not change.
+     */
+    public static void recordBattery(double initVolts, double meanVolts) {
+        batteryInitVolts = initVolts;
+        batteryMeanVolts = meanVolts;
+    }
+
+    /** The last run's INIT reading, volts; NaN if no run recorded one. */
+    public static double lastRunBatteryInitVolts() {
+        return batteryInitVolts;
+    }
+
+    /** The last run's average steady voltage under load, volts; NaN if no run recorded one. */
+    public static double lastRunBatteryMeanVolts() {
+        return batteryMeanVolts;
+    }
+
     /** For tests. */
     static void clear() {
+        batteryInitVolts = Double.NaN;
+        batteryMeanVolts = Double.NaN;
         latest = null;
         liveValid = false;
         liveFromAuto = false;

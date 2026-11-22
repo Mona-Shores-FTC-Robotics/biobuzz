@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.algorithm.Foresight;
+import com.pedropathing.algorithm.ForesightConfig;
 import com.pedropathing.algorithm.ForesightPowerAllocator;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
@@ -117,6 +118,37 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** {@link #turnAccelPerSec} in an Autonomous; 4, as {@link #autoAccelPerSec}. */
     public static double autoTurnAccelPerSec = 4.0;
+
+    /**
+     * On a path, the drive keeps the wheels' power ahead of the heading's correction while the robot
+     * is within {@link #drivePriorityHeadingToleranceDeg} of the heading Pedro wants. <b>Off</b> (Pedro
+     * 3.0.2's own split) until the robot check in {@code doc/robot-todo.md} shows paths speed up and
+     * still arrive on heading.
+     *
+     * <p>Why (22 Nov 2026). Foresight asks for full drive along a path whenever it is not braking,
+     * then fits the requests into the wheels in order ({@code ForesightPowerAllocator}): heading
+     * feedforward first, then path correction, then the drive, then heading feedback; and with
+     * {@code headingDriveRatio} at its default 0.5 it moves half of the heading feedback (P 6.8 on
+     * 20245, 8.0 on 19429: 0.7 of power for a 6° error) into that first, feedforward share. In the
+     * 20 and 21 Nov Auto logs (both robots) a path that barely turns went from 3 to 20 in/s in 0.26 to
+     * 0.28 s, as fast as a driver; one that turns 90° in 0.33 to 0.37 s; the 180° hops by the SCORING
+     * FLOWER and the cross to fix a TIP, turning 150 to 220°/s, took 0.73 to 1.63 s. On, it sets
+     * {@code headingDriveRatio} to 0 and {@code headingDeviationTolerance} to
+     * {@link #drivePriorityHeadingToleranceDeg}, so heading feedback comes after the drive until the
+     * robot falls that far behind its heading, when Pedro's heading-first order takes over again.
+     * Read before and after with {@code /Drive/Path/*} and {@code /Drive/WheelPower/*}.
+     */
+    public static boolean drivePriorityOnPaths = false;
+
+    /**
+     * How far behind Pedro's heading, degrees, before {@link #drivePriorityOnPaths} gives the heading
+     * the wheels first again. 25; Pedro's own is 11.25. Clamped to 5 to 90; NaN is Pedro's.
+     */
+    public static double drivePriorityHeadingToleranceDeg = 25.0;
+
+    /** Pedro 3.0.2's own {@code headingDriveRatio} and {@code headingDeviationTolerance}, put back when the switch is off. */
+    static final double PEDRO_HEADING_DRIVE_RATIO = 0.5;
+    static final double PEDRO_HEADING_TOLERANCE_DEG = 11.25;
 
     /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
     private static final double MAX_LOOP_DT_SEC = 0.1;
@@ -793,6 +825,21 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * STOP) left them there for every later path until the app restarted: on 6 Nov the nudge test's
      * 4 in/s cap stopped R-Solo-Nudge's full-speed paths. So every way out of path control clears it.
      */
+    /**
+     * Writes {@link #drivePriorityOnPaths}' two settings into a Foresight config, or Pedro's own when
+     * off. The Follower reads its config every loop, so a Panels change takes effect at the next path.
+     */
+    static void applyPathPriority(ForesightConfig config, boolean drivePriority, double toleranceDeg) {
+        if (drivePriority) {
+            double deg = Double.isNaN(toleranceDeg) ? PEDRO_HEADING_TOLERANCE_DEG : Math.max(5.0, Math.min(90.0, toleranceDeg));
+            config.headingDriveRatio.set(0.0);
+            config.headingDeviationTolerance.set(Math.toRadians(deg));
+        } else {
+            config.headingDriveRatio.set(PEDRO_HEADING_DRIVE_RATIO);
+            config.headingDeviationTolerance.set(Math.toRadians(PEDRO_HEADING_TOLERANCE_DEG));
+        }
+    }
+
     private void releasePath() {
         if (follower != null) follower.stop();
     }
@@ -800,6 +847,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     @Override
     public void follow(Path path) {
         preparePathFollowing();
+        applyPathPriority(Constants.forActiveRobot().foresightConfig, drivePriorityOnPaths,
+                drivePriorityHeadingToleranceDeg);
         followedPath = path;
         follower.follow(path);
         pathControl = true;

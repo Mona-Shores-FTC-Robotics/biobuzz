@@ -270,6 +270,10 @@ public abstract class RobotOpMode extends OpMode {
     private boolean batteryRumbled;
     /** The battery at INIT, volts; NaN with no sensor. */
     private double batteryAtInitVolts = Double.NaN;
+    /** How the battery holds up under load once the robot runs, for the next INIT's warning. */
+    private final BatterySag batterySag = new BatterySag();
+    /** The "battery sagging" event has gone, once per run. */
+    private boolean batterySagLogged;
 
     /**
      * What the drive team must fix before PLAY: an Autonomous's every warning, a TeleOp's unassigned
@@ -511,6 +515,12 @@ public abstract class RobotOpMode extends OpMode {
             if (volts < lowBatteryVolts()) {
                 batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, lowBatteryVolts());
                 log.event("battery low: " + batteryNote);
+            }
+            // A battery that sagged under load last run and is still in: its resting voltage hides it.
+            String sagged = BatterySag.initNote(volts, Handoff.lastRunBatteryInitVolts(), Handoff.lastRunBatteryMeanVolts());
+            if (sagged != null) {
+                batteryNote = batteryNote == null ? sagged : batteryNote + "; " + sagged;
+                log.event("battery sagged last run: " + sagged);
             }
         }
 
@@ -1884,6 +1894,16 @@ public abstract class RobotOpMode extends OpMode {
             // For the launcher's F and the feeder's power when they compensate: this read, no other.
             robot.batteryVolts(steadyBattery.update(lastBatteryVolts));
             log.put("/Robot/BatteryVoltsSteady", steadyBattery.volts());
+            if (mode != MatchLog.Mode.DISABLED) {
+                batterySag.add(steadyBattery.volts());
+                if (batterySag.readings() >= BatterySag.MIN_READINGS) {
+                    Handoff.recordBattery(batteryAtInitVolts, batterySag.meanVolts());
+                }
+                if (!batterySagLogged && batterySag.sagged()) {
+                    batterySagLogged = true;
+                    log.event(batterySag.event());
+                }
+            }
         }
         log.commit();
     }

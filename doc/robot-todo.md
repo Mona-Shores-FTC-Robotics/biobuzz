@@ -75,6 +75,24 @@ wheel got (`/Drive/WheelPower/*`). Same fresh battery for every run; pull the lo
       `headingFeedback` and see if paths still finish on heading. **If the wheels are near 1** and the
       robot still speeds up slowly, it is electrical: compare `/Robot/BatteryVolts` with the
       launcher spinning and the launcher off.
+- [ ] **The drive-first switch (`DriveSubsystem.drivePriorityOnPaths`, off; 22 Nov 2026).** In the
+      20–21 Nov logs a path that barely turns went 3 → 20 in/s in 0.26–0.28 s, one turning 90° in
+      0.33–0.37 s, and the 180° hops by the SCORING FLOWER 0.73–1.63 s. Pedro fits heading power into
+      the wheels before the drive. On, the drive goes first until the robot is
+      `drivePriorityHeadingToleranceDeg` (25) behind its heading. Same fresh battery: R-Solo 3 times
+      off, then 3 times on (Panels, no reload). **Good:** `read_logs.py legs` shows the LEFT_AUTO_HIVE ↔
+      SCORING_FLOWER_STAGING legs (median 1.40 and 1.32 s on 21 Nov) shorter, the volleys still
+      fire into the CELL, and the FLOWER picks still square up. **Stop:** a path overshoots its turn
+      or wobbles at its end, or a volley's gate waits longer for the settle → off, and bring the logs
+      back; try 15 before giving up on it.
+- [ ] **Battery sag warning (`opmodes/BatterySag`, 22 Nov 2026).** A run whose steady voltage averages
+      under 10.0 V while it runs logs `battery sagging: …`; the next INIT with the same battery (INIT
+      not 0.3 V or more higher) shows `last run averaged … V under load … Swap it` on the INIT page.
+      Run any Auto on a part-used practice battery, then INIT again without swapping. **Good:** the
+      warning appears only if the log's `battery sagging` event did, and goes away after a swap.
+      **Stop:** it warns after a swap, or never on a battery that dipped near 6 V → bring the log.
+      20245's 11:28 and 12:56 R-Solo on 21 Nov dipped to 5.9 and 6.1 V: check that battery and its
+      leads and connector.
 - [ ] **One straight 72 in path vs full stick**, launcher off, same battery: 3 → 30 in/s time and
       top speed for each. **Good:** within about 20% of each other. **Stop:** Pedro is still 2×
       slower with the wheels at 1 → note it for the issue.

@@ -111,8 +111,8 @@ untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is 
 updates through `periodic()`, and behaviour beyond that is commands. Each loop runs clear bulk
 cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
 commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics —
-the single exception is `controls/Handoff`, which carries alliance, pose and the turret's zero from
-one OpMode to the next and is written and read only by `RobotOpMode`: the Auto's final record, and
+the single exception is `controls/Handoff`, which carries alliance, pose and the turret's zero (and how the
+battery held up under load, for the next INIT's warning, `opmodes/BatterySag`) from one OpMode to the next and is written and read only by `RobotOpMode`: the Auto's final record, and
 the latest loop's state every loop, so a crashed Auto or a restarted TeleOp resumes where the robot
 is. Triangle (Y) held 1 s in INIT discards a handoff ("start fresh"): pose, alliance and turret zero
 go, as if nothing ran before. The turret zeroes itself: an Autonomous zeroes it at INIT (assumed on its mark; INIT again zeroes
