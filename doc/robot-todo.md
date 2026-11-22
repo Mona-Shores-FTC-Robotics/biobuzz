@@ -547,7 +547,11 @@ tile C6) for L-NoCross. Place by the marks, never by the camera.
       position works, add a 19429 line in `RobotDifferences` setting `LIMP_EXTENDED = true`. Then
       R-Solo on 19429: the first (WALL) pick fires 4 (all season limp, 3 of 15 picks did), and
       `/FlowerStick/Powered` stays 1 while `/FlowerStick/Out` is 1. Same servo check on 20245 (out
-      at 0.85).
+      at 0.85). **Then the stick decision:** at least 10 R-Solo Auto picks on 19429, held, both
+      FLOWERs, filmed from the robot's side; pull the logs and re-run `tools/flower-picks` (the FLOWER
+      pick study, PR for `claude/flower-pick-study`). **Good:** 4 in at least 8 of 10 → keep the
+      active stick. **Stop:** fewer → fit 20245's passive stick on 19429 (on video, the held passive
+      stick got 4 on every clearly seen Fruitport pick; 19429's limp active stick got 4 in 4 of 10).
 - [ ] **20245's FLOWER stick pivot becomes a SWYFT servo** (the goBILDA Torque servo had a
       mechanical problem, mentor, 20 Nov 2026), same port, Control Hub servo port 0
       (`robot_20245.xml`). The shared `FlowerStickSubsystem.RETRACTED` 0.6 / `EXTENDED` 0.0 were

@@ -1,0 +1,22 @@
+<div class="eyebrow">Findings, 22 Nov 2026</div>
+<h2>20245's held passive stick is close to the bar. 19429's active stick has never been held, and limp it falls short.</h2>
+<ul>
+<li><b>20245, passive stick held out (Fruitport afternoon, 8 picks):</b> 6 got 4. Every one of the 6 picks seen clearly on video got 4. The other two (finals M-3 and M-10, red WALL FLOWER) are questionable 3s: one ball dropped onto the floor beside the intake as the FLOWER emptied, and neither has an Auto volley to count. No empty pick since the stick was held.</li>
+<li><b>19429, active roller stick, always limp (Fruitport, 10 picks):</b> 4 got 4, 4 got 3, 1 got 2 and 1 got 0. Six of the ten are questionable, because a partner fired at the same CELL or the FLOWER was hidden. Its usual result is 3, with one piece left on the FLOWER or held in the lane.</li>
+<li><b>Belding's first sticks (both limp):</b> 20245 got 4 in 7 of 9 picks. 19429 got 4 in 4 of 13, and three of its WALL FLOWER picks took 1 and left 3 standing on the FLOWER.</li>
+<li><b>The logs-only scan was close for 19429.</b> The video gives a mean of 3.0 per pick at Fruitport and 2.2 at Belding, against the scan's 2.1 to 2.8. The log reads low on both robots. The lane count read 2 or 3 on picks that fired 4, and the shot counter missed a ball in most volleys after a pick. The wheel dips were within one ball of the video, but they read 5 or 6 on three Belding volleys.</li>
+</ul>
+<h3>What fails when a pick does not get 4</h3>
+<ul>
+<li><b>The push stops short.</b> All three picks that ended 4.0 in or more short got 0, with the FLOWER still full (Belding Q-4 both picks, Fruitport Q-4 20245's SCORING pick). Of the 41 picks that ended less than 4 in short, 2 got 0.</li>
+<li><b>The stick is lifted (19429).</b> The FLOWER keeps 1 to 3 pieces (Belding Q-13, Q-26 and Q-32 WALL picks; Fruitport Q-2 WALL pick took 0 and left about 3). On every limp pick the servo's pulse was cut <i>during</i> the push: 0.8 to 0.9 s into it on a first pick, and right at contact on a second pick, because the stick went down earlier on the drive in. This is the failure #699 fixed on 20245.</li>
+<li><b>A piece drops at the intake.</b> One ball lands on the floor beside the robot while the FLOWER empties (Fruitport M-3 and M-10, Belding Q-19 and Q-1). This happened on 20245 even with the stick held.</li>
+<li><b>Taken but not fired.</b> On some 19429 picks fewer balls left in the volley than went in, or the light stayed green after it (Fruitport Q-2, Q-28, Q-39, M-6). That is a feed problem, and it hides a good pick in any count taken from the volley.</li>
+</ul>
+<h3>Recommendation</h3>
+<ul>
+<li><b>Do not swap the sticks yet: test 19429 held first.</b> Master now holds the stick out on both robots, so 19429's next practice is the first time its active stick runs held. That costs nothing but the servo check already on <code>doc/robot-todo.md</code>. Run at least 10 Auto picks (R-Solo, both FLOWERs), then re-run this study (<code>tools/flower-picks</code>). If 19429 does not get 4 in at least 8 of 10, put 20245's passive stick on it. 20245's held passive stick is the only version that met the bar on video.</li>
+<li><b>Make a short push a retry.</b> A push that stalls 4 in or more short of contact has got 0 every time. Back off and push again, or flag it on the DS, rather than dwelling.</li>
+<li><b>Look at the drop.</b> One ball rolling off beside the intake costs 20245 its last piece. Watch where it leaves on video from the robot's side at the next practice (the stick's end, or the intake mouth).</li>
+<li><b>Count with the throat beam once it is fitted.</b> The lane count and the shot counter both read low, so a pick's real count still needs video. The beam's count of balls out would let this study run from logs alone.</li>
+</ul>
