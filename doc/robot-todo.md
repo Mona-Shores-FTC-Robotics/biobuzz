@@ -91,6 +91,47 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
       within about 5 ticks/s from 42 to 55 in, so it starts at 0. **Stop:** long or short at every
       range by the same amount → that amount is its new `RobotDifferences` offset line.
 
+## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
+
+We may launch only our own alliance's NECTAR (the other alliance's is a penalty: G408, as the
+simulator reads it). From the 15 Fruitport match logs ([PR: NECTAR gate]): in Q-11, 20245 on BLUE
+saw a red NECTAR clearly (hue 14°, brightness 0.97), burst twice, and launched it 7.5 s later: the
+NECTAR had ended up inside the lane, reading only 0.02 there, below the 0.05 the reject counted. And
+20245's sensor gave 92 glitch readings (brightness 1.00, red 1.0), two of which fired a reject at
+nothing on BLUE (Q-20). Now a glitch decides nothing (`maxPlausibleChannel`); an uncertain piece is
+wrong (`rejectDoubtDeg`, nearest colour, ties wrong); one reading starts a burst
+(`rejectAfterReadings` 1); and from a wrong sighting until the piece is seen leaving outward or
+an eject runs (`wrongNectarEjectClearS` 1.0, a guess), **the feed gate stays shut**
+(`shutGateOnWrongNectar`) and the Match page says `WRONG NECTAR may be in the lane: gate shut.
+EJECT to clear`. 19429's "keep only POLLEN" line is gone, so it now keeps its own NECTAR as 20245
+does. Run this on **both robots**, 19429 first (it has never kept NECTAR).
+
+- [ ] **Own NECTAR kept, the other spat out, the gate holds** (Basic Drive, intake on, Panels
+      open on `ColorSensorSubsystem`, phone filming the intake). As RED (X/B in INIT), feed in by
+      hand ten each: red NECTAR, POLLEN, blue NECTAR; then the same as BLUE with the colours swapped.
+      Feed some slowly and half-covered, and some fast. **Good:** every own NECTAR and every POLLEN
+      stays in and fires; every wrong NECTAR comes back out with a `Lane: REJECT` event, its
+      `Lane: a wrong NECTAR may be in the lane` event, then `Lane: wrong NECTAR seen leaving
+      outward` within about 1.5 s; a fire meanwhile logs `Feed gate: a feed asked, kept SHUT` and
+      nothing leaves. **Stop:** an own NECTAR or a POLLEN spat out → the event's hue says which
+      range or `rejectDoubtDeg` is too wide; to lock a robot out of NECTAR for a match, Panels
+      `rejectAllNectar` on (on 19429 put back its line: `differs(TEAM_19429, "Keeps only POLLEN …",
+      () -> ColorSensorSubsystem.rejectAllNectar = true)`).
+- [ ] **A wrong NECTAR pushed in past the sensor is never launched.** As BLUE, push a red NECTAR
+      by hand through the entrance into the lane behind two POLLEN, then hold Circle. **Good:** the
+      Match page shows the gate shut, nothing fires; the driver's eject held about 1 s brings the
+      NECTAR out and the gate opens (`cleared by an eject`). **Tune:** a full lane's eject needs
+      longer to bring the last piece past the sensor → raise `wrongNectarEjectClearS`.
+- [ ] **The gate shutting mid-feed does no harm.** Start a 4-POLLEN volley and drop a wrong NECTAR
+      into the intake as it fires. **Good:** the gate closes, the plate does not jam on a ball or
+      throw one, and the next feed (after an eject) fires the rest. **Stop:** it pinches a ball →
+      say so on the PR; the gate may need to wait for the shot in progress.
+- [ ] **20245's glitches.** The match log's `Lane: colour sensor glitch ignored` events: 20245 had
+      4 to 24 a match at Fruitport, 19429 none. Reseat the colour sensor's I2C cable on 20245 and
+      look again; a cable or port fault is the likely cause.
+- [ ] **A bench with the other NECTAR on purpose** (Launch Test with a NECTAR) finds the gate
+      shut: Panels `shutGateOnWrongNectar` off for that bench, on again after.
+
 ## 19429's feed jams (Fruitport, 21 Nov): before the State Championship
 
 From the 7 Fruitport match logs and the per-match video reviews (PR with `FeedJamClear`). 19429
@@ -1892,7 +1933,8 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
 - [ ] **Spit out the other alliance's NECTAR** (`NectarReject`; Panels `ColorSensorSubsystem`:
       `rejectEnemyNectar`, `rejectBurstS` 0.5 and `rejectHoldOffS` 0.3, both guesses, the roller at
       `rejectRollerPower` 1.0 during a burst (0.6 left one at the mouth, 5 Nov),
-      `rejectAfterReadings` 2, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3). Basic Drive, red,
+      `rejectAfterReadings` 1 since 22 Nov, the cap `rejectMaxBursts` 3 in `rejectWindowS` 3; the
+      gate check is "The NECTAR gate (Fruitport, 21 Nov)" above). Basic Drive, red,
       intake on: feed in a blue NECTAR by hand, ten times, then a red NECTAR and POLLEN ten times
       each. **Good:** every blue one comes back out within about 0.2 s of reaching the sensor and
       lands clear of the roller (the whole lane backs out with it: the mentor's call, 5 Nov), and no red NECTAR or
@@ -1907,13 +1949,7 @@ Small checks the PRs asked for. Several likely ran at the 31 Oct–2 Nov session
       Belding logs: a dim POLLEN at 46° was spat out, real red NECTAR read up to 39°. The gap is
       narrow, so in this check feed some POLLEN in slowly and half-covered (a dim reading) and note
       every hue the Robot page shows between 35° and 55° with what the piece really was.
-- [ ] **19429 keeps its own alliance's NECTAR** (the 7 Nov `rejectAllNectar` line for 19429 is
-      gone from `RobotDifferences`, so 19429 runs the shared reject: only the other alliance's
-      NECTAR is spat out). Basic Drive on 19429, red then blue: feed in a red NECTAR, a blue NECTAR
-      and a POLLEN, five times each. **Good:** our alliance's NECTAR and every POLLEN are kept, the
-      other alliance's NECTAR comes back out, and the match log's Metadata lists no NECTAR line under
-      `RobotDifferences`. **Stop:** our NECTAR spat out → narrow the NECTAR hue ranges as above; to
-      lock 19429 out of NECTAR again for a match, Panels `rejectAllNectar` on.
+- [ ] 19429 keeps its own alliance's NECTAR: now in "The NECTAR gate (Fruitport, 21 Nov)" above.
 - [ ] **Full-lane position hold:** Panels `IntakeSubsystem.positionHoldWhenFull` defaults on
       for both robots (19429's encoder wire was plugged in 6 Nov, so its off line is gone). The roller captures
       its encoder position once, stars continue inward and prefeed stops. Initial `positionHoldMaxPower` 0.3 and

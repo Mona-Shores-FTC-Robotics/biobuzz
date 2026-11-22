@@ -67,6 +67,9 @@ Three layers, each written in exactly one place:
   wheels' dip count. Anything that ends on, or subtracts, a launch reads that; `launcher.shots()` is the dip
   detector's own measurement (dip depth for the speed table, PIDF timing). With the lane beam fitted,
   `colorSensor.full()` needs the entrance colour sensor and the beam to agree.
+- We launch only our own alliance's NECTAR. `NectarReject` treats an uncertain piece as wrong, and
+  while `colorSensor.wrongNectarMayBeIn()` the feed gate stays shut to every feed (TeleOp and Auto)
+  until the piece is seen leaving outward or an eject runs; never add a feed path around the gate.
 - A continuous-rotation servo is `Kind.CR_SERVO` and `<ContinuousRotationServo>`, asked for as
   `CRServo`; it shares the servo ports. The turret's encoder has no device of its own: it is read
   through the encoder socket of `DeviceNames.TURRET_ENCODER_HOST` (a motor whose own encoder the

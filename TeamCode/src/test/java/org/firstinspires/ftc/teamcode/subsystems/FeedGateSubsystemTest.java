@@ -23,6 +23,14 @@ public class FeedGateSubsystemTest {
     }
 
     @Test
+    public void aWrongNectarInTheLaneKeepsItShutToAFeedButNotToAnUnjam() {
+        assertEquals(State.BLOCKING, FeedGateSubsystem.requestFor(FeederSubsystem.State.FEED, true));
+        assertEquals(State.FEEDING, FeedGateSubsystem.requestFor(FeederSubsystem.State.REVERSE, true));
+        assertEquals(State.BLOCKING, FeedGateSubsystem.requestFor(FeederSubsystem.State.IDLE, true));
+        assertEquals(State.FEEDING, FeedGateSubsystem.requestFor(FeederSubsystem.State.FEED, false));
+    }
+
+    @Test
     public void eachStateGoesToItsOwnPosition() {
         assertEquals(0.2, FeedGateSubsystem.positionFor(State.BLOCKING, 0.2, 0.7), EPS);
         assertEquals(0.7, FeedGateSubsystem.positionFor(State.FEEDING, 0.2, 0.7), EPS);
