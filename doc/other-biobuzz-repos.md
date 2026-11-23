@@ -223,12 +223,60 @@ in `update()`, marks the mechanism FAULTED and keeps the rest of the robot runni
 No repo uses Ivy beyond `sequential(follow(...), waitMs(...))` in an Auto, and none but
 GigglePickles uses Panels tunables, so there is no better Ivy or Panels pattern out there to copy.
 
+## 10. The NCSSM simulator against ours (23 Nov 2026)
+
+[teddytennant/ftc-biobuzz-sim](https://github.com/teddytennant/ftc-biobuzz-sim) (MIT, NCSSM teams
+5064, 8569 and 22377; its README badge points at `caryden/ftc-biobuzz-sim`; live at
+<https://biobuzz.ncssmftc.org/>), read at commit `3c22f76` (16 Nov 2026). It is a TypeScript and Rapier
+rigid-body sim with a three.js view. Its README cites "about 12,000 simulated matches" and a
+ten-lessons page (`docs/top-ten.md`). I read the code and docs and did not run it. Every number of
+theirs below is quoted from its files.
+
+**The mentor's decision (23 Nov):** meld it. Its engine is the base for the match and drill sim in
+the Visualizer repo, and our measured models replace its models wherever we have data. AutoSim stays
+as the CI check that runs our real Auto code.
+
+| | Theirs | Ours (`src/test/.../logging/`) |
+|---|---|---|
+| Ball flight | Rigid bodies at 240 Hz, drag, backspin | Point masses, drag and spin lift, 20 sub-steps |
+| Launch spread | 1.5% speed, 1° elevation, 1.2° yaw, a fixed 67° launcher: their own choice, not measured | 1.5% and 0.8° placeholders on our speed table; Belding in-rates 0.95 / 0.90 / 0.70 from 42.4 / 53.9 / 36 in (`BeldingCalibration`) |
+| HIVE tip point | A rigid rocker fitted to the Guide's six rows (`TIP_LOAD.threshold` 7.4 POLLEN weights) | Fitted to the Guide, then to Belding's two fields (about 7.0 and 8.0) |
+| TIP lag | Contact torque only, with no dwell: "1.2 s, against 1.7 s when the load barely crosses the threshold" | `FieldSim.tipDwellRange`, from the films: last ball to CELL settled 3.4–6.5 s, median 3.9, at the tipping weight; 2.2–2.5 s well past it (`TeamCode/autos/timing-terms.md`; Fruitport M6 3.98 s) |
+| Bounce, roll, spill | Restitution 0.45, friction 0.6, damping: estimates ("we haven't measured how the balls bounce and roll") | Filmed rolling slow-down (POLLEN 4, NECTAR 1.5 in/s²), spill exit speed, bounce scatter |
+| Intake | A box in front of the robot, succeeds 95% of the time; FLOWER pulls one every 0.35 s | Our FLOWER stick with its retries, the GARDEN wall gather, Belding's loads |
+| Drive | DC motor, battery and traction model, mecanum; four robots; path planning around them | Speed and acceleration limits (`@50`: 50 in/s, 45 in/s²; real 63–71 in/s² from rest, per `AutoSim`) |
+| Contact | Rigid bodies, a G421 PIN referee | A partner is a collision unless `"pushable": true` |
+| Match | The full 2:30: AUTO, transition, TELEOP planner, FLOWERS, PARK, RPs (their win/tie RPs are copied from 2025–26, unchecked) | AUTO only, scored by Table 10-2 |
+| Partners, opponents | Behavior trees for every robot, TELEOP defense | A partner from its `lastShotS`; opponents' Autos |
+| Replay | A three.js view, a review scrubber and notes, a 10 Hz JSON trace | AdvantageScope `.wpilog` with GLB models |
+| Speed | 7,584 matches in about 8 h on 10 cores: roughly 40 CPU-seconds per full match | Not timed here |
+| Runs our code | No | Yes: `BuiltAuto`, the guard, `LaunchCards`, `FeedWatch` as checked out, in CI |
+
+**Where theirs is wrong for us:** the TIP. With no dwell, its TIPs come about 2–2.5 s early at the
+tipping weight, so its four-TIP AUTO pair ("the third TIP from 21 s to about 17 s") is optimistic on
+a real field.
+
+**Its ten lessons against our robots and Autos:**
+
+- Already our practice: lesson 1 (launch speed first: speed table and PIDF), 2 (the window is a
+  distance: our CLOSE spots' 0.70 is the same lesson, though its 1.16–1.58 m is its launcher's), 3
+  (planned pair, wait on the camera: our CELL check and paired Autos), 5 (watch the waiting:
+  `timing-terms.md`), 8 (reach at the walls: `GardenGatherAlongWall`), 9 (go where the spill lands)
+  and 10 (PARK when SWARM needs it: PARK FIRST). They confirm decisions; they change none.
+- Build lessons, frozen for States: 6 (release fast, a turret; theirs aims perfectly) and 7 (light,
+  small, 435 rpm).
+- New for us, since our sim has no TELEOP: lesson 4 (at most one robot on FLOWERS, from the last
+  30 s) and the defense section (a weak partner defends). Both are in
+  `doc/drive-coach-checklist.md`.
+- "Five AUTO TIPs: four was the most that any plan reached" agrees with us.
+
 ## Repos and threads read
 
 Deep: BluePowerRobotics/Team19725_BIOBUZZ, craigmichaelmartin/ftc-12303,
 nick-koko/GigglePickles_BioBuzz_2026 (DECODE), FTC16751/FtcRobotController_BioBuzz,
 CyberCoyotes/2026-2027-BIOBUZZ, smrc-pune/biobuzz, iwa-robotics-houston/BioBuzz
 (= PsychoGeck0/BioBuzz), Wyandotte-Robotics/ftc-14158-biobuzz, MarcusScott1616/Chargers-Biobuzz-FTC2026.
+Simulator: teddytennant/ftc-biobuzz-sim (NCSSM, § 10).
 Glanced: Jefferson-Cydogs/FTC10615, brtucker42, tarun101/uprobotics-ftc-2026, 4329/biobuzz,
 LIKS-CO, MCB-Robotics/21116, wilsobotics, FTC-3081, CodeRed2771, Limelight-Robotics/ftc-2027,
 ftc-4991, spacey-sooty. Private or gone: niranradia/biobuzz-26, Shashanksaraswat123939/biobuzz-simulator.

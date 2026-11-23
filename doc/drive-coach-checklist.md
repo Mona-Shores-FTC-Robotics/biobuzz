@@ -61,6 +61,11 @@ Controls page and the printed cheat sheet are the only place for those.
 - [ ] **"Pinpoint lost" on the Match page:** call "drive by hand". Square and the FLOWER pick stay
       refused for the rest of the match (only a restart clears it), so one refused press is the
       last one. Restart the robot after the match.
+- [ ] **At most one of the two robots on FLOWERS, and only in the last 30 s.** Not from Belding:
+      it is the NCSSM simulator's lesson 4 (`doc/other-biobuzz-repos.md` § 10). Two robots on
+      FLOWERS for the last minute was its worst plan tested (−68 points). The one exception is a
+      partner that can't score reliably: ask them to defend, or at least to stay off our launch
+      spot and our pieces (its defense section).
 
 ## Right after the match
 
