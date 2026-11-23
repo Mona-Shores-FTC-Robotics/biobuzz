@@ -38,8 +38,8 @@ gyroid. No supports. The sled's pins stick out 1 mm from its sides and the recei
 - **The emitter is below and the receiver above.** Looking down, the receiver sees the dark floor channel, not the
   venue lights through the top plate's hole and the ball's holes (halogen and sunlight carry enough IR to make a
   broken beam read clear). And dust falls on a window that faces up: on the emitter, a little dust does not matter.
-- **The range** is the floor to the top plate, about 100 to 130 mm: fine for both the 3 mm (25 cm) and the 5 mm
-  (50 cm) versions of the 2168.
+- **The range** is the floor to the top plate, about 100 to 130 mm: the team's sensor is the Adafruit 2168, the 5 mm
+  version, rated to 50 cm (the 2167 is the 3 mm one, 25 cm, in the same housing).
 
 ## Fitting the emitter (the floor sled)
 
@@ -92,7 +92,7 @@ keep the one that holds better.
 1. Find the top plate's 14 mm hole straight over the emitter's hole (a square laid on the floor hole, or a laser
    level). Within about 5 mm is enough: the emitter's cone is wide, and the slots take up the rest.
 2. Put the receiver into the cradle, **LED down**: slide its LED end under the lip on the end wall, then lay the wire
-   end down. Fix it with an **M3 x 14** through the body's hole into an M3 nut in the small hex pocket underneath.
+   end down. Fix it with an **M2 x 12** through the body's 2.4 mm hole into an M2 nut in the small hex pocket underneath.
    **It is held at both ends, so it sits flat.** The first version held only the screw end, and on the robot its LED
    end stood proud.
 3. Put a plain M4 nut in each of the two big tracks on top. Bolt the mount down onto the top plate with two **M4 x 8
@@ -101,17 +101,22 @@ keep the one that holds better.
 4. Slide it within its slots (±3 mm) until Check: Hardware reads the beam clear with nothing in it and broken with a
    hand in it, then tighten.
 
-## The sensor (not yet measured with calipers)
+## The sensor: Adafruit 2168 (5 mm LEDs), as bought
 
-- **Body:** 20 x 10 x 8 mm (Adafruit; the QT50CM datasheet says 9). **Measure the thickness first.** The sled's floor
-  under the body is 9.3 − thickness: 1.3 mm at 8, and `floor_sled.py` refuses to build below 0.8. The receiver's lip
-  sits 0.1 mm over the thickness you set. Change `BODY_T` in both files and run them again.
-- **LED:** looks out of a big face, 5 mm from the end opposite the wires.
-- **The body's screw hole:** 5 mm from the wire end, 10 mm from the LED, on the same centre line (the receiver only).
+From Adafruit's [product page](https://www.adafruit.com/product/2168) and its dimensioned
+[drawing](https://cdn-shop.adafruit.com/product-files/2167/2167diagram.jpg) (the 2167's, the same housing):
 
-These come from TheTapeWaster's holders and photos ([Thingiverse 2772303](https://www.thingiverse.com/thing:2772303),
-CC BY) and a photo of a pair in another holder; the sources agree. Only the numbers are used: the mounts aren't
-their design. If the body's hole is smaller than M3, set `parts.py`'s `S_*` constants to M2.5 (comments there).
+- **Body:** 20 x 10 x 8 mm (Adafruit's page; the generic QT50CM [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf)
+  says 9). The sled's floor under the body is 9.3 − thickness: 1.3 mm at 8, and `floor_sled.py` refuses to build
+  below 0.8. The receiver's lip sits 0.1 mm over the thickness set. If a body proves 9 mm, change `BODY_T` in both
+  files and run them again.
+- **LED:** on a big face, 5 mm from one end.
+- **Mounting hole:** 2.4 mm (an M2), on the same face, 10 mm from the LED, 5 mm from the other end (the receiver
+  mount uses it; the sleds do not).
+- **Leads:** 250 mm. Emitter red 3.3–5 V, black ground; receiver red, black, and the signal (open collector: the
+  hub's digital input pulls it up).
+
+No 3D model is published (Adafruit's CAD library skips the 2167 and 2168).
 
 ## After measuring
 
