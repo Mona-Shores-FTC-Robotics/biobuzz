@@ -240,6 +240,15 @@ public final class TeleOpConfig {
     public static double downCellGiveUpS = 1.0;
 
     /**
+     * The practice readout ({@link CycleReadout}): the Match page opens with the last pick-up
+     * ("PICK-UP 2.4 s (4 in)"), the last cycle ("CYCLE 11.2 s · 4 balls") and its split, and the
+     * session's best and median, each the moment it ends, timed as {@code read_logs.py cycles}
+     * times them. For the cycle drill (doc/drive-team-cycle-playbook.md). <b>Off</b>, so a match's
+     * Match page is unchanged; the match log's "practice:" lines are written either way.
+     */
+    public static boolean practiceReadout = false;
+
+    /**
      * At TeleOp's PLAY the launcher spins to its idle ({@link #launcherIdleTicksPerSecond}) at once,
      * rather than waiting for the first fire press to spin it up from 0. Fruitport (21 Nov 2026):
      * the first Circle of TeleOp found the wheels at 0 in 7 of 7 of 19429's matches and 5 of 8 of

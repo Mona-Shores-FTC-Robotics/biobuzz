@@ -55,6 +55,7 @@ public final class LaneTracker {
     private int overflows;
     private int underflows;
     private String event;
+    private boolean arrived;
 
     /** Declare what is loaded, front to back all {@code piece}, before the first reading. */
     public void fill(Piece piece, int n) {
@@ -87,6 +88,7 @@ public final class LaneTracker {
                      double presentAbove, double leaveBelow) {
         if (!outward) ejecting = false;
         event = null;
+        arrived = false;
         if (shot) {
             if (count > 0) {
                 removeFront();
@@ -106,6 +108,7 @@ public final class LaneTracker {
         }
         if (now && !present) {
             if (!outward) {
+                arrived = true;
                 if (count < SLOTS) {
                     slots[count++] = piece;
                     namingBack = true;
@@ -193,6 +196,15 @@ public final class LaneTracker {
     /** This loop's change, for the match log's events; null when nothing changed. */
     public String event() {
         return event;
+    }
+
+    /**
+     * A piece came in past the sensor in the latest {@link #step}, counted or not (one arriving at a
+     * lane counted full is still a piece in): the same moments as the match log's "lane: … in, N in
+     * the lane" and "lane: a piece arrived" lines, which {@code read_logs.py cycles} times from.
+     */
+    public boolean pieceArrived() {
+        return arrived;
     }
 
     /** Front to back, one letter a slot: P POLLEN, R red NECTAR, B blue NECTAR, ? unknown, _ empty. */
