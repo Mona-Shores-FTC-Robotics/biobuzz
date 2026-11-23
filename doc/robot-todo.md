@@ -145,6 +145,13 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
+## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
+
+- [ ] **R-Solo with its SCORING FLOWER already empty**, three runs. **Good:** that pick's log line reads
+      `DWELL 1.3x s (nothing came)` (not `2.0x s (dwellMs)`), and a pick at a loaded FLOWER still takes its
+      pieces and dwells as before. **Stop:** a loaded FLOWER's pick ends at 1.3 s with pieces left in it →
+      `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #FLOWER-EMPTY]
+
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
 At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
