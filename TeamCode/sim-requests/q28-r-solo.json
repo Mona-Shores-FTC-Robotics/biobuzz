@@ -1,0 +1,28 @@
+{
+  "pp": "TeamCode/autos/r-solo.pp",
+  "spec": "RSoloAuto",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "partners": [],
+  "metadata": {
+    "AutoSource": "r-solo.pp",
+    "SimNote": "Fruitport Q28 replay: R-Solo as 20245 (red) ran it, real robot with turret, Belding calibration, alone (Q28 partner 11266 left no log). For the Visualizer sim, beside the match-log replay."
+  },
+  "calibration": "belding"
+}
