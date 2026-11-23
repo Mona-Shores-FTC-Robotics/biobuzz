@@ -153,6 +153,10 @@ shows when a camera first saw it settled, which can be seconds after the real TI
 logs hold no balls, FLOWER contents or score, so the trace has none. Robots without a log (partners, opponents) are
 not drawn.
 
+A log can also be one of our Java simulator's runs (from the `sim-results` branch); `mirror:` before a log plays it
+on the other alliance, half a turn about the centre. So one simulated R-Solo run stands in for both robots in Q28:
+`to_sim_trace.py q28-sim.json run.wpilog mirror:run.wpilog --name Fruitport-Q28-sim`.
+
 ## Turret burst bench recordings
 
 **Bench: Turret Burst** (the SWYFT experiment of 6 Nov 2026, removed when the turret servo became a

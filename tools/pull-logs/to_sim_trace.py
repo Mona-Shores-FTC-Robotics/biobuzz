@@ -5,6 +5,11 @@ replays in its 3D view beside its video, and beside a simulated run of the same 
 
   python3 tools/pull-logs/to_sim_trace.py OUT.json LOG.wpilog[.gz] [LOG ...] [--name Q28]
 
+A LOG may also be one of our Java simulator's runs (AutoSim's .wpilog, e.g. from the sim-results branch): its alliance
+comes from its "Auto: <name> for RED" event and its HIVE is the simulator's own, so every read counts as seen. Put
+"mirror:" before a LOG to play it on the other alliance, turned half a turn about the field centre (the field is
+rotationally symmetric, FieldFrame), e.g. one simulated R-Solo run as both 20245 (red) and 19429 (blue).
+
 Each LOG is one robot's match log (Auto and TeleOp in one file, as the events/ branches keep them). The robot's alliance
 comes from its "PLAY: RED/BLUE alliance" event; a second robot on the same alliance takes slot 1. Each log is aligned to
 the match by its own PLAY (AUTO, match 0 to 30 s) and its own TeleOp start (match 38 s on), so a hub clock that ran
@@ -68,18 +73,29 @@ def mode_start(d, mode):
 
 class RobotLog:
     def __init__(self, path):
+        self.mirror = path.startswith('mirror:')
+        path = path[len('mirror:'):] if self.mirror else path
         d = read_logs.read(path)
         self.path = path
-        play = [str(v) for _, v in d.get('/Events', []) if re.match(r'PLAY: (RED|BLUE) alliance', str(v))]
+        events = [str(v) for _, v in d.get('/Events', [])]
+        play = [e for e in events if re.match(r'PLAY: (RED|BLUE) alliance', e)] \
+            or [e for e in events if re.match(r'Auto: .* for (RED|BLUE)$', e)]
         if not play:
-            raise SystemExit(f'{path}: no "PLAY: <alliance> alliance" event')
+            raise SystemExit(f'{path}: no "PLAY: <alliance> alliance" or "Auto: <name> for <ALLIANCE>" event')
+        self.sim = not play[0].startswith('PLAY')
         self.alliance = 'red' if 'RED' in play[0] else 'blue'
+        if self.mirror:
+            self.alliance = 'blue' if self.alliance == 'red' else 'red'
         self.auto0 = mode_start(d, 'autonomous')
         self.teleop0 = mode_start(d, 'teleop')
         if self.auto0 is None:
             raise SystemExit(f'{path}: no autonomous period')
         self.x, self.y = d['/Odometry/PedroInches/X'], d['/Odometry/PedroInches/Y']
         self.h = d['/Odometry/PedroInches/HeadingDeg']
+        if self.mirror:  # a half turn about the centre: (2c - x, 2c - y, h + 180)
+            self.x = [(t, 2 * CENTRE_IN - v) for t, v in self.x]
+            self.y = [(t, 2 * CENTRE_IN - v) for t, v in self.y]
+            self.h = [(t, v + 180.0) for t, v in self.h]
         self.speed = d.get('/Drive/OdometrySpeedInPerSec', [])
         self.lane = d.get('/Lane/Count', [])
         self.cards = [(t, str(v)[len('auto: command '):].split()[0]) for t, v in d.get('/Events', [])
@@ -88,7 +104,12 @@ class RobotLog:
         # counts once it was seen for SETTLED_S in a row (single frames flicker), TRANSITION once seen TRANSITION_S_SEEN.
         self.hive = {}
         for a in ('Red', 'Blue'):
-            states, assumed = d.get(f'/Hive/{a}/State', []), d.get(f'/Hive/{a}/Assumed', [])
+            # Mirrored, this log's red HIVE is the other alliance's, and its RIGHT/LEFT (as that alliance's drivers
+            # see it) carry over unchanged, since the drivers turn with it.
+            src = ('Blue' if a == 'Red' else 'Red') if self.mirror else a
+            states, assumed = d.get(f'/Hive/{src}/State', []), d.get(f'/Hive/{src}/Assumed', [])
+            if self.sim:
+                assumed = [(0.0, 0)]  # the simulator's HIVE is the truth
             changes, run, run_from, current = [], None, None, None
             for t, v in states:
                 v = int(v)
@@ -98,7 +119,7 @@ class RobotLog:
                 if v != run:
                     run, run_from = v, t
                 need = TRANSITION_S_SEEN if v == TRANSITION else SETTLED_S
-                if v != current and t - run_from >= need:
+                if v != current and (self.sim or t - run_from >= need):
                     current = v
                     changes.append((self.match_time(run_from), v))
             self.hive[a.lower()] = changes
@@ -146,7 +167,8 @@ def build(paths, name):
     settled = dict(last_state)
     # Every log's debounced HIVE changes, merged in match time: the first robot to see a flip shows it.
     pending = {a: sorted(c for r in robots for c in r.hive[a]) for a in ('red', 'blue')}
-    end = AUTO_S + TRANSITION_S + TELEOP_S
+    # A simulated run is AUTO only: stop after the transition when no log has a TeleOp.
+    end = AUTO_S + TRANSITION_S + (TELEOP_S if any(r.teleop0 is not None for r in robots) else 0)
     for k in range(int(end * HZ) + 1):
         t = k / HZ
         phase, clock = phase_and_clock(t)
@@ -175,7 +197,8 @@ def build(paths, name):
                        'hives': hives, 'flowers': [[] for _ in FLOWER_SITES], 'robots': rf})
     return {'name': name, 'startedAt': '', 'settings': {
         'source': 'match logs (biobuzz tools/pull-logs/to_sim_trace.py)',
-        **{rid: os.path.basename(r.path) for rid, r in zip(ids, robots)}},
+        **{rid: ('mirrored ' if r.mirror else '') + ('simulated ' if r.sim else '') + os.path.basename(r.path)
+           for rid, r in zip(ids, robots)}},
         'flowerSites': FLOWER_SITES, 'robotSize': [FRAME_IN * M_PER_IN, FRAME_IN * M_PER_IN], 'frames': frames}
 
 
