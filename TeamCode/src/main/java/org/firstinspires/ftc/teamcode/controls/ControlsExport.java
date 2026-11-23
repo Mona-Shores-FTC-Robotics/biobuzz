@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.controls;
 import org.firstinspires.ftc.teamcode.opmodes.CycleReadout;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.Locale;
@@ -74,6 +75,15 @@ public final class ControlsExport {
                 {"turretArcLeftDeg", num(TurretSubsystem.arcLeftDeg)},
                 {"turretArcRightDeg", num(TurretSubsystem.arcRightDeg)},
                 {"turretTopSpeedDps", num(TurretSubsystem.topSpeedDps)},
+                {"trimStepDeg", num(TeleOpConfig.trimStepDeg)},
+                {"trimFineStepDeg", num(TeleOpConfig.trimFineStepDeg)},
+                {"maxAimTrimDeg", num(TeleOpConfig.maxAimTrimDeg)},
+                {"launcherTargetTps", num(LauncherSubsystem.targetTicksPerSecond)},
+                {"launcherTrimStepTps", num(TeleOpConfig.launcherTrimStepTps)},
+                {"launcherTrimFineStepTps", num(TeleOpConfig.launcherTrimFineStepTps)},
+                {"maxLauncherTrimTps", num(TeleOpConfig.maxLauncherTrimTps)},
+                {"launcherKeepSpinningAfterSquareS", num(TeleOpConfig.launcherKeepSpinningAfterSquareS)},
+                {"staleStickCancelsAfterS", num(TeleOpConfig.staleStickCancelsAfterS)},
         };
         for (int i = 0; i < switches.length; i++) {
             indent(out, 2).append(quote(switches[i][0])).append(": ").append(switches[i][1])
