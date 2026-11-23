@@ -1,0 +1,36 @@
+{
+  "pp": "TeamCode/autos/r-no-cross.pp",
+  "spec": "RNoCrossAuto",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "on time, typical 50 in/s",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 50
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "r-no-cross.pp",
+    "SavedBy": "dustinhans; LEFT_AUTO_HIVE 0.5 in off the centre line",
+    "SavedAt": "2026-11-18T19:45:00+00:00",
+    "SimNote": "PR #723 A/B: LaunchAll approach through the CELL check on; temporary, removed before merge"
+  },
+  "folder": "ab-723-r-no-cross-approach-on"
+}

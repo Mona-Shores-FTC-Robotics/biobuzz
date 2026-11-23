@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -88,6 +89,7 @@ public class SimRunTest {
         // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
         boolean beldingBefore = BeldingCalibration.on;
         boolean throatBefore = BeamBreakSubsystem.throatFitted;
+        boolean approachBefore = LaunchCards.launchOnApproach;
         double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
             Map<String, Object> request = request(dir);
@@ -107,6 +109,12 @@ public class SimRunTest {
             if (Boolean.TRUE.equals(request.get("throatBeam"))) {
                 BeamBreakSubsystem.throatFitted = true;
                 out.put("throatBeam", true);
+            }
+            // "launchOnApproach": false: master's LaunchCards.launchOnApproach off, every gate opening only once the
+            // robot has settled after the path (an A/B of the approach, PR #723).
+            if (Boolean.FALSE.equals(request.get("launchOnApproach"))) {
+                LaunchCards.launchOnApproach = false;
+                out.put("launchOnApproach", false);
             }
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
@@ -130,6 +138,7 @@ public class SimRunTest {
             BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.on = beldingBefore;
             BeamBreakSubsystem.throatFitted = throatBefore;
+            LaunchCards.launchOnApproach = approachBefore;
             BeldingCalibration.bestCase = false;
             HiveCalibration.tipPointInBand = tipPointBefore;
             write(dir, out);

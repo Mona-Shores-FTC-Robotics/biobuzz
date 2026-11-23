@@ -1,0 +1,32 @@
+{
+  "pp": "TeamCode/autos/l-no-cross.pp",
+  "spec": "LNoCrossAuto",
+  "design": "real robot, turret locked forward, POLLEN only",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "last shot at 2 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 2
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-no-cross.pp",
+    "SavedBy": "dustinhans; TIP-came-after-all drive turns clear of the centre line",
+    "SavedAt": "2026-11-18T20:50:00+00:00",
+    "SimNote": "PR #723 A/B: LaunchAll approach through the CELL check on; temporary, removed before merge"
+  },
+  "folder": "ab-723-l-no-cross-approach-on"
+}
