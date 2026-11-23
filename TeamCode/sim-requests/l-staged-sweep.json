@@ -17,7 +17,24 @@
     5
   ],
   "alliance": "RED",
-  "oursStaged": true,
+  "oursStaged": [
+    [
+      33.0,
+      140.1
+    ],
+    [
+      30.5,
+      138.9
+    ],
+    [
+      28.0,
+      137.7
+    ],
+    [
+      25.4,
+      136.6
+    ]
+  ],
   "partners": [
     {
       "name": "last shot at 2 s",
