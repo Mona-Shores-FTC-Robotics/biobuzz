@@ -1,4 +1,4 @@
-"""The lane-floor beam's emitter sled: one Adafruit 2168 half inside the floor channel, under the ball's last spot.
+"""The lane-floor beam's emitter sled, two ways to hold it (print both, keep the one that holds): one Adafruit 2168 half inside the floor channel, under the ball's last spot.
 
     pip install cadquery
     python3 cad/beam-mount/floor_sled.py     # writes floor_sled.step, .stl and .3mf next to this file
@@ -25,12 +25,18 @@ the two pairs of pins (16 mm along), into an M3 nut dropped into the slot in the
 head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap beside the
 channel; unused, the slot is just an empty pocket.
 
-The sled reaches from the beam's 14 mm hole toward the gate, and the wires leave at that end (mentor, 23 Nov 2026:
-in the transfer CAD the wires go toward the gate, the orange part). WIRES_TOWARD_GATE False turns it the other way.
+The sled reaches from the beam's 14 mm hole away from the gate and the purple wheel stack, and the wires leave at
+that end, inside the channel (mentor, 23 Nov 2026). WIRES_TOWARD_GATE True turns it the other way.
+
+**Option B, `floor_sled_screwed`:** no pins. Longer (81 mm), reaching 40 mm each way along the channel, with an
+M3 x 8 button head at each end down through the floor's 4 mm hole (9.4 mm off the centre line on the open side) into
+an M3 nut slid into a tunnel in the sled; each in a +-3 mm slot. Both screws are 33 mm along the channel from the
+beam's hole, 39 mm and 28 mm from where the balls cross: no ball rolls over them, and they are reached from the top.
+Tightening them pulls the sled, and the emitter on its crush ribs, flat against the floor.
 
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
-channel (+X the side pressed against the next channel, -X the open side), Y along it (-Y toward the gate, where
-the wires leave), Z up (into the lane). It is drawn wires toward +Y and mirrored at the end. It prints upside down, top face on the bed, no supports.
+channel (+X the side pressed against the next channel, -X the open side), Y along it (+Y away from the gate, where
+the wires leave), Z up (into the lane). It prints upside down, top face on the bed, no supports.
 """
 import os
 
@@ -67,7 +73,14 @@ M3_CLEAR = 3.4
 NUT_AF = 5.5
 NUT_T = 2.6
 NUT_X = 6.9                  # the nut slot's inner face from the beam axis: an M3 x 10 from outside the wall reaches
-WIRES_TOWARD_GATE = True     # the sled and its wires run from the beam's hole toward the gate (-Y); False: away
+WIRES_TOWARD_GATE = False    # False: the sled and its wires run from the beam's hole away from the gate (+Y)
+SCREW_X = 9.4               # option B's screws: the floor's 4 mm holes 9.4 mm off the centre line, open side...
+SCREW_Y = 33.4               # ...33.4 mm each way along the channel from the beam's hole
+SLIDE = 3.0                  # +-3 mm slots along the channel
+NUT_TUNNEL_W = 5.8           # a nut slides in from the sled's end and cannot turn
+NUT_TUNNEL_H = 2.7
+NUT_TUNNEL_TOP = 3.0         # tunnel roof below the top face: an M3 x 8 through the 2.5 mm floor ends 5.5 down
+SCREW_TAIL = 2.5             # sled beyond each slot's end
 RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
 RIB_W = 1.0
 WIRE_W = 6.0                 # wire slot out of the wire end
@@ -135,6 +148,36 @@ def floor_sled():
     return part
 
 
+def floor_sled_screwed():
+    """Option B: no pins; a floor screw at each end, 33.4 mm each way from the beam's hole, into nut tunnels."""
+    floor = H - BODY_T
+    assert floor >= 0.8, f"the sensor is {BODY_T} mm thick: only {floor:.1f} mm of floor is left under it"
+    by0 = -LED_FROM_END - FIT
+    by1 = BODY_L - LED_FROM_END + FIT
+    yend = SCREW_Y + SLIDE + M3_CLEAR / 2 + SCREW_TAIL
+    part = box(-W / 2, W / 2, -yend, yend, -H, 0)
+    bx = BODY_W / 2 + FIT
+    part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))
+    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, yend + 0.1, -BODY_T, 0.1))
+    for ry in (by0 + 3.0, by1 - 3.0):
+        part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
+    sx = -SCREW_X
+    for sy in (SCREW_Y, -SCREW_Y):
+        part = part.cut(cq.Workplane("XY").workplane(offset=-NUT_TUNNEL_TOP - 0.1).center(sx, sy)
+                        .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(NUT_TUNNEL_TOP + 0.2))
+        part = part.cut(cq.Workplane("XY").workplane(offset=-H - 0.1).center(sx, sy)
+                        .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(H - NUT_TUNNEL_TOP - NUT_TUNNEL_H + 0.1))
+        out = 1 if sy > 0 else -1             # the tunnel opens at the sled's nearer end
+        t0, t1 = sy - out * (SLIDE + NUT_AF), out * (yend + 0.1)
+        part = part.cut(box(sx - NUT_TUNNEL_W / 2, sx + NUT_TUNNEL_W / 2, min(t0, t1), max(t0, t1),
+                            -NUT_TUNNEL_TOP - NUT_TUNNEL_H, -NUT_TUNNEL_TOP))
+    assert sx + NUT_TUNNEL_W / 2 < -WIRE_W / 2 and sx - NUT_TUNNEL_W / 2 > -W / 2, "a nut tunnel hits the wires or the side"
+    assert SCREW_Y - SLIDE - NUT_AF > by1, "a nut tunnel runs into the sensor pocket"
+    if WIRES_TOWARD_GATE:
+        part = part.mirror("XZ")
+    return part
+
+
 def export(part, name):
     solid = part.val()
     assert solid.isValid()
@@ -147,6 +190,7 @@ def export(part, name):
 
 def main():
     export(floor_sled(), "floor_sled")
+    export(floor_sled_screwed(), "floor_sled_screwed")
 
 
 if __name__ == "__main__":

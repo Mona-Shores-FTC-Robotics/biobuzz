@@ -75,7 +75,7 @@ line; the `RobotDifferences` lines come with the switch item further down this g
       thick, 10 wide, 5 from the end (the files' numbers). **Stop:** anything else → `BODY_T` etc. in
       `floor_sled.py` and `parts.py`, run both, print those files.
 - [ ] **Before printing, look inside the floor channel:** the 43 mm of it from the 14 mm hole under the ball's
-      last spot toward the gate must be empty (no nut, screw end or wire inside the U), and the open
+      last spot away from the gate must be empty (no nut, screw end or wire inside the U), and the open
       side's two side-wall holes there reachable with a small screwdriver. **Stop:** a nut or screw inside → note
       where; the sled gets a notch or flips end for end.
 - [ ] **Print one sled first (`cad/beam-mount/README.md`) and click it in empty:** it pushes in by hand and all four
