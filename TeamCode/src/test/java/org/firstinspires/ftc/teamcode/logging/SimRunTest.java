@@ -349,7 +349,7 @@ public class SimRunTest {
                     AutoStudyTest.oursLaunchS = launchS instanceof Number ? ((Number) launchS).doubleValue() : Double.NaN;
                     AutoStudyTest.oursFails = entry.oursFails != null ? entry.oursFails
                             : first && request.get("oursFails") instanceof String ? (String) request.get("oursFails") : null;
-                    AutoStudyTest.oursStaged = Boolean.TRUE.equals(request.get("oursStaged"));
+                    AutoStudyTest.oursStaged = stagedSpots(request.get("oursStaged"));
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
                             seed, alliance, metadata, new File(folder, log));
                     System.out.println("SIMRUN " + entry.name + " seed " + seed + ": " + r);
@@ -363,7 +363,7 @@ public class SimRunTest {
                 AutoStudyTest.picks = null;
                 AutoStudyTest.partnerPicks = null;
                 AutoStudyTest.oursFails = null;
-                AutoStudyTest.oursStaged = false;
+                AutoStudyTest.oursStaged = null;
                 AutoStudyTest.oursLaunchS = Double.NaN;
                 // Our partner wait, only for an Auto that has one: the last shot sets nothing on any other.
                 boolean hasWait = false;
@@ -607,5 +607,18 @@ public class SimRunTest {
             if (c.getMessage() != null) b.append(": ").append(c.getMessage());
         }
         return b.toString();
+    }
+
+    /** A request's {@code "oursStaged"}: {@code true}, a list of {@code [x, y]} spots, or absent (null). */
+    static double[][] stagedSpots(Object value) {
+        if (Boolean.TRUE.equals(value)) return AutoStudyTest.ALONG_LEFT_SIDE;
+        if (!(value instanceof List)) return null;
+        List<?> list = (List<?>) value;
+        double[][] spots = new double[list.size()][];
+        for (int i = 0; i < spots.length; i++) {
+            List<?> xy = (List<?>) list.get(i);
+            spots[i] = new double[] {((Number) xy.get(0)).doubleValue(), ((Number) xy.get(1)).doubleValue()};
+        }
+        return spots;
     }
 }

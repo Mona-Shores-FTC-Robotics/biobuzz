@@ -221,11 +221,13 @@ public class AutoStudyTest {
 
     static String oursFails;
     /**
-     * {@code "oursStaged": true} on a request: our robot sets its 4 preloads on the tiles along its left side at
-     * its start ({@link #alongLeftSide}, touching the frame as G304 asks) and keeps its intake on to come back for
-     * them ({@link AutoSim#stagesOwnPreloads}). False: it carries them.
+     * {@code "oursStaged"} on a request: our robot sets its 4 preloads on the tiles and keeps its intake on to
+     * come back for them ({@link AutoSim#stagesOwnPreloads}). {@code [[x, y], ...]}: at those spots (drawn for
+     * RED, each touching the frame as G304 asks); {@code true}: along its left side at its start
+     * ({@link #alongLeftSide}). Null: it carries them.
      */
-    static boolean oursStaged;
+    static double[][] oursStaged;
+    static final double[][] ALONG_LEFT_SIDE = new double[0][];
     /**
      * A what-if for our own robot ({@code "ourLaunchS"} on a request or an entry): seconds between its shots, in
      * place of its design's ({@link AutoSim#launchSeconds}); NaN: the design's. A partner entry's
@@ -517,7 +519,9 @@ public class AutoStudyTest {
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));
-        if (oursStaged) {
+        if (oursStaged != null && oursStaged.length > 0) {
+            sim.stagesOwnPreloads(oursStaged);
+        } else if (oursStaged != null) {
             com.pedropathing.math.Pose start = (com.pedropathing.math.Pose) first.getMethod("startPose", boolean.class).invoke(null, false);
             sim.stagesOwnPreloads(alongLeftSide(new double[] {start.x(), start.y(), Math.toDegrees(start.heading())},
                     RobotDesign.REAL_FRAME_IN / 2));

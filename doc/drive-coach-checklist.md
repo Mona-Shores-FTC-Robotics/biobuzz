@@ -35,13 +35,12 @@ Controls page and the printed cheat sheet are the only place for those.
 - [ ] **L-StagedSweep (draft, Utility menu `Drive: L-StagedSweep`): the robot starts empty, its 4 preloads on the
       tiles** (manual TU10 §10.3.4: preloads "placed on the TILES fully contained on its own ALLIANCE side of the
       FIELD contacting the ROBOT"; G304.G). Red, as drawn (blue is the same turned half a turn):
-      - **Robot:** back against the far wall (the SCORING FLOWER's wall), facing the HIVE, its centre-line side
-        about **3.5 in short of the centre-line seam** (3.1 in toward the FLOWER from the L-NoCross start), leaving
-        **about 1 in** between its FLOWER-side frame and the FLOWER. It must not touch the FLOWER (G304.D).
-      - **The 4 POLLEN:** in one row along the robot's **centre-line side**, each touching the frame and the one
-        next to it, the row centred on the side (the last ball about 2 in from the wall). Every ball fully on our
-        side of the centre-line seam (under half an inch to spare): none on or over it. Nothing in front of the robot: its first drive is
-        straight ahead.
+      - **Robot:** west of the SCORING FLOWER (the red-wall side of it), back to the far wall, turned **25°** so the
+        nose and camera point at our HIVE's near CELL (heading 295, centre about 34 in from the red wall and 11 in
+        from the far wall). A 1.5 in zip tie out the left side at the back-left corner touches the wall; the frame
+        corner sits about 0.6 in off it, about 3.5 in west of the FLOWER's edge. Use the 25° template.
+      - **The 4 POLLEN:** in a row along the robot's back face, in the wedge between it and the wall, each touching
+        the back face and the next ball; the first (nearest the zip tie) also touches the wall.
 - [ ] **Every Auto: Endgame, PARK FIRST or TIPS FIRST?** The last row of the INIT menu reads
       `Endgame: PARK FIRST`. That keeps AUTO PARK (5 points, and it decides the SWARM RP whenever a partner
       misses its LEAVE or its end-of-match PARK) and fires a late volley only if the park still fits after
