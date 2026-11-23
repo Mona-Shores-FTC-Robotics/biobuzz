@@ -21,7 +21,7 @@ export of 23 Nov 2026):
 | `render.py` | Draws `parts.png` (the receiver mount on a goBILDA wall) | `+ trimesh manifold3d matplotlib` |
 
 **Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit), 0.2 mm layers, 4 walls, 40 %
-gyroid. No supports. The sled's pins print on their sides, square to the bed; and the receiver's lip overhangs 1.5 mm; both print clean.
+gyroid. No supports. The sled's pins stick out 1 mm from its sides and the receiver's lip overhangs 1.5 mm; both print clean.
 
 ## Where the beam crosses, and why there
 
