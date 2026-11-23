@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.opmodes.LaunchSpotDrive;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
+import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -20,7 +21,8 @@ import java.util.Locale;
  * its starting Panels numbers, the numbers the pick is made with, and the pick itself
  * ({@link LaunchSpots#choose}) from a grid of poses, so the Visualizer's driver drill can check its
  * port of the pick against this one; and the numbers its volley waits on ({@code SpotVolley}:
- * {@link PathEndSettle}'s settle and approach checks, {@link LaunchCards#maxSpinUpWaitS}). Shared values only, as the rest of the file: the turret
+ * {@link PathEndSettle}'s settle and approach checks, {@link LaunchCards#maxSpinUpWaitS}), and the stall that fires from where it stops
+ * ({@code SpotStall}: the {@code stall…} numbers, and the speed table's measured rows as its range). Shared values only, as the rest of the file: the turret
  * offsets are {@link TurretSubsystem}'s shared ones.
  */
 final class LaunchSpotsExport {
@@ -62,6 +64,14 @@ final class LaunchSpotsExport {
                 {"settleTurnDegPerS", num(PathEndSettle.stillTurnDegPerSec)},
                 {"approachWithinIn", num(PathEndSettle.launchWithinIn)},
                 {"approachTurnDegPerS", num(PathEndSettle.launchTurnDegPerSec)},
+                {"fireOnStall", String.valueOf(LaunchSpotDrive.fireOnStall)},
+                {"stallS", num(LaunchSpotDrive.stallS)},
+                {"stallToleranceIn", num(LaunchSpotDrive.stallToleranceIn)},
+                {"stallSpeedInPerSec", num(LaunchSpotDrive.stallSpeedInPerSec)},
+                {"stallTurnDegPerSec", num(LaunchSpotDrive.stallTurnDegPerSec)},
+                {"stallProgressIn", num(LaunchSpotDrive.stallProgressIn)},
+                {"stallRangeLowIn", num(LaunchSpeedTable.measuredLowIn())},
+                {"stallRangeHighIn", num(LaunchSpeedTable.measuredHighIn())},
         };
         for (String[] n : numbers) out.append(in1).append(ControlsExport.quote(n[0])).append(": ").append(n[1]).append(",\n");
         out.append(in1).append("\"spots\": [\n");

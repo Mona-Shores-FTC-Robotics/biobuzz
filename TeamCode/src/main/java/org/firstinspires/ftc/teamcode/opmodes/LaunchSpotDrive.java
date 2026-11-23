@@ -53,13 +53,26 @@ import java.util.function.Consumer;
  * continuous fixes stay off until measured); past {@code TeleOpConfig.spotDriftWarnIn} the Match
  * page suggests a corner reset. The presses build the evidence for whether TeleOp needs to
  * relocalize.
+ *
+ * <p>A press that stalls short of its spot (mentor, 23 Nov 2026: blocked by a robot or a piece and
+ * not moving), or reaches {@link #timeoutMs} still driving, fires from where it is with
+ * {@link #fireOnStall} rather than giving up ({@link SpotStall}): Pedro lets go and the shot is
+ * handed to the driver's Circle in AIM ({@link StallShot}, BasicDriveTeleOp), so the turret's aim,
+ * the speed table by range, the arc turn, the at-speed, aim and NECTAR gates and the shot count are
+ * Circle's own. Only with the pose referenced, our side of the centre line (a CELL is scored only
+ * from its own end), the range inside the speed table's measured rows and the aim inside the firing
+ * arc or turning into it; otherwise the press ends as before, the reason on the Match page and in
+ * the log ("stalled, out of range (80 in)"). Letting go or a stick still ends it at once.
  */
 @Configurable
 public final class LaunchSpotDrive {
 
     /** The drive's speed cap, a fraction of the robot's top path speed (0 to 1]. A starting point. */
     public static double speed = 0.8;
-    /** The drive gives up after this long, ms, and hands the sticks back. NaN or negative gives up at once. */
+    /**
+     * The drive gives up after this long, ms, still driving: it fires from where it is if it may
+     * ({@link #fireOnStall}), else hands the sticks back. NaN or negative gives up at once.
+     */
     public static double timeoutMs = 6000;
     /**
      * A WALL-row spot is drawn touching its wall (the audience wall's or the scoring table's): the
@@ -100,13 +113,48 @@ public final class LaunchSpotDrive {
      */
     public static double closeBackIn = LaunchSpots.DEFAULT_CLOSE_BACK_IN;
 
-    private enum Phase { IDLE, DRIVING, HOLDING, REFUSED, ENDED }
+    /**
+     * A press that stalls short of its spot, or times out still driving, fires from where it is
+     * through Circle's AIM shot when it may ({@link SpotStall#refusal}); off, it ends as before.
+     * Only for a press that fires ({@code TeleOpConfig.goToSpotAlsoFires}).
+     */
+    public static boolean fireOnStall = true;
+    /** Stalled this long on end, seconds, is a stall. NaN is 0.6; held to [0.2, 5]. */
+    public static double stallS = 0.6;
+    /** Slower than this over the ground, inches/s, counts toward a stall. NaN is 3; held to [0, 20]; 0 never stalls. */
+    public static double stallSpeedInPerSec = 3.0;
+    /** Turning slower than this, degrees/s, counts toward a stall. NaN is 20; held to [0, 180]; 0 never stalls. */
+    public static double stallTurnDegPerSec = 20.0;
+    /** Within this of the spot, inches, it is not a stall: Pedro is finishing the path. NaN is 2; held to [0, 24]. */
+    public static double stallToleranceIn = 2.0;
+    /**
+     * Closing on the spot by more than this, inches, during the wait starts it again: a robot slow
+     * but getting there is not stalled. NaN is 1; held to [0.1, 12].
+     */
+    public static double stallProgressIn = 1.0;
+
+    /**
+     * What the OpMode knows about a shot from here, Circle's in AIM: asked once, as a press stalls.
+     * BasicDriveTeleOp answers it with its aimer, its range and the firing arc.
+     */
+    public interface StallShot {
+        /** Null if Circle's AIM shot may fire from here now; else why not, a few words ({@link SpotStall#refusal}). */
+        String refusal();
+
+        /** The range the shot would fire from, inches; NaN unknown. */
+        double rangeIn();
+    }
+
+    private enum Phase { IDLE, DRIVING, HOLDING, STALL_FIRING, REFUSED, ENDED }
 
     private final Robot robot;
     private final Consumer<String> event;
     /** The Autos' settle check (still, at the path's end heading), fed this drive's path. */
     private final PathEndSettle settle;
     private final SpotVolley volley = new SpotVolley();
+    private final SpotStall stall = new SpotStall();
+    /** Null: a stalled press ends, as before {@link #fireOnStall}. */
+    private final StallShot stallShot;
 
     private Phase phase = Phase.IDLE;
     private LaunchSpots.Choice choice;
@@ -125,16 +173,38 @@ public final class LaunchSpotDrive {
     private String driftNote = "";
     /** This press's spot's range to its CELL, inches ({@link #spotRangeIn()}); NaN until a press starts. */
     private double spotRangeIn = Double.NaN;
+    /** When this press stalled and handed its shot to Circle, s; and how far short, and the range. */
+    private double stallAtS = Double.NaN;
+    private double stallShortIn = Double.NaN;
+    private double stallRangeIn = Double.NaN;
 
     public LaunchSpotDrive(Robot robot, Consumer<String> event) {
+        this(robot, event, null);
+    }
+
+    public LaunchSpotDrive(Robot robot, Consumer<String> event, StallShot stallShot) {
         this.robot = robot;
         this.event = event;
+        this.stallShot = stallShot;
         this.settle = PathEndSettle.forRobot(robot, event);
     }
 
-    /** The press asks the launcher to spin: driving or holding with {@code goToSpotAlsoFires}. */
+    /** The press asks the launcher to spin: driving, holding or firing from a stall with {@code goToSpotAlsoFires}. */
     public boolean wantsLauncher() {
-        return active() && fires;
+        return busy() && fires;
+    }
+
+    /**
+     * The press stalled and is firing from where it is: Pedro has let go, and the OpMode fires
+     * Circle's AIM shot (and its arc turn) for as long as the button is held.
+     */
+    public boolean firingFromStall() {
+        return phase == Phase.STALL_FIRING;
+    }
+
+    /** The press owns the robot one way or another (driving, holding, or firing from a stall): no pick or gather. */
+    public boolean busy() {
+        return active() || firingFromStall();
     }
 
     /** The button's volley asks the feeder to feed this loop (the OpMode's fire decides with it). */
@@ -163,7 +233,7 @@ public final class LaunchSpotDrive {
         long now = System.nanoTime();
         feed = false;
         if (!held) {
-            if (active()) end(now, "let go");
+            if (busy()) end(now, "let go");
             phase = Phase.IDLE;
             return;
         }
@@ -171,7 +241,7 @@ public final class LaunchSpotDrive {
             start(now, alliance);
             return;
         }
-        if (!active()) return; // REFUSED or ENDED: wait for the button to be let go
+        if (!busy()) return; // REFUSED or ENDED: wait for the button to be let go
         if (sticksMoved) {
             end(now, "sticks moved");
             return;
@@ -180,6 +250,7 @@ public final class LaunchSpotDrive {
             end(now, "pose lost");
             return;
         }
+        if (phase == Phase.STALL_FIRING) return; // Circle's shot, until let go or a stick
         if (phase == Phase.DRIVING) {
             if (robot.drive.pathDone()) {
                 // Pedro's parametric end: the Follower now holds the spot until the button is let go.
@@ -188,9 +259,17 @@ public final class LaunchSpotDrive {
                 settle.pathEnded(path);
                 event.accept(String.format(Locale.US, "launch spot: arrived at %s in %.2f s, %s, CELL %s",
                         choice.spot, arriveS, offBy(), cellRange(robot.drive.pose())));
-            } else if (!(s(now) * 1000.0 <= timeoutMs)) { // NaN or negative: give up at once
-                end(now, "timed out");
-                return;
+            } else {
+                boolean timedOut = !(s(now) * 1000.0 <= timeoutMs); // NaN or negative: give up at once
+                // Not while the volley feeds on the approach: that shot is already going.
+                boolean stalled = fireOnStall && fires && volley.phase() != SpotVolley.Phase.FEEDING
+                        && stall.update(s(now), remainingIn(), robot.drive.speedInPerSec(),
+                        Math.toDegrees(robot.drive.turnRadPerSec()), stallS(), stallTolerance(),
+                        stallSpeed(), stallTurn(), stallProgress());
+                if (stalled || timedOut) {
+                    stalled(now, timedOut ? "timed out" : "stalled");
+                    return;
+                }
             }
         }
         settle.update();
@@ -220,6 +299,9 @@ public final class LaunchSpotDrive {
             case HOLDING:
                 return String.format(Locale.US, "Launch spot: AT %s, holding (arrived in %.1f s)%s · let go to drive",
                         choice.spot, arriveS, volleyNote()) + driftNote;
+            case STALL_FIRING:
+                return String.format(Locale.US, "Launch spot: STALLED %.0f in short of %s · firing from %.0f in (Circle's shot) · let go to stop",
+                        stallShortIn, choice.spot, stallRangeIn);
             default:
                 return result.isEmpty() ? "" : result + driftNote;
         }
@@ -243,6 +325,10 @@ public final class LaunchSpotDrive {
         driftGapIn = Double.NaN;
         driftNote = "";
         spotRangeIn = Double.NaN;
+        stallAtS = Double.NaN;
+        stallShortIn = Double.NaN;
+        stallRangeIn = Double.NaN;
+        stall.reset();
         this.alliance = alliance;
         Pose pose = robot.drive.pose();
         choice = LaunchSpots.choose(pose, robot.drive.poseReferenced(), alliance, wallGapIn,
@@ -282,19 +368,51 @@ public final class LaunchSpotDrive {
                 where(pose), choice.spot, where(to), choice, cellRange(to), fires ? ", fires on arrival" : ""));
     }
 
+    /**
+     * The press stalled ({@code why}: "stalled", or "timed out" still driving): with
+     * {@link #fireOnStall} and a shot allowed from here, Pedro lets go and the shot is Circle's
+     * ({@link #firingFromStall}); otherwise the press ends with the reason.
+     */
+    private void stalled(long now, String why) {
+        if (!fireOnStall || !fires) {
+            end(now, why); // as before: only a press that fires fires from a stall
+            return;
+        }
+        String refusal = stallShot == null ? "no stall shot here" : stallShot.refusal();
+        if (refusal != null) {
+            end(now, why + ", " + refusal);
+            return;
+        }
+        Pose pose = robot.drive.pose();
+        stallAtS = s(now);
+        stallShortIn = remainingIn();
+        stallRangeIn = stallShot.rangeIn();
+        robot.drive.drive(0.0, 0.0, 0.0); // Pedro lets go: the arc turn may turn the robot
+        volley.stop(s(now));
+        phase = Phase.STALL_FIRING;
+        event.accept(String.format(Locale.US,
+                "launch spot: %s at (%.1f, %.1f) after %.2f s, %.1f in short of %s, firing from range %.0f in (Circle's AIM shot)",
+                why, pose == null ? Double.NaN : pose.x(), pose == null ? Double.NaN : pose.y(), stallAtS,
+                stallShortIn, choice.spot, stallRangeIn));
+    }
+
     /** Hands the sticks back this loop and logs how the press ended. */
     private void end(long now, String why) {
         robot.drive.drive(0.0, 0.0, 0.0);
         feed = false;
         boolean feeding = volley.phase() == SpotVolley.Phase.FEEDING;
         volley.stop(s(now));
-        boolean early = phase == Phase.DRIVING;
-        String line = early
+        boolean early = phase == Phase.DRIVING || phase == Phase.STALL_FIRING;
+        boolean fromStall = phase == Phase.STALL_FIRING;
+        String line = fromStall
+                ? String.format(Locale.US, "%s after %.2f s, stalled %.0f in short of %s at %.2f s and fired from %.0f in (Circle's AIM shot)",
+                        why, s(now), stallShortIn, choice.spot, stallAtS, stallRangeIn)
+                : early
                 ? String.format(Locale.US, "%s early after %.2f s, %.0f in short of %s", why, s(now), remainingIn(), choice.spot)
                 : String.format(Locale.US, "%s after arriving at %s in %.2f s (held %.2f s)", why, choice.spot, arriveS, s(now) - arriveS);
         // Who fired, the gate's open time, and the launcher's counted shots this press. The lane's
         // count is the tracker's guess, data only (it decides nothing).
-        String firedBy = volley.fired() ? "button" : "nobody";
+        String firedBy = volley.fired() ? "button" : fromStall ? "Circle's AIM shot (stalled)" : "nobody";
         String gate = !volley.fired() ? "gate never opened by the button"
                 : String.format(Locale.US, "gate open at %.2f s for %.2f s%s", volley.feedStartS(),
                         volley.feedEndS() - volley.feedStartS(), feeding ? " (until the press ended)" : "");
@@ -355,6 +473,26 @@ public final class LaunchSpotDrive {
      */
     public double spotRangeIn() {
         return active() ? spotRangeIn : Double.NaN;
+    }
+
+    private static double stallS() {
+        return SpotStall.guarded(stallS, 0.6, 0.2, 5.0);
+    }
+
+    private static double stallSpeed() {
+        return SpotStall.guarded(stallSpeedInPerSec, 3.0, 0.0, 20.0);
+    }
+
+    private static double stallTurn() {
+        return SpotStall.guarded(stallTurnDegPerSec, 20.0, 0.0, 180.0);
+    }
+
+    private static double stallTolerance() {
+        return SpotStall.guarded(stallToleranceIn, 2.0, 0.0, 24.0);
+    }
+
+    private static double stallProgress() {
+        return SpotStall.guarded(stallProgressIn, 1.0, 0.1, 12.0);
     }
 
     private double remainingIn() {

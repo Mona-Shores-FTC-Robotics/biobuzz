@@ -241,6 +241,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * when it went down ({@link CirclePress.Kind#AIM_AND_FIRE}).
      */
     private boolean circleAimFires;
+    /**
+     * A Square press stalled short of its spot and handed its shot to Circle in AIM this loop
+     * ({@link LaunchSpotDrive#firingFromStall}): fired exactly as a held Circle in AIM, arc turn and
+     * gates included, with the aim and at-speed gates always enforced.
+     */
+    private boolean spotStallFires;
     /** A stick moved after Circle went down hands the turn back (and ends the press's fire) only if fresh. */
     private final FreshSticks circleSticks = new FreshSticks();
     /** The same for a Circle press in AIM that turns the robot into the firing arc ({@link ArcTurn}). */
@@ -345,7 +351,26 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }, () -> TurretSubsystem.turretForwardIn, () -> TurretSubsystem.turretLeftIn);
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
-        launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
+        launchSpot = new LaunchSpotDrive(robot, text -> log.event(text), new LaunchSpotDrive.StallShot() {
+            private double rangeIn = Double.NaN;
+
+            @Override
+            public String refusal() {
+                Pose pose = robot.drive.pose();
+                double aim = aimer.aimDeg();
+                rangeIn = shotRangeIn();
+                return SpotStall.refusal(!TurretSubsystem.lockedForward && turretMode == TurretMode.AIM,
+                        robot.drive.poseReferenced(),
+                        pose == null ? Double.NaN : LaunchSpots.pastLineIn(setup.alliance(), pose.x()),
+                        rangeIn, LaunchSpeedTable.measured(rangeIn), aim,
+                        !Double.isNaN(aim) && TurretArc.contains(aim, arcCentre()), TeleOpConfig.circleTurnsIntoArc);
+            }
+
+            @Override
+            public double rangeIn() {
+                return rangeIn;
+            }
+        });
         readout = new CycleReadout(text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
         Map<Action, Input> layout = ControlScheme.layout(TeleOpConfig.flowerPickButton,
@@ -850,23 +875,32 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean sticksMoved = leftStick || rightStick;
         double nowS = now / 1e9;
         double staleS = staleStickCancelsAfterS();
-        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.active();
+        boolean pickHeld = controls.held(Action.FLOWER_PICK) && !gatherer.active() && !launchSpot.busy();
         picker.update(pickHeld, pickSticks.moved(pickHeld, sticksMoved, nowS, staleS));
-        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.active();
+        boolean gatherHeld = controls.held(Action.GARDEN_GATHER) && !picker.active() && !launchSpot.busy();
         gatherer.update(gatherHeld, gatherSticks.moved(gatherHeld, sticksMoved, nowS, staleS));
         // Square: the spot is picked from the tile row the robot is in when the press starts. Its
         // volley is never cut into: a Circle press waits for it (fire() holds it back).
         boolean spotHeld = controls.held(Action.LAUNCH_SPOT) && !grabActive();
         launchSpot.update(spotHeld, setup.alliance(), spotSticks.moved(spotHeld, sticksMoved, nowS, staleS));
+        // A stalled press fires Circle's AIM shot from where it is; the turret must still be aiming.
+        spotStallFires = launchSpot.firingFromStall() && !TurretSubsystem.lockedForward && turretMode == TurretMode.AIM;
         updateTableSpeed();
         reapplyLaunchSpeed();
         spotLauncher();
         boolean chassisAim = chassisAim(circleSticks.moved(circleAimHeld(), rightStick, nowS, staleS));
-        boolean arcTurn = arcTurn(arcTurnSticks.moved(circleFires, rightStick, nowS, staleS));
+        boolean arcTurn = arcTurn(arcTurnSticks.moved(circleFiresNow(), rightStick, nowS, staleS));
         // Either turn holds the aim gate, so the feed waits until the shot is on the CELL.
         chassisAimDriving = chassisAim || arcTurn;
         if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : arcTurn ? arcTurnPower() : turn;
+            if (launchSpot.firingFromStall()) {
+                // Square still owns the robot: it stays put but for Circle's arc turn. A stick
+                // ends the press (LaunchSpotDrive); one ignored as stale moves nothing here.
+                forward = 0.0;
+                strafe = 0.0;
+                turnCommand = arcTurn ? arcTurnPower() : 0.0;
+            }
             robot.drive.setAccelLimited(true);
             // The scale is also the wheel cap, so slow is that fraction of full power in every
             // direction: without it, a diagonal or a turn saturated to full power
@@ -1011,7 +1045,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
      */
     private boolean arcTurn(boolean rightStick) {
         boolean was = arcTurning;
-        if (!circleFires || !TeleOpConfig.circleTurnsIntoArc || TurretSubsystem.lockedForward
+        if (!circleFiresNow() || !TeleOpConfig.circleTurnsIntoArc || TurretSubsystem.lockedForward
                 || turretMode != TurretMode.AIM) {
             arcTurnCancelled = false;
             arcTurnErrorDeg = Double.NaN;
@@ -1033,7 +1067,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             log.event(String.format(Locale.US, "arc turn: aim %.0f° is behind the firing arc, turning %+.0f° to bring it in",
                     TurretEncoder.wrap180(aimer.aimDeg()), arcTurnErrorDeg));
         } else if (!arcTurning && was) {
-            log.event(circleFires && !arcTurnCancelled ? "arc turn: aim inside the firing arc" : "arc turn: stopped");
+            log.event(circleFiresNow() && !arcTurnCancelled ? "arc turn: aim inside the firing arc" : "arc turn: stopped");
         }
         return arcTurning;
     }
@@ -1120,8 +1154,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (!pick.isEmpty()) display.line(pick);
         String gather = gatherer.line();
         if (!gather.isEmpty()) display.line(gather);
-        if (circleFires) {
-            display.line("Circle: firing (turret " + turretMode + ")");
+        if (circleFiresNow()) {
+            display.line((spotStallFires ? "Square stalled: Circle's shot firing (turret " : "Circle: firing (turret ")
+                    + turretMode + ")");
         } else if (circleAimHeld()) {
             display.line(chassisAimCancelled ? "Circle: handed back by the right stick, no fire (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
@@ -1253,7 +1288,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean rawFire = fireButtonHeld();
         // A Square press that fires owns the shot: a Circle press feeds nothing until it ends, so the
         // volley still waits for the spot, aim and speed. Without goToSpotAlsoFires, Square only drives.
-        boolean spotFiring = launchSpot.wantsLauncher();
+        // A press that stalled has handed its shot to Circle's path (spotStallFires): it holds nothing back.
+        boolean spotFiring = launchSpot.wantsLauncher() && !launchSpot.firingFromStall();
         if (rawFire && !lastRawFire && spotFiring) {
             log.event("fire: held back, Square's volley is firing");
         }
@@ -1271,7 +1307,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // The aim gate also holds while the chassis aim is turning the robot, and always for Circle's
         // aim-and-fire: the feed waits until the robot is on the CELL.
         boolean enforceAim = TeleOpConfig.enforceAimGate || (TeleOpConfig.chassisAimGate && chassisAimDriving)
-                || circleAimFires;
+                || circleAimFires || spotStallFires;
         // The firing arc is enforced for every feed unless this robot's drivers make the call
         // (TeleOpConfig.enforceFiringArc): behind it a ball goes back over the robot.
         outsideArc = !TurretArc.allowsFeed(TurretSubsystem.lockedForward ? 0.0 : robot.turret.angleDegrees(),
@@ -1297,6 +1333,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         lastFullVerdict = fullVerdict;
         lastCellVerdict = cellVerdict;
         open = open && !fullHold.holds() && !cellHold.holds();
+        // A stalled Square's shot is from wherever the robot stopped: never below launch speed.
+        if (spotStallFires) open = open && robot.launcher.atSpeed();
         // Circle alone in LOCKED: the feed waits until the robot is on the CELL and at speed.
         if (circleAimShot()) {
             open = CirclePress.mayFeed(CirclePress.Kind.AIM_AND_FIRE, open,
@@ -1424,7 +1462,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * holds it back.
      */
     private boolean fireButtonHeld() {
-        return circleFires || circleAimShot();
+        return circleFiresNow() || circleAimShot();
+    }
+
+    /** Circle fires as in AIM this loop: the driver's press, or a stalled Square's shot handed to it. */
+    private boolean circleFiresNow() {
+        return circleFires || spotStallFires;
     }
 
     /** The shot this loop is Circle's aim-and-fire, so it waits for the turn. */
@@ -1455,7 +1498,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
         return String.format(Locale.US, "fire (%s): launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
-                circleAimFires ? "driver's Circle, aim then fire" : "driver's Circle",
+                circleAimFires ? "driver's Circle, aim then fire" : spotStallFires && !circleFires
+                        ? "Square stalled, Circle's AIM shot" : "driver's Circle",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 robot.launcher.target(), launcherOwner.spinning() ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
