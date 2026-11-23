@@ -71,6 +71,8 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
 
 ### Option B: the screwed sled (`floor_sled_screwed`)
 
+![Installing option B](floor_sled_screwed_install.png)
+
 The same pocket, no pins: 81 mm long, reaching 40 mm each way along the channel from the beam's hole. Print both and
 keep the one that holds better.
 
