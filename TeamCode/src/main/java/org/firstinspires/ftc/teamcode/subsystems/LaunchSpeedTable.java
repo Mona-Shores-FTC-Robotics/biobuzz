@@ -220,6 +220,16 @@ public final class LaunchSpeedTable {
         return rangeIn >= lo - margin && rangeIn <= hi + margin;
     }
 
+    /**
+     * Whether {@code rangeIn} lies between the first and last usable rows, inches, with no
+     * extension: a range the rows were measured across, so a shot from there is not on a trend
+     * line. The launch-spot button's stall shot fires only inside it ({@code SpotStall}).
+     */
+    public static boolean measured(double rangeIn) {
+        loadRows();
+        return trusted(RANGES, SPEEDS, rangeIn, 0.0, 0.0);
+    }
+
     /** How many configured rows count (class comment), for the Robot page and the match log. */
     public static int usableRows() {
         loadRows();

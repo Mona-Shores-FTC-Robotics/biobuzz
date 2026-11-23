@@ -1569,6 +1569,19 @@ measurement is [#255].
       says `fired by button`, shots counted ≈ 4; let go stops the feeder at once and idles the
       launcher; held 6 s, the gate stays open all 6 s. **Stop:** it feeds before it is aimed, or
       feeds after let go → `goToSpotAlsoFires` off. [PR #423]
+- [ ] **Square fires from a stall (`LaunchSpotDrive.fireOnStall`, on; 23 Nov 2026):** turret in
+      AIM, loaded, pose set. Park a partner robot (or a stack of boxes) across the path, 15–25 in
+      short of a spot about 45 in from our CELL, on our side of the centre line; hold Square from
+      behind it. **Good:** the robot stops against it, and about 0.6 s later the log has `launch spot:
+      stalled at (x, y) after N s, … firing from range R in (Circle's AIM shot)`, R inside the speed
+      table's rows (35–74 in); the Match page reads `STALLED … firing from R in`; the turret aims,
+      the launcher retunes to R, the feed waits for at speed and aim, and the four score; the end
+      line says `fired by Circle's AIM shot (stalled)` with shots counted ≈ 4. Then: let go mid-feed
+      stops it at once; a stick mid-feed ends it and gives the robot back; a block past the centre
+      line, or with the robot over 74 in out, ends `stalled, past the centre line` / `stalled, out of
+      range (… in)` and fires nothing; a slow push that still creeps toward the spot never stalls.
+      **Stop:** it fires past the centre line or out of range, pushes the partner, or feeds below
+      speed → `fireOnStall` off in Panels and note the log line.
 - [ ] **The operator cannot hurt a Square volley (`belding-plus`, `LauncherOwner`, 7 Nov):**
       (a) operator spin up, wait for the rumble, then the driver holds Square: the gate opens on
       arrival with no spin-up wait, and the launcher idles when Square is let go. (b) Square from

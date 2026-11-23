@@ -351,7 +351,7 @@ public final class LaunchSpots {
      * How far the robot's centre is past the centre line onto the other alliance's side, inches
      * (red's side is low x): negative on our side.
      */
-    static double pastLineIn(Alliance alliance, double x) {
+    public static double pastLineIn(Alliance alliance, double x) {
         double c = FieldFrame.FIELD_CENTRE_INCHES;
         return alliance == Alliance.BLUE ? c - x : x - c;
     }
