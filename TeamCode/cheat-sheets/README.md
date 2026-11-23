@@ -7,3 +7,11 @@ The sheet header uses the team's logo from this folder: `logo-19429.jpg` (Infrar
 `logo-20245.jpg` (Ultraviolet), the wordmarks from the team's BioBuzz Strategy Map deck. A `.png`
 or `.svg` with the same name works too; a wide wordmark on white prints best. Without one, the
 sheet draws the team number on the team's colours.
+
+## controls.json
+
+`controls.json` is the same layout as data: every match binding (driver and operator, with the turret
+aiming and locked forward) and the TeleOp switches that decide what a button does. It is generated
+(`controls/ControlsExport`): `CheatSheetTest` rewrites it and fails while the committed copy is stale, so
+after changing `ControlScheme`, `Action` or `TeleOpConfig`, run `./gradlew testDebugUnitTest` once and
+commit the file. Never edit it by hand. The Visualizer's driver drill (`/drill/`) reads it from master.
