@@ -97,6 +97,18 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
       last piece settles (`ColorSensorSubsystem.fullHoldWithBeamS`, `laneBeamHoldS`), against 1.0 s
       today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
       forward. Move the beam, not the numbers.
+- [ ] **Gate beam (the new transfer: the throat beam behind the gate, [PR: gate beam mode]), its switch:**
+      once the gate beam's fitting checks pass, two `RobotDifferences` lines with the date,
+      `BeamBreakSubsystem.throatFitted = true` and `BeamBreakSubsystem.throatBehindGate = true`. Never the
+      first without the second on that robot: a beam behind the gate read as one past it calls every
+      waiting ball a jam. Robot page: "Gate beam: a ball at the gate" with a ball waiting.
+- [ ] **Gate beam ends a volley (R-Solo, 3 runs, phone slow-motion side-on at the transfer):** **Good:**
+      each `LaunchAll fed` line says `ended: nothing at the gate 0.50 s` or `ended at the last counted
+      shot`, every volley's last ball reaches the wheels on the video, and no `reverse`. Note on the
+      video, for 3 volleys, the last ball's time from leaving the gate spot to leaving the wheels.
+      **Stop:** a last ball left on the ramp when the feed ended → raise `BeamBreakSubsystem.gateClearEmptyS`
+      (0.5) above that time; a volley ended with balls still waiting in the lane (a gap between two) →
+      note the gap's ms from the video.
 
 ## Turret encoder to a drive socket (both robots, before the State Championship from 10 Dec)
 

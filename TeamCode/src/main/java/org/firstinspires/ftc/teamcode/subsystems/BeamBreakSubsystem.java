@@ -42,6 +42,9 @@ import java.util.function.Supplier;
  *       goes quiet with the lane empty, instead of at its thin feed timer, and recovers a stuck feed
  *       ({@code LaunchCards}); the lane tracker loses a piece per real ball; a TeleOp feed that sticks
  *       is on the Match page ({@link #feedStuck()}).</li>
+ *   <li><b>Throat, behind the gate</b> ({@link #throatBehindGate}): it sees a ball waiting at the
+ *       gate, so it counts nothing; an Auto {@code LaunchAll} ends once it has stayed clear with the lane
+ *       empty, and a TeleOp feed with nothing reaching the gate while the lane holds is on the Match page.</li>
  *   <li><b>Lane:</b> "full" needs the entrance colour sensor and this beam to agree
  *       ({@code ColorSensorSubsystem.full()}): at Fruitport the colour sensor alone read FULL with a
  *       piece held at the entrance and two or fewer ahead of it about 20 s a match on 19429.</li>
@@ -57,6 +60,27 @@ public class BeamBreakSubsystem implements Subsystem {
 
     /** The lane beam is fitted on this robot: a {@code RobotDifferences} line turns it on. */
     public static boolean laneFitted = false;
+
+    /**
+     * The throat beam sits <b>behind the gate</b>, under the ball that waits there (the new transfer,
+     * {@code cad/beam-mount/}), not past it: a {@code RobotDifferences} line beside
+     * {@link #throatFitted} turns it on. Such a beam is broken whenever a ball waits, and stays broken
+     * through a volley (its balls come through touching), so it cannot count. With this on, nothing
+     * counts launches by it ({@link #countingThroat()} is null: {@code launcher.launched()} stays the
+     * dip count), nothing calls a ball in it held or jammed, and a feed ends once it has been clear
+     * {@link #gateClearEmptyS} with the lane empty ({@link FeedWatch#stepBehindGate}). Off: the beam is
+     * past the gate and does all of that by its count.
+     */
+    public static boolean throatBehindGate = false;
+
+    /**
+     * With the beam behind the gate ({@link #throatBehindGate}): clear this long with the gate open and
+     * the lane empty is the volley's last ball gone, and the feed ends. Longer than the gap between two
+     * balls of one volley, and long enough for the last ball to reach the wheels after it clears the
+     * beam (the feed's end idles the feeder). 0.5 s. <b>Not measured</b>: the bench check in
+     * {@code doc/robot-todo.md} films both.
+     */
+    public static double gateClearEmptyS = 0.5;
 
     /**
      * The receiver reads LOW when its beam is broken: true for the Adafruit 2167/2168 (open
@@ -113,7 +137,8 @@ public class BeamBreakSubsystem implements Subsystem {
     public BeamBreakSubsystem(HardwareMap hardwareMap) {
         throatChannel = throatFitted ? lookUp(hardwareMap, DeviceNames.THROAT_BEAM, "throatFitted") : null;
         laneChannel = laneFitted ? lookUp(hardwareMap, DeviceNames.LANE_BEAM, "laneFitted") : null;
-        atInit = (throatChannel == null ? "throat beam not fitted" : "throat beam fitted")
+        atInit = (throatChannel == null ? "throat beam not fitted"
+                : throatBehindGate ? "throat beam fitted, behind the gate" : "throat beam fitted")
                 + ", " + (laneChannel == null ? "lane beam not fitted" : "lane beam fitted");
     }
 
@@ -184,7 +209,10 @@ public class BeamBreakSubsystem implements Subsystem {
             stuck = false;
         } else if (launcherAtSpeed.getAsBoolean()) {
             // A feed the robot holds at the gate on purpose waits for speed; only an at-speed feed sticks.
-            FeedWatch.Verdict verdictNow = teleOpWatch.step(nowS, throat.passes(), throat.blockedForMs() / 1000.0, laneHolds.get(),
+            // Behind the gate, only a lane jam sticks (EMPTY is the Auto's to act on, not an alert).
+            FeedWatch.Verdict verdictNow = throatBehindGate
+                    ? teleOpWatch.stepBehindGate(nowS, throat.clearForMs() / 1000.0, laneHolds.get(), Double.NaN, stuckGapS)
+                    : teleOpWatch.step(nowS, throat.passes(), throat.blockedForMs() / 1000.0, laneHolds.get(),
                     Double.NaN, quietS, firstBallWithinS, jamBlockedS, stuckGapS);
             boolean now = verdictNow == FeedWatch.Verdict.STUCK || verdictNow == FeedWatch.Verdict.HELD;
             if (now && !stuck) {
@@ -203,6 +231,23 @@ public class BeamBreakSubsystem implements Subsystem {
     /** The throat beam's state and count, or null when it is not fitted. */
     public BeamBreak throat() {
         return throatChannel == null ? null : throat;
+    }
+
+    /**
+     * The throat beam when it counts balls: fitted and past the gate. Null when it is not fitted or
+     * sits behind the gate ({@link #throatBehindGate}), so the launcher keeps the dip count and no
+     * ball in it is called held.
+     */
+    public BeamBreak countingThroat() {
+        return throatChannel == null || throatBehindGate ? null : throat;
+    }
+
+    /**
+     * How long the beam behind the gate has been clear, seconds (0 while a ball is in it), or -1 when
+     * there is none: no throat beam, or one past the gate ({@link #throatBehindGate}).
+     */
+    public double gateClearS() {
+        return throatChannel == null || !throatBehindGate ? -1.0 : throat.clearForMs() / 1000.0;
     }
 
     /** The lane beam's state, or null when it is not fitted. */
@@ -249,7 +294,11 @@ public class BeamBreakSubsystem implements Subsystem {
             display.status("Beam breaks", Display.Level.OK, "not fitted (BeamBreakSubsystem.throatFitted, laneFitted)");
             return;
         }
-        if (throatChannel != null) {
+        if (throatChannel != null && throatBehindGate) {
+            display.status("Gate beam", stuck ? Display.Level.WARN : Display.Level.OK, String.format(Locale.US,
+                    "%s%s", throat.blocked() ? "a ball at the gate" : "nothing at the gate",
+                    stuck ? " · FEED STUCK: " + stuckWhy : ""));
+        } else if (throatChannel != null) {
             display.status("Throat beam", stuck ? Display.Level.WARN : Display.Level.OK, String.format(Locale.US,
                     "%s · %d balls · last blocked %d ms%s", throat.blocked() ? "BROKEN" : "clear", throat.passes(),
                     throat.lastPassBlockedMs(), stuck ? " · FEED STUCK: " + stuckWhy : ""));

@@ -150,8 +150,10 @@ public class Robot {
         // A feed whose piece at the entry sits still with no shot is stuck: the lane backs out a moment (FeedJamClear).
         // Movement is a launch: with the throat beam, every ball it sees (launcher.launched()). A ball held
         // in the throat beam is the throat's jam (LaunchCards backs the feeder out), so this stands down.
+        // A beam behind the gate holds no jam (a ball waits in it): countingThroat() is null then.
         intake.feedJamFrom(() -> colorSensor.lane().present(), launcher::launched,
-                () -> beams.throat() != null && beams.throat().blockedForMs() >= BeamBreakSubsystem.jamBlockedS * 1000.0);
+                () -> beams.countingThroat() != null
+                        && beams.countingThroat().blockedForMs() >= BeamBreakSubsystem.jamBlockedS * 1000.0);
         // And the prefeed stops, the stars and a slow roller holding the last piece (PrefeedSubsystem.stopWhenFull).
         prefeed.laneFull(colorSensor::full);
         // The other alliance's NECTAR at the entrance is spat out in a burst (NectarReject): the
@@ -161,8 +163,9 @@ public class Robot {
         intake.holdOffWhile(colorSensor::holdingOffAfterReject);
         // And no feed opens the gate while a wrong NECTAR may still be in the lane (NectarReject.suspect).
         feedGate.shutWhile(colorSensor::wrongNectarMayBeIn);
-        // A fitted throat beam counts the launches; a fitted lane beam must agree before the lane is full.
-        launcher.countLaunchesBy(beams.throat());
+        // A fitted throat beam past the gate counts the launches (behind the gate it cannot: the dip
+        // count stays); a fitted lane beam must agree before the lane is full.
+        launcher.countLaunchesBy(beams.countingThroat());
         colorSensor.laneBeam(beams.lane());
         beams.watchFeeds(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING, launcher::atSpeed, this::laneHolds);
 
