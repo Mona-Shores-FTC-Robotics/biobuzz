@@ -150,7 +150,7 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
 - [ ] **R-Solo with its SCORING FLOWER already empty**, three runs. **Good:** that pick's log line reads
       `DWELL 1.3x s (nothing came)` (not `2.0x s (dwellMs)`), and a pick at a loaded FLOWER still takes its
       pieces and dwells as before. **Stop:** a loaded FLOWER's pick ends at 1.3 s with pieces left in it →
-      `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #FLOWER-EMPTY]
+      `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #724]
 
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
