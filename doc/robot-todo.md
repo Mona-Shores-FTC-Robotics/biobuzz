@@ -74,10 +74,16 @@ line; the `RobotDifferences` lines come with the switch item further down this g
 - [ ] **Caliper the 2168's body before printing:** thickness (8 or 9 mm?), width, LED from its end. **Good:** 8 mm
       thick, 10 wide, 5 from the end (the files' numbers). **Stop:** anything else → `BODY_T` etc. in
       `floor_sled.py` and `parts.py`, run both, print those files.
-- [ ] **Fit the sled (`cad/beam-mount/README.md`):** emitter in, two M3 x 8 on the wire-end side, LED centred in
-      the 14 mm hole. **Good:** a straightedge across the channel's bottom edges touches no plastic, screw or wire;
-      the sled does not rattle. **Stop:** the body will not sit flush with the sled's top → it is thicker than 8 mm
-      (above).
+- [ ] **Before printing, look inside the floor channel:** the 43 mm of it from the 14 mm hole under the ball's
+      last spot toward the channel's far end must be empty (no nut, screw end or wire inside the U), and the open
+      side's two side-wall holes there reachable with a small screwdriver. **Stop:** a nut or screw inside → note
+      where; the sled gets a notch or flips end for end.
+- [ ] **Print one sled first (`cad/beam-mount/README.md`) and click it in empty:** it pushes in by hand and all four
+      pins click. **Good:** pulled down hard and shaken it stays; no rattle you can hear; a straightedge across the
+      channel's bottom edges touches no plastic; the LED pocket is centred in the 14 mm hole. **Stop:** too stiff to
+      push in → `ARM_T` 1.4 to 1.2 in `floor_sled.py`; pins pop out with a pull → `PIN_OUT` 1.0 to 1.2; rattles →
+      a strip of thin foam tape on the sled's top. Then the emitter in: its body flush with the sled's top (if not,
+      it is thicker than 8 mm, above).
 - [ ] **Fit the receiver:** over the emitter's hole, held at both ends (lip, then its screw). **Good:** the body lies
       flat on the mount, no gap at the LED end; Check: Hardware reads HIGH (clear) with the lane empty and LOW with
       a ball on the spot. **Stop:** clear with a ball there → slide the mount in its slots (±3 mm); still clear →
