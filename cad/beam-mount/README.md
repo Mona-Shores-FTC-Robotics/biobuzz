@@ -60,6 +60,10 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
 4. **To take it out:** push the open side's two pins (the side with the 8 mm gap to the next channel) in through
    their holes with two small screwdrivers, and pull the sled down. The other side's pins are ramped both ways and
    let go.
+5. **Backup, only if a sled ever works loose:** drop an M3 nut into the slot in the sled's top (open side, halfway
+   between the pins) before pushing it in, then an **M3 x 10 button head** through the open side's wall hole there
+   into it. The head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap
+   beside the channel; unused, the slot is just an empty pocket.
 
 ## Fitting the receiver (`beam_mount`, on the top plate)
 

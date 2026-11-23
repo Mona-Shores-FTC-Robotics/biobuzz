@@ -20,6 +20,11 @@ adjusting. The open side's pins (the 8 mm gap to the next channel) have square u
 them; the other side's are ramped both ways. To take it out: push the open side's two pins in through their holes
 (two small screwdrivers) and pull the sled down.
 
+Backup, if a printed sled ever comes loose: an M3 x 10 button head through the open side's wall hole halfway between
+the two pairs of pins (16 mm along), into an M3 nut dropped into the slot in the sled's top before it goes in. Its
+head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap beside the
+channel; unused, the slot is just an empty pocket.
+
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
 channel (+X the side pressed against the next channel, -X the open side), Y along it from the LED toward the wire
 end, Z up (into the lane). It prints upside down, top face on the bed, no supports.
@@ -54,6 +59,11 @@ ARM_GAP = 1.4                # behind each arm: room for it to bend in past the 
 PIN_YS = (0.0, 32.0)         # the two pairs of pins: level with the beam's 14 mm hole, and 32 mm (4 holes) along
 ARM_LEN = 12.0               # each pin sits this far from its arm's root (1.5 % strain in PETG as it bends 1 mm)
 ARM_TIP = 4.0                # and its arm runs this far past the pin to its free end
+BACKUP_Y = 16.0              # the backup screw: the open side's wall hole halfway between the pairs of pins
+M3_CLEAR = 3.4
+NUT_AF = 5.5
+NUT_T = 2.6
+NUT_X = 6.9                  # the nut slot's inner face from the beam axis: an M3 x 10 from outside the wall reaches
 RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
 RIB_W = 1.0
 WIRE_W = 6.0                 # wire slot out of the wire end
@@ -108,6 +118,13 @@ def floor_sled():
                 p = p.mirror("YZ")
             part = part.union(p.translate((0, pin_y, 0)))
     assert arms[0][2] < arms[1][1], "the two pairs of arms overlap"
+    # the backup screw on the open side (-X), between the arms' roots: a hole along X and a nut slot open at the top
+    part = part.cut(cq.Workplane("YZ").workplane(offset=-W / 2 - 0.1).center(BACKUP_Y, SIDE_HOLE_Z)
+                    .circle(M3_CLEAR / 2).extrude(W / 2 - NUT_X + 1.0))
+    part = part.cut(box(-NUT_X - NUT_T, -NUT_X, BACKUP_Y - NUT_AF / 2 - 0.15, BACKUP_Y + NUT_AF / 2 + 0.15,
+                        SIDE_HOLE_Z - NUT_AF / 0.866 / 2 - 0.2, 0.1))
+    assert arms[0][2] < BACKUP_Y - NUT_AF / 2 and BACKUP_Y + NUT_AF / 2 < arms[1][1], "the backup nut slot hits an arm"
+    assert NUT_X - 1.0 > WIRE_W / 2, "the backup screw runs into the wire slot"
     assert bx < W / 2 - ARM_T - ARM_GAP, "the arm slots run into the sensor pocket"
     return part
 
