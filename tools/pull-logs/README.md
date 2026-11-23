@@ -138,6 +138,21 @@ battery at its start, its lowest and at its end beside the robot's battery at IN
 The match's times are the robot's clock, which the Control Hub takes from the Driver Station.
 `test_read_logs.py` checks the reader on made-up lines in these formats.
 
+## Replaying a match in the simulator
+
+`to_sim_trace.py` turns one or more robots' match logs into a match trace for the Visualizer's simulator (`sim/`,
+NCSSM's engine), where its review plays it in 3D: **Open replay** in the setup, or the page's `?replay=` link.
+
+```
+python3 tools/pull-logs/to_sim_trace.py q28.json 20245/matches/<log>.wpilog.gz 19429/matches/<log>.wpilog.gz --name Fruitport-Q28
+```
+
+Each log is aligned to the match by its own PLAY and its own TeleOp start. A trace carries each robot's pose, lane
+count and Auto card, and each HIVE as our cameras saw it settle, debounced (a CELL read for 0.75 s in a row). A TIP
+shows when a camera first saw it settled, which can be seconds after the real TIP if the robot was facing away. The
+logs hold no balls, FLOWER contents or score, so the trace has none. Robots without a log (partners, opponents) are
+not drawn.
+
 ## Turret burst bench recordings
 
 **Bench: Turret Burst** (the SWYFT experiment of 6 Nov 2026, removed when the turret servo became a
