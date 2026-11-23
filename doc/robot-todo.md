@@ -15,7 +15,31 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
-## The Endgame row (22 Nov 2026, any Auto, either robot): before the State Championship
+## Next practice: five 5-minute Auto-time A/Bs (23 Nov 2026, either robot, R-Solo, fresh battery each pair)
+
+Each is three runs one way, three the other, Panels → the named knob, no reload. Push the logs after;
+a session reads them with `read_logs.py steps` and `legs`. Budget they attack (Belding + Fruitport, s per Auto):
+accel ramp 2.74, FLOWER dwell 2.31, gate open → first ball 2.06.
+
+1. **Drive-first** (`DriveSubsystem.drivePriorityOnPaths` off / on). **Log:** `legs`, the
+   LEFT_AUTO_HIVE ↔ SCORING_FLOWER_STAGING legs (1.27–1.40 s at Fruitport). **Keep it** if those are
+   0.2 s or more shorter and the volleys still go in; details in "Why Auto drives slowly" below.
+2. **Gate ahead of speed** (`LaunchCards.gateLeadS` 0 / 0.3). The feeder already holds the first ball
+   at the gate (`standbyPower` 1.0), so the 0.85 s from gate to first ball is the gate's swing and the
+   ball's trip. **Log:** `steps`, gate → last ball, and film from the side for the first ball's
+   flight. **Keep it** if the first ball leaves 0.2 s or more sooner and still goes in.
+3. **FLOWER dwell cap** (`FlowerPicker.dwell.dwellMs` 2000 / 1400). At the events a piece reached the
+   lane after 1.4 s into the dwell in 6 of 65 (after 1.2 s in 8, after 1.0 s in 14); 1400 saves 0.48 s
+   a pick. **Log:** `picks` (pieces per pick) and the next volley's balls. **Keep it** if pieces per
+   pick hold within one over the three runs.
+4. **FAST pick** (`FlowerPicker.routine` MASTER / FAST: no wait to slow, 1.0 s from contact, hand-over
+   6 in back; about 2.2 s against 3.7). **Log:** `picks`, the pick's seconds and pieces. **Keep it** on
+   the same rule as 3; it replaces 3 if both hold.
+5. **Launch on the approach through the CELL check** (`LaunchCards.launchOnApproach` on / off; #723).
+   **Log:** `steps`, the LEFT volleys' gate wait (negative = opened on the approach). **Keep it** if
+   the hit rate holds; the full check is under the launch speed table section.
+
+
 
 PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with `Endgame: PARK FIRST`; 20245's
 TIPS FIRST line in `RobotDifferences` is gone, and R-Clockwise shows no Priority row (it follows Endgame). The
