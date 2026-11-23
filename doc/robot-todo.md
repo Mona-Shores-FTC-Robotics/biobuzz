@@ -62,6 +62,33 @@ Code is ready and off on both robots: `BeamBreakSubsystem` ([PR: beam breaks]), 
 is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFitted = true` (or
 `laneFitted`), with the date. Full TeamCode install (an XML changed), Activate the config.
 
+**The new transfer's gate beam (19429 first, then 20245; [PR: gate beam mount], `cad/beam-mount/`).** The beam runs
+straight up through the ball's last spot behind the gate: the emitter in a printed sled inside the floor channel, the
+receiver on the top plate looking down. It reads "a ball is waiting at the gate" and clears when a volley's last ball
+has gone. It is **not** the throat beam the code expects (one past the gate that clears between balls): **no
+`throatFitted` or `laneFitted` line in `RobotDifferences`, and no Auto with it on,** until the code for this beam is
+merged. Wire it as `throatBeam` in the XML. Check: Hardware reads it once per INIT (INIT again to re-read). For the
+live checks, turn `BeamBreakSubsystem.throatFitted` on in Panels for the bench session only, INIT Basic Drive, and read the Robot page's
+"Throat beam" line; a `FEED STUCK` alert while a ball waits at the gate is expected (that is the code still to come).
+
+- [ ] **Caliper the 2168's body before printing:** thickness (8 or 9 mm?), width, LED from its end. **Good:** 8 mm
+      thick, 10 wide, 5 from the end (the files' numbers). **Stop:** anything else → `BODY_T` etc. in
+      `floor_sled.py` and `parts.py`, run both, print those files.
+- [ ] **Fit the sled (`cad/beam-mount/README.md`):** emitter in, two M3 x 8 on the wire-end side, LED centred in
+      the 14 mm hole. **Good:** a straightedge across the channel's bottom edges touches no plastic, screw or wire;
+      the sled does not rattle. **Stop:** the body will not sit flush with the sled's top → it is thicker than 8 mm
+      (above).
+- [ ] **Fit the receiver:** over the emitter's hole, held at both ends (lip, then its screw). **Good:** the body lies
+      flat on the mount, no gap at the LED end; Check: Hardware reads HIGH (clear) with the lane empty and LOW with
+      a ball on the spot. **Stop:** clear with a ball there → slide the mount in its slots (±3 mm); still clear →
+      the plate's hole is too far off the floor's, note by how much.
+- [ ] **Nothing else breaks it:** Basic Drive, intake and feeder wheels on, gate opened and shut 10 times, lane
+      empty. **Good:** never LOW. Then 4 balls in: LOW from the first ball's arrival until the volley's last ball
+      leaves, HIGH within 0.1 s after it (Robot page, phone slow-motion). **Stop:** HIGH between two balls of one
+      volley → note the gap's ms; that sets the code's hold time.
+- [ ] **Under the lights:** the same 4-ball check at the practice field's brightest spot, receiver under a light.
+      **Good:** same as above. **Stop:** HIGH with a ball on the spot → shade the receiver's slots with tape.
+
 - [ ] **Loop time (CLAUDE.md):** `LoopTimeBaseline` on 19429 before the beam's switch goes on and
       after; both numbers to the PR. **Good:** within 0.5 ms (a digital read is in the bulk read).
 - [ ] **Check: Hardware** lists the beam under "Optional devices" as `ok - … DigitalChannel`, reads
