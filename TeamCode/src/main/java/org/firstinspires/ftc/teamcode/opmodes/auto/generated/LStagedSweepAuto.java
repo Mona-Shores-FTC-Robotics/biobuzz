@@ -20,7 +20,7 @@ public final class LStagedSweepAuto {
     public static final String SOURCE = "l-staged-sweep.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-23|2:55PM";
+    public static final String SAVED = "11-23|2:57PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -36,7 +36,7 @@ public final class LStagedSweepAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(58.6, 133.8, 270);
+        return poses(rotated).of(59.2, 133.8, 270);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -48,12 +48,12 @@ public final class LStagedSweepAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose stageStart = p.of(58.6, 133.8, 270);
-        Pose stageClear = p.of(58.6, 113, 270);
+        Pose stageStart = p.of(59.2, 133.8, 270);
+        Pose stageClear = p.of(59.2, 113, 270);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
-        Pose stageSweepIn = p.of(58.4, 132.5, 0);
-        Pose stageSweepEnd = p.of(62.4, 132.5, 0);
+        Pose stageSweepIn = p.of(58.6, 132.5, 0);
+        Pose stageSweepEnd = p.of(62.5, 132.5, 0);
         Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).

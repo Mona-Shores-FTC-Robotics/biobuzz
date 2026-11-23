@@ -1,8 +1,8 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-23T19:55:43.329Z",
+  "timestamp": "2026-11-23T19:57:00.331Z",
   "startPoint": {
-    "x": 58.6,
+    "x": 59.2,
     "y": 133.8,
     "locked": false,
     "headingDeg": 270
@@ -19,7 +19,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 58.6,
+        "x": 59.2,
         "y": 113
       },
       "controlPoints": [],
@@ -55,7 +55,7 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 58.6,
+        "x": 59.2,
         "y": 113
       },
       "controlPoints": [],
@@ -189,7 +189,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 58.4,
+        "x": 58.6,
         "y": 132.5
       },
       "controlPoints": [
@@ -230,7 +230,7 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 58.4,
+        "x": 58.6,
         "y": 132.5
       },
       "controlPoints": [],
@@ -250,7 +250,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 62.4,
+        "x": 62.5,
         "y": 132.5
       },
       "controlPoints": [],
@@ -285,7 +285,7 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 62.4,
+        "x": 62.5,
         "y": 132.5
       },
       "controlPoints": [],
@@ -716,12 +716,12 @@
     },
     "points": {
       "STAGE_START": [
-        58.6,
+        59.2,
         133.8,
         270
       ],
       "STAGE_CLEAR": [
-        58.6,
+        59.2,
         113,
         270
       ],
@@ -736,12 +736,12 @@
         268.9
       ],
       "STAGE_SWEEP_IN": [
-        58.4,
+        58.6,
         132.5,
         0
       ],
       "STAGE_SWEEP_END": [
-        62.4,
+        62.5,
         132.5,
         0
       ],
