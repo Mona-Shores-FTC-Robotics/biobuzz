@@ -15,6 +15,9 @@ import java.util.Map;
  * from the same layout as, and fails while the committed copy is stale. The Visualizer's driver
  * drill reads that file, so the drill's buttons are the robot's and never typed in by hand.
  *
+ * <p>Also the driver's Square ({@link LaunchSpotsExport}): the launch spots, where the button drives
+ * for each alliance, and the pick from a grid of poses, so the drill drives where the robot does.
+ *
  * <p>Shared values only: a robot's {@code RobotDifferences} lines are not applied here (they can be
  * applied once per app run), so a drill that needs a per-robot value says so where it uses it.
  */
@@ -77,6 +80,7 @@ public final class ControlsExport {
                     .append(i + 1 < switches.length ? ",\n" : "\n");
         }
         indent(out, 1).append("},\n");
+        out.append(LaunchSpotsExport.json(1)).append(",\n");
         indent(out, 1).append("\"practiceReadout\": {\"budgetS\": ").append(num(CycleReadout.BUDGET_S))
                 .append(", \"budgetPieces\": ").append(CycleReadout.BUDGET_PIECES)
                 .append(", \"mergeS\": ").append(num(CycleReadout.MERGE_S))
