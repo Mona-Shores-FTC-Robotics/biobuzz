@@ -65,11 +65,11 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
 **The new transfer's gate beam (19429 first, then 20245; [PR #728], `cad/beam-mount/`).** The beam runs
 straight up through the ball's last spot behind the gate: the emitter in a printed sled inside the floor channel, the
 receiver on the top plate looking down. It reads "a ball is waiting at the gate" and clears when a volley's last ball
-has gone. It is **not** the throat beam the code expects (one past the gate that clears between balls): **no
-`throatFitted` or `laneFitted` line in `RobotDifferences`, and no Auto with it on,** until the code for this beam is
-merged. Wire it as `throatBeam` in the XML. Check: Hardware reads it once per INIT (INIT again to re-read). For the
-live checks, turn `BeamBreakSubsystem.throatFitted` on in Panels for the bench session only, INIT Basic Drive, and read the Robot page's
-"Throat beam" line; a `FEED STUCK` alert while a ball waits at the gate is expected (that is the code still to come).
+has gone. It is **not** the throat beam past the gate the code assumes by default: it always goes with
+`BeamBreakSubsystem.throatBehindGate` ([PR #729]), never `throatFitted` alone. Wire it as `throatBeam` in the XML.
+Check: Hardware reads it once per INIT (INIT again to re-read). For the live checks, turn `throatFitted` and
+`throatBehindGate` both on in Panels for the bench session, INIT Basic Drive, and read the Robot page's "Gate beam"
+line; the `RobotDifferences` lines come with the switch item further down this group, once these pass.
 
 - [ ] **Caliper the 2168's body before printing:** thickness (8 or 9 mm?), width, LED from its end. **Good:** 8 mm
       thick, 10 wide, 5 from the end (the files' numbers). **Stop:** anything else → `BODY_T` etc. in
@@ -124,6 +124,18 @@ live checks, turn `BeamBreakSubsystem.throatFitted` on in Panels for the bench s
       last piece settles (`ColorSensorSubsystem.fullHoldWithBeamS`, `laneBeamHoldS`), against 1.0 s
       today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
       forward. Move the beam, not the numbers.
+- [ ] **Gate beam (the new transfer: the throat beam behind the gate, [PR #729]), its switch:**
+      once the gate beam's fitting checks pass, two `RobotDifferences` lines with the date,
+      `BeamBreakSubsystem.throatFitted = true` and `BeamBreakSubsystem.throatBehindGate = true`. Never the
+      first without the second on that robot: a beam behind the gate read as one past it calls every
+      waiting ball a jam. Robot page: "Gate beam: a ball at the gate" with a ball waiting.
+- [ ] **Gate beam ends a volley (R-Solo, 3 runs, phone slow-motion side-on at the transfer):** **Good:**
+      each `LaunchAll fed` line says `ended: nothing at the gate 0.50 s` or `ended at the last counted
+      shot`, every volley's last ball reaches the wheels on the video, and no `reverse`. Note on the
+      video, for 3 volleys, the last ball's time from leaving the gate spot to leaving the wheels.
+      **Stop:** a last ball left on the ramp when the feed ended → raise `BeamBreakSubsystem.gateClearEmptyS`
+      (0.5) above that time; a volley ended with balls still waiting in the lane (a gap between two) →
+      note the gap's ms from the video.
 
 ## Turret encoder to a drive socket (both robots, before the State Championship from 10 Dec)
 
@@ -2366,6 +2378,7 @@ one test at one meeting.
 [PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
 [PR #644]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/644
 [PR #728]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/728
+[PR #729]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/729
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429

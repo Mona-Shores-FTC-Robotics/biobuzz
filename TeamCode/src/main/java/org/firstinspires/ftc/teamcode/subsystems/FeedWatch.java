@@ -26,6 +26,9 @@ import java.util.Locale;
  * <p>The caller recovers or gives up; the watch only says so. One jam has one handler: the two
  * kinds are told apart so the throat's unjam and the lane entry's never act on the same jam.
  *
+ * <p>A beam behind the gate instead ({@code BeamBreakSubsystem.throatBehindGate}) is judged by
+ * {@link #stepBehindGate}: it sees a ball waiting at the gate, not each ball leaving.
+ *
  * <p>Pure: no SDK, no allocation per loop, so a test can drive it.
  */
 public final class FeedWatch {
@@ -109,6 +112,40 @@ public final class FeedWatch {
                 verdict = Verdict.STUCK;
                 why = String.format(Locale.US, "no ball %.2f s after ball %d, the lane holding", gap, balls);
             }
+        }
+        return verdict;
+    }
+
+    /**
+     * One loop of a feed judged by a beam <b>behind the gate</b>, under the ball that waits there
+     * ({@code BeamBreakSubsystem.throatBehindGate}). That beam cannot count: the balls of a volley come
+     * through touching, so it stays broken until the last one has gone. So there is no
+     * {@link Verdict#ALL_OUT} and no {@link Verdict#HELD} (a ball waiting at the gate is not a jam), and
+     * {@link #balls()} stays 0. Only the beam's clear time is judged, and only the feed's own part of it
+     * (since {@link #start} or {@link #restart}):
+     * <ul>
+     *   <li><b>{@link Verdict#EMPTY}</b>: clear {@code emptyClearS} and the lane does not say it holds a
+     *       piece: the volley's last ball has passed the gate and gone on to the wheels.</li>
+     *   <li><b>{@link Verdict#STUCK}</b>: clear {@code stuckGapS} with the lane holding: nothing reaches
+     *       the gate, a jam in the lane (the lane entry's to clear).</li>
+     * </ul>
+     *
+     * @param clearS      how long the beam has been clear now, seconds; 0 while broken
+     * @param emptyClearS clear this long, the lane not holding, is {@link Verdict#EMPTY}; 0 or NaN: never
+     * @param stuckGapS   clear this long with the lane holding is {@link Verdict#STUCK}; 0 or NaN: never
+     */
+    public Verdict stepBehindGate(double nowS, double clearS, Lane lane, double emptyClearS, double stuckGapS) {
+        if (Double.isNaN(startS)) return Verdict.FEEDING;
+        verdict = Verdict.FEEDING;
+        why = "";
+        double clear = Math.min(clearS, nowS - startS);
+        if (!(clear > 0)) return verdict;
+        if (lane != Lane.HOLDS && emptyClearS > 0 && clear >= emptyClearS) {
+            verdict = Verdict.EMPTY;
+            why = String.format(Locale.US, "nothing at the gate %.2f s", clear);
+        } else if (lane == Lane.HOLDS && stuckGapS > 0 && clear >= stuckGapS) {
+            verdict = Verdict.STUCK;
+            why = String.format(Locale.US, "nothing at the gate %.2f s, the lane holding", clear);
         }
         return verdict;
     }

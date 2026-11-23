@@ -66,6 +66,10 @@ import java.util.function.Supplier;
  *
  * <h2>What "Empty" means today</h2>
  *
+ * <p>A throat beam behind the gate ({@code BeamBreakSubsystem.throatBehindGate}) counts nothing: the
+ * volley keeps its shot counter and set time, and also ends once that beam has stayed clear with the
+ * lane empty ({@link Launcher#gateClearS()}). Everything below is a beam past the gate.
+ *
  * <p>With the throat beam fitted ({@code BeamBreakSubsystem}), a volley ends on its balls: the
  * moment the 4th passes the throat, or once the throat goes quiet with the lane empty, and a stuck
  * feed is backed out and fed again ({@link #throatBackstopS}, {@link #unjamTries}; the private
@@ -231,6 +235,13 @@ public final class LaunchCards {
         default double throatBlockedS() { return 0.0; }
         /** What the lane holds apart from the throat ({@code Robot.laneHolds}): it tells an empty lane from a stuck feed. */
         default FeedWatch.Lane lane() { return FeedWatch.Lane.UNKNOWN; }
+        /**
+         * How long the beam behind the gate ({@code BeamBreakSubsystem.throatBehindGate}) has been clear,
+         * seconds, 0 while a ball waits in it; -1 with no such beam. Such a beam counts nothing, so
+         * {@link #throatBalls()} is -1 beside it and the feed keeps its shot counter and set time, and
+         * also ends once this has been clear {@code gateClearEmptyS} with the lane empty.
+         */
+        default double gateClearS() { return -1.0; }
     }
 
     /** What a launch card needs from the feeder. {@code FeederSubsystem} has both methods. */
@@ -417,12 +428,13 @@ public final class LaunchCards {
             @Override public int shots() { return robot.launcher.shots(); }
             @Override public double secondsToSpeed() { return robot.launcher.secondsToSpeed(); }
             @Override public int throatBalls() {
-                return robot.beams.throat() == null ? -1 : robot.beams.throat().passes();
+                return robot.beams.countingThroat() == null ? -1 : robot.beams.countingThroat().passes();
             }
             @Override public double throatBlockedS() {
-                return robot.beams.throat() == null ? 0.0 : robot.beams.throat().blockedForMs() / 1000.0;
+                return robot.beams.countingThroat() == null ? 0.0 : robot.beams.countingThroat().blockedForMs() / 1000.0;
             }
             @Override public FeedWatch.Lane lane() { return robot.laneHolds(); }
+            @Override public double gateClearS() { return robot.beams.gateClearS(); }
         };
         Feeder feeder = new Feeder() {
             @Override public void feed() { robot.feeder.feed(); }
@@ -717,7 +729,7 @@ public final class LaunchCards {
             shotsAtFeed = launcher.shots();
             first = firstVolley;
             int balls = launcher.throatBalls();
-            if (balls >= 0) watch.start(now, balls);
+            if (balls >= 0 || launcher.gateClearS() >= 0) watch.start(now, Math.max(balls, 0));
             feed(now);
         }
 
@@ -726,7 +738,7 @@ public final class LaunchCards {
             fedAt = at;
             first = firstVolley;
             shotsAtFeed = shots;
-            if (balls >= 0) watch.start(at, balls);
+            if (balls >= 0 || launcher.gateClearS() >= 0) watch.start(at, Math.max(balls, 0));
         }
 
         private void feed(double now) {
@@ -775,7 +787,23 @@ public final class LaunchCards {
                 int shots = launcher.shots();
                 allShotsOut = volleyCard && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
                 if (allShotsOut) endWhy = ", ended at the last counted shot";
-                return allShotsOut;
+                if (allShotsOut || !volleyCard) return allShotsOut;
+                // A beam behind the gate: the volley's last ball has passed the gate once it stays clear
+                // with the lane empty. It sees no jam at the wheels; a lane jam is the lane entry's.
+                double clearS = launcher.gateClearS();
+                if (clearS < 0) return false;
+                FeedWatch.Verdict verdict = watch.stepBehindGate(now, clearS, launcher.lane(),
+                        BeamBreakSubsystem.gateClearEmptyS, BeamBreakSubsystem.stuckGapS);
+                if (verdict == FeedWatch.Verdict.EMPTY) {
+                    endWhy = ", ended: " + watch.why();
+                    return true;
+                }
+                if (verdict == FeedWatch.Verdict.STUCK && !leftToLane) {
+                    leftToLane = true;
+                    note.accept(String.format(Locale.US, "%s feed stuck (%s): %s", name, watch.why(),
+                            IntakeSubsystem.clearFeedJam ? "left to the lane's jam clear" : "feeding on to its set time"));
+                }
+                return false;
             }
             FeedWatch.Verdict verdict = watch.step(now, balls, launcher.throatBlockedS(), launcher.lane(), endAfter(),
                     BeamBreakSubsystem.quietS, BeamBreakSubsystem.firstBallWithinS, BeamBreakSubsystem.jamBlockedS,
@@ -825,6 +853,10 @@ public final class LaunchCards {
                 // Logged against the dip count, to judge the beam (and the dips) by video.
                 note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d balls through the throat, %d shots detected",
                         name, now - fedAt, end, endWhy, watch.balls(), launcher.shots() - shotsAtFeed));
+            } else if (launcher.gateClearS() >= 0) {
+                // Logged against the dip count, to judge the gate beam's end (and the dips) by video.
+                note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): gate beam behind the gate, %d shots detected",
+                        name, now - fedAt, end, endWhy, launcher.shots() - shotsAtFeed));
             } else if (launcher.shots() >= 0) {
                 // Logged to judge the shot detector against what was seen (video).
                 note.accept(String.format(Locale.US, "%s fed %.2f s (%s%s): %d shots detected",
