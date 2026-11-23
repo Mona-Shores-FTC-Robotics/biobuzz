@@ -229,7 +229,7 @@
     "AutoSource": "r-clockwise.pp",
     "SavedBy": "Clockwise pair: both pickup choices, normal, either robot 20% slow, either robot's preloads missed; LEFT_AUTO_HIVE 0.5 in off the centre line",
     "SavedAt": "2026-11-18T19:45:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now; the usual design from now on"
   },
   "usual": true
 }

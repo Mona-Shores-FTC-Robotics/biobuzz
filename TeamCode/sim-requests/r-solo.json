@@ -58,7 +58,7 @@
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans; the drive to RIGHT_AUTO_HIVE turns clear of the centre line",
     "SavedAt": "2026-11-18T21:08:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now; the usual design from now on"
   },
   "usual": true
 }

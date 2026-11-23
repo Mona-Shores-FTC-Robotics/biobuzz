@@ -91,7 +91,7 @@
     "AutoSource": "r-left-under-hive.pp",
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-18T22:15:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now; the usual design from now on"
   },
   "usual": true
 }
