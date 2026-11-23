@@ -2017,6 +2017,7 @@ matches did not show.
 
 The cycle and press analysis of the 7 Nov match logs: `events/2026-11-belding` branch.
 
+- [ ] *(Off by default since 23 Nov: mentor's call, a late shot is rarely called and stopping early costs a volley. Run this only with `TeleOpConfig.stopLaunchingAtMatchEnd` turned on in Panels.)*
 - [ ] **Both robots: launching stops at the end of the match** (`MatchEnd`, branch
       `claude/stop-launch-at-buzzer`; 20245 fed after 0:00 in Fruitport Q-20, Q-42, M-3, M-7). Basic
       Drive, phone stopwatch started with PLAY, pieces loaded. At about 1:55 hold the driver's Circle

@@ -333,9 +333,10 @@ public final class TeleOpConfig {
     public static double matchEndMarginS = 1.0;
 
     /**
-     * On: the TeleOp stops launching at the end of the match ({@link #matchEndMarginS}). Off only
-     * in Panels, for a practice drive longer than a match; Panels edits are lost on restart, so it
-     * is back on for the next match.
+     * On: the TeleOp stops launching at the end of the match ({@link #matchEndMarginS}). Off by
+     * default (mentor, 23 Nov 2026): a late shot is rarely called, and stopping at 1:59 gives up
+     * a last volley that can still score; the drive team presses stop at 0:00 (G404). Turn it on
+     * in Panels to try it.
      */
-    public static boolean stopLaunchingAtMatchEnd = true;
+    public static boolean stopLaunchingAtMatchEnd = false;
 }
