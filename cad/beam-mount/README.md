@@ -60,13 +60,14 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
    sits on the 14 mm hole's centre: the holes place it, nothing to adjust.
 3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
    below.
-4. **To take it out:** push the open side's two pins (the side with the 8 mm gap to the next channel) in through
+4. **To take it out:** push the open side's two pins (the side facing the purple wheels, with nothing beside it
+   there) in through
    their holes with two small screwdrivers, and pull the sled down. The other side's pins are ramped both ways and
    let go.
 5. **Backup, only if a sled ever works loose:** drop an M3 nut into the slot in the sled's top (open side, halfway
    between the pins) before pushing it in, then an **M3 x 10 button head** through the open side's wall hole there
-   into it. The head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap
-   beside the channel; unused, the slot is just an empty pocket.
+   into it. The head is outside the channel's wall on the open side, nowhere near the ball, reached straight on;
+   unused, the slot is just an empty pocket.
 
 ### Option B: the screwed sled (`floor_sled_screwed`)
 
@@ -77,7 +78,7 @@ keep the one that holds better.
    slot.
 2. Put the sled up into the channel, LED under the beam's 14 mm hole, wire end away from the gate.
 3. From the top, an **M3 x 8 button head** at each end down through the floor's 4 mm hole 9.4 mm off the centre line
-   on the open side, 33 mm along the channel each way from the beam's hole, into the nuts. The balls cross the channel
+   on the side away from the wheels (under them a screwdriver cannot reach), 33 mm along the channel each way from the beam's hole, into the nuts. The balls cross the channel
    at the beam: a NECTAR's surface is 10 mm or more above these heads, a POLLEN's 4.5 mm or more. An M3 x 8 ends
    inside the sled; a 10 would poke out of the bottom.
 4. Slide the sled to centre the LED in the hole (the slots allow 3 mm either way), then tighten: it pulls the sled,

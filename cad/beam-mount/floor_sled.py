@@ -16,27 +16,30 @@ joined only at one end, like a diving board): one pair level with the beam's 14 
 channel. Push the sled straight up into the channel: the pins' sloped tops let the channel's edges bend the arms in,
 and at the holes they spring back out and click in. Two pins in each side wall, 32 mm apart, so it cannot rock or
 slide; the walls hold it sideways and the floor above. The holes place the LED on the 14 mm hole's centre: no
-adjusting. The open side's pins (the 8 mm gap to the next channel) have square undersides, so a pull does not free
+adjusting. The open side's pins (the side facing the purple wheel stack, nothing beside it there) have square undersides, so a pull does not free
 them; the other side's are ramped both ways. To take it out: push the open side's two pins in through their holes
 (two small screwdrivers) and pull the sled down.
 
 Backup, if a printed sled ever comes loose: an M3 x 10 button head through the open side's wall hole halfway between
 the two pairs of pins (16 mm along), into an M3 nut dropped into the slot in the sled's top before it goes in. Its
-head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap beside the
-channel; unused, the slot is just an empty pocket.
+head is outside the channel's wall on the open side, nowhere near the ball, reached straight on; unused, the slot is
+just an empty pocket.
 
 The sled reaches from the beam's 14 mm hole away from the gate and the purple wheel stack, and the wires leave at
 that end, inside the channel (mentor, 23 Nov 2026). WIRES_TOWARD_GATE True turns it the other way.
 
 **Option B, `floor_sled_screwed`:** no pins. Longer (81 mm), reaching 40 mm each way along the channel, with an
-M3 x 8 button head at each end down through the floor's 4 mm hole (9.4 mm off the centre line on the open side) into
+M3 x 8 button head at each end down through the floor's 4 mm hole (9.4 mm off the centre line on the side away from the wheels, clear of
+them for a screwdriver from the top) into
 an M3 nut slid into a tunnel in the sled; each in a +-3 mm slot. Both screws are 33 mm along the channel from the
 beam's hole, 39 mm and 28 mm from where the balls cross: no ball rolls over them, and they are reached from the top.
 Tightening them pulls the sled, and the emitter on its crush ribs, flat against the floor.
 
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
-channel (+X the side pressed against the next channel, -X the open side), Y along it (+Y away from the gate, where
-the wires leave), Z up (into the lane). It prints upside down, top face on the bed, no supports.
+channel, Y along it (+Y away from the gate, where the wires leave), Z up (into the lane). The open side (the one you
+can reach: it faces the purple wheel stack, and the 6-hole channel beside it ends before the sled) is +X in the
+snap sled as exported; the far side has the 10-hole channel 8 mm away all along. It is drawn open side at -X and
+mirrored (OPEN_SIDE_MIRRORED; mentor, 23 Nov 2026, from the robot CAD). It prints upside down, top face on the bed, no supports.
 """
 import os
 
@@ -73,8 +76,9 @@ M3_CLEAR = 3.4
 NUT_AF = 5.5
 NUT_T = 2.6
 NUT_X = 6.9                  # the nut slot's inner face from the beam axis: an M3 x 10 from outside the wall reaches
+OPEN_SIDE_MIRRORED = True    # the snap sled's square pins and backup screw go on +X, the side facing the wheels
 WIRES_TOWARD_GATE = False    # False: the sled and its wires run from the beam's hole away from the gate (+Y)
-SCREW_X = 9.4               # option B's screws: the floor's 4 mm holes 9.4 mm off the centre line, open side...
+SCREW_X = 9.4               # option B's screws: the floor's 4 mm holes 9.4 mm off the centre line, away from the wheels...
 SCREW_Y = 33.4               # ...33.4 mm each way along the channel from the beam's hole
 SLIDE = 3.0                  # +-3 mm slots along the channel
 NUT_TUNNEL_W = 5.8           # a nut slides in from the sled's end and cannot turn
@@ -135,7 +139,7 @@ def floor_sled():
                 p = p.mirror("YZ")
             part = part.union(p.translate((0, pin_y, 0)))
     assert arms[0][2] < arms[1][1], "the two pairs of arms overlap"
-    # the backup screw on the open side (-X), between the arms' roots: a hole along X and a nut slot open at the top
+    # the backup screw on the open side (-X as drawn), between the arms' roots: a hole along X and a nut slot open at the top
     part = part.cut(cq.Workplane("YZ").workplane(offset=-W / 2 - 0.1).center(BACKUP_Y, SIDE_HOLE_Z)
                     .circle(M3_CLEAR / 2).extrude(W / 2 - NUT_X + 1.0))
     part = part.cut(box(-NUT_X - NUT_T, -NUT_X, BACKUP_Y - NUT_AF / 2 - 0.15, BACKUP_Y + NUT_AF / 2 + 0.15,
@@ -144,6 +148,8 @@ def floor_sled():
     assert NUT_X - 1.0 > WIRE_W / 2, "the backup screw runs into the wire slot"
     if WIRES_TOWARD_GATE:
         part = part.mirror("XZ")                  # Y to -Y: the X sides, and so the open side's pins, stay put
+    if OPEN_SIDE_MIRRORED:
+        part = part.mirror("YZ")                  # X to -X: the square pins and the backup screw to the wheel side
     assert bx < W / 2 - ARM_T - ARM_GAP, "the arm slots run into the sensor pocket"
     return part
 
