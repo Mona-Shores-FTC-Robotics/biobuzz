@@ -15,7 +15,7 @@ export of 23 Nov 2026):
 | File | What it is | Print |
 |---|---|---|
 | `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
-| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 81.2 x 9.3 mm, two floor screws, no pins. Prints like the sled | 1 per robot, to try |
+| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 81.2 x 9.3 mm, four floor-screw places (use 2 to 4), no pins. Prints like the sled | 1 per robot, to try |
 | `beam_mount.stl` / `.3mf` | 32.7 x 30.7 x 14.3 mm. Plate down, as exported | 1 per robot |
 | `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
@@ -74,13 +74,14 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
 The same pocket, no pins: 81 mm long, reaching 40 mm each way along the channel from the beam's hole. Print both and
 keep the one that holds better.
 
-1. Emitter in as for the snap sled. Slide an M3 nut into the tunnel at each end of the sled until it sits under its
-   slot.
+1. Emitter in as for the snap sled. Slide an M3 nut into each tunnel you will use (one in each corner, opening at
+   the sled's ends) until it sits under its slot.
 2. Put the sled up into the channel, LED under the beam's 14 mm hole, wire end away from the gate.
-3. From the top, an **M3 x 8 button head** at each end down through the floor's 4 mm hole 9.4 mm off the centre line
-   on the side away from the wheels (under them a screwdriver cannot reach), 33 mm along the channel each way from the beam's hole, into the nuts. The balls cross the channel
-   at the beam: a NECTAR's surface is 10 mm or more above these heads, a POLLEN's 4.5 mm or more. An M3 x 8 ends
-   inside the sled; a 10 would poke out of the bottom.
+3. From the top, **M3 x 8 button heads** down through the floor's 4 mm holes 9.4 mm either side of the centre line,
+   33 mm along the channel each way from the beam's hole, into the nuts. Four places, one per corner: use any two,
+   one at each end, or all four. The two on the wheel side at the gate end sit under the purple wheels, so use them
+   only if a screwdriver gets there. The balls cross the channel at the beam: a NECTAR's surface is 10 mm or more
+   above these heads, a POLLEN's 4.5 mm or more. An M3 x 8 ends inside the sled; a 10 would poke out of the bottom.
 4. Slide the sled to centre the LED in the hole (the slots allow 3 mm either way), then tighten: it pulls the sled,
    and the emitter on its crush ribs, flat against the floor.
 
