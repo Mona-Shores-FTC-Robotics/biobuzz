@@ -1,0 +1,108 @@
+{
+  "pp": "TeamCode/autos/drafts/l-staged-sweep.pp",
+  "spec": "LStagedSweepAuto",
+  "design": "real robot",
+  "calibration": "belding",
+  "scenario": "best",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "oursStaged": true,
+  "partners": [
+    {
+      "name": "last shot at 2 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 2
+    },
+    {
+      "name": "last shot at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5
+    },
+    {
+      "name": "last shot at 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8
+    },
+    {
+      "name": "last shot at 12 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 12
+    },
+    {
+      "name": "misses, said 8 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses"
+    },
+    {
+      "name": "dead on its start, said 8 s",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8
+    },
+    {
+      "name": "late: starts 4 s late, wait left as drawn",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 4
+      }
+    },
+    {
+      "name": "late: starts 6 s late, wait left as drawn",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 6
+      }
+    },
+    {
+      "name": "last shot at 12 s, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 12,
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "misses, said 8 s, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 8,
+      "fails": "misses",
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "late: starts 4 s late, wait left as drawn, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 4
+      },
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "late: starts 6 s late, wait left as drawn, Endgame TIPS FIRST",
+      "partner": "PartnerRLaunchParkAuto",
+      "timing": {
+        "startDelayS": 6
+      },
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "drafts/l-staged-sweep.pp"
+  }
+}
