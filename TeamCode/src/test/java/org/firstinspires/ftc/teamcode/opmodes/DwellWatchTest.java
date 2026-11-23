@@ -60,8 +60,23 @@ public class DwellWatchTest {
     @Test
     public void zeroTurnsItOff() {
         DwellWatch w = freeRunning();
-        assertEquals(false, w.done(5000, 0, 0, EMPTY));
         assertEquals(false, w.done(5000, 0, QUIET, 0));
+        w.observe(100, 6.0, SPIKE);
+        assertEquals(false, w.done(5000, 0, 0, EMPTY));
+    }
+
+    /**
+     * FlowerPicker runs with the quiet end off (dwellQuietMs 0) and the empty end on: an empty FLOWER
+     * still ends the dwell at emptyMs, and one that gave pieces dwells to the cap. Until 23 Nov 2026
+     * the quiet end at 0 turned the empty end off too.
+     */
+    @Test
+    public void theEmptyEndWorksWithTheQuietEndOff() {
+        DwellWatch w = freeRunning();
+        assertEquals(false, w.done(EMPTY - 20, 0, 0, EMPTY));
+        assertEquals(true, w.done(EMPTY, 0, 0, EMPTY));
+        w.observe(EMPTY + 20, 6.0, SPIKE);
+        assertEquals("pieces came: the quiet end is off, so it dwells on", false, w.done(5000, 0, 0, EMPTY));
     }
 
     @Test

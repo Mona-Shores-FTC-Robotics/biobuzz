@@ -215,7 +215,10 @@ public final class FlowerPicker extends GrabRoutine {
         public double dwellQuietMs = 0;
         /**
          * The dwell ends if no piece has spiked the current this far in, ms (0: off). The latest first
-         * piece on 29 Oct came 1.22 s in.
+         * piece on 29 Oct came 1.22 s in; at Belding and Fruitport (45 Auto picks) the latest first spike
+         * on a pick that took pieces came 1.0 s into the dwell. Works on its own since 23 Nov 2026: before,
+         * {@link #dwellQuietMs} at 0 turned it off too, and the 10 of those 45 picks that took nothing
+         * dwelt the whole {@link #dwellMs}. Each such pick now leaves 0.7 s sooner.
          */
         public double dwellEmptyMs = 1300;
         /** A current this many amps over the roller's free-running 0.35 A is a piece (they spike 5–6 A). */

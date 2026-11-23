@@ -37,14 +37,18 @@ final class DwellWatch {
     }
 
     /**
-     * Whether the dwell that began at {@code dwellStartMs} may end at {@code nowMs}. Never while
-     * {@code quietMs} or {@code emptyMs} is 0 or less: that turns it off, and the grab dwells its
-     * full time.
+     * Whether the dwell that began at {@code dwellStartMs} may end at {@code nowMs}: with no spike
+     * yet, once {@code emptyMs} have passed; after one, once {@code quietMs} have passed since the
+     * last. Each is off at 0 or less, on its own: off, that case dwells the grab's full time.
+     *
+     * <p>Until 23 Nov 2026 either at 0 turned both off, so with {@code FlowerPicker}'s
+     * {@code dwellQuietMs} 0 (the mentor's call, 1 Nov) its {@code dwellEmptyMs} 1300 did nothing:
+     * at Belding and Fruitport 10 of 45 Auto FLOWER picks took nothing and dwelt the whole 2.0 s
+     * cap, 7 of them with no spike at all.
      */
     boolean done(double nowMs, double dwellStartMs, double quietMs, double emptyMs) {
-        if (!(quietMs > 0.0) || !(emptyMs > 0.0)) return false;
-        if (Double.isNaN(lastSpikeMs)) return nowMs - dwellStartMs >= emptyMs;
-        return nowMs - lastSpikeMs >= quietMs;
+        if (Double.isNaN(lastSpikeMs)) return emptyMs > 0.0 && nowMs - dwellStartMs >= emptyMs;
+        return quietMs > 0.0 && nowMs - lastSpikeMs >= quietMs;
     }
 
     /** Whether a piece came in: a spike since the roller started. */

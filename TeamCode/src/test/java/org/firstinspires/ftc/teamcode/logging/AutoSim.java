@@ -2578,6 +2578,17 @@ public final class AutoSim {
         /** Its own stream, so the calibration's short picks leave every other draw as it was. */
         private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
 
+        /**
+         * The robot's empty-FLOWER end ({@code DwellWatch}): MASTER's dwell ends {@code FlowerPicker.dwell.dwellEmptyMs}
+         * in when nothing has come in since the pick started (the robot reads no intake current spike). FAST and
+         * MULTI_PUSH dwell less than that anyway.
+         */
+        private boolean emptyDwellOver(double dwellFrom, int heldAtStart) {
+            double emptyMs = FlowerPicker.dwell.dwellEmptyMs;
+            return FlowerPicker.routine == FlowerPicker.Routine.MASTER && emptyMs > 0
+                    && body.stored.size() <= heldAtStart && now - dwellFrom >= emptyMs / 1000.0;
+        }
+
         private Command pickFlower() {
             final Pose[] square = new Pose[1];
             final Pose[] contact = new Pose[1];
@@ -2588,9 +2599,11 @@ public final class AutoSim {
             final boolean[] pickAtScoringFlower = new boolean[1];
             final double[] pickFlowerAt = new double[2];
             final boolean[] reachedDwell = new boolean[1];
+            final int[] heldAtStart = new int[1];
             final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
                     .setStart(() -> {
+                        heldAtStart[0] = body.stored.size();
                         double[] at = pedro(drive.pose);
                         Pose here = new Pose(at[0], at[1], at[2] + flip); // the intake's heading
                         FlowerFieldPoints.Flower flower = null;
@@ -2655,6 +2668,7 @@ public final class AutoSim {
                                 ? (FieldSim.full(body) && now - dwellFrom[0] >= FlowerPicker.fullEndsAfterMs() / 1000.0
                                         && (!BeldingCalibration.on || now - dwellFrom[0] >= BeldingCalibration.PICK_DWELL_S))
                                     || now - dwellFrom[0] >= FlowerPicker.atFlowerCapMs() / 1000.0
+                                    || emptyDwellOver(dwellFrom[0], heldAtStart[0])
                                 : now - dwellFrom[0] >= pickS)) {
                             phase[0] = 3;
                             double[] at = pedro(drive.pose);
