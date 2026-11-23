@@ -40,6 +40,10 @@ with Python. Standard library only.
   python3 tools/pull-logs/read_logs.py creep LOG.wpilog [...]     every UP CELL that fell while the robot stood
                                                                    still with the turret steady: how long its row
                                                                    crept down before it passed mid-swing
+  python3 tools/pull-logs/read_logs.py arrivals LOG.wpilog [...]  with the gate beam fitted (throatBehindGate): every
+                                                                   piece's time from the lane's entrance sensor counting
+                                                                   it in to its arrival at the gate (slot 1), and any
+                                                                   clear-then-blocked flicker of a ball sitting there
   python3 tools/pull-logs/read_logs.py dsbattery FILE [...]       each Driver Hub's own battery over the day,
                                                                    then every match log given beside it: the DS
                                                                    battery at its start, lowest, at its end
@@ -1333,6 +1337,92 @@ def practice(paths):
             print('  %d cycles: best %.1f s, median %.1f s' % (len(cyc), min(cyc), sorted(cyc)[len(cyc) // 2]))
 
 
+def _edges(series):
+    """[(t, value)] at each change of a sampled series, the first sample included."""
+    out, last = [], None
+    for t, v in series:
+        if v != last:
+            out.append((t, v))
+            last = v
+    return out
+
+
+def gate_arrivals(count, blocked, feeding, after_feed_s=0.5):
+    """A gate beam's arrivals and flickers, from /Lane/Count, /Beam/ThroatBlocked and /FeedGate/Feeding.
+
+    An arrival is the beam going blocked with the gate shut, after the lane's entrance sensor counted a
+    piece in (a /Lane/Count rise) while slot 1 was empty: (time counted in, time at the gate). Pieces
+    counted in while a ball already waits queue behind it and reach the gate only in a feed, so they
+    are not timed. A feed, and after_feed_s after it, times nothing (the balls run through the gate).
+
+    A flicker is the beam clear and then blocked again with the gate shut and no piece counted in
+    since: a ball sitting at the gate with a hole lined up with the beam, or nudged. (time clear,
+    seconds clear). Returns (arrivals, flickers)."""
+    ev = [(t, 'count', v) for t, v in _edges(count)] + [(t, 'beam', bool(v)) for t, v in _edges(blocked)] \
+        + [(t, 'gate', bool(v)) for t, v in _edges(feeding)]
+    ev.sort(key=lambda e: (e[0], {'gate': 0, 'count': 1, 'beam': 2}[e[1]]))
+    arrivals, flickers = [], []
+    last_count = None
+    beam = None
+    gate_open = False
+    quiet_from = float('-inf')        # arrivals are timed from here on (after a feed)
+    pending = None                    # when a piece was counted in with slot 1 empty
+    clear_at = None                   # when the beam last went clear with the gate shut
+    new_since_clear = False
+    for t, kind, v in ev:
+        if kind == 'gate':
+            gate_open = v
+            if v:
+                pending, clear_at = None, None
+            else:
+                quiet_from = t + after_feed_s
+            continue
+        if kind == 'count':
+            if last_count is not None and v > last_count:
+                new_since_clear = True
+                if not beam and pending is None and not gate_open:
+                    pending = t
+            last_count = v
+            continue
+        was, beam = beam, v
+        if was is None or gate_open or t < quiet_from:
+            if not v:
+                clear_at, new_since_clear = None, False
+            continue
+        if not v:
+            clear_at, new_since_clear = t, False
+        elif was is False:
+            if pending is not None:
+                arrivals.append((pending, t))
+                pending = None
+            elif clear_at is not None and not new_since_clear:
+                flickers.append((clear_at, t - clear_at))
+            clear_at = None
+    return arrivals, flickers
+
+
+def arrivals(paths):
+    """Every piece's trip from the lane's entrance sensor to the gate beam, per log, and the beam's
+    flickers with a ball sitting at the gate. Needs the gate beam fitted (/Beam/ThroatBlocked); needs no
+    motor encoder. Times are seconds from PLAY (from the log's start without one)."""
+    for path in paths:
+        d = read(path)
+        name = path.split('/')[-1]
+        if not d.get('/Beam/ThroatBlocked'):
+            print('%s: no /Beam/ThroatBlocked (the beam is not fitted on this run)' % name)
+            continue
+        t0 = _play(d)
+        arr, flick = gate_arrivals(d.get('/Lane/Count', []), d['/Beam/ThroatBlocked'], d.get('/FeedGate/Feeding', []))
+        print('%s: %d arrivals at the gate, %d flickers' % (name, len(arr), len(flick)))
+        for a, b in arr:
+            print('  in %7.2f  at the gate %7.2f  %5.2f s' % (a - t0, b - t0, b - a))
+        trips = sorted(b - a for a, b in arr)
+        if trips:
+            print('  entrance to gate: median %.2f s, best %.2f, worst %.2f' % (trips[len(trips) // 2], trips[0], trips[-1]))
+        for a, dur in flick:
+            print('  flicker at %7.2f: clear %.2f s with the gate shut and no new piece' % (a - t0, dur))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -1370,6 +1460,8 @@ def main(argv):
         turret(argv[2:])
     elif cmd == 'hold':
         hold(argv[2:])
+    elif cmd == 'arrivals':
+        arrivals(argv[2:])
     elif cmd == 'series':
         d = read(path)
         for k in argv[3:]:

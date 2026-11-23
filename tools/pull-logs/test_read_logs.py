@@ -399,5 +399,26 @@ class Practice(unittest.TestCase):
         self.assertIn('3 cycles: best 8.8 s, median 10.0 s', text)
 
 
+class GateArrivalsTest(unittest.TestCase):
+    """gate_arrivals: entrance-to-gate trips and a sitting ball's flickers, from made-up samples."""
+
+    def test_trip_queue_flicker_and_feed(self):
+        count = [(0.0, 0), (1.0, 1), (2.5, 2), (6.5, 1), (6.9, 0), (8.0, 1)]
+        blocked = [(0.0, 0), (1.8, 1), (5.0, 0), (5.3, 1), (6.2, 0), (6.4, 1), (7.0, 0), (8.6, 1)]
+        feeding = [(0.0, 0), (6.0, 1), (7.2, 0)]
+        arr, flick = read_logs.gate_arrivals(count, blocked, feeding)
+        self.assertEqual([(1.0, 1.8), (8.0, 8.6)], arr, 'the queued piece at 2.5 and the feed are not timed')
+        self.assertEqual(1, len(flick))
+        self.assertAlmostEqual(5.0, flick[0][0])
+        self.assertAlmostEqual(0.3, flick[0][1])
+
+    def test_a_new_piece_while_clear_is_an_arrival_not_a_flicker(self):
+        count = [(0.0, 0), (1.0, 1)]
+        blocked = [(0.0, 0), (0.5, 0), (1.4, 1)]
+        arr, flick = read_logs.gate_arrivals(count, blocked, [(0.0, 0)])
+        self.assertEqual([(1.0, 1.4)], arr)
+        self.assertEqual([], flick)
+
+
 if __name__ == '__main__':
     unittest.main()
