@@ -321,6 +321,14 @@ drill, and after each run `python3 tools/pull-logs/read_logs.py cycles <log>`.
       log has `fire: held back (full load)` and `fire: let through after …` lines, and the `cycles`
       pieces column reads 4 more often than with it off. **Stop:** a volley stops after its first ball
       (the rule must never cut a feed) → off, and report it.
+- [ ] **Practice readout** (`TeleOpConfig.practiceReadout`, off; PR for the drill readout). Turn it on in
+      Panels, drive one 2-min round of the drill. **Good:** each time the light goes green the Match page's
+      top reads `PICK-UP x s (N in)` in green (amber `PICK-UP` when fired short of green), each volley adds
+      `CYCLE x s · N balls` with its split under it and the best and median under that, and the numbers
+      match `read_logs.py cycles` on the same log to 0.1 s (`read_logs.py practice <log>` lists the robot's
+      own lines beside it). **Check:** a fire at an empty lane adds no cycle (the next one says `+1 empty
+      feed`); the Match page still fits with the readout on (nothing below the aim trim cut off).
+      **Stop:** a loop-time rise on the Match page's `LOOP` line with it on → off, and report it.
 - [ ] **OUR CELL line.** Drive to each end with the CELL there up, then down. **Good:** the Match page
       reads `OUR CELL UP` (green) and `OUR CELL DOWN: LOAD 4` to match, and, out of the camera's view,
       `OUR CELL UP? (N s ago)` for 8 s, then `OUR CELL ?`. **Then** try `TeleOpConfig.holdFireAtDownCell`: fire at a down CELL waits 1 s and

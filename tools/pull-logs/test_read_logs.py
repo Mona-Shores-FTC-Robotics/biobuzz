@@ -364,6 +364,40 @@ class Cycles(unittest.TestCase):
         self.assertAlmostEqual(0.5, r['spin-up and aim'], places=6)
         self.assertAlmostEqual(2.0, r['pick up'])
 
+    def test_the_second_volley_matches_the_practice_readouts_test(self):
+        # CycleReadoutTest.theReportsFixtureGivesTheReportsSplit runs these events on the robot's
+        # readout: the two must give the same numbers.
+        rows, _ = self.rows([19.6, 49.5], [5.0, 8.0, 30.0, 33.0, 44.0])
+        r = rows[1]
+        self.assertAlmostEqual(30.5, r['end'] - r['start'])
+        self.assertAlmostEqual(8.5, r['drive to pieces'])
+        self.assertAlmostEqual(14.0, r['pick up'])
+        self.assertAlmostEqual(5.5, r['drive loaded'])
+        self.assertAlmostEqual(0.5, r['spin-up and aim'], places=6)
+        self.assertAlmostEqual(2.0, r['feed'])
+        self.assertEqual(1, r['empty_feeds'])
+
+
+class Practice(unittest.TestCase):
+    """practice: the readout's own event lines, listed with the cycles' best and median."""
+
+    def test_lists_the_lines_and_the_cycles_best_and_median(self):
+        d = {'/Events': [(10.0, 'turret at PLAY: AIM'), (12.4, 'practice: pick-up 2.4 s, 4 in, lane full'),
+                         (21.2, 'practice: cycle 1 11.2 s, 4 balls: to pieces 2.0, pick up 2.4'),
+                         (30.0, 'practice: cycle 2 8.8 s, 4 balls: to pieces 1.0, pick up 2.0'),
+                         (40.0, 'practice: cycle 3 10.0 s, 3 balls: to pieces 1.0, pick up 2.0')]}
+        old = read_logs.read
+        read_logs.read = lambda path: d
+        try:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                read_logs.practice(['x.wpilog'])
+        finally:
+            read_logs.read = old
+        text = out.getvalue()
+        self.assertIn('   2.4  pick-up 2.4 s, 4 in, lane full', text)
+        self.assertIn('3 cycles: best 8.8 s, median 10.0 s', text)
+
 
 if __name__ == '__main__':
     unittest.main()

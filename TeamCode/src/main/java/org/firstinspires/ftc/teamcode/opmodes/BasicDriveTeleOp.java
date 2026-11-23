@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.localization.PinpointTrust;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -184,6 +185,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private final FeedHold fullHold = new FeedHold();
     /** A fire waits while our end's CELL is seen down ({@link TeleOpConfig#holdFireAtDownCell}). */
     private final FeedHold cellHold = new FeedHold();
+    /** The practice readout (TeleOpConfig.practiceReadout): pick-ups and cycles timed as they end. */
+    private CycleReadout readout;
+    /** The driver's fire went down this loop: the moment the match log's "fire (driver's …" line marks. */
+    private boolean firePressedThisLoop;
     private FeedHold.Verdict lastFullVerdict = FeedHold.Verdict.OFF;
     private FeedHold.Verdict lastCellVerdict = FeedHold.Verdict.OFF;
     /** Our end's CELL as the camera last saw it settled, this loop ({@link OurCell}). */
@@ -341,6 +346,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         picker = new FlowerPicker(robot, text -> log.event(text));
         gatherer = new GardenGather(robot, text -> log.event(text));
         launchSpot = new LaunchSpotDrive(robot, text -> log.event(text));
+        readout = new CycleReadout(text -> log.event(text));
         // A locked turret's controls are left out, so the pages show only buttons that work.
         Map<Action, Input> layout = ControlScheme.layout(TeleOpConfig.flowerPickButton,
                 TurretSubsystem.lockedForward, TeleOpConfig.launchSpot);
@@ -427,6 +433,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.off();
             robot.turret.home();
         }
+        readout.start(secondsSincePlay());
         log.event("turret at PLAY: " + turretMode);
         log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
         // TeleOpConfig.idleAtPlay: the wheels go to their idle now, not at the first fire press,
@@ -909,6 +916,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
             loggedOurCell = ourCell;
         }
         fire();
+        // The lane's arrival and the gate's state are the latest update's, as the match log has them.
+        readout.update(secondsSincePlay(), robot.colorSensor.lane().pieceArrived(), robot.colorSensor.full(),
+                firePressedThisLoop, robot.feedGate.state() == FeedGateSubsystem.State.FEEDING,
+                robot.launcher.launched());
         lightBar();
         if (arcBlocked) {
             display.status("Fire", Display.Level.FAULT, turretMode == TurretMode.AIM
@@ -926,6 +937,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // the Driver Station mid-match, so it is a few huge lines and one alert, nothing to parse:
         // the launch trim at the top, the aim trim at the bottom, so the two are not mistaken.
         // Everything a person testing wants is on the Robot page (describeRobotPage).
+        // TeleOpConfig.practiceReadout: the drill's pick-up and cycle times first, in large type.
+        if (TeleOpConfig.practiceReadout) readout.show(display);
         // The turret mode decides what Circle does, so it is on the Match page in large type.
         if (!TurretSubsystem.lockedForward) {
             display.line(Display.huge(turretMode == TurretMode.AIM ? "AIM: Circle fires" : "LOCKED: Circle turns, then fires",
@@ -1247,6 +1260,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         lastRawFire = rawFire;
         boolean fireHeld = rawFire && !spotFiring;
         boolean pressed = fireHeld && !lastFire;
+        firePressedThisLoop = pressed;
         if (pressed) {
             boolean wasIdle = !launcherOwner.spinning();
             applyLauncher(launcherOwner.operatorFire(unjamHeld()));

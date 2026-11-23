@@ -80,4 +80,21 @@ Basic Drive, one alliance, pieces spread near one end, a stopwatch, and a laptop
      beat 2.0 s on the drives.
 3. **Debrief (2 min).** Which phase is furthest over budget? That is the next practice's focus.
 
+### The readout: every rep timed as it ends
+
+Turn on `TeleOpConfig.practiceReadout` in Panels (off by default: a match's Match page stays as it
+is). The top of the Match page then shows:
+
+- `PICK-UP 2.4 s (4 in)`, green, the moment the light goes green: first piece in to green. Amber when
+  you fired before green: first piece to last, and the number of pieces says how short.
+- `CYCLE 11.2 s · 4 balls` after each volley, green when it is on budget (9.3 s, 4 balls), with the
+  split under it: `to pieces | pick | loaded | spin+aim | feed`. A press at an empty lane or a jam
+  feeds nothing and is not a cycle: the next one says `+1 empty feed`.
+- The best and the median of the session (this OpMode run) for cycles and pick-ups.
+
+The coach reads the line out after each rep ("eleven two, four balls, loaded was slow"); the driver
+does not look down. The numbers are the `cycles` report's own phases, so the laptop after the round
+gives the same numbers, plus standing still. `read_logs.py practice <log>` lists the readout's lines
+as the robot logged them. The best and median start over at each INIT.
+
 **Pass:** a round with 4 pieces a volley and a mean cycle under 11 s. **Then:** under 9.3 s.

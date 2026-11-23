@@ -31,6 +31,9 @@ with Python. Standard library only.
                                                                    pick up, drive loaded, spin-up and aim, feed) with
                                                                    pieces per volley, against the 9.3 s budget
                                                                    (doc/drive-team-cycle-playbook.md); for practice
+  python3 tools/pull-logs/read_logs.py practice LOG.wpilog [...]  the practice readout's own lines (TeleOpConfig.
+                                                                   practiceReadout): every pick-up and cycle as the
+                                                                   robot timed it, beside the cycles report
   python3 tools/pull-logs/read_logs.py rising LOG.wpilog [...]    every CELL first seen mid-swing on its way up
                                                                    (its tags face away while DOWN): how far up,
                                                                    and how long before it read UP
@@ -1307,6 +1310,29 @@ def cycles(paths):
         print('  seconds per piece %.1f (5.4 TIPs needs 2.3)' % (total_cycle / max(total_shots, 1)))
 
 
+def practice(paths):
+    """Every "practice: pick-up" and "practice: cycle" event line (CycleReadout), seconds from TeleOp's
+    PLAY, then the cycles' best and median as the Match page showed them."""
+    for path in paths:
+        d = read(path)
+        w = _teleop_window(d)
+        a = w[0] if w else 0.0
+        print('=' * 78)
+        print(path.split('/')[-1])
+        lines = [(t, str(e)) for t, e in d.get('/Events', []) if str(e).startswith('practice: ')]
+        if not lines:
+            print('  no practice lines (CycleReadout writes them in Basic Drive from this build on)')
+            continue
+        cyc = []
+        for t, e in lines:
+            print('  %6.1f  %s' % (t - a, e[len('practice: '):]))
+            m = re.match(r'practice: cycle \d+ ([\d.]+) s', e)
+            if m:
+                cyc.append(float(m.group(1)))
+        if cyc:
+            print('  %d cycles: best %.1f s, median %.1f s' % (len(cyc), min(cyc), sorted(cyc)[len(cyc) // 2]))
+
+
 def main(argv):
     if len(argv) < 3:
         print(__doc__)
@@ -1332,6 +1358,8 @@ def main(argv):
         cells(argv[2:])
     elif cmd == 'cycles':
         cycles(argv[2:])
+    elif cmd == 'practice':
+        practice(argv[2:])
     elif cmd == 'rising':
         rising(argv[2:])
     elif cmd == 'creep':
