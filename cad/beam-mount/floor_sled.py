@@ -25,9 +25,12 @@ the two pairs of pins (16 mm along), into an M3 nut dropped into the slot in the
 head is outside the channel's wall, nowhere near the ball. It needs a short hex key in the 8 mm gap beside the
 channel; unused, the slot is just an empty pocket.
 
+The sled reaches from the beam's 14 mm hole toward the gate, and the wires leave at that end (mentor, 23 Nov 2026:
+in the transfer CAD the wires go toward the gate, the orange part). WIRES_TOWARD_GATE False turns it the other way.
+
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
-channel (+X the side pressed against the next channel, -X the open side), Y along it from the LED toward the wire
-end, Z up (into the lane). It prints upside down, top face on the bed, no supports.
+channel (+X the side pressed against the next channel, -X the open side), Y along it (-Y toward the gate, where
+the wires leave), Z up (into the lane). It is drawn wires toward +Y and mirrored at the end. It prints upside down, top face on the bed, no supports.
 """
 import os
 
@@ -64,6 +67,7 @@ M3_CLEAR = 3.4
 NUT_AF = 5.5
 NUT_T = 2.6
 NUT_X = 6.9                  # the nut slot's inner face from the beam axis: an M3 x 10 from outside the wall reaches
+WIRES_TOWARD_GATE = True     # the sled and its wires run from the beam's hole toward the gate (-Y); False: away
 RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
 RIB_W = 1.0
 WIRE_W = 6.0                 # wire slot out of the wire end
@@ -125,6 +129,8 @@ def floor_sled():
                         SIDE_HOLE_Z - NUT_AF / 0.866 / 2 - 0.2, 0.1))
     assert arms[0][2] < BACKUP_Y - NUT_AF / 2 and BACKUP_Y + NUT_AF / 2 < arms[1][1], "the backup nut slot hits an arm"
     assert NUT_X - 1.0 > WIRE_W / 2, "the backup screw runs into the wire slot"
+    if WIRES_TOWARD_GATE:
+        part = part.mirror("XZ")                  # Y to -Y: the X sides, and so the open side's pins, stay put
     assert bx < W / 2 - ARM_T - ARM_GAP, "the arm slots run into the sensor pocket"
     return part
 

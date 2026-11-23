@@ -44,6 +44,8 @@ gyroid. No supports. The sled's pins stick out 1 mm from its sides and the recei
 
 ![How the sled clicks in](floor_sled_steps.png)
 
+![The wires leave toward the gate](floor_sled_wires.png)
+
 The floor there is the 11-hole goBILDA Mini U-Channel, lying open side down. Its inside is 27.0 mm wide and 9.5 mm
 tall, and the sled is 26.6 wide and 9.3 tall: **nothing sticks out below the channel's edges, and nothing is on the
 floor the balls roll on.** It holds by the channel's side walls: their 4 mm holes, every 8 mm, one level with each
@@ -51,8 +53,8 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
 
 1. Push the emitter into the sled's pocket, LED end against the closed end, wires along the middle slot to the far
    end. Its top face sits flush with the sled's top.
-2. From below, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, LED end toward
-   the gate. Push it straight up: each pin sits on a springy arm (a strip of the sled joined at one end only), the
+2. From below, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, its long end (the
+   wire end) toward the gate, so the wires leave toward the gate end of the channel. Push it straight up: each pin sits on a springy arm (a strip of the sled joined at one end only), the
    channel's edges bend the arms in, and at the side-wall holes they spring back and the pins click in. The LED then
    sits on the 14 mm hole's centre: the holes place it, nothing to adjust.
 3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
