@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.controls;
 
+import org.firstinspires.ftc.teamcode.opmodes.ArcLight;
 import org.firstinspires.ftc.teamcode.opmodes.CycleReadout;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
@@ -91,6 +93,11 @@ public final class ControlsExport {
         }
         indent(out, 1).append("},\n");
         out.append(LaunchSpotsExport.json(1)).append(",\n");
+        // The indicator light's numbers (IndicatorSubsystem, ArcLight), so the drill's light flashes and
+        // pulses as the robot's does.
+        indent(out, 1).append("\"indicator\": {\"flashMs\": ").append(num(IndicatorSubsystem.FLASH_MS))
+                .append(", \"arcTurnPulseMs\": ").append(num(IndicatorSubsystem.ARC_TURN_PULSE_MS))
+                .append(", \"arcLightClearMs\": ").append(ArcLight.CLEAR_MS).append("},\n");
         indent(out, 1).append("\"practiceReadout\": {\"budgetS\": ").append(num(CycleReadout.BUDGET_S))
                 .append(", \"budgetPieces\": ").append(CycleReadout.BUDGET_PIECES)
                 .append(", \"mergeS\": ").append(num(CycleReadout.MERGE_S))

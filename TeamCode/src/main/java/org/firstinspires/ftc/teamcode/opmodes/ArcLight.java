@@ -26,7 +26,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
  * 20245, 19 Nov 2026, an aim sitting on the arc's 90° edge turned the flash on and off 13 times in
  * 2.7 s, each a new light command, and none of it was readable.
  */
-final class ArcLight {
+public final class ArcLight {
 
     /**
      * {@link #PULSE}: one solid orange of {@code IndicatorSubsystem.ARC_TURN_PULSE_MS} as Circle's
@@ -51,7 +51,7 @@ final class ArcLight {
     }
 
     /** Back inside the arc this long, ms, before the light clears. */
-    static final long CLEAR_MS = 300;
+    public static final long CLEAR_MS = 300;
 
     /** The last loop that was outside the arc, ms; {@code Long.MIN_VALUE} before any. */
     private long lastOutsideMs = Long.MIN_VALUE;
