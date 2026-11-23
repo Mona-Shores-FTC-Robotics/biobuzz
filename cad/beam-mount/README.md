@@ -14,14 +14,15 @@ export of 23 Nov 2026):
 
 | File | What it is | Print |
 |---|---|---|
-| `floor_sled.stl` / `.3mf` | 26.6 x 26.6 x 9.3 mm. Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
+| `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
+| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 81.2 x 9.3 mm, four floor-screw places (use 2 to 4), no pins. Prints like the sled | 1 per robot, to try |
 | `beam_mount.stl` / `.3mf` | 32.7 x 30.7 x 14.3 mm. Plate down, as exported | 1 per robot |
 | `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
 | `render.py` | Draws `parts.png` (the receiver mount on a goBILDA wall) | `+ trimesh manifold3d matplotlib` |
 
 **Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit), 0.2 mm layers, 4 walls, 40 %
-gyroid. No supports. The sled's nut tunnels bridge 5.8 mm, and the receiver's lip overhangs 1.5 mm; both print clean.
+gyroid. No supports. The sled's pins stick out 1 mm from its sides and the receiver's lip overhangs 1.5 mm; both print clean.
 
 ## Where the beam crosses, and why there
 
@@ -42,22 +43,49 @@ gyroid. No supports. The sled's nut tunnels bridge 5.8 mm, and the receiver's li
 
 ## Fitting the emitter (the floor sled)
 
-The floor there is the 11-hole goBILDA Mini U-Channel, lying open side down. Its inside is 27.0 mm wide and 9.5 mm
-tall, and the sled is 26.6 x 9.3: **nothing sticks out below the channel's edges.**
+![How the sled clicks in](floor_sled_steps.png)
 
-1. Push the emitter into the sled's pocket, LED end against the closed end, wires out of the slot at the other end.
-   Its top face sits flush with the sled's top.
-2. Slide an M3 nut into each tunnel from the wire end until it sits under its slot.
-3. From the lane side, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, LED end
-   toward the gate, wires toward the channel's far end. The LED shows through the hole.
-4. Two **M3 x 8 button heads** go down through the floor's 4 mm holes at the corners of that hole, on the **wire end**
-   side (9.4 mm either side of the centre line), into the nuts. Use those two: a ball waiting at the gate sits 3.6 mm
-   above their heads, and the two on the gate side would touch it. An M3 x 8 ends inside the sled; a 10 would poke out
-   of the bottom.
-5. Before tightening, slide the sled to centre the LED in the hole (the slots allow 3 mm either way). Tightening
-   clamps the emitter flat against the floor's underside, on two crush ribs.
-6. **Wires** run along the inside of the channel to its open end, about 55 mm, with a zip tie through a flange hole
-   at the end. Nothing hangs below.
+![The wires leave away from the gate](floor_sled_wires.png)
+
+The floor there is the 11-hole goBILDA Mini U-Channel, lying open side down. Its inside is 27.0 mm wide and 9.5 mm
+tall, and the sled is 26.6 wide and 9.3 tall: **nothing sticks out below the channel's edges, and nothing is on the
+floor the balls roll on.** It holds by the channel's side walls: their 4 mm holes, every 8 mm, one level with each
+14 mm hole. Four pins, two in each wall 32 mm apart, so it cannot rock, slide or drop.
+
+1. Push the emitter into the sled's pocket, LED end against the closed end, wires along the middle slot to the far
+   end. Its top face sits flush with the sled's top.
+2. From below, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, its long end (the
+   wire end) away from the gate and the purple wheels, so the wires leave toward that end of the channel. Push it straight up: each pin sits on a springy arm (a strip of the sled joined at one end only), the
+   channel's edges bend the arms in, and at the side-wall holes they spring back and the pins click in. The LED then
+   sits on the 14 mm hole's centre: the holes place it, nothing to adjust.
+3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
+   below.
+4. **To take it out:** push the open side's two pins (the side facing the purple wheels, with nothing beside it
+   there) in through
+   their holes with two small screwdrivers, and pull the sled down. The other side's pins are ramped both ways and
+   let go.
+5. **Backup, only if a sled ever works loose:** drop an M3 nut into the slot in the sled's top (open side, halfway
+   between the pins) before pushing it in, then an **M3 x 10 button head** through the open side's wall hole there
+   into it. The head is outside the channel's wall on the open side, nowhere near the ball, reached straight on;
+   unused, the slot is just an empty pocket.
+
+### Option B: the screwed sled (`floor_sled_screwed`)
+
+![Installing option B](floor_sled_screwed_install.png)
+
+The same pocket, no pins: 81 mm long, reaching 40 mm each way along the channel from the beam's hole. Print both and
+keep the one that holds better.
+
+1. Emitter in as for the snap sled. Slide an M3 nut into each tunnel you will use (one in each corner, opening at
+   the sled's ends) until it sits under its slot.
+2. Put the sled up into the channel, LED under the beam's 14 mm hole, wire end away from the gate.
+3. From the top, **M3 x 8 button heads** down through the floor's 4 mm holes 9.4 mm either side of the centre line,
+   33 mm along the channel each way from the beam's hole, into the nuts. Four places, one per corner: use any two,
+   one at each end, or all four. The two on the wheel side at the gate end sit under the purple wheels, so use them
+   only if a screwdriver gets there. The balls cross the channel at the beam: a NECTAR's surface is 10 mm or more
+   above these heads, a POLLEN's 4.5 mm or more. An M3 x 8 ends inside the sled; a 10 would poke out of the bottom.
+4. Slide the sled to centre the LED in the hole (the slots allow 3 mm either way), then tighten: it pulls the sled,
+   and the emitter on its crush ribs, flat against the floor.
 
 ## Fitting the receiver (`beam_mount`, on the top plate)
 
