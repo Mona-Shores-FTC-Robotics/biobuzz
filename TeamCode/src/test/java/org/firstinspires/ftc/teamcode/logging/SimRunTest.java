@@ -349,6 +349,7 @@ public class SimRunTest {
                     AutoStudyTest.oursLaunchS = launchS instanceof Number ? ((Number) launchS).doubleValue() : Double.NaN;
                     AutoStudyTest.oursFails = entry.oursFails != null ? entry.oursFails
                             : first && request.get("oursFails") instanceof String ? (String) request.get("oursFails") : null;
+                    AutoStudyTest.oursStaged = Boolean.TRUE.equals(request.get("oursStaged"));
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
                             seed, alliance, metadata, new File(folder, log));
                     System.out.println("SIMRUN " + entry.name + " seed " + seed + ": " + r);
@@ -362,6 +363,7 @@ public class SimRunTest {
                 AutoStudyTest.picks = null;
                 AutoStudyTest.partnerPicks = null;
                 AutoStudyTest.oursFails = null;
+                AutoStudyTest.oursStaged = false;
                 AutoStudyTest.oursLaunchS = Double.NaN;
                 // Our partner wait, only for an Auto that has one: the last shot sets nothing on any other.
                 boolean hasWait = false;

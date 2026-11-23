@@ -520,6 +520,17 @@ public final class AutoSim {
         return this;
     }
 
+    /**
+     * As {@link #stagesPreloads}, for a robot that comes back for its own staged preloads (L-StagedSweep): its
+     * intake stays on, so it picks the row up when it drives through it. The route must keep clear of the row
+     * until then; any earlier touch shows in the run as it would on the field.
+     */
+    AutoSim stagesOwnPreloads(double[][] spots) {
+        configuring.stagedPreloads = spots;
+        configuring.keepsIntakeWhenStaged = true;
+        return this;
+    }
+
     /** Sets the drivetrain's top speed and acceleration, in/s and in/s²; it brakes as hard as it accelerates. */
     AutoSim speed(double maxInPerS, double accelInPerS2) {
         return speed(maxInPerS, accelInPerS2, accelInPerS2);
@@ -1346,6 +1357,8 @@ public final class AutoSim {
         double[] zone;
         /** Where this robot sets its preloads on the tiles, drawn for RED; null to carry them. */
         double[][] stagedPreloads;
+        /** Whether a robot with {@link #stagedPreloads} keeps its intake on to collect them ({@link #stagesOwnPreloads}). */
+        boolean keepsIntakeWhenStaged;
         FieldSim.Bot body;
         Command auto;
         final List<String> pending = new ArrayList<>();
@@ -1423,7 +1436,7 @@ public final class AutoSim {
                 sim.stagePreloads(alliance, spots);
                 // A robot that sets its preloads down has no use for its intake, which would only
                 // pick them straight back up (mentor review).
-                intakeEnabled = false;
+                intakeEnabled = keepsIntakeWhenStaged;
             }
             keyPrefix = robot.prefix;
             String drawnFor;

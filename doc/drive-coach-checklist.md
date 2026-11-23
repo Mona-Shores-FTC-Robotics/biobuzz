@@ -32,6 +32,16 @@ Controls page and the printed cheat sheet are the only place for those.
       FIX IT`. At 20 s R then drives the wall side to the left end, puts its four in the LEFT CELL
       if it is still up, and parks on `RIGHT_PARK`, beside a partner on `LEFT_PARK`. Ask the
       partner where it parks and when; one in that lane, or still there after 20 s, means stay safe.
+- [ ] **L-StagedSweep (draft, Utility menu `Drive: L-StagedSweep`): the robot starts empty, its 4 preloads on the
+      tiles** (manual TU10 §10.3.4: preloads "placed on the TILES fully contained on its own ALLIANCE side of the
+      FIELD contacting the ROBOT"; G304.G). Red, as drawn (blue is the same turned half a turn):
+      - **Robot:** back against the far wall (the SCORING FLOWER's wall), facing the HIVE, its centre-line side
+        about **3.5 in short of the centre-line seam** (3.1 in toward the FLOWER from the L-NoCross start), leaving
+        **about 1 in** between its FLOWER-side frame and the FLOWER. It must not touch the FLOWER (G304.D).
+      - **The 4 POLLEN:** in one row along the robot's **centre-line side**, each touching the frame and the one
+        next to it, the row centred on the side (the last ball about 2 in from the wall). Every ball fully on our
+        side of the centre-line seam (under half an inch to spare): none on or over it. Nothing in front of the robot: its first drive is
+        straight ahead.
 - [ ] **Every Auto: Endgame, PARK FIRST or TIPS FIRST?** The last row of the INIT menu reads
       `Endgame: PARK FIRST`. That keeps AUTO PARK (5 points, and it decides the SWARM RP whenever a partner
       misses its LEAVE or its end-of-match PARK) and fires a late volley only if the park still fits after

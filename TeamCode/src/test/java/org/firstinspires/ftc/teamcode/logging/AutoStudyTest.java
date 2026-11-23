@@ -221,6 +221,12 @@ public class AutoStudyTest {
 
     static String oursFails;
     /**
+     * {@code "oursStaged": true} on a request: our robot sets its 4 preloads on the tiles along its left side at
+     * its start ({@link #alongLeftSide}, touching the frame as G304 asks) and keeps its intake on to come back for
+     * them ({@link AutoSim#stagesOwnPreloads}). False: it carries them.
+     */
+    static boolean oursStaged;
+    /**
      * A what-if for our own robot ({@code "ourLaunchS"} on a request or an entry): seconds between its shots, in
      * place of its design's ({@link AutoSim#launchSeconds}); NaN: the design's. A partner entry's
      * {@code "timing": {"launchS": …}} is the same knob for the other robot.
@@ -511,6 +517,11 @@ public class AutoStudyTest {
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));
+        if (oursStaged) {
+            com.pedropathing.math.Pose start = (com.pedropathing.math.Pose) first.getMethod("startPose", boolean.class).invoke(null, false);
+            sim.stagesOwnPreloads(alongLeftSide(new double[] {start.x(), start.y(), Math.toDegrees(start.heading())},
+                    RobotDesign.REAL_FRAME_IN / 2));
+        }
         if (!Double.isNaN(oursLaunchS)) sim.launchSeconds(oursLaunchS);
         // The partner's last shot as their team said it: our driver enters it in INIT, and our partner wait ends that
         // plus the TIP lag later (master's AutoRegistration; BuiltAuto).
