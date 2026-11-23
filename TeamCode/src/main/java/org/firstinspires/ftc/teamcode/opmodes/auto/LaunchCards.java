@@ -311,6 +311,10 @@ public final class LaunchCards {
                     remainingIn, aheadOfSpeed()));
         }
 
+        @Override public boolean committed() {
+            return !Double.isNaN(approachFedAt);
+        }
+
         @Override public void cancel() {
             approachEnd = null;
             if (Double.isNaN(approachFedAt)) return;

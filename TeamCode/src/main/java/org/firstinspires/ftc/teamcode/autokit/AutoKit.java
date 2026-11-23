@@ -168,6 +168,54 @@ public final class AutoKit {
     }
 
     /**
+     * Each CELL check ({@link #checkPlan}) whose volley has an approach and whose trigger is a state
+     * trigger ({@link AutoRegistry#isStateTrigger}), by the check's card: the approach a path card
+     * right before the check runs, for {@link #pairApproaches}.
+     */
+    private final Map<Command, CheckApproach> checkApproaches = new IdentityHashMap<>();
+    /** Each {@link #guarded} list's first card, by the list's card: where a check's volley is found. */
+    private final Map<Command, Command> guardedFirst = new IdentityHashMap<>();
+
+    /**
+     * The volley's approach, run by the path card before a CELL check, through the check: "drive
+     * to the launch spot, wait for the CELL up, then LaunchAll" gets ready on the way in as
+     * "drive, then LaunchAll" does. The launcher spins up for the path's end as the path starts;
+     * the gate may open on the approach only while the check's trigger is true, so no piece goes
+     * at a CELL not seen up. Once it has opened, the check takes its trigger row ({@link #firstOf}).
+     * Before 23 Nov 2026 the check stood between the path and the volley and nothing paired: at
+     * Belding and Fruitport no volley after an Auto's first opened the gate before the path's end,
+     * which it did 0.1 to 0.6 s after, and the first ball left a median 0.85 s after the gate.
+     */
+    private final class CheckApproach implements AutoRegistry.Approach {
+        final AutoRegistry.Approach volley;
+        private final String trigger;
+        private BooleanSupplier up;
+
+        CheckApproach(AutoRegistry.Approach volley, String trigger) {
+            this.volley = volley;
+            this.trigger = trigger;
+        }
+
+        @Override public void started(Pose end) {
+            up = registry.watch(trigger);
+            volley.started(end);
+        }
+
+        @Override public void approaching(Pose pose, double remainingIn) {
+            if (up != null && up.getAsBoolean()) volley.approaching(pose, remainingIn);
+        }
+
+        @Override public void cancel() {
+            up = null;
+            volley.cancel();
+        }
+
+        @Override public boolean committed() {
+            return volley.committed();
+        }
+    }
+
+    /**
      * What the guard can know ahead of each card it may look past ({@link #guarded}): how long it
      * takes, from the match second it starts at, and for a volley the seconds to its last piece.
      * A card with no plan here (a block, a drive with no time) ends the look-ahead.
@@ -430,9 +478,14 @@ public final class AutoKit {
     private void pairApproaches(Command[] cards) {
         for (int i = 0; i + 1 < cards.length; i++) {
             PathCard path = pathCards.get(cards[i]);
+            if (path == null) continue;
             CommandCard command = commandCards.get(cards[i + 1]);
-            if (path == null || command == null) continue;
-            path.approach = command.before;
+            if (command != null) {
+                path.approach = command.before;
+                continue;
+            }
+            CheckApproach through = checkApproaches.get(cards[i + 1]);
+            if (through != null) path.approach = through;
         }
     }
 
@@ -628,10 +681,15 @@ public final class AutoKit {
         final double[] startedAt = new double[1];
         final Command[] chosen = new Command[1];
         final boolean[] alongsideRunning = new boolean[1];
+        // A CELL check the drive before it got ready through (CheckApproach): set below once built.
+        final CheckApproach[] through = new CheckApproach[1];
+        final int[] triggerRow = {-1};
+        final boolean[] ownArmed = new boolean[1];
         final CommandBuilder card = new CommandBuilder();
         card.setStart(() -> {
             startedAt[0] = secondsSinceStart.getAsDouble();
             chosen[0] = null;
+            ownArmed[0] = through[0] != null && armed == through[0];
             trace.accept("wait " + label);
             for (Row row : rows) row.start.run();
             alongsideRunning[0] = alongside != null;
@@ -650,8 +708,19 @@ public final class AutoKit {
                 boolean held = registry.timeLimitsHeld();
                 for (int i = 0; i < rows.length; i++) {
                     if (rows[i].timeLimit && held) continue;
-                    if (rows[i].test.passes(waited)) {
-                        trace.accept(String.format(Locale.US, "%s: %s after %.2f s", label, rows[i].description, waited));
+                    // The gate opened on the drive in, with the CELL seen up: the volley is under way.
+                    boolean committed = ownArmed[0] && i == triggerRow[0] && through[0].committed();
+                    if (committed || rows[i].test.passes(waited)) {
+                        trace.accept(String.format(Locale.US, "%s: %s after %.2f s", label,
+                                committed ? rows[i].description + " (gate opened on the approach)" : rows[i].description, waited));
+                        if (ownArmed[0]) {
+                            ownArmed[0] = false;
+                            // The volley's card takes over what the drive got ready, or it is put away.
+                            if (armed == through[0]) {
+                                if (i == triggerRow[0]) armed = through[0].volley;
+                                else cancelArmed();
+                            }
+                        }
                         if (alongsideRunning[0]) {
                             alongside.end(EndCondition.INTERRUPTED);
                             alongsideRunning[0] = false;
@@ -675,6 +744,10 @@ public final class AutoKit {
                 alongside.end(end);
                 alongsideRunning[0] = false;
             }
+            if (ownArmed[0]) {
+                ownArmed[0] = false;
+                if (armed == through[0]) cancelArmed();
+            }
             if (chosen[0] != null) chosen[0].end(end);
         });
         Plan plan = waitPlan(alongside, rows);
@@ -682,6 +755,18 @@ public final class AutoKit {
         plan = checkPlan(rows);
         if (plan == null) return card;
         checks.add(card);
+        for (int i = 0; i < rows.length; i++) {
+            if (rows[i].timeLimit) continue;
+            triggerRow[0] = i;
+            String trigger = rows[i].trigger;
+            if (trigger == null || !registry.isStateTrigger(trigger) || rows[i].cards.length == 0) break;
+            Command first = rows[i].cards[0];
+            CommandCard volley = commandCards.get(guardedFirst.getOrDefault(first, first));
+            if (volley == null || volley.before == null) break;
+            through[0] = new CheckApproach(volley.before, trigger);
+            checkApproaches.put(card, through[0]);
+            break;
+        }
         return planned(plan, card);
     }
 
@@ -893,6 +978,7 @@ public final class AutoKit {
             stopWatching();
         });
         guards.add(card);
+        if (cards.length > 0) guardedFirst.put(card, cards[0]);
         Plan first = cards.length > 0 ? plans.get(cards[0]) : null;
         if (first != null && first.isVolley()) guardedVolleys.put(card, first);
         return card;
@@ -1077,6 +1163,7 @@ public final class AutoKit {
         registry.requireTrigger(trigger);
         final BooleanSupplier[] check = new BooleanSupplier[1];
         Row row = new Row(trigger, waited -> check[0].getAsBoolean());
+        row.trigger = trigger;
         // Taken when the wait starts, so a "since" trigger means this wait.
         row.start = () -> check[0] = registry.watch(trigger);
         return row;

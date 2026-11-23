@@ -16,6 +16,8 @@ public final class Row {
 
     final String description;
     final Test test;
+    /** The registered trigger a {@link AutoKit#when} row (by the camera) waits on; null for any other row. */
+    String trigger;
     /** A time limit ({@link AutoKit#afterMs}, {@link AutoKit#atMatchSeconds}): it waits while the registry holds time limits. */
     boolean timeLimit;
     /**

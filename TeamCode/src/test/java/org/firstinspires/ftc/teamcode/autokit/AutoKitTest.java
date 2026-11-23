@@ -1453,6 +1453,116 @@ public class AutoKitTest {
         assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
     }
 
+    /** A volley's approach that opens its "gate" on the first loop it is told about, as LaunchCards' does when ready. */
+    private static final class GateApproach implements AutoRegistry.Approach {
+        final List<String> seen = new ArrayList<>();
+        boolean open;
+
+        @Override public void started(Pose end) {
+            seen.add(String.format(java.util.Locale.US, "started at (%.0f, %.0f)", end.x(), end.y()));
+        }
+
+        @Override public void approaching(Pose pose, double remainingIn) {
+            if (!open) seen.add("gate opened");
+            open = true;
+        }
+
+        @Override public void cancel() {
+            seen.add("cancelled");
+            open = false;
+        }
+
+        @Override public boolean committed() {
+            return open;
+        }
+    }
+
+    /**
+     * Every volley after an Auto's first sits behind a CELL check ("Wait for CELL up, then launch;
+     * otherwise park"). The drive to it runs the volley's approach through the check (23 Nov 2026):
+     * the launcher spins up for the path's end, and the gate may open on the way in while the CELL
+     * reads up. The check then takes its trigger row and LaunchAll takes over the open gate.
+     */
+    @Test
+    public void aPathBeforeACellCheckRunsItsVolleysApproachWhileTheCellIsUp() {
+        GateApproach approach = new GateApproach();
+        boolean[] up = {true};
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .volley("LaunchAll", 1.0, 0.8, () -> lasting("LaunchAll", 0.5), approach)
+                .trigger("CellUp", () -> up[0]), () -> now).trace(trace::add);
+        Path toSpot = line(0, 20), park = line(20, 40);
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to LAUNCH", toSpot, 1.0),
+                kit.firstOf("CELL up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.0, kit.command("LaunchAll"))),
+                        kit.afterMs(750).then(kit.guarded("Timed out", park, 2.0, kit.path("Park", park, 2.0))))), 10);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "gate opened"), approach.seen);
+        assertTrue("the volley ran: " + log, log.contains("LaunchAll start"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(l -> l.contains("CellUp (gate opened on the approach)")));
+    }
+
+    /** The CELL not up on the way in: the gate stays shut, though the launcher spun up for the path's end. */
+    @Test
+    public void aCellCheckKeepsTheGateShutOnTheApproachWhileTheCellIsDown() {
+        GateApproach approach = new GateApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .volley("LaunchAll", 1.0, 0.8, () -> lasting("LaunchAll", 0.5), approach)
+                .trigger("CellUp", () -> false), () -> now).trace(trace::add);
+        Path toSpot = line(0, 20), park = line(20, 40);
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to LAUNCH", toSpot, 1.0),
+                kit.firstOf("CELL up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.0, kit.command("LaunchAll"))),
+                        kit.afterMs(750).then(kit.guarded("Timed out", park, 2.0, kit.path("Park", park, 2.0))))), 10);
+        assertEquals("spun up for the end, gate never opened, then put away",
+                java.util.Arrays.asList("started at (20, 0)", "cancelled"), approach.seen);
+        assertFalse("no volley at a CELL not seen up: " + log, log.contains("LaunchAll start"));
+        assertEquals(java.util.Arrays.asList(toSpot, park), drive.followed);
+    }
+
+    /**
+     * The gate opened on the way in with the CELL read up, then the CELL read down for a loop as the
+     * check began: the pieces are on their way, so the check still takes its trigger row and the
+     * volley's card finishes the feed, rather than the park closing the gate mid-volley.
+     */
+    @Test
+    public void aGateOpenedOnTheApproachCommitsTheCheckToItsVolley() {
+        GateApproach approach = new GateApproach();
+        boolean[] up = {true};
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .volley("LaunchAll", 1.0, 0.8, () -> lasting("LaunchAll", 0.5), approach)
+                .trigger("CellUp", () -> up[0]), () -> now).trace(trace::add);
+        Path toSpot = line(0, 20), park = line(20, 40);
+        kit.watchPaths(new AutoKit.PathWatcher() {
+            @Override public void pathStarted(Path path) { }
+            @Override public void pathEnded(Path path) { up[0] = false; }
+        });
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to LAUNCH", toSpot, 1.0),
+                kit.firstOf("CELL up?",
+                        kit.when("CellUp").then(kit.guarded("If CellUp", park, 2.0, kit.command("LaunchAll"))),
+                        kit.afterMs(750).then(kit.guarded("Timed out", park, 2.0, kit.path("Park", park, 2.0))))), 10);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "gate opened"), approach.seen);
+        assertTrue("the volley ran: " + log, log.contains("LaunchAll start"));
+    }
+
+    /** A check on a "since" trigger (Tip: since the wait began) is not run through: it means nothing on the drive in. */
+    @Test
+    public void aCheckOnASinceTriggerRunsNoApproach() {
+        GateApproach approach = new GateApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .volley("LaunchAll", 1.0, 0.8, () -> lasting("LaunchAll", 0.5), approach)
+                .triggerSince("Tip", () -> () -> true), () -> now).trace(trace::add);
+        Path toSpot = line(0, 20), park = line(20, 40);
+        run(kit.guarded("Auto", park, 2.0,
+                kit.path("to LAUNCH", toSpot, 1.0),
+                kit.firstOf("TIP?",
+                        kit.when("Tip").then(kit.guarded("If Tip", park, 2.0, kit.command("LaunchAll"))),
+                        kit.afterMs(750).then(kit.guarded("Timed out", park, 2.0, kit.path("Park", park, 2.0))))), 10);
+        assertTrue("nothing told the approach: " + approach.seen, approach.seen.isEmpty());
+        assertTrue("the volley ran as before: " + log, log.contains("LaunchAll start"));
+    }
+
     /**
      * #142, inside a block: L-Quals runs most of its Auto as the cards of one firstOf row. A path in
      * the row that is driving at the deadline runs to its end; the row's next path, which would

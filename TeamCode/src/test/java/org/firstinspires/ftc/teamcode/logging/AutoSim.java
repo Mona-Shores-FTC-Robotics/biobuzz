@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
+import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -1357,6 +1358,13 @@ public final class AutoSim {
         double spinStartedAt;
         boolean intakeEnabled = true;
         boolean firing;
+        /**
+         * When this LaunchAll's feed gate opened, s; NaN while it is shut. The first ball leaves
+         * {@link RobotDesign#gateToFirstBallS} later. Opened on the drive in by {@link LaunchApproach}, or by the card.
+         */
+        double gateOpenAt = Double.NaN;
+        /** The drive before a LaunchAll opened the gate on the way in: the volley is under way before its card starts. */
+        boolean approachFeeding;
         double activeFeedAt = Double.NaN;
         double activeFeedLimit;
         /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
@@ -1593,10 +1601,14 @@ public final class AutoSim {
             if (!firing && Math.hypot(aim[0] - here[0], aim[1] - here[1]) > design.launchRangeIn) return;
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
-            if (!streaming && !design.firesOnTheMove && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
+            // (Not once the gate is open: the robot's feed does not stop for the robot moving.)
+            if (!streaming && !design.firesOnTheMove && Double.isNaN(gateOpenAt) && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
+            if (firing && Double.isNaN(gateOpenAt)) gateOpenAt = now;
             if (firing && Double.isNaN(activeFeedAt)) activeFeedAt = now;
+            // The first piece is still on its way from the gate to the wheels.
+            if (firing && now < gateOpenAt + design.gateToFirstBallS) return;
             reportTurretWait();
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
@@ -2261,7 +2273,7 @@ public final class AutoSim {
                     // A volley, with master's typical and last-piece times: the endgame guard goes for
                     // the next one when its last piece can be out before AUTO ends (AutoKit.guarded).
                     .volley("LaunchAll", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
-                            () -> launch(Integer.MAX_VALUE))
+                            () -> launch(Integer.MAX_VALUE), launchApproach)
                     // The robot's LaunchAllAimed (AimedVolley), fired where the robot parked: no park after it, its
                     // last piece by 30 s. A turret design aims every launch at the CELL at the robot's end already,
                     // and a locked one fires from home, as the robot's falls back to.
@@ -2385,30 +2397,88 @@ public final class AutoSim {
             return now - lastShotFiredAt >= BeamBreakSubsystem.quietS;
         }
 
+        /**
+         * Master's LaunchAll approach ({@code LaunchCards}), which AutoKit runs while the path card before a LaunchAll
+         * drives, or before the CELL check in front of one: the launcher spins up as the path starts, and the gate
+         * opens once the robot is within {@code PathEndSettle.launchWithinIn} of the path's end, within
+         * {@code aimToleranceDeg} of its end heading, turning slower than {@code launchTurnDegPerSec}, and spun up.
+         * The volley is then under way: the LaunchAll card that follows finishes it, as on the robot.
+         */
+        private final class LaunchApproach implements AutoRegistry.Approach {
+            private Pose end;
+
+            @Override public void started(Pose pathEnd) {
+                end = pathEnd;
+                spinUp();
+            }
+
+            @Override public void approaching(Pose pose, double remainingIn) {
+                if (!LaunchCards.launchOnApproach || end == null || approachFeeding || firing || body.stored.isEmpty()) return;
+                if (!launcherReady() || !(PathEndSettle.launchWithinIn > 0) || !(remainingIn <= PathEndSettle.launchWithinIn)) return;
+                double error = Math.toDegrees(Math.abs(Math.IEEEremainder(pose.heading() - end.heading(), 2 * Math.PI)));
+                if (PathEndSettle.aimToleranceDeg > 0 && error > PathEndSettle.aimToleranceDeg) return;
+                if (PathEndSettle.launchTurnDegPerSec > 0 && Math.toDegrees(body.spin()) > PathEndSettle.launchTurnDegPerSec) return;
+                beginLaunch(Integer.MAX_VALUE);
+                approachFeeding = true;
+                gateOpenAt = now;
+                activeFeedAt = now;
+                pending.add(String.format(Locale.ROOT, "LaunchAll opened the gate on the approach, %.1f in from the path end", remainingIn));
+            }
+
+            @Override public void cancel() {
+                end = null;
+                if (!approachFeeding) return;
+                approachFeeding = false;
+                firing = false;
+                gateOpenAt = Double.NaN;
+                activeFeedAt = Double.NaN;
+                pending.add("LaunchAll did not follow its approach: gate closed");
+            }
+
+            @Override public boolean committed() {
+                return approachFeeding;
+            }
+        }
+
+        private final LaunchApproach launchApproach = new LaunchApproach();
+
+        /** What a launch card does as it starts, or the approach as it opens the gate on the way in. */
+        private void beginLaunch(int count) {
+            wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
+            if (count == Integer.MAX_VALUE) volleysStarted++;
+            // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
+            boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE
+                    && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted;
+            shotsAtStep = shotsFired;
+            spinUp();
+            fireStepBegins();
+            firing = true;
+            activeFeedAt = Double.NaN;
+            activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : LaunchCards.launchOneFeedS;
+            nextShotAt = Math.max(nextShotAt, now);
+            shotTarget = count == Integer.MAX_VALUE
+                    ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
+                        ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
+                    : shotsFired + count;
+        }
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
-                        wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
-                        if (count == Integer.MAX_VALUE) volleysStarted++;
-                        // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
-                        boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE
-                                && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted;
-                        shotsAtStep = shotsFired;
-                        spinUp();
-                        fireStepBegins();
-                        firing = true;
-                        activeFeedAt = Double.NaN;
-                        activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : LaunchCards.launchOneFeedS;
-                        nextShotAt = Math.max(nextShotAt, now);
-                        shotTarget = count == Integer.MAX_VALUE
-                                ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
-                                    ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
-                                : shotsFired + count;
+                        // The drive in opened the gate: the volley it began is this card's to finish.
+                        if (approachFeeding && count == Integer.MAX_VALUE) {
+                            approachFeeding = false;
+                            return;
+                        }
+                        beginLaunch(count);
                     })
                     .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE && emptyStepOver()) || shotsFired >= shotTarget
                             || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
-                    .setEnd(end -> firing = false);
+                    .setEnd(end -> {
+                        firing = false;
+                        gateOpenAt = Double.NaN;
+                    });
         }
 
         /**
