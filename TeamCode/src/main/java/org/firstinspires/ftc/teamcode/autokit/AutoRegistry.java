@@ -41,6 +41,8 @@ public final class AutoRegistry {
     private final Set<String> parkedVolleys = new HashSet<>();
     private final Map<String, Double> lastPieceSeconds = new LinkedHashMap<>();
     private final Map<String, Approach> approaches = new LinkedHashMap<>();
+    /** Triggers registered with {@link #trigger}: true while something is so, not since a wait began. */
+    private final Set<String> stateTriggers = new HashSet<>();
     private BooleanSupplier holdTimeLimits = () -> false;
     private DoublePredicate grabTime = seconds -> false;
 
@@ -70,6 +72,16 @@ public final class AutoRegistry {
          * {@link #approaching} got ready, if anything.
          */
         void cancel();
+
+        /**
+         * Whether what {@link #approaching} started can no longer be taken back without loss: a
+         * {@code LaunchAll} whose gate opened on the approach has pieces on their way. A CELL check
+         * the approach ran through ({@code AutoKit.firstOf}) then takes its trigger row, which starts
+         * with this command, whatever its trigger reads that loop. False by default.
+         */
+        default boolean committed() {
+            return false;
+        }
     }
 
     /**
@@ -228,7 +240,18 @@ public final class AutoRegistry {
     /** Registers a trigger that is true while {@code check} is. */
     public AutoRegistry trigger(String name, BooleanSupplier check) {
         if (check == null) throw new IllegalArgumentException("Trigger " + name + " has no check");
-        return triggerSince(name, () -> check);
+        triggerSince(name, () -> check);
+        stateTriggers.add(name);
+        return this;
+    }
+
+    /**
+     * Whether {@code name} was registered with {@link #trigger}: true while something is so (a CELL
+     * is up), so it reads the same on the drive to a wait as in the wait. One registered with
+     * {@link #triggerSince} is about what happens after a wait starts, and is not.
+     */
+    public boolean isStateTrigger(String name) {
+        return stateTriggers.contains(name);
     }
 
     /**

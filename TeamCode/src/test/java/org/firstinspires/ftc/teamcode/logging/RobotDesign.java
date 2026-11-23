@@ -152,6 +152,11 @@ final class RobotDesign {
      * "slow feed" study design keeps it.
      */
     double shotIntervalS = 0.2;
+    /**
+     * From the feed gate opening to the first ball leaving, s: the first piece's trip from the lane through
+     * the gate to the wheels. 0: none modelled. {@link #real()} has the measured 0.85.
+     */
+    double gateToFirstBallS = 0;
     double spinUpS = 1.0;
     /**
      * How fast the turret turns, rad/s ({@link Launcher#TURRET} only). The 8 Oct 2026 design meeting put the turret
@@ -430,7 +435,13 @@ final class RobotDesign {
         d.intakeWidthIn = 0.9 * d.frameWidthIn;
         d.intakeOnContact = true;
         d.extractorSeatIn = FlowerPicker.push.contactStandoffIn - d.frameIn / 2;
-        d.shotIntervalS = LaunchCards.launchAllFeedS / 4;
+        // The feed's rhythm, measured (23 Nov 2026) from every Auto LaunchAll in the Belding and Fruitport match
+        // logs, both robots, by the shot counter: the first ball a median 0.85 s after the gate opens (64 volleys,
+        // most 0.64 to 1.2 s), then one every 0.46 s (125 gaps, most 0.37 to 0.52). Until then the four balls were
+        // spread evenly over master's set feed time (launchAllFeedS / 4, 0.6 s apart) from the gate: about 0.4 s
+        // too quick to the last ball. The set feed time itself is still master's (AutoSim#launchAllFeedS).
+        d.gateToFirstBallS = 0.85;
+        d.shotIntervalS = 0.46;
         d.fixedSetpoint = true;
         return d;
     }
@@ -569,6 +580,7 @@ final class RobotDesign {
         d.launcher = launcher;
         d.launchers = launchers;
         d.shotIntervalS = shotIntervalS;
+        d.gateToFirstBallS = gateToFirstBallS;
         d.laneCapacity = laneCapacity;
         d.spinUpS = spinUpS;
         d.turretSlewRadPerS = turretSlewRadPerS;

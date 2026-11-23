@@ -1135,6 +1135,15 @@ Use the work order above to select checks; the detailed mechanism checks below a
       on, the measured LaunchAll time goes into `volleyS` in `TeamCode/autos/timing.json` and the
       Visualizer's LaunchAll time: both still plan the 4 s measured before #430.
       [PR #430]
+- [ ] **Launch on the approach through the CELL check (23 Nov 2026).** Every volley after an Auto's first now
+      opens its gate on the drive in too, while the camera reads the CELL up (`AutoKit.CheckApproach`). At
+      Belding and Fruitport none did: the gate opened 0.1–0.6 s after the path's end. R-Solo, HIVE with our
+      LEFT CELL up, three runs. **Good:** the trace shows `LaunchAll opened the gate on the approach` on the
+      drive to LEFT_AUTO_HIVE and `CellUp (gate opened on the approach)` on the check; the balls go in as
+      often as before; `read_logs.py steps` shows the LEFT volleys' gate wait negative. Then one run with the
+      LEFT CELL down: no gate opens, the check times out and parks, `LaunchAll did not follow its approach`
+      or nothing at all in the trace. **Stop:** a ball at a down CELL, or more misses → `launchOnApproach`
+      false (turns off both) and bring the logs.
 - [ ] **Early gate: open ahead of launch speed (`LaunchCards.gateLeadS`, 0 = off, the default).**
       R-Solo (its preloads fire from rest at PLAY), filmed from the side so the first ball's flight
       shows. Three runs at 0, three at 0.3, three at 0.5, Panels → LaunchCards. Count the balls that
