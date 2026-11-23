@@ -1,72 +1,16 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-23T19:57:00.331Z",
+  "timestamp": "2026-11-23T20:51:13.920Z",
   "startPoint": {
-    "x": 59.2,
-    "y": 133.8,
+    "x": 34.2,
+    "y": 130.8,
     "locked": false,
-    "headingDeg": 270
+    "headingDeg": 295
   },
   "lines": [
     {
-      "id": "l1",
-      "color": "#76b7b2",
-      "name": "forward off STAGE_START",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 113
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "p1",
-      "color": "#f28e2b",
-      "name": "STAGE_CLEAR park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "link-1",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 113
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
       "id": "l2",
-      "color": "#e15759",
+      "color": "#76b7b2",
       "name": "to SCORING_FLOWER_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
@@ -81,14 +25,14 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "startDeg": 295,
+        "endDeg": 450
       }
     },
     {
-      "id": "p2",
-      "color": "#59a14f",
-      "name": "SCORING_FLOWER_STAGING park",
+      "id": "p1",
+      "color": "#f28e2b",
+      "name": "STAGE_START park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -102,12 +46,12 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 90,
-        "endDeg": 0
+        "startDeg": 295,
+        "endDeg": 360
       }
     },
     {
-      "id": "link-2",
+      "id": "link-1",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -118,12 +62,12 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 450
       }
     },
     {
       "id": "l3",
-      "color": "#edc948",
+      "color": "#59a14f",
       "name": "to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
@@ -144,7 +88,7 @@
     },
     {
       "id": "p3",
-      "color": "#b07aa1",
+      "color": "#edc948",
       "name": "LEFT_AUTO_HIVE park",
       "locked": false,
       "waitBeforeMs": 0,
@@ -164,7 +108,7 @@
       }
     },
     {
-      "id": "link-3",
+      "id": "link-2",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -180,8 +124,8 @@
     },
     {
       "id": "l4",
-      "color": "#9c755f",
-      "name": "to STAGE_SWEEP_IN",
+      "color": "#b07aa1",
+      "name": "to STAGE_PICKUP_IN",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -189,60 +133,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 58.6,
-        "y": 132.5
+        "x": 29.2,
+        "y": 124.3
       },
-      "controlPoints": [
-        {
-          "x": 50,
-          "y": 121
-        }
-      ],
+      "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 268.9,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "p4",
-      "color": "#4e79a7",
-      "name": "STAGE_SWEEP_IN park",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 0
-      }
-    },
-    {
-      "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 58.6,
-        "y": 132.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 360
+        "endDeg": 450
       }
     },
     {
       "id": "l5",
-      "color": "#76b7b2",
-      "name": "sweep the staged POLLEN",
+      "color": "#4e79a7",
+      "name": "pick up the staged POLLEN",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -250,19 +154,19 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 62.5,
-        "y": 132.5
+        "x": 29.2,
+        "y": 133.3
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 0
+        "degrees": 90
       }
     },
     {
-      "id": "p5",
-      "color": "#f28e2b",
-      "name": "STAGE_SWEEP_END park",
+      "id": "p4",
+      "color": "#9c755f",
+      "name": "STAGE_PICKUP_IN park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -275,28 +179,29 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 0
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 0
       }
     },
     {
-      "id": "link-5",
+      "id": "link-3",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 62.5,
-        "y": 132.5
+        "x": 29.2,
+        "y": 133.3
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 0
+        "degrees": 90
       }
     },
     {
       "id": "l6",
-      "color": "#e15759",
+      "color": "#f28e2b",
       "name": "back to LEFT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
@@ -311,12 +216,48 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 360,
+        "startDeg": 90,
         "endDeg": 268.9
       }
     },
     {
       "id": "p6",
+      "color": "#e15759",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 360
+      }
+    },
+    {
+      "id": "link-4",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
+      }
+    },
+    {
+      "id": "p7",
       "color": "#59a14f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -337,7 +278,7 @@
       }
     },
     {
-      "id": "link-6",
+      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -352,7 +293,7 @@
       }
     },
     {
-      "id": "p7",
+      "id": "p8",
       "color": "#edc948",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -373,24 +314,9 @@
       }
     },
     {
-      "id": "link-7",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.4,
-        "y": 120.45
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.9
-      }
-    },
-    {
-      "id": "p8",
-      "color": "#b07aa1",
-      "name": "to LEFT_PARK",
+      "id": "p2",
+      "color": "#e15759",
+      "name": "SCORING_FLOWER_STAGING park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -404,8 +330,44 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 360
+        "startDeg": 90,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-6",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 29.2,
+        "y": 133.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 0
+      }
+    },
+    {
+      "id": "p5",
+      "color": "#76b7b2",
+      "name": "STAGE_PICKUP_END park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 0
       }
     }
   ],
@@ -574,7 +536,7 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "l1"
+      "lineId": "l2"
     },
     {
       "kind": "path",
@@ -586,18 +548,6 @@
     },
     {
       "kind": "path",
-      "lineId": "l2"
-    },
-    {
-      "kind": "path",
-      "lineId": "p2"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-2"
-    },
-    {
-      "kind": "path",
       "lineId": "l3"
     },
     {
@@ -606,7 +556,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-3"
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -614,23 +564,15 @@
     },
     {
       "kind": "path",
-      "lineId": "p4"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-4"
-    },
-    {
-      "kind": "path",
       "lineId": "l5"
     },
     {
       "kind": "path",
-      "lineId": "p5"
+      "lineId": "p4"
     },
     {
       "kind": "path",
-      "lineId": "link-5"
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -642,7 +584,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-6"
+      "lineId": "link-4"
     },
     {
       "kind": "path",
@@ -650,11 +592,23 @@
     },
     {
       "kind": "path",
-      "lineId": "link-7"
+      "lineId": "link-5"
     },
     {
       "kind": "path",
       "lineId": "p8"
+    },
+    {
+      "kind": "path",
+      "lineId": "p2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "p5"
     }
   ],
   "fieldPoints": [],
@@ -716,14 +670,9 @@
     },
     "points": {
       "STAGE_START": [
-        59.2,
-        133.8,
-        270
-      ],
-      "STAGE_CLEAR": [
-        59.2,
-        113,
-        270
+        34.2,
+        130.8,
+        295
       ],
       "SCORING_FLOWER_STAGING": [
         47.2,
@@ -735,15 +684,15 @@
         120.45,
         268.9
       ],
-      "STAGE_SWEEP_IN": [
-        58.6,
-        132.5,
-        0
+      "STAGE_PICKUP_IN": [
+        29.2,
+        124.3,
+        90
       ],
-      "STAGE_SWEEP_END": [
-        62.5,
-        132.5,
-        0
+      "STAGE_PICKUP_END": [
+        29.2,
+        133.3,
+        90
       ],
       "LEFT_PARK": [
         14.5,
@@ -752,15 +701,14 @@
       ]
     },
     "pathEnds": {
-      "l1": "STAGE_CLEAR",
-      "p1": "LEFT_PARK",
       "l2": "SCORING_FLOWER_STAGING",
+      "p1": "LEFT_PARK",
       "p2": "LEFT_PARK",
       "l3": "LEFT_AUTO_HIVE",
       "p3": "LEFT_PARK",
-      "l4": "STAGE_SWEEP_IN",
+      "l4": "STAGE_PICKUP_IN",
       "p4": "LEFT_PARK",
-      "l5": "STAGE_SWEEP_END",
+      "l5": "STAGE_PICKUP_END",
       "p5": "LEFT_PARK",
       "l6": "LEFT_AUTO_HIVE",
       "p6": "LEFT_PARK",
@@ -768,12 +716,6 @@
       "p8": "LEFT_PARK"
     },
     "cards": [
-      {
-        "id": "c1",
-        "kind": "path",
-        "lineId": "l1",
-        "park": false
-      },
       {
         "id": "c2",
         "kind": "path",
@@ -910,15 +852,13 @@
       "link-3",
       "link-4",
       "link-5",
-      "link-6",
-      "link-7"
+      "link-6"
     ],
     "parkFrom": {
-      "c1": "p1",
-      "c2": "p2",
+      "c2": "p1",
       "c5": "p3",
-      "c8": "p4",
-      "c9": "p5",
+      "c8": "p3",
+      "c9": "p4",
       "c11": "p3"
     },
     "teamSpots": [

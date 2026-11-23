@@ -20,7 +20,7 @@ public final class LStagedSweepAuto {
     public static final String SOURCE = "l-staged-sweep.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-23|2:57PM";
+    public static final String SAVED = "11-23|3:51PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -36,7 +36,7 @@ public final class LStagedSweepAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59.2, 133.8, 270);
+        return poses(rotated).of(34.2, 130.8, 295);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -48,37 +48,32 @@ public final class LStagedSweepAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose stageStart = p.of(59.2, 133.8, 270);
-        Pose stageClear = p.of(59.2, 113, 270);
+        Pose stageStart = p.of(34.2, 130.8, 295);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
         Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
-        Pose stageSweepIn = p.of(58.6, 132.5, 0);
-        Pose stageSweepEnd = p.of(62.5, 132.5, 0);
+        Pose stagePickupIn = p.of(29.2, 124.3, 90);
+        Pose stagePickupEnd = p.of(29.2, 133.3, 90);
         Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose toStageSweepInControl1 = p.of(50, 121, 0);
+        Pose stageStartParkStart = p.of(47.2, 119.3, 295);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path forwardOffStageStart = Paths.line(stageStart, stageClear).constant(stageClear);
-        Path stageClearPark = Paths.line(stageClear, leftPark).linear(stageClear, leftPark);
-        Path toScoringFlowerStaging = Paths.line(stageClear, scoringFlowerStaging).linear(stageClear, scoringFlowerStaging);
-        Path scoringFlowerStagingPark = Paths.line(scoringFlowerStaging, leftPark).linear(scoringFlowerStaging, leftPark);
+        Path toScoringFlowerStaging = Paths.line(stageStart, scoringFlowerStaging).linear(stageStart, scoringFlowerStaging);
+        Path stageStartPark = Paths.line(stageStartParkStart, leftPark).linear(stageStartParkStart, leftPark);
         Path toLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
         Path leftAutoHivePark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
-        Path toStageSweepIn = Paths.curve(leftAutoHive, toStageSweepInControl1, stageSweepIn).linear(leftAutoHive, stageSweepIn);
-        Path stageSweepInPark = Paths.line(stageSweepIn, leftPark).constant(leftPark);
-        Path sweepTheStagedPollen = Paths.line(stageSweepIn, stageSweepEnd).constant(stageSweepEnd);
-        Path stageSweepEndPark = Paths.line(stageSweepEnd, leftPark).constant(leftPark);
-        Path backToLeftAutoHive = Paths.line(stageSweepEnd, leftAutoHive).linear(stageSweepEnd, leftAutoHive);
+        Path toStagePickupIn = Paths.line(leftAutoHive, stagePickupIn).linear(leftAutoHive, stagePickupIn);
+        Path pickUpTheStagedPollen = Paths.line(stagePickupIn, stagePickupEnd).constant(stagePickupEnd);
+        Path stagePickupInPark = Paths.line(stagePickupEnd, leftPark).linear(stagePickupEnd, leftPark);
+        Path backToLeftAutoHive = Paths.line(stagePickupEnd, leftAutoHive).linear(stagePickupEnd, leftAutoHive);
         Path toLeftPark = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
         Path toLeftParkPath2 = Paths.line(leftAutoHive, leftPark).linear(leftAutoHive, leftPark);
 
         return kit.sequence(
                 kit.guarded("Auto", toLeftParkPath2, 2,
-                        kit.path("forward off STAGE_START", forwardOffStageStart, 1.3, stageClearPark, 1.9),
-                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 1.7),
+                        kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, stageStartPark, 1.7),
                         kit.command("PickFlower", 8),
                         kit.command("SpinUp"),
                         kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 1.3, leftAutoHivePark, 2),
@@ -86,12 +81,12 @@ public final class LStagedSweepAuto {
                                 kit.when("CellUp").then(
                                         kit.guarded("If CellUp", toLeftParkPath, 2,
                                                 kit.command("LaunchAll"),
-                                                kit.path("to STAGE_SWEEP_IN", toStageSweepIn, 1.2, stageSweepInPark, 2),
-                                                kit.path("sweep the staged POLLEN", sweepTheStagedPollen, 0.6, stageSweepEndPark, 2.1),
+                                                kit.path("to STAGE_PICKUP_IN", toStagePickupIn, 1.7, leftAutoHivePark, 2),
+                                                kit.path("pick up the staged POLLEN", pickUpTheStagedPollen, 0.9, stagePickupInPark, 1.4),
                                                 kit.firstOf("Staged POLLEN in?",
                                                         kit.when("IntakeFull"),
                                                         kit.afterMs(1500)),
-                                                kit.path("back to LEFT_AUTO_HIVE", backToLeftAutoHive, 1, leftAutoHivePark, 2),
+                                                kit.path("back to LEFT_AUTO_HIVE", backToLeftAutoHive, 1.7, leftAutoHivePark, 2),
                                                 kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", toLeftPark, 2,
