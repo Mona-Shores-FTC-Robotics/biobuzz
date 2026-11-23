@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/l-no-cross.pp",
   "spec": "LNoCrossAuto",
-  "design": "real robot, turret locked forward, POLLEN only",
+  "design": "real robot",
   "seeds": [
     1,
     2,
@@ -127,6 +127,6 @@
     "AutoSource": "l-no-cross.pp",
     "SavedBy": "dustinhans; TIP-came-after-all drive turns clear of the centre line",
     "SavedAt": "2026-11-18T20:50:00+00:00",
-    "SimNote": "CELL checks in the no-TIP route (TIP seen?, RIGHT CELL still up?), with two late partners"
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   }
 }

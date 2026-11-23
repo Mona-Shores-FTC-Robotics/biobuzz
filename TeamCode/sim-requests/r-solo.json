@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
   "spec": "RSoloAuto",
-  "design": "real robot, turret locked forward",
+  "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -58,6 +58,6 @@
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans; the drive to RIGHT_AUTO_HIVE turns clear of the centre line",
     "SavedAt": "2026-11-18T21:08:00+00:00",
-    "SimNote": "belding-plus: guard keeps the park (parkAfterVolley), LaunchAll 4.0 s planned, feed 3.0 s"
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   }
 }

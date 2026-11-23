@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/r-left-under-hive.pp",
   "spec": "RLeftUnderHiveAuto",
-  "design": "real robot, turret locked forward",
+  "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -90,6 +90,7 @@
   "metadata": {
     "AutoSource": "r-left-under-hive.pp",
     "SavedBy": "dustinhans",
-    "SavedAt": "2026-11-18T22:15:00+00:00"
+    "SavedAt": "2026-11-18T22:15:00+00:00",
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   }
 }

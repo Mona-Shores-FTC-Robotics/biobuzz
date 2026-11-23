@@ -103,6 +103,7 @@
   "metadata": {
     "AutoSource": "l-left-under-hive.pp",
     "SavedBy": "Lane pair: R on the wall lane, L under the HIVE; L parks facing LEFT at LEFT_AUTO_PARK and fires LaunchAllAimed there if RIGHT never came up; no TIP 1 by 9 s: the rescue to RIGHT_AUTO_FIX_TIP",
-    "SavedAt": "2026-11-19T19:00:00+00:00"
+    "SavedAt": "2026-11-19T19:00:00+00:00",
+    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   }
 }
