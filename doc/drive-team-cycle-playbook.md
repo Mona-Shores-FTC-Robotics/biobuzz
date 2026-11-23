@@ -24,7 +24,7 @@ presses that fed nothing: 3 to 5 times a match the gate opened with the lane rea
 came out, either an empty lane or the jam in `doc/robot-todo.md`. The robot then went to pick up, and
 the pickup was counted as spin-up.)
 
-## Rule 1: fire 4, not 3
+## Rule 1: fire full loads, unless the CELL needs fewer
 
 **Fire when the robot's light goes green.** Green means the lane is full. A green lane fired 4 or
 more in 74% of 20245's Fruitport volleys and 47% of 19429's. A lane that was not green fired 4 at most
@@ -34,12 +34,12 @@ makes green need both the colour sensor and the beam to agree.
 
 - Never press fire at a lane that is not green and reads 0. On 19429 that fed nothing 3 to 5 times a
   match. If the lane has pieces and fire does nothing, that is the jam: unjam, then fire again.
-- Two exceptions: the last 10 s of the match (fire what you have), and a lane that has held 3 for
-  more than about 3 s with nothing coming in (fire, then go get 4).
-- **Switch to try in practice:** `TeleOpConfig.fullLoadGate` in Panels. With it on, a fire press waits
-  for green, and the Match page says `FIRE: WAITING FOR 4`. The intake keeps running, so you can press
-  as the last piece comes in. Held 1 s, it fires what is there (`fullLoadGiveUpS`). In the last 10 s
-  it never waits (`fullLoadOffLastS`). Off by default.
+- **Exceptions: fire what you have** when the CELL needs only that many more to TIP (it holds 7 and
+  you carry 1: fire the 1, don't go get 3 more), in the last 10 s of the match, and when the lane has
+  held 3 for more than about 3 s with nothing coming in. The robot can't see how full the CELL is; the
+  driver and coach can, so this is their call.
+- `TeleOpConfig.fullLoadGate` (a fire that waits for green) stays **off**: it can't see the CELL, so it
+  would hold a shot the CELL needs (mentor, 23 Nov 2026).
 
 ## Rule 2: one end per robot
 

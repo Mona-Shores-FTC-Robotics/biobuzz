@@ -18,7 +18,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
  * <p>The margin ({@code TeleOpConfig.matchEndMarginS}, 1.0 s) covers a ball's time from gate to
  * air (about 0.4 to 0.5 s at Fruitport) and a field 0:00 that comes up to a few tenths early on
  * the robot's clock. Drive, intake and turret stay the drive team's to stop at 0:00.
- * {@code TeleOpConfig.stopLaunchingAtMatchEnd} turns it off in Panels for a long practice drive.
+ * It runs only with {@code TeleOpConfig.stopLaunchingAtMatchEnd} on, which is off by default.
  */
 final class MatchEnd {
 
