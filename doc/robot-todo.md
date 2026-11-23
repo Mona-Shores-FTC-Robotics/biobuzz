@@ -62,7 +62,7 @@ Code is ready and off on both robots: `BeamBreakSubsystem` ([PR: beam breaks]), 
 is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFitted = true` (or
 `laneFitted`), with the date. Full TeamCode install (an XML changed), Activate the config.
 
-**The new transfer's gate beam (19429 first, then 20245; [PR: gate beam mount], `cad/beam-mount/`).** The beam runs
+**The new transfer's gate beam (19429 first, then 20245; [PR #728], `cad/beam-mount/`).** The beam runs
 straight up through the ball's last spot behind the gate: the emitter in a printed sled inside the floor channel, the
 receiver on the top plate looking down. It reads "a ball is waiting at the gate" and clears when a volley's last ball
 has gone. It is **not** the throat beam the code expects (one past the gate that clears between balls): **no
@@ -2365,6 +2365,7 @@ one test at one meeting.
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
 [PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
 [PR #644]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/644
+[PR #728]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/728
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
