@@ -24,19 +24,20 @@ import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# ---- the sensor. Not yet measured with calipers: from TheTapeWaster's holders (Thingiverse 2772303, CC BY) and their
-# photos, which agree: the LED looks out of a big face 5 mm from one end, the body's screw hole is 5 mm from the
-# other end on the same centre line. Adafruit gives 20 x 10 x 8, the datasheet 20 x 10 x 9.
+# ---- the sensor: Adafruit's dimensioned drawing (cdn-shop.adafruit.com/product-files/2167/2167diagram.jpg, the same
+# housing as the 2168 the team bought): 20 x 10, the LED and a 2.4 mm mounting hole on the same big face, 10 mm
+# apart, each 5 mm from its end. Adafruit's page gives 20 x 10 x 8; the generic QT50CM datasheet says 9.
 BODY_L = 20.0
 BODY_W = 10.0
 BODY_T = 8.0                 # Adafruit says 8, the datasheet 9: measure it. The lip at the LED end sits this high
 LED_FROM_END = 5.0           # LED centre from the nearer end
 LED_TO_SCREW = 10.0          # LED centre to the body's screw hole
 FIT = 0.15                   # clearance per side between the side walls and the body: close, so it cannot rock
-# ---- the sensor's screw: M3 assumed. If the body's hole is smaller, change these to M2.5 (2.9 clear, 5.0 AF nut)
-S_CLEAR = 3.4
-S_NUT_AF = 5.5
-S_NUT_T = 2.6                # pocket depth from the underside: a 2.4 mm M3 nut, trapped against the goBILDA wall
+# ---- the sensor's screw: M2 (the body's hole is 2.4 mm, Adafruit's drawing). An M2 x 12 through the body (8) and the
+# plate (5) ends 1 mm short of the underside, 1.2 mm into the nut
+S_CLEAR = 2.4
+S_NUT_AF = 4.0
+S_NUT_T = 2.2                # pocket depth from the underside: a 1.6 mm M2 nut, trapped against the goBILDA plate
 # ---- goBILDA's pattern (measured off the robot CAD's 1107 rails: 14.0 mm holes, 4.5 mm holes at +-8 mm) ----
 SCREW_X = -16.0              # the screw pair: the ring of the neighbouring 14 mm hole, 24 mm along
 SCREW_Y = 8.0                # ...16 mm apart
