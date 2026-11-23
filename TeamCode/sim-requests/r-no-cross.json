@@ -139,5 +139,6 @@
     "SavedBy": "dustinhans; LEFT_AUTO_HIVE 0.5 in off the centre line",
     "SavedAt": "2026-11-18T19:45:00+00:00",
     "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
-  }
+  },
+  "usual": true
 }
