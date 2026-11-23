@@ -97,7 +97,7 @@ is already there), and one `RobotDifferences` line, `BeamBreakSubsystem.throatFi
       last piece settles (`ColorSensorSubsystem.fullHoldWithBeamS`, `laneBeamHoldS`), against 1.0 s
       today. **Stop:** a full load not FULL → the beam is too far back; a not-full load FULL → too far
       forward. Move the beam, not the numbers.
-- [ ] **Gate beam (the new transfer: the throat beam behind the gate, [PR: gate beam mode]), its switch:**
+- [ ] **Gate beam (the new transfer: the throat beam behind the gate, [PR #729]), its switch:**
       once the gate beam's fitting checks pass, two `RobotDifferences` lines with the date,
       `BeamBreakSubsystem.throatFitted = true` and `BeamBreakSubsystem.throatBehindGate = true`. Never the
       first without the second on that robot: a beam behind the gate read as one past it calls every
@@ -2350,6 +2350,7 @@ one test at one meeting.
 [PR #430]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/430
 [PR #492]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/492
 [PR #644]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/644
+[PR #729]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/729
 [#33]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/33
 [#62]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/62
 [#429]: https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/429
