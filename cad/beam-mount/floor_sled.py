@@ -11,17 +11,14 @@ plate (beam_mount, parts.py). Nothing sticks out below the channel's edges, and 
 rolls on**: the sled holds by the channel's side walls.
 
 How it holds: the channel's side walls have 4 mm holes every 8 mm along it, 4.0 mm above their bottom edges, one
-level with each 14 mm hole. The sled has a pin on a flexible arm on each side, at the 14 mm hole's station: push the
-sled straight up into the channel and the pins' ramps cam the arms in until they click into those two holes. That
-places the LED on the hole's centre (no adjusting: the holes do it), holds the sled up against the floor, and keeps
-it from sliding. The pin on the open side (the 8 mm gap to the next channel) has a square underside, so it holds;
-the one on the side pressed against the next channel is ramped both ways. To take it out: push the open side's pin in
-through its hole with a small screwdriver and pull the sled down.
-
-**Optional screw, off the ball's path:** the balls cross this channel, they do not roll along it, so the floor 39 mm
-along the channel from where they cross is not under any ball. The sled reaches there, and an M3 x 8 button head
-can go down through the floor's 4 mm hole at that end into an M3 nut slid into the sled's tunnel (a +-3 mm slot, so
-it lines up whatever the pins say). Use it if the pins alone ever let go.
+level with each 14 mm hole. The sled has four pins, two on each side, each on a flexible arm (a strip of the sled
+joined only at one end, like a diving board): one pair level with the beam's 14 mm hole, the other 32 mm along the
+channel. Push the sled straight up into the channel: the pins' sloped tops let the channel's edges bend the arms in,
+and at the holes they spring back out and click in. Two pins in each side wall, 32 mm apart, so it cannot rock or
+slide; the walls hold it sideways and the floor above. The holes place the LED on the 14 mm hole's centre: no
+adjusting. The open side's pins (the 8 mm gap to the next channel) have square undersides, so a pull does not free
+them; the other side's are ramped both ways. To take it out: push the open side's two pins in through their holes
+(two small screwdrivers) and pull the sled down.
 
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
 channel (+X the side pressed against the next channel, -X the open side), Y along it from the LED toward the wire
@@ -54,20 +51,13 @@ PIN_OUT = 1.0                # beyond the sled's side: 0.2 to the wall, 0.8 into
 PIN_RAMP = 0.6               # the domed pin's outer face: half this height above and below its centre
 ARM_T = 1.4                  # the flexible arms carrying the pins
 ARM_GAP = 1.4                # behind each arm: room for it to bend in past the pin's 0.8 mm and some
-ARM_ROOT_Y = 12.0            # the arms are free at the LED end and grow from the sled here (12 mm: 1.5 % strain)
-SCREW_X = 9.4               # the optional screw: the floor's 4 mm hole 9.4 mm off the channel's centre line...
-SCREW_Y = 33.4               # ...one 14 mm hole along (24 mm) from the beam's, 9.4 mm past it: 39 mm from the balls
-SLIDE = 3.0                  # its slot: +-3 mm along the channel
-M3_CLEAR = 3.4
-NUT_AF = 5.5
-NUT_TUNNEL_W = 5.8           # a nut slides in from the sled's end and cannot turn
-NUT_TUNNEL_H = 2.7
-NUT_TUNNEL_TOP = 3.0         # tunnel roof below the top face: an M3 x 8 through the 2.5 mm floor ends 5.5 down
+PIN_YS = (0.0, 32.0)         # the two pairs of pins: level with the beam's 14 mm hole, and 32 mm (4 holes) along
+ARM_LEN = 12.0               # each pin sits this far from its arm's root (1.5 % strain in PETG as it bends 1 mm)
+ARM_TIP = 4.0                # and its arm runs this far past the pin to its free end
 RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
 RIB_W = 1.0
 WIRE_W = 6.0                 # wire slot out of the wire end
 END_MARGIN = 2.0             # sled beyond the LED end of the body
-SCREW_TAIL = 2.5             # sled beyond the screw slot's end
 
 H = POCKET_H - DROP
 W = POCKET_W - 2 * SIDE_FIT
@@ -98,29 +88,27 @@ def floor_sled():
     by0 = -LED_FROM_END - FIT                 # the pocket for the body, LED end
     by1 = BODY_L - LED_FROM_END + FIT         # ...wire end
     y0 = by0 - END_MARGIN
-    y1 = SCREW_Y + SLIDE + M3_CLEAR / 2 + SCREW_TAIL
+    y1 = PIN_YS[1] + ARM_TIP
     part = box(-W / 2, W / 2, y0, y1, -H, 0)
     bx = BODY_W / 2 + FIT
     part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))                     # the body, LED up against the floor
     part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, y1 + 0.1, -BODY_T, 0.1))   # the wires out the end
     for ry in (by0 + 3.0, by1 - 3.0):
         part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
-    for side in (1, -1):                      # the arms: a slot behind each, open at the LED end
-        inner = side * (W / 2 - ARM_T)
-        back = inner - side * ARM_GAP
-        part = part.cut(box(min(inner, back), max(inner, back), y0 - 0.1, ARM_ROOT_Y, -H - 0.1, 0.1))
-        part = part.union(pin(-1, square_under=side < 0).mirror("YZ") if side > 0 else pin(-1, square_under=True))
+    # the arms: a slot behind each, open at the sled's end; the front pair free at the LED end, the back pair at the
+    # far end, each growing from the sled ARM_LEN from its pin
+    arms = ((PIN_YS[0], y0 - 0.1, PIN_YS[0] + ARM_LEN), (PIN_YS[1], PIN_YS[1] - ARM_LEN, y1 + 0.1))
+    for pin_y, a0, a1 in arms:
+        for side in (1, -1):
+            inner = side * (W / 2 - ARM_T)
+            back = inner - side * ARM_GAP
+            part = part.cut(box(min(inner, back), max(inner, back), a0, a1, -H - 0.1, 0.1))
+            p = pin(-1, square_under=side < 0)
+            if side > 0:
+                p = p.mirror("YZ")
+            part = part.union(p.translate((0, pin_y, 0)))
+    assert arms[0][2] < arms[1][1], "the two pairs of arms overlap"
     assert bx < W / 2 - ARM_T - ARM_GAP, "the arm slots run into the sensor pocket"
-    # the optional screw, 39 mm along from the balls: a slot over a nut tunnel open at the sled's end
-    sx = -SCREW_X
-    part = part.cut(cq.Workplane("XY").workplane(offset=-NUT_TUNNEL_TOP - 0.1).center(sx, SCREW_Y)
-                    .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(NUT_TUNNEL_TOP + 0.2))
-    part = part.cut(cq.Workplane("XY").workplane(offset=-H - 0.1).center(sx, SCREW_Y)
-                    .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(H - NUT_TUNNEL_TOP - NUT_TUNNEL_H + 0.1))
-    part = part.cut(box(sx - NUT_TUNNEL_W / 2, sx + NUT_TUNNEL_W / 2, SCREW_Y - SLIDE - NUT_AF, y1 + 0.1,
-                        -NUT_TUNNEL_TOP - NUT_TUNNEL_H, -NUT_TUNNEL_TOP))
-    assert sx + NUT_TUNNEL_W / 2 < -WIRE_W / 2 and sx - NUT_TUNNEL_W / 2 > -W / 2, "the nut tunnel hits the wires or the side"
-    assert SCREW_Y - SLIDE - NUT_AF > ARM_ROOT_Y, "the nut tunnel runs into the arms"
     return part
 
 

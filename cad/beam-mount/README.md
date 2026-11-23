@@ -14,14 +14,14 @@ export of 23 Nov 2026):
 
 | File | What it is | Print |
 |---|---|---|
-| `floor_sled.stl` / `.3mf` | 28.6 x 47.9 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
+| `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
 | `beam_mount.stl` / `.3mf` | 32.7 x 30.7 x 14.3 mm. Plate down, as exported | 1 per robot |
 | `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
 | `render.py` | Draws `parts.png` (the receiver mount on a goBILDA wall) | `+ trimesh manifold3d matplotlib` |
 
 **Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit), 0.2 mm layers, 4 walls, 40 %
-gyroid. No supports. The sled's nut tunnel bridges 5.8 mm, and the receiver's lip overhangs 1.5 mm; both print clean.
+gyroid. No supports. The sled's pins print on their sides, square to the bed; and the receiver's lip overhangs 1.5 mm; both print clean.
 
 ## Where the beam crosses, and why there
 
@@ -42,26 +42,24 @@ gyroid. No supports. The sled's nut tunnel bridges 5.8 mm, and the receiver's li
 
 ## Fitting the emitter (the floor sled)
 
-![The snap-in sled](floor_sled_snap.png)
+![How the sled clicks in](floor_sled_steps.png)
 
 The floor there is the 11-hole goBILDA Mini U-Channel, lying open side down. Its inside is 27.0 mm wide and 9.5 mm
 tall, and the sled is 26.6 wide and 9.3 tall: **nothing sticks out below the channel's edges, and nothing is on the
 floor the balls roll on.** It holds by the channel's side walls: their 4 mm holes, every 8 mm, one level with each
-14 mm hole.
+14 mm hole. Four pins, two in each wall 32 mm apart, so it cannot rock, slide or drop.
 
 1. Push the emitter into the sled's pocket, LED end against the closed end, wires along the middle slot to the far
    end. Its top face sits flush with the sled's top.
 2. From below, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, LED end toward
-   the gate. Push it straight up: the pin on each side clicks into the side-wall hole level with that 14 mm hole, and
-   the LED sits on the hole's centre. No adjusting: the holes place it.
-3. **Optional screw**, if the pins ever let go: slide an M3 nut into the tunnel at the far end first, then an
-   **M3 x 8 button head** down through the floor's 4 mm hole at that end (9.4 mm off the centre line, one 14 mm hole
-   along): 39 mm along the channel from where the balls cross it, so no ball rolls over it. Its slot allows 3 mm
-   either way.
-4. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
+   the gate. Push it straight up: each pin sits on a springy arm (a strip of the sled joined at one end only), the
+   channel's edges bend the arms in, and at the side-wall holes they spring back and the pins click in. The LED then
+   sits on the 14 mm hole's centre: the holes place it, nothing to adjust.
+3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
    below.
-5. **To take it out:** push the pin on the open side (the 8 mm gap to the next channel) in through its hole with a
-   small screwdriver, and pull the sled down. The other pin is ramped both ways and lets go.
+4. **To take it out:** push the open side's two pins (the side with the 8 mm gap to the next channel) in through
+   their holes with two small screwdrivers, and pull the sled down. The other side's pins are ramped both ways and
+   let go.
 
 ## Fitting the receiver (`beam_mount`, on the top plate)
 
