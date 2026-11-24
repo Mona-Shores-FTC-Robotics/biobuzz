@@ -92,6 +92,12 @@ BAR_X = (8.50, 9.00)                  # in
 BAR_Z = (2.94, 3.30)                  # in: its underside 0.14 in above a POLLEN's top (2.80)
 SHELF_X = (7.74, 9.97)                # in: around the servo's flange (its tabs X 7.76..9.89)
 SHELF_Y = (5.38, 6.52)                # |Y| in: just outboard of the side channel's web (5.36)
+WEB_Y = 5.363                         # |Y| in: the side channel's outer face (its web, 2.5 mm thick; the slide is inside)
+WING_T = 4.0                          # mm: the wing lies flat on that face, outboard of it
+WING_X = (7.74, 8.50)                 # in: back to the front flange's corner; clear of the spinning mecanum
+WING_Z = (2.69, 4.75)                 # in
+WEB_BUMPS = ((7.876, 3.481), (7.875, 4.130), (8.181, 3.491), (8.181, 4.121))   # in: four of the web's holes (X, Z), 4.5 and 4 mm
+BUMP_D, BUMP_H = 3.7, 1.8             # mm: shorter than the web is thick, so nothing reaches the slide
 
 
 def _flaps():
@@ -160,7 +166,17 @@ def bracket(side):
     gz, gx = BAR_Z[1] * I, FLANGE_X * I + TAB_T
     gusset = (cq.Workplane("XZ").polyline([(gx, gz), (gx + 9.0, gz), (gx, gz + 14.0)]).close()
               .extrude(-(TAB_Y[1] - TAB_Y[0]) * I).translate((0, TAB_Y[0] * I, 0)))
-    return shelf.union(bar).union(step).union(tab).union(gusset)
+    # the wing: flat on the channel's outer face, wrapping its front corner to the tab; four bumps sit in the web's
+    # 4.5 mm holes, so the bracket cannot turn or slide on the two front screws
+    I = IN
+    pts = [(WING_X[0] * I, z0), ((FLANGE_X * I) + TAB_T, z0), ((FLANGE_X * I) + TAB_T, WING_Z[1] * I),
+           (WING_X[0] * I, WING_Z[1] * I)]
+    wing = (cq.Workplane("XZ").polyline(pts).close().extrude(-WING_T).translate((0, WEB_Y * I, 0))
+            .edges("|Y").fillet(1.5))
+    for bx, bz in WEB_BUMPS:
+        wing = wing.union(cq.Workplane("XZ").center(bx * I, bz * I).circle(BUMP_D / 2).extrude(BUMP_H)
+                          .translate((0, WEB_Y * I, 0)))
+    return shelf.union(bar).union(step).union(tab).union(gusset).union(wing)
 
 
 def servo_envelope():
