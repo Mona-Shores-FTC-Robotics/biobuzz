@@ -20,15 +20,17 @@ How a corner goes together, from the floor up (cad/corner-wheels/README.md has t
 - A goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter), 8 mm, on the boss: four M4 x 30 socket head
   screws come up through the wheel from counterbores in its underside into the hub's threaded holes on the 16 mm
   circle.
-- The servo, a goBILDA 2000 Series Dual Mode Servo (or any standard servo with the same 40 x 20 body and 48 x 10 mm
-  flange holes), upside down, spline into the hub, its body pointing back. Its flange is near its spline end, so
-  upside down the flange is near the bottom (Z 2.53..2.69 in) and the body stands up above it, to Z 3.76 in.
-- The bracket: a shelf on the flange (Z 2.69..2.94; four M3 up through the flange's slots), right beside the intake's
-  side channel, a short bar at Z 2.94..3.30 (above a POLLEN's 2.80), and a tab flat on the FRONT flange of that channel,
-  bolted with two M4 x 12 through its holes at Z 3.81 and 4.44 in, nuts behind (ahead of the Viper slide).
+- The servo, a SWYFT Speed servo in continuous mode (40 x 20 body, 48 x 10 mm flange holes, 25-tooth spline), upside
+  down, spline into the hub, its body pointing back. Its flange is near its spline end, so upside down the flange is
+  near the bottom (Z 2.56..2.66 in) and the body stands up above it, to Z 3.80 in.
+- The bracket: a shelf on the flange (Z 2.66..2.91; four M4 self-tapping up through the flange's 5 mm holes), right
+  beside the intake's side channel; a short bar at Z 2.94..3.30 (above a POLLEN's 2.80); a tab flat on the FRONT flange
+  of that channel, bolted with two M4 x 12 through its holes at Z 3.81 and 4.44 in, nuts behind (ahead of the Viper
+  slide); and a wing flat on the channel's outer face whose four bumps sit in the web's holes, so the bracket cannot
+  turn or slide on the two screws.
 
-The servo and hub in the assemblies are envelopes drawn from goBILDA's STEP files (2000-0025-0002, 1908-0025-0032,
-gobilda.com), not the files themselves: swap goBILDA's in Onshape if you want the detail.
+The servo and hub in the assemblies are envelopes (the servo checked against the SWYFT model in the robot's STEP to
+0.2 mm; the hub drawn from goBILDA's 1908-0025-0032), not the vendors' files: swap theirs in Onshape for the detail.
 """
 import math
 import os
@@ -45,15 +47,18 @@ BOSS_H = 5.0
 HUB_Z0 = FLAP_Z1 + BOSS_H            # 46.91: the hub's counterbored face, on the wheel's boss
 HUB_H = 8.0                          # goBILDA 1908: 32 mm across, 8 mm overall
 HUB_Z1 = HUB_Z0 + HUB_H              # 54.91: the hub's spline side
-CAP_GAP = 0.5                        # between the hub and the servo's top cap
-# The servo, from goBILDA's STEP (servo frame, mm): body X -20..20, Y -10..10; case bottom Z -27.2; flange Z 0..4
-# (its holes 48 x 10 apart, slotted); top cap to Z 12.8; spline r 3.05 at X -10 (10 mm from the end), to Z 16.9.
-SERVO_TOP = 12.8
-SERVO_BOTTOM = -27.2
-FLANGE_T = 4.0
-FLANGE_HALF_L = 27.15
+# The servo: a SWYFT Speed servo (mentor's choice, 24 Nov 2026), measured from its model in the robot's STEP (servo frame,
+# mm): body X -20..20, Y -10..10; case bottom Z -29.0; flange Z 0..2.5 (its holes 48 x 10 apart, 5 mm: M4); top cap to
+# Z 11.2; output boss r 6 to Z 12.7, where the hub seats; spline r 3 at X -10 (10 mm from the end), to Z 16.9. It must
+# run in continuous rotation (check SWYFT's programmer) and has a 25-tooth spline for the goBILDA hub.
+SERVO_TOP = 11.2
+BOSS_TOP = 12.7                       # the hub's spline side seats here
+SPLINE_TOP = 16.9
+SERVO_BOTTOM = -29.0
+FLANGE_T = 2.5
+FLANGE_HALF_L = 27.0
 SPLINE_X = -10.0
-SERVO_Z0 = HUB_Z1 + CAP_GAP + SERVO_TOP   # 68.21: robot Z of the servo frame's Z 0 (the flange's body-side face)
+SERVO_Z0 = HUB_Z1 + BOSS_TOP              # 67.61: robot Z of the servo frame's Z 0 (the flange's body-side face)
 
 # ---- the wheel ----------------------------------------------------------------------------------------------------
 WHEEL_OD = 2.3 * IN          # 58.4: its front X 10.35 stays inside the 18 in cube (X 10.43 from the back wall) with the
@@ -76,7 +81,7 @@ HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for 
 # POLLEN's top, joins a shelf on the servo's flange, right beside the channel. The servo sits right in front of the
 # front drive wheel and inboard of the FLOWER stick's arm, spline down, body pointing back; the wheel spins under it.
 PLATE_T = 0.25 * IN                   # the shelf, 6.35 mm
-PLATE_Z0 = SERVO_Z0                   # 68.21 (2.69 in): the shelf's underside on the flange
+PLATE_Z0 = SERVO_Z0                   # 67.61 (2.66 in): the shelf's underside on the flange
 SERVO_CUT_L, SERVO_CUT_W = 40.8, 20.6  # the body passes up through it
 SERVO_HOLE_L, SERVO_HOLE_W = 48.0, 10.0
 AXLE = (9.22, 5.95)                   # in, |Y|: right in front of the front drive wheel (|Y| 5.44..6.90); the servo
@@ -95,7 +100,7 @@ SHELF_Y = (5.38, 6.52)                # |Y| in: just outboard of the side channe
 WEB_Y = 5.363                         # |Y| in: the side channel's outer face (its web, 2.5 mm thick; the slide is inside)
 WING_T = 4.0                          # mm: the wing lies flat on that face, outboard of it
 WING_X = (7.74, 8.50)                 # in: back to the front flange's corner; clear of the spinning mecanum
-WING_Z = (2.69, 4.75)                 # in
+WING_Z = (2.66, 4.75)                 # in (its bottom is the shelf's underside)
 WEB_BUMPS = ((7.876, 3.481), (7.875, 4.130), (8.181, 3.491), (8.181, 4.121))   # in: four of the web's holes (X, Z), 4.5 and 4 mm
 BUMP_D, BUMP_H = 3.7, 1.8             # mm: shorter than the web is thick, so nothing reaches the slide
 
@@ -147,9 +152,9 @@ def bracket(side):
     shelf = shelf.cut(cq.Workplane("XY").workplane(offset=z0).center(cx, ay).rect(SERVO_CUT_L, SERVO_CUT_W)
                       .extrude(PLATE_T))
     for sx in (-1, 1):
-        for sy in (-1, 1):                               # M3 self-tapping up through the flange's slots
+        for sy in (-1, 1):                               # M4 self-tapping (3.3 mm pilot) up through the flange's 5 mm holes
             shelf = shelf.cut(cq.Workplane("XY").workplane(offset=z0)
-                              .center(cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2).circle(1.25).extrude(PLATE_T))
+                              .center(cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2).circle(1.65).extrude(PLATE_T))
     # the bar: from the tab out to the shelf, its top meeting the shelf's top
     bar = cq.Workplane("XY").box((BAR_X[1] - BAR_X[0]) * I, (SHELF_Y[0] + 0.3 - TAB_Y[0]) * I,
                                  (BAR_Z[1] - BAR_Z[0]) * I, centered=False).translate(
@@ -180,16 +185,18 @@ def bracket(side):
 
 
 def servo_envelope():
-    """The servo in its own frame (goBILDA's): case bottom Z -27.2, flange Z 0..4, top cap to 12.8, spline at X -10."""
+    """The servo in its own frame (SWYFT Speed): case bottom Z -29.0, flange Z 0..2.5, top cap to 11.2, output boss to
+    12.7, spline at X -10 to 16.9."""
     body = cq.Workplane("XY").box(40, 20, -SERVO_BOTTOM, centered=(True, True, False)).translate((0, 0, SERVO_BOTTOM))
     flange = cq.Workplane("XY").box(2 * FLANGE_HALF_L, 20, FLANGE_T, centered=(True, True, False))
     for sx in (-1, 1):
         for sy in (-1, 1):
             flange = flange.cut(cq.Workplane("XY").center(sx * SERVO_HOLE_L / 2, sy * SERVO_HOLE_W / 2)
-                                .circle(1.7).extrude(FLANGE_T))
+                                .circle(2.5).extrude(FLANGE_T))
     cap = cq.Workplane("XY").box(40, 20, SERVO_TOP - FLANGE_T, centered=(True, True, False)).translate((0, 0, FLANGE_T))
-    spline = cq.Workplane("XY").center(SPLINE_X, 0).circle(3.05).extrude(16.9 - SERVO_TOP).translate((0, 0, SERVO_TOP))
-    return body.union(flange).union(cap).union(spline)
+    boss = cq.Workplane("XY").center(SPLINE_X, 0).circle(6.0).extrude(BOSS_TOP - SERVO_TOP).translate((0, 0, SERVO_TOP))
+    spline = cq.Workplane("XY").center(SPLINE_X, 0).circle(3.0).extrude(SPLINE_TOP - BOSS_TOP).translate((0, 0, BOSS_TOP))
+    return body.union(flange).union(cap).union(boss).union(spline)
 
 
 def hub_envelope():
@@ -223,8 +230,8 @@ def module(side):
         screws = s if screws is None else screws.union(s)
     cx = ax + SPLINE_X
     for sx in (-1, 1):
-        for sy in (-1, 1):                                    # M3 x 10, up through the flange into the shelf
-            s = cylinder(1.5, SERVO_Z0 - FLANGE_T, SERVO_Z0 + 6.0, cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2)
+        for sy in (-1, 1):                                    # M4 x 10, up through the flange into the shelf
+            s = cylinder(2.0, SERVO_Z0 - FLANGE_T, SERVO_Z0 + 6.0, cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2)
             screws = screws.union(s)
     for hz in FLANGE_HOLES_Z:                                 # M4 x 12 through the tab and the flange, nut behind
         s = (cq.Workplane("YZ").center(FLANGE_Y * IN, hz * IN).circle(2.0).extrude(12.0)

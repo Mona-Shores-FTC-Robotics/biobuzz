@@ -215,7 +215,7 @@ def draw(side, mod, fixed, stick, mec, res):
                  xytext=(9.6, s * 4.5), **kw)
     top.annotate("front drive wheel", xy=(6.4, s * 6.2), xytext=(5.5, s * 8.7), **kw)
     top.annotate("stick arm (drawn down;\nthe servo is 0.26 in\ninboard of it)", xy=(10.2, s * 6.84), xytext=(9.6, s * 8.6), **kw)
-    elev.annotate("servo, body back,\nup to Z 3.76", xy=(8.7, 3.6), xytext=(6.0, 5.3), **kw)
+    elev.annotate("servo, body back,\nup to Z 3.80", xy=(8.7, 3.6), xytext=(6.0, 5.3), **kw)
     elev.annotate("goBILDA 1908 25T hub", xy=(9.3, 2.0), xytext=(9.9, 2.9), **kw)
     elev.annotate("%.1f in TPU wheel,\nflaps Z 0.60..1.65" % (P.WHEEL_OD / 25.4), xy=(9.9, 1.1), xytext=(9.95, 0.15), **kw)
     lines = ["Clearances (in), %s corner:" % side]

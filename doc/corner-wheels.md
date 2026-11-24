@@ -21,7 +21,9 @@ CAD changes three things:
 - **The wheel sits right in front of the drive wheel** (the mentor's call), its servo inboard of the stick's right
   arm (|Y| 6.60..7.08). The left arm (|Y| 5.99..6.47 today) moves out to match.
 - **The wheel is 2.3 in, not 2.5.** The axle had to come forward for the servo to clear the spinning mecanum.
-- **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it.
+- **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it, and a wing
+  with four bumps in the channel's web holes locks it against turning or sliding: the wheel will be hit hard and often.
+- **The servo is a SWYFT Speed** (mentor's choice: more robust), in continuous mode.
 
 ## Where the numbers come from
 
@@ -86,20 +88,23 @@ The robot is then 16.3 in wide, inside both 18 in limits (R102 at the start, R10
 **How a corner goes together, on the robot's CAD** (prototype 3, 24 Nov 2026; `cad/corner-wheels/README.md` has the
 parts list):
 
-- **The servo is upside down, spline down into the hub.** A standard servo's flange sits near its spline end (goBILDA
-  2000 series: the case is 27.2 mm below the flange and 12.8 mm above it, with the spline 4.1 mm more). So upside
-  down, the flange is near the bottom and the body stands up above it: flange Z 2.53..2.69, body up to Z 3.76.
+- **The servo, a SWYFT Speed, is upside down, spline down into the hub.** A standard servo's flange sits near its
+  spline end (the SWYFT, measured from its model in the robot's STEP: the case is 29.0 mm below the flange and
+  11.2 mm above it, with the output boss and spline 5.7 mm more). So upside down, the flange is near the bottom and the
+  body stands up above it: flange Z 2.56..2.66, body up to Z 3.80.
 - **The wheel sits right in front of the front drive wheel,** with the servo above it, body pointing back toward the
   drive wheel and 0.26 in inboard of the stick's right arm. Axle at X 9.22, |Y| 5.95; servo |Y| 5.56..6.34.
 - **The printed bracket bolts to the front flange of the intake's side channel,** with two M4 × 12 through its holes
   at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
   - From that tab a short bar at Z 2.94..3.30, above a POLLEN's top (2.80), joins a shelf on the servo's flange:
-    four M3 up through the flange.
+    four M4 self-tapping up through the flange's 5 mm holes.
+  - A wing lies flat on the channel's outer face, with four bumps in the web's holes (shorter than the web is thick,
+    so nothing reaches the slide). The two screws hold it on; the bumps stop it turning or sliding.
 - **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
   counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
 - **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
-  - servo 0.34 in from the stick, 0.27 in from the mecanum;
-  - bracket 0.46 and 0.31 in;
+  - servo 0.34 in from the stick, 0.28 in from the mecanum;
+  - bracket 0.48 and 0.29 in;
   - wheel 1.28 and 0.52 in.
 - **Size:**
   - The front is X 10.36, 17.93 in from the back wall; with the stick retracted, the wheels are the front of the
