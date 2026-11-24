@@ -264,6 +264,22 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
   4. Run **LoopTimeBaseline** before the line goes in and after, and put both numbers in the PR (CLAUDE.md, Loop
      time).
 
+## The GARDEN guides on the FLOWER sticks (24 Nov 2026, both robots, stick out on the bench)
+
+- [ ] **Measure the GARDEN guides on both robots' FLOWER sticks.** The drill and the Visualizer sim use a
+      0.5 in PLACEHOLDER for them (`stickGuidePlaceholderIn`, Visualizer #195); the guides are not in the 31 Oct
+      CAD (`doc/corner-wheels.md`).
+  - For each blue/white guide, on 19429 and 20245, with the stick out (162°):
+    - how far it sticks out sideways past the stick's edge, in inches;
+    - its angle to the robot's forward direction;
+    - its length along the stick;
+    - its height above the tile at its lowest edge.
+  - Run the TeleOp corner gather (Triangle) at our GARDEN **facing the side wall** 5 times and count the POLLEN each
+    time, then 5 times **facing the audience wall** for comparison. (With the real 9.7 in mouth, the sim gets 3
+    facing the side wall only because of the placeholder.)
+  - The numbers go into the Visualizer sim's `mona-shores.json` (`stickGuidePlaceholderIn` → a measured guide), and
+    into `RobotDesign` here if the Java simulator models the stick.
+
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
 At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
