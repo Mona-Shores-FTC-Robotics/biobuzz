@@ -92,12 +92,13 @@ parts list):
   spline end (the SWYFT, measured from its model in the robot's STEP: the case is 29.0 mm below the flange and
   11.2 mm above it, with the output boss and spline 5.7 mm more). So upside down, the flange is near the bottom and the
   body stands up above it: flange Z 2.56..2.66, body up to Z 3.80.
-- **The wheel sits right in front of the front drive wheel,** with the servo above it, body pointing back toward the
-  drive wheel and 0.26 in inboard of the stick's right arm. Axle at X 9.22, |Y| 5.95; servo |Y| 5.56..6.34.
+- **The wheel sits right in front of the front drive wheel,** with the servo above it, its body lying side to side, inboard
+  of the spline, so nothing reaches back toward the intake (the real robot has no room there). Axle at X 9.22,
+  |Y| 5.95; servo X 8.83..9.61, |Y| 4.49..6.62.
 - **The printed bracket bolts to the front flange of the intake's side channel,** with two M4 × 12 through its holes
   at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
-  - From that tab a short bar at Z 2.94..3.30, above a POLLEN's top (2.80), joins a shelf on the servo's flange:
-    four M4 self-tapping up through the flange's 5 mm holes.
+  - From that tab a shelf runs straight forward onto the servo's flange: four M4 self-tapping up through the
+    flange's 5 mm holes, with a wall in front of the servo's body and one behind it.
   - It wraps the channel on three sides: the tab over the whole front flange, a wing on the outer face, and a belly
     under the channel's open bottom with two M4 up into the Dual Block there. Seven bumps sit in the channel's
     holes (shorter than its 2.5 mm wall, so nothing reaches the slide); the screws hold it on, the bumps stop it
@@ -105,8 +106,8 @@ parts list):
 - **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
   counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
 - **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
-  - servo 0.34 in from the stick, 0.28 in from the mecanum;
-  - bracket 0.48 and 0.26 in;
+  - servo 0.34 in from the stick, 1.25 in from the mecanum;
+  - bracket 0.32 and 0.26 in;
   - wheel 1.28 and 0.52 in.
 - **Size:**
   - The front is X 10.36, 17.93 in from the back wall; with the stick retracted, the wheels are the front of the

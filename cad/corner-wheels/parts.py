@@ -21,10 +21,12 @@ How a corner goes together, from the floor up (cad/corner-wheels/README.md has t
   screws come up through the wheel from counterbores in its underside into the hub's threaded holes on the 16 mm
   circle.
 - The servo, a SWYFT Speed servo in continuous mode (40 x 20 body, 48 x 10 mm flange holes, 25-tooth spline), upside
-  down, spline into the hub, its body pointing back. Its flange is near its spline end, so upside down the flange is
+  down, spline into the hub, its body lying across the robot, inboard of the spline (mentor, 24 Nov 2026: nothing
+  may reach back toward the intake). Its flange is near its spline end, so upside down the flange is
   near the bottom (Z 2.56..2.66 in) and the body stands up above it, to Z 3.80 in.
-- The bracket: a shelf on the flange (Z 2.66..2.91; four M4 self-tapping up through the flange's 5 mm holes), right
-  beside the intake's side channel; a short bar at Z 2.94..3.30 (above a POLLEN's 2.80); a tab flat on the FRONT flange
+- The bracket: a shelf on the flange (Z 2.66..2.91; four M4 self-tapping up through the flange's 5 mm holes), straight
+  out in front of the intake's side channel, with a wall in front of the servo's body and one behind it; a tab flat on
+  the FRONT flange
   of that channel, bolted with two M4 x 12 through its holes at Z 3.81 and 4.44 in, nuts behind (ahead of the Viper
   slide); a wing flat on the channel's outer face whose four bumps sit in the web's holes; and a belly under the
   channel's open bottom, two M4 x 10 up into the Dual Block there. So it wraps the channel on three sides.
@@ -58,6 +60,7 @@ SERVO_BOTTOM = -29.0
 FLANGE_T = 2.5
 FLANGE_HALF_L = 27.0
 SPLINE_X = -10.0
+SPLINE_OFF = -SPLINE_X                # mm: the body's middle is this far inboard of the spline
 SERVO_Z0 = HUB_Z1 + BOSS_TOP              # 67.61: robot Z of the servo frame's Z 0 (the flange's body-side face)
 
 # ---- the wheel ----------------------------------------------------------------------------------------------------
@@ -77,15 +80,18 @@ HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for 
 # ---- the bracket ---------------------------------------------------------------------------------------------------
 # From the mentor's robot STEP of 24 Nov 2026 (both front corners as built). One printed part per corner. A tab lies flat
 # on the FRONT flange of the intake's side channel (the 5 Hole Lowside U-Channel the intake's Viper slide runs inside)
-# and bolts through two of its holes, nuts behind in the gap ahead of the slide. A short bar from the tab, just above a
-# POLLEN's top, joins a shelf on the servo's flange, right beside the channel. The servo sits right in front of the
-# front drive wheel and inboard of the FLOWER stick's arm, spline down, body pointing back; the wheel spins under it.
+# and bolts through two of its holes, nuts behind in the gap ahead of the slide. A shelf on the servo's flange runs
+# straight forward from the tab. The servo sits right in front of the front drive wheel and inboard of the FLOWER stick's
+# arm, spline down, its body across the robot and inboard of the spline; the wheel spins under it. Everything but the
+# wing and the belly, which sit on the channel itself, is ahead of the channel's front flange.
 PLATE_T = 0.25 * IN                   # the shelf, 6.35 mm
 PLATE_Z0 = SERVO_Z0                   # 67.61 (2.66 in): the shelf's underside on the flange
 SERVO_CUT_L, SERVO_CUT_W = 40.8, 20.6  # the body passes up through it
 SERVO_HOLE_L, SERVO_HOLE_W = 48.0, 10.0
-AXLE = (9.22, 5.95)                   # in, |Y|: right in front of the front drive wheel (|Y| 5.44..6.90); the servo
-                                      # |Y| 5.56..6.34, 0.26 in inboard of the stick's right arm (|Y| 6.60..7.08)
+CAGE_T = 5.0                          # mm: the walls in front of and behind the servo's body
+CAGE_H = 25.0                         # mm above the shelf's underside (the body stands 29)
+AXLE = (9.22, 5.95)                   # in, |Y|: right in front of the front drive wheel (|Y| 5.44..6.90); the servo,
+                                      # body inboard, X 8.83..9.61, |Y| 4.49..6.62 with its flange
 FLANGE_X = 8.50                       # in: the side channel's front flange, its front face
 FLANGE_Y = 5.049                      # |Y| in: the line of that flange's holes (measured in the robot's STEP)
 FLANGE_HOLES_Z = (3.806, 4.436)       # in: two of its holes (4 mm, every 8 mm from Z 3.176), 16 mm apart; the nuts clear
@@ -95,10 +101,6 @@ TAB_Y = (4.90, 5.40)                  # |Y| in: over the whole 12 mm flange (4.8
 FLANGE_BUMPS_Z = (3.176, 3.491, 4.121)  # in: the flange's other holes under the tab get a bump each (behind them: the
                                       # Dual Block and the nuts' gap; the bumps stop inside the 2.5 mm flange)
 TAB_TOP = 4.70                        # in
-BAR_X = (8.50, 9.00)                  # in
-BAR_Z = (2.94, 3.30)                  # in: its underside 0.14 in above a POLLEN's top (2.80)
-SHELF_X = (7.74, 9.97)                # in: around the servo's flange (its tabs X 7.76..9.89)
-SHELF_Y = (5.38, 6.52)                # |Y| in: just outboard of the side channel's web (5.36)
 WEB_Y = 5.363                         # |Y| in: the side channel's outer face (its web, 2.5 mm thick; the slide is inside)
 WING_T = 4.0                          # mm: the wing lies flat on that face, outboard of it
 WING_X = (7.74, 8.50)                 # in: back to the front flange's corner; clear of the spinning mecanum
@@ -151,24 +153,22 @@ def bracket(side):
     """The bracket in the robot frame (mm), |Y| outboard as +Y (the left side as built; the caller mirrors the right)."""
     I = IN
     z0 = PLATE_Z0
-    shelf = (cq.Workplane("XY").workplane(offset=z0)
-             .center((SHELF_X[0] + SHELF_X[1]) / 2 * I, (SHELF_Y[0] + SHELF_Y[1]) / 2 * I)
-             .rect((SHELF_X[1] - SHELF_X[0]) * I, (SHELF_Y[1] - SHELF_Y[0]) * I).extrude(PLATE_T)
-             .edges("|Z").fillet(2.0))
     ax, ay = AXLE[0] * I, AXLE[1] * I
-    cx = ax + SPLINE_X                                   # the servo body's middle, behind the spline
-    shelf = shelf.cut(cq.Workplane("XY").workplane(offset=z0).center(cx, ay).rect(SERVO_CUT_L, SERVO_CUT_W)
-                      .extrude(PLATE_T))
+    by = ay - SPLINE_OFF                                  # the servo body's middle, inboard of the spline
+    x0, x1 = FLANGE_X * I, ax + SERVO_CUT_W / 2 + CAGE_T  # the shelf: from the channel's front flange to the cage's front
+    y0, y1 = by - FLANGE_HALF_L - 3.0, by + FLANGE_HALF_L + 3.0
+    shelf = (cq.Workplane("XY").box(x1 - x0, y1 - y0, PLATE_T, centered=False).translate((x0, y0, z0))
+             .edges("|Z").fillet(2.0))
+    # the cage: a wall in front of the servo's body and one behind it, up its sides, so a hit on the wheel or the body
+    # goes into the shelf and the tab, not the servo's flange screws
+    for wx0, wx1 in ((x0 + TAB_T, ax - SERVO_CUT_W / 2), (ax + SERVO_CUT_W / 2, x1)):
+        shelf = shelf.union(cq.Workplane("XY").box(wx1 - wx0, SERVO_CUT_L, CAGE_H, centered=False)
+                            .translate((wx0, by - SERVO_CUT_L / 2, z0)))
+    shelf = shelf.cut(cq.Workplane("XY").box(SERVO_CUT_W, SERVO_CUT_L, CAGE_H + PLATE_T, centered=False)
+                      .translate((ax - SERVO_CUT_W / 2, by - SERVO_CUT_L / 2, z0)))
     for sx in (-1, 1):
         for sy in (-1, 1):                               # M4 self-tapping (3.3 mm pilot) up through the flange's 5 mm holes
-            shelf = shelf.cut(cq.Workplane("XY").workplane(offset=z0)
-                              .center(cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2).circle(1.65).extrude(PLATE_T))
-    # the bar: from the tab out to the shelf, its top meeting the shelf's top
-    bar = cq.Workplane("XY").box((BAR_X[1] - BAR_X[0]) * I, (SHELF_Y[0] + 0.3 - TAB_Y[0]) * I,
-                                 (BAR_Z[1] - BAR_Z[0]) * I, centered=False).translate(
-        (BAR_X[0] * I, TAB_Y[0] * I, BAR_Z[0] * I))
-    step = cq.Workplane("XY").box((BAR_X[1] - BAR_X[0]) * I, 0.3 * I, (BAR_Z[1] * I) - z0, centered=False).translate(
-        (BAR_X[0] * I, SHELF_Y[0] * I, z0))              # where the bar comes down onto the shelf
+            shelf = shelf.cut(cylinder(1.65, z0, z0 + PLATE_T, ax + sx * SERVO_HOLE_W / 2, by + sy * SERVO_HOLE_L / 2))
     # the tab, flat on the channel's whole front flange from the belly up, two M4 slots (2 mm up and down, 0.5 mm sideways, for
     # the CAD's error) and bumps into the flange's other holes. Nothing stands in front of it, so both screw heads are clear.
     tab = cq.Workplane("XY").box(TAB_T, (TAB_Y[1] - TAB_Y[0]) * I, TAB_TOP * I - z0, centered=False).translate(
@@ -193,7 +193,7 @@ def bracket(side):
                                    centered=False).translate((BELLY_X[0] * I, BELLY_Y[0] * I, z0))
     for hx in BLOCK_HOLES_X:
         belly = belly.cut(cylinder(M4 / 2, z0, BELLY_TOP * I, hx * I, BLOCK_HOLE_Y * I))
-    return shelf.union(bar).union(step).union(tab).union(wing).union(belly)
+    return shelf.union(tab).union(wing).union(belly)
 
 
 def servo_envelope():
@@ -235,9 +235,10 @@ def module(side):
     ax, ay = AXLE[0] * IN, AXLE[1] * IN
     parts = {}
     parts["bracket"] = bracket(side)
-    # Upside down (half a turn about X), then half a turn about Z so the body points back; spline over the axle.
-    parts["servo"] = (servo_envelope().rotate((0, 0, 0), (1, 0, 0), 180).rotate((0, 0, 0), (0, 0, 1), 180)
-                      .translate((ax + SPLINE_X, ay, SERVO_Z0)))
+    # Upside down (half a turn about X), then a quarter turn about Z so the body lies across the robot, inboard of the
+    # spline; the spline over the axle.
+    parts["servo"] = (servo_envelope().rotate((0, 0, 0), (1, 0, 0), 180).rotate((0, 0, 0), (0, 0, 1), -90)
+                      .translate((ax, ay - SPLINE_OFF, SERVO_Z0)))
     parts["hub"] = hub_envelope().translate((ax, ay, HUB_Z0))
     parts["wheel"] = flap_wheel().translate((ax, ay, FLAP_Z0 - BOSS_H))
     screws = None
@@ -246,10 +247,10 @@ def module(side):
         s = cylinder(2.0, head_top, head_top + 30.0, ax + x, ay + y).union(
             cylinder(3.5, head_top - 4.0, head_top, ax + x, ay + y))
         screws = s if screws is None else screws.union(s)
-    cx = ax + SPLINE_X
+    by = ay - SPLINE_OFF
     for sx in (-1, 1):
         for sy in (-1, 1):                                    # M4 x 10, up through the flange into the shelf
-            s = cylinder(2.0, SERVO_Z0 - FLANGE_T, SERVO_Z0 + 6.0, cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2)
+            s = cylinder(2.0, SERVO_Z0 - FLANGE_T, SERVO_Z0 + 6.0, ax + sx * SERVO_HOLE_W / 2, by + sy * SERVO_HOLE_L / 2)
             screws = screws.union(s)
     for hz in FLANGE_HOLES_Z:                                 # M4 x 12 through the tab and the flange, nut behind
         s = (cq.Workplane("YZ").center(FLANGE_Y * IN, hz * IN).circle(2.0).extrude(12.0)

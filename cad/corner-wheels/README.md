@@ -8,7 +8,8 @@ the rules: [`doc/corner-wheels.md`](../../doc/corner-wheels.md).
 model:
 
 - The wheel sits **right in front of the front drive wheel**. The servo above it stays **inboard of the FLOWER stick's
-  arm**, spline down, its body pointing back.
+  arm**, spline down, its body **lying side to side, inboard of the spline**: nothing reaches back toward the
+  intake, where the real robot has no room (mentor, 24 Nov 2026).
 - The printed bracket bolts to the **front flange of the intake's side channel**, the 5 Hole Lowside U-Channel the
   intake's Viper slide runs inside. Its two M4 nuts sit in the gap ahead of the slide, so nothing reaches the slide.
 - It **wraps the channel on three sides**, all one part:
@@ -60,15 +61,16 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
 | Hub | 1.85..2.16 |
 | Servo boss and top cap, then flange (upside down) | 2.16..2.66 |
 | Shelf | 2.66..2.91 |
-| Bar to the tab | 2.94..3.30, above a POLLEN's top (2.80) |
 | Servo body | up to 3.80 |
+| Walls in front of and behind the servo's body | 2.66..3.64 |
 | Belly, under the channel | 2.66..2.86 |
 | Tab | 2.66..4.70 |
 | Wing, on the channel's outer face | 2.66..4.75 |
 
 **Positions:**
 - **Axle:** X 9.22, |Y| 5.95, right in front of the drive wheel (|Y| 5.44..6.90).
-- **Servo:** X 7.76..9.90 with its tabs, |Y| 5.56..6.34.
+- **Servo:** X 8.83..9.61, |Y| 4.49..6.62 with its flange, all ahead of the channel's front flange (X 8.50).
+  Its inboard end is over the intake mouth's edge, at Z 2.56 and up: a POLLEN in the mouth clears it by about 0.14 in.
 - **Wheel:** X 8.08..10.36, |Y| 4.81..7.09. Its inner edge reaches the intake mouth's edge (4.87); its outer edge
   stays inside the frame's side (7.77).
 
@@ -78,8 +80,8 @@ Measured with the stick swept 162° up from its down pose, and each mecanum spun
 
 | | Stick's swing | Spinning mecanum |
 |---|---|---|
-| Servo | 0.34 in | 0.28 in |
-| Bracket | 0.48 in | 0.26 in |
+| Servo | 0.34 in | 1.25 in |
+| Bracket | 0.32 in | 0.26 in (the wing and belly, on the channel) |
 | Wheel | 1.28 in | 0.52 in |
 | Hub | 1.21 in | 1.00 in |
 
