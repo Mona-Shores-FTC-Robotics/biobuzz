@@ -221,7 +221,7 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       same way. **Good:** WallPark's park is done (robot still) by 30 s on the robot's PLAY clock, it ends square
       to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
       point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
-      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #PRNUM]
+      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
 
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 
