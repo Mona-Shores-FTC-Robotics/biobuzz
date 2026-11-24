@@ -221,6 +221,26 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       pieces and dwells as before. **Stop:** a loaded FLOWER's pick ends at 1.3 s with pieces left in it →
       `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #724]
 
+## Corner wheels: the build team's 10-minute hand test (23 Nov idea, either robot, no code)
+
+- [ ] **Does an inward-spinning corner wheel rake a POLLEN into the mouth?**
+  - **Set up:**
+    - Zip-tie a CR servo with any 2 to 2.5 in soft wheel (TPU, or a SWYFT star wheel) on a vertical axle at
+      one front corner, ahead of the drive wheel: about X 8.9, 6.9 in out from the centre line, the wheel's
+      middle about 1.4 in off the tile. The numbers and a printable wheel are in `doc/corner-wheels.md` and
+      `cad/corner-wheels/`.
+    - Spin it with a servo tester or programmer in continuous mode, its front moving inward. No OpMode needed.
+    - Push the robot by hand with the stick up and the intake running (Basic Drive, intake held).
+  - **Do, 5 times each:**
+    1. Nose-in to a wall with a POLLEN pinned at that corner.
+    2. Along a wall with a POLLEN against the frame's corner.
+    3. With 4 balls already in the lane: the wheel must not drag in a 5th (G407).
+  - **Film from above.**
+  - **Good:** 4 of 5 of runs 1 and 2 end with the ball at the roller; the stick, lowered by hand, clears the wheel
+    and the servo.
+  - **Stop:** a ball wedged between the wheel and the drive wheel, or bounced off. Bring the clip to the corner-wheel
+    PR.
+
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
 At Fruitport every Auto path sped up 2–3× slower than the same robot under a driver: 3 → 30 in/s
