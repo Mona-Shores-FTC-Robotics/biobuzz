@@ -92,6 +92,8 @@ Measured with the stick swept 162° up from its down pose, and each mecanum spun
 
 ## Check on the robot before printing
 
+0. Take off the angled guide at each front corner that funnels pieces into the intake (the corner wheels do its job).
+   It isn't in the robot's CAD, so the clearances here assume it's gone.
 1. Measure from the back wall to the front of the drive wheels. In the CAD it's 15.14 in. The corner wheels add
    2.79 in beyond that, to 17.93 in.
 2. Find the side channel's front-flange holes at 3.81 and 4.44 in up from the tile. Check that an M4 nut fits behind
