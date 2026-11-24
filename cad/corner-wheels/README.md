@@ -11,8 +11,11 @@ model:
   arm**, spline down, its body pointing back.
 - The printed bracket bolts to the **front flange of the intake's side channel**, the 5 Hole Lowside U-Channel the
   intake's Viper slide runs inside. Its two M4 nuts sit in the gap ahead of the slide, so nothing reaches the slide.
-- A **wing** wraps the channel's front corner and lies flat on its outer face, with **four bumps in the web's holes**:
-  the screws hold it on, the bumps stop it turning or sliding when the wheel takes a hit.
+- It **wraps the channel on three sides**, all one part:
+  - **Front:** a 5 mm tab over the whole front flange, two M4 through it, and bumps in the flange's other three holes.
+  - **Outer face:** a wing with four bumps in the web's holes.
+  - **Bottom:** a belly under the channel's open end, two M4 up into the Dual Block there.
+  The screws hold it on; the seven bumps stop it turning or sliding when the wheel takes a hit.
 - The servo is a **SWYFT Speed** (mentor's choice: more robust), in continuous mode.
 
 The modules are drawn for the **right** corner's stick arm (|Y| 6.60..7.08). **The left module is its mirror image**,
@@ -26,11 +29,15 @@ servo goes: **the left corner needs that arm moved first.**
 **To the intake side channel's front flange,** the narrow strip of the channel that faces forward, 12 mm wide, just
 ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3.18 in up.
 
-- **The holes:** the tab uses two of them, **Z 3.81 and 4.44 in**, the 3rd and 5th from the bottom.
+- **The holes:** at |Y| 5.05 in. The tab bolts through two of them, **Z 3.81 and 4.44 in**, the 3rd and 5th from
+  the bottom, and has a bump in the 1st, 2nd and 4th.
 - **The bolts:** M4 × 12 from the front, with nuts behind the flange.
 - **Why not the two lowest holes:** behind them a nut would sit only 0.02 in above the Dual Block inside the channel.
 - **The bumps:** 3.7 mm across, 1.8 mm tall, into the web's holes at X 7.88 and 8.18 in, Z 3.48 and 4.13 in. The web is
   2.5 mm thick, so they stop short of the slide inside.
+- **The belly:** the channel's bottom end is open, with the Dual Block's bottom face flush at Z 2.86 in. The frame rail
+  under it stops at X 7.55, so the block's holes at X 7.87 and 8.18 (|Y| 5.05) are open from below. The CAD draws the
+  8.18 hole tapped (3.3 mm) and the 7.87 one at 4.2 mm, so check which ones thread.
 
 ## Parts per robot
 
@@ -43,6 +50,7 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
 | M4 × 30 socket head | 8 | Wheel to hub, from below, heads in the wheel's counterbores |
 | M4 × 10 self-tapping (or pan head into a 3.3 mm pilot) | 8 | Up through the servo's flange into the shelf |
 | M4 × 12 and M4 nuts | 4 + 4 | Tab to the channel's front flange |
+| M4 × 10 button head | 4 | Up through the belly into the Dual Block (two per corner, where the holes thread) |
 
 ## The stack, from the floor up (inches)
 
@@ -54,7 +62,8 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
 | Shelf | 2.66..2.91 |
 | Bar to the tab | 2.94..3.30, above a POLLEN's top (2.80) |
 | Servo body | up to 3.80 |
-| Tab | 2.94..4.70 |
+| Belly, under the channel | 2.66..2.86 |
+| Tab | 2.66..4.70 |
 | Wing, on the channel's outer face | 2.66..4.75 |
 
 **Positions:**
@@ -70,7 +79,7 @@ Measured with the stick swept 162° up from its down pose, and each mecanum spun
 | | Stick's swing | Spinning mecanum |
 |---|---|---|
 | Servo | 0.34 in | 0.28 in |
-| Bracket | 0.48 in | 0.29 in |
+| Bracket | 0.48 in | 0.26 in |
 | Wheel | 1.28 in | 0.52 in |
 | Hub | 1.21 in | 1.00 in |
 
@@ -87,10 +96,12 @@ Measured with the stick swept 162° up from its down pose, and each mecanum spun
    2.79 in beyond that, to 17.93 in.
 2. Find the side channel's front-flange holes at 3.81 and 4.44 in up from the tile. Check that an M4 nut fits behind
    each, in front of the Viper slide.
-3. Check the four web holes the bumps go in are open on the channel's outside (X 7.88 and 8.18 in, Z 3.48 and
+3. Check which of the Dual Block's two front holes (X 7.87 and 8.18 in from the axle middle, under the channel)
+   thread an M4.
+4. Check the four web holes the bumps go in are open on the channel's outside (X 7.88 and 8.18 in, Z 3.48 and
    4.13 in), and the bumps don't touch the slide.
-4. Set both SWYFT servos to continuous rotation with SWYFT's programmer before fitting.
-5. Lower the stick slowly by hand past the servo before running it powered.
+5. Set both SWYFT servos to continuous rotation with SWYFT's programmer before fitting.
+6. Lower the stick slowly by hand past the servo before running it powered.
 
 ## Files
 

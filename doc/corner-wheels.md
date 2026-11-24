@@ -22,7 +22,7 @@ CAD changes three things:
   arm (|Y| 6.60..7.08). The left arm (|Y| 5.99..6.47 today) moves out to match.
 - **The wheel is 2.3 in, not 2.5.** The axle had to come forward for the servo to clear the spinning mecanum.
 - **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it, and a wing
-  with four bumps in the channel's web holes locks it against turning or sliding: the wheel will be hit hard and often.
+  and a belly under it lock it on three sides: the wheel will be hit hard and often.
 - **The servo is a SWYFT Speed** (mentor's choice: more robust), in continuous mode.
 
 ## Where the numbers come from
@@ -98,13 +98,15 @@ parts list):
   at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
   - From that tab a short bar at Z 2.94..3.30, above a POLLEN's top (2.80), joins a shelf on the servo's flange:
     four M4 self-tapping up through the flange's 5 mm holes.
-  - A wing lies flat on the channel's outer face, with four bumps in the web's holes (shorter than the web is thick,
-    so nothing reaches the slide). The two screws hold it on; the bumps stop it turning or sliding.
+  - It wraps the channel on three sides: the tab over the whole front flange, a wing on the outer face, and a belly
+    under the channel's open bottom with two M4 up into the Dual Block there. Seven bumps sit in the channel's
+    holes (shorter than its 2.5 mm wall, so nothing reaches the slide); the screws hold it on, the bumps stop it
+    turning or sliding.
 - **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
   counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
 - **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
   - servo 0.34 in from the stick, 0.28 in from the mecanum;
-  - bracket 0.48 and 0.29 in;
+  - bracket 0.48 and 0.26 in;
   - wheel 1.28 and 0.52 in.
 - **Size:**
   - The front is X 10.36, 17.93 in from the back wall; with the stick retracted, the wheels are the front of the

@@ -209,7 +209,7 @@ def draw(side, mod, fixed, stick, mec, res):
                    "(ahead of the Viper slide)" % P.FLANGE_HOLES_Z, xy=(fy, P.FLANGE_HOLES_Z[1]),
                    xytext=(s * 8.9, 5.3), color="#c00000", **kw)
     front.annotate("intake side channel\n(5 Hole Lowside U-Channel)", xy=(fy, 5.8), xytext=(s * 8.9, 6.5), **kw)
-    front.annotate("bar, Z 2.94..3.30\n(a POLLEN's top is 2.80)", xy=(s * 5.2, 3.1), xytext=(s * 7.4, 4.6), **kw)
+    front.annotate("belly under the channel, Z 2.66..2.86:\n2 x M4 x 10 up into the Dual Block", xy=(s * 5.05, 2.76), xytext=(s * 7.4, 4.6), **kw)
     top.annotate("tab on the front flange", xy=(P.FLANGE_X + 0.08, fy), xytext=(5.6, s * 4.5 if s > 0 else -4.6), color="#c00000", **kw)
     top.annotate("wheel axle\n(X %.2f, Y %+.2f)" % (P.AXLE[0], s * P.AXLE[1]), xy=(P.AXLE[0], s * P.AXLE[1]),
                  xytext=(9.6, s * 4.5), **kw)

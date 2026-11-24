@@ -26,8 +26,8 @@ How a corner goes together, from the floor up (cad/corner-wheels/README.md has t
 - The bracket: a shelf on the flange (Z 2.66..2.91; four M4 self-tapping up through the flange's 5 mm holes), right
   beside the intake's side channel; a short bar at Z 2.94..3.30 (above a POLLEN's 2.80); a tab flat on the FRONT flange
   of that channel, bolted with two M4 x 12 through its holes at Z 3.81 and 4.44 in, nuts behind (ahead of the Viper
-  slide); and a wing flat on the channel's outer face whose four bumps sit in the web's holes, so the bracket cannot
-  turn or slide on the two screws.
+  slide); a wing flat on the channel's outer face whose four bumps sit in the web's holes; and a belly under the
+  channel's open bottom, two M4 x 10 up into the Dual Block there. So it wraps the channel on three sides.
 
 The servo and hub in the assemblies are envelopes (the servo checked against the SWYFT model in the robot's STEP to
 0.2 mm; the hub drawn from goBILDA's 1908-0025-0032), not the vendors' files: swap theirs in Onshape for the detail.
@@ -87,11 +87,13 @@ SERVO_HOLE_L, SERVO_HOLE_W = 48.0, 10.0
 AXLE = (9.22, 5.95)                   # in, |Y|: right in front of the front drive wheel (|Y| 5.44..6.90); the servo
                                       # |Y| 5.56..6.34, 0.26 in inboard of the stick's right arm (|Y| 6.60..7.08)
 FLANGE_X = 8.50                       # in: the side channel's front flange, its front face
-FLANGE_Y = 5.12                       # |Y| in: the middle of that flange, where its holes are
+FLANGE_Y = 5.049                      # |Y| in: the line of that flange's holes (measured in the robot's STEP)
 FLANGE_HOLES_Z = (3.806, 4.436)       # in: two of its holes (4 mm, every 8 mm from Z 3.176), 16 mm apart; the nuts clear
                                       # the Dual Block inside the channel (to Z 3.33)
-TAB_T = 4.0                           # mm
-TAB_Y = (4.95, 5.40)                  # |Y| in: over the 12 mm flange (4.89..5.36)
+TAB_T = 5.0                           # mm
+TAB_Y = (4.90, 5.40)                  # |Y| in: over the whole 12 mm flange (4.895..5.36)
+FLANGE_BUMPS_Z = (3.176, 3.491, 4.121)  # in: the flange's other holes under the tab get a bump each (behind them: the
+                                      # Dual Block and the nuts' gap; the bumps stop inside the 2.5 mm flange)
 TAB_TOP = 4.70                        # in
 BAR_X = (8.50, 9.00)                  # in
 BAR_Z = (2.94, 3.30)                  # in: its underside 0.14 in above a POLLEN's top (2.80)
@@ -103,6 +105,11 @@ WING_X = (7.74, 8.50)                 # in: back to the front flange's corner; c
 WING_Z = (2.66, 4.75)                 # in (its bottom is the shelf's underside)
 WEB_BUMPS = ((7.876, 3.481), (7.875, 4.130), (8.181, 3.491), (8.181, 4.121))   # in: four of the web's holes (X, Z), 4.5 and 4 mm
 BUMP_D, BUMP_H = 3.7, 1.8             # mm: shorter than the web is thick, so nothing reaches the slide
+BELLY_X = (7.62, 8.50)                # in: a tongue under the channel's open bottom, ahead of the frame rail's end (X 7.55)
+BELLY_Y = (4.90, 5.40)                # |Y| in: under the channel (4.89..5.36)
+BELLY_TOP = 2.86                      # in: the channel's bottom and the Dual Block's bottom face inside it
+BLOCK_HOLES_X = (7.867, 8.182)        # in: two of the Dual Block's holes along Z, at |Y| 5.048; the CAD draws 8.182 tapped
+BLOCK_HOLE_Y = 5.048                  # (3.3 mm) and 7.867 as 4.2 mm: an M4 x 10 button head goes up into each that threads
 
 
 def _flaps():
@@ -161,16 +168,16 @@ def bracket(side):
         (BAR_X[0] * I, TAB_Y[0] * I, BAR_Z[0] * I))
     step = cq.Workplane("XY").box((BAR_X[1] - BAR_X[0]) * I, 0.3 * I, (BAR_Z[1] * I) - z0, centered=False).translate(
         (BAR_X[0] * I, SHELF_Y[0] * I, z0))              # where the bar comes down onto the shelf
-    # the tab, flat on the channel's front flange, two M4 holes (slotted 2 mm up and down for the CAD's error)
-    tab = cq.Workplane("XY").box(TAB_T, (TAB_Y[1] - TAB_Y[0]) * I, (TAB_TOP - BAR_Z[0]) * I, centered=False).translate(
-        (FLANGE_X * I, TAB_Y[0] * I, BAR_Z[0] * I))
+    # the tab, flat on the channel's whole front flange from the belly up, two M4 slots (2 mm up and down for the CAD's
+    # error) and bumps into the flange's other holes. Nothing stands in front of it, so both screw heads are clear.
+    tab = cq.Workplane("XY").box(TAB_T, (TAB_Y[1] - TAB_Y[0]) * I, TAB_TOP * I - z0, centered=False).translate(
+        (FLANGE_X * I, TAB_Y[0] * I, z0))
     for hz in FLANGE_HOLES_Z:
         tab = tab.cut(cq.Workplane("YZ").center(FLANGE_Y * I, hz * I).slot2D(M4 + 4.0, M4, 90).extrude(TAB_T)
                       .translate((FLANGE_X * I, 0, 0)))
-    # a gusset behind the tab's upper part, on top of the bar, clear of the holes' nuts (they are on the other side)
-    gz, gx = BAR_Z[1] * I, FLANGE_X * I + TAB_T
-    gusset = (cq.Workplane("XZ").polyline([(gx, gz), (gx + 9.0, gz), (gx, gz + 14.0)]).close()
-              .extrude(-(TAB_Y[1] - TAB_Y[0]) * I).translate((0, TAB_Y[0] * I, 0)))
+    for hz in FLANGE_BUMPS_Z:
+        tab = tab.union(cq.Workplane("YZ").center(FLANGE_Y * I, hz * I).circle(BUMP_D / 2).extrude(-BUMP_H)
+                        .translate((FLANGE_X * I, 0, 0)))
     # the wing: flat on the channel's outer face, wrapping its front corner to the tab; four bumps sit in the web's
     # 4.5 mm holes, so the bracket cannot turn or slide on the two front screws
     I = IN
@@ -181,7 +188,13 @@ def bracket(side):
     for bx, bz in WEB_BUMPS:
         wing = wing.union(cq.Workplane("XZ").center(bx * I, bz * I).circle(BUMP_D / 2).extrude(BUMP_H)
                           .translate((0, WEB_Y * I, 0)))
-    return shelf.union(bar).union(step).union(tab).union(gusset).union(wing)
+    # the belly: a tongue under the channel's open bottom, flat on the Dual Block's bottom face, so the bracket wraps the
+    # channel on three sides (outer face, front, bottom); M4 up into the block.
+    belly = cq.Workplane("XY").box((BELLY_X[1] - BELLY_X[0]) * I, (BELLY_Y[1] - BELLY_Y[0]) * I, BELLY_TOP * I - z0,
+                                   centered=False).translate((BELLY_X[0] * I, BELLY_Y[0] * I, z0))
+    for hx in BLOCK_HOLES_X:
+        belly = belly.cut(cylinder(M4 / 2, z0, BELLY_TOP * I, hx * I, BLOCK_HOLE_Y * I))
+    return shelf.union(bar).union(step).union(tab).union(wing).union(belly)
 
 
 def servo_envelope():
@@ -236,6 +249,10 @@ def module(side):
     for hz in FLANGE_HOLES_Z:                                 # M4 x 12 through the tab and the flange, nut behind
         s = (cq.Workplane("YZ").center(FLANGE_Y * IN, hz * IN).circle(2.0).extrude(12.0)
              .translate((FLANGE_X * IN + TAB_T - 12.0, 0, 0)))
+        screws = screws.union(s)
+    for hx in BLOCK_HOLES_X:                                  # M4 x 10 button head, up through the belly into the block
+        s = cylinder(2.0, PLATE_Z0, PLATE_Z0 + 10.0, hx * IN, BLOCK_HOLE_Y * IN).union(
+            cylinder(3.8, PLATE_Z0 - 2.2, PLATE_Z0, hx * IN, BLOCK_HOLE_Y * IN))
         screws = screws.union(s)
     parts["screws"] = screws
     return parts
