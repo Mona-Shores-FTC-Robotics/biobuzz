@@ -239,7 +239,7 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
   - **Good:** 4 of 5 of runs 1 and 2 end with the ball at the roller; the stick, lowered by hand, clears the wheel
     and the servo.
   - **Stop:** a ball wedged between the wheel and the drive wheel, or bounced off. Bring the clip to the corner-wheel
-    PR.
+    PR. [PR #740]
 
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 
