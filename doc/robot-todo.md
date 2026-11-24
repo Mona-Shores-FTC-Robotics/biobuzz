@@ -230,7 +230,7 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       pieces and dwells as before. **Stop:** a loaded FLOWER's pick ends at 1.3 s with pieces left in it →
       `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #724]
 
-## Corner wheels: the build team's 10-minute hand test (23 Nov idea, either robot, no code)
+## Corner wheels: the build team's 10-minute hand test (23 Nov idea, either robot)
 
 - [ ] **Does an inward-spinning corner wheel rake a POLLEN into the mouth?**
   - **Set up:**
@@ -238,7 +238,11 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one front corner, ahead of the drive wheel: about X 8.9, 6.9 in out from the centre line, the wheel's
       middle about 1.4 in off the tile. The numbers and a printable wheel are in `doc/corner-wheels.md` and
       `cad/corner-wheels/`.
-    - Spin it with a servo tester or programmer in continuous mode, its front moving inward. No OpMode needed.
+    - Plug it into **Expansion Hub servo port 1**. Uncomment `cornerWheelLeft` in that robot's XML (both
+      XMLs have it on port 1), then do a full TeamCode install and Activate.
+    - Run **Bench: Corner wheels** (Utility). Cross starts the wheel; Square flips it until its front moves
+      inward. No `RobotDifferences` line is needed for the bench.
+    - Or use a servo tester in continuous mode, with no code at all.
     - Push the robot by hand with the stick up and the intake running (Basic Drive, intake held).
   - **Do, 5 times each:**
     1. Nose-in to a wall with a POLLEN pinned at that corner.
@@ -249,6 +253,16 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
     and the servo.
   - **Stop:** a ball wedged between the wheel and the drive wheel, or bounced off. Bring the clip to the corner-wheel
     PR. [PR #740]
+  - **19429 counts servos first:** two wheels would make 9, one over R503's 8. Its options are in
+    `doc/corner-wheels.md` §4.
+- [ ] **Once fitted for real, before a match:**
+  1. Add the `RobotDifferences` line `CornerWheelSubsystem.fitted = true`, plus `rightServo = false` for a robot
+     with one servo, and set `leftReversed` and `rightReversed` from the bench.
+  2. Run **Check: Hardware**: both servos read "ok", with the switch on.
+  3. In Basic Drive, the Robot page's "Corner wheels" line reads "raking" only while intake is held with the stick
+     up and fewer than 4 in.
+  4. Run **LoopTimeBaseline** before the line goes in and after, and put both numbers in the PR (CLAUDE.md, Loop
+     time).
 
 ## Why Auto drives slowly (Fruitport, 21 Nov: both robots)
 

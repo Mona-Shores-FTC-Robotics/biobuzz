@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreak;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedWatch;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
@@ -104,6 +105,12 @@ public class Robot {
     public final BeamBreakSubsystem beams;
 
     /**
+     * The corner wheels, raking a POLLEN at a front corner into the intake: optional, off until a
+     * {@code RobotDifferences} line says the robot has them ({@link CornerWheelSubsystem}).
+     */
+    public final CornerWheelSubsystem cornerWheels;
+
+    /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
      */
@@ -168,10 +175,21 @@ public class Robot {
         launcher.countLaunchesBy(beams.countingThroat());
         colorSensor.laneBeam(beams.lane());
         beams.watchFeeds(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING, launcher::atSpeed, this::laneHolds);
+        // After the colour sensor, so its stop rules read this loop's lane: they rake only while the
+        // OpMode's intake takes in, the robot holds fewer than 4, no wrong NECTAR is in or going out, and
+        // the FLOWER stick is up (CornerWheelSubsystem). Looks nothing up unless fitted.
+        cornerWheels = new CornerWheelSubsystem(hardwareMap);
+        cornerWheels.watch(
+                () -> intake.requested() == IntakeSubsystem.State.IN && intake.state() == IntakeSubsystem.State.IN
+                        && !intake.rejectActive() && !intake.holdingForFull(),
+                colorSensor::full,
+                () -> colorSensor.lane().count(),
+                () -> colorSensor.wrongNectarMayBeIn() || colorSensor.rejecting(),
+                flowerStick::extended);
 
         subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, beams, feeder, launcher, intake, prefeed,
-                        feedGate, turret, indicator, colorSensor));
+                        feedGate, turret, indicator, colorSensor, cornerWheels));
     }
 
     /**

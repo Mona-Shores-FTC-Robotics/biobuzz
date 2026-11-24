@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 
 import java.util.ArrayList;
@@ -215,7 +216,7 @@ public class ValidateHardware extends LinearOpMode {
     }
 
     /**
-     * Devices the robot may have (the beam breaks and the turret's home switch,
+     * Devices the robot may have (the beam breaks, the turret's home switch and the corner wheels,
      * {@link RobotIdentity#optional}): each one's
      * configured state beside its switch. A switch on with no device is a problem (the OpModes
      * will refuse to start); a device configured with its switch off is only a reminder.
@@ -255,12 +256,14 @@ public class ValidateHardware extends LinearOpMode {
     /** Whether the optional device {@code name} has its switch on. */
     private static boolean fitted(String name) {
         if (DeviceNames.TURRET_HOME.equals(name)) return TurretSubsystem.homeSwitch;
+        if (CornerWheelSubsystem.isCornerWheel(name)) return CornerWheelSubsystem.fitted(name);
         return BeamBreakSubsystem.fitted(name);
     }
 
     /** The switch that turns the optional device {@code name} on. */
     private static String switchName(String name) {
         if (DeviceNames.TURRET_HOME.equals(name)) return "TurretSubsystem.homeSwitch";
+        if (CornerWheelSubsystem.isCornerWheel(name)) return CornerWheelSubsystem.switchName(name);
         return BeamBreakSubsystem.switchName(name);
     }
 

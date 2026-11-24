@@ -183,6 +183,20 @@ public final class DeviceNames {
     public static final String LANE_BEAM = "laneBeam";
 
     /**
+     * The left front corner wheel (mentor, 23 Nov 2026; {@code doc/corner-wheels.md}): a TPU wheel on a
+     * vertical axle ahead of the left front drive wheel, spun inward by this continuous-rotation servo
+     * to rake a POLLEN at the corner into the intake ({@code subsystems/CornerWheelSubsystem}).
+     * <b>Optional</b> ({@link #CORNER_WHEELS}): fitted on neither robot yet; a robot that has it
+     * declares it in its XML and turns it on with one {@code RobotDifferences} line
+     * ({@code CornerWheelSubsystem.fitted = true}). With only one servo on the robot (one corner, or
+     * both wheels on one belt: {@code CornerWheelSubsystem.rightServo = false}) that servo is this one.
+     */
+    public static final String CORNER_WHEEL_LEFT = "cornerWheelLeft";
+
+    /** The right front corner wheel's servo, as {@link #CORNER_WHEEL_LEFT}; asked for only with {@code CornerWheelSubsystem.rightServo}. */
+    public static final String CORNER_WHEEL_RIGHT = "cornerWheelRight";
+
+    /**
      * What kind of port a device occupies. Determines which XML element tags
      * are legal for it, and which Java class {@code ValidateHardware} asks the
      * {@code HardwareMap} for.
@@ -312,8 +326,21 @@ public final class DeviceNames {
     public static final List<Device> TURRET_HOME_SWITCH = Collections.singletonList(
             new Device(TURRET_HOME, Kind.DIGITAL));
 
-    /** Every optional device a competition robot may carry: {@link #BEAM_BREAKS} and {@link #TURRET_HOME_SWITCH}. */
-    public static final List<Device> COMPETITION_OPTIONAL = union(BEAM_BREAKS, TURRET_HOME_SWITCH);
+    /**
+     * The two corner wheels' servos ({@link #CORNER_WHEEL_LEFT}, {@link #CORNER_WHEEL_RIGHT}), optional as
+     * the {@link #BEAM_BREAKS} are: a prototype, fitted on neither robot (24 Nov 2026). The code looks them
+     * up only with {@code CornerWheelSubsystem.fitted} on (a {@code RobotDifferences} line), and then fails
+     * loudly if the XML lacks one.
+     */
+    public static final List<Device> CORNER_WHEELS = Collections.unmodifiableList(Arrays.asList(
+            new Device(CORNER_WHEEL_LEFT, Kind.CR_SERVO),
+            new Device(CORNER_WHEEL_RIGHT, Kind.CR_SERVO)));
+
+    /**
+     * Every optional device a competition robot may carry: {@link #BEAM_BREAKS}, {@link #TURRET_HOME_SWITCH}
+     * and {@link #CORNER_WHEELS}.
+     */
+    public static final List<Device> COMPETITION_OPTIONAL = union(BEAM_BREAKS, TURRET_HOME_SWITCH, CORNER_WHEELS);
 
     public static final List<Device> ALL = union(ROBOT_19429, COMPETITION_ROBOT, LAUNCHER_BENCH, COMPETITION_OPTIONAL);
 

@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.BuiltAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.subsystems.BeamBreakSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeedGateSubsystem;
@@ -53,6 +54,7 @@ public final class Tunables {
             DriveSubsystem.class,
             ColorSensorSubsystem.class,
             BeamBreakSubsystem.class,
+            CornerWheelSubsystem.class,
             FeederSubsystem.class,
             FeedGateSubsystem.class,
             PrefeedSubsystem.class,
