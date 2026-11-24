@@ -223,8 +223,28 @@ def export(shape, name):
         cq.exporters.export(shape, os.path.join(HERE, f"{name}.{ext}"))
 
 
+# The mentor's Onshape Robot assembly frame, from his STEP export of 24 Nov 2026 (mm): its X runs along the drive axles
+# (robot +Y), its -Y is up and its -Z forward. The middle of the four drive axles is at ONSHAPE_AXLES_MID and the floor
+# 48 mm below them (a 96 mm mecanum), so robot (X, Y, Z) mm -> Onshape (Y + x0, y0 + 48 - Z, z0 - X).
+ONSHAPE_AXLES_MID = (21.7132, 219.5608, 343.5960)
+
+
+def to_onshape(shape):
+    """A shape in the robot frame (mm) moved into the Onshape Robot assembly's own frame."""
+    from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
+    from OCP.gp import gp_Trsf
+    x0, y0, z0 = ONSHAPE_AXLES_MID
+    t = gp_Trsf()
+    t.SetValues(0.0, 1.0, 0.0, x0,
+                0.0, 0.0, -1.0, y0 + 48.0,
+                -1.0, 0.0, 0.0, z0)
+    return cq.Shape.cast(BRepBuilderAPI_Transform(shape.wrapped, t, True).Shape())
+
+
 if __name__ == "__main__":
     export(flap_wheel(), "flap_wheel")
+    colours = {"bracket": "steelblue", "servo": "gray20", "hub": "gray70", "wheel": "forestgreen", "screws": "black"}
+    both = cq.Assembly(name="Corner modules")
     for side in ("left", "right"):
         m = module(side)
         mirror = (lambda s: s.mirror("XZ")) if side == "right" else (lambda s: s)
@@ -232,8 +252,13 @@ if __name__ == "__main__":
         bb = b.val().BoundingBox()
         export(b.translate((-bb.xmin, -bb.ymin, -bb.zmin)), f"bracket_{side}")   # plate down, as it prints
         asm = cq.Assembly(name=f"corner_module_{side}")
-        colours = {"bracket": "steelblue", "servo": "gray20", "hub": "gray70", "wheel": "forestgreen", "screws": "black"}
+        sub = cq.Assembly(name=f"Corner module {side}")
         for name, shape in m.items():
             asm.add(mirror(shape), name=name, color=cq.Color(colours[name]))
+            sub.add(to_onshape(mirror(shape).val()), name=f"{name} {side}", color=cq.Color(colours[name]))
         asm.export(os.path.join(HERE, f"corner_module_{side}.step"))
+        both.add(sub, name=f"Corner module {side}")
         print(f"corner_module_{side}.step; bracket {bb.xlen:.1f} x {bb.ylen:.1f} x {bb.zlen:.1f} mm")
+    # Both corners in the Onshape Robot assembly's own frame: insert at its origin and they land in place.
+    both.export(os.path.join(HERE, "corner_modules_onshape.step"))
+    print("corner_modules_onshape.step")
