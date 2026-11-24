@@ -104,7 +104,8 @@ WING_T = 4.0                          # mm: the wing lies flat on that face, out
 WING_X = (7.74, 8.50)                 # in: back to the front flange's corner; clear of the spinning mecanum
 WING_Z = (2.66, 4.75)                 # in (its bottom is the shelf's underside)
 WEB_BUMPS = ((7.876, 3.481), (7.875, 4.130), (8.181, 3.491), (8.181, 4.121))   # in: four of the web's holes (X, Z), 4.5 and 4 mm
-BUMP_D, BUMP_H = 3.7, 1.8             # mm: shorter than the web is thick, so nothing reaches the slide
+BUMP_D, BUMP_TIP, BUMP_H = 3.8, 2.4, 1.8  # mm: tapered cones, so they find a hole up to about 0.7 mm off; shorter than the
+                                      # channel's wall is thick, so nothing reaches the slide. Sand one off if it won't seat
 BELLY_X = (7.62, 8.50)                # in: a tongue under the channel's open bottom, ahead of the frame rail's end (X 7.55)
 BELLY_Y = (4.90, 5.40)                # |Y| in: under the channel (4.89..5.36)
 BELLY_TOP = 2.86                      # in: the channel's bottom and the Dual Block's bottom face inside it
@@ -168,16 +169,15 @@ def bracket(side):
         (BAR_X[0] * I, TAB_Y[0] * I, BAR_Z[0] * I))
     step = cq.Workplane("XY").box((BAR_X[1] - BAR_X[0]) * I, 0.3 * I, (BAR_Z[1] * I) - z0, centered=False).translate(
         (BAR_X[0] * I, SHELF_Y[0] * I, z0))              # where the bar comes down onto the shelf
-    # the tab, flat on the channel's whole front flange from the belly up, two M4 slots (2 mm up and down for the CAD's
-    # error) and bumps into the flange's other holes. Nothing stands in front of it, so both screw heads are clear.
+    # the tab, flat on the channel's whole front flange from the belly up, two M4 slots (2 mm up and down, 0.5 mm sideways, for
+    # the CAD's error) and bumps into the flange's other holes. Nothing stands in front of it, so both screw heads are clear.
     tab = cq.Workplane("XY").box(TAB_T, (TAB_Y[1] - TAB_Y[0]) * I, TAB_TOP * I - z0, centered=False).translate(
         (FLANGE_X * I, TAB_Y[0] * I, z0))
     for hz in FLANGE_HOLES_Z:
-        tab = tab.cut(cq.Workplane("YZ").center(FLANGE_Y * I, hz * I).slot2D(M4 + 4.0, M4, 90).extrude(TAB_T)
+        tab = tab.cut(cq.Workplane("YZ").center(FLANGE_Y * I, hz * I).slot2D(M4 + 4.0, M4 + 1.0, 90).extrude(TAB_T)
                       .translate((FLANGE_X * I, 0, 0)))
     for hz in FLANGE_BUMPS_Z:
-        tab = tab.union(cq.Workplane("YZ").center(FLANGE_Y * I, hz * I).circle(BUMP_D / 2).extrude(-BUMP_H)
-                        .translate((FLANGE_X * I, 0, 0)))
+        tab = tab.union(cone((FLANGE_X * I, FLANGE_Y * I, hz * I), (-1, 0, 0)))
     # the wing: flat on the channel's outer face, wrapping its front corner to the tab; four bumps sit in the web's
     # 4.5 mm holes, so the bracket cannot turn or slide on the two front screws
     I = IN
@@ -186,8 +186,7 @@ def bracket(side):
     wing = (cq.Workplane("XZ").polyline(pts).close().extrude(-WING_T).translate((0, WEB_Y * I, 0))
             .edges("|Y").fillet(1.5))
     for bx, bz in WEB_BUMPS:
-        wing = wing.union(cq.Workplane("XZ").center(bx * I, bz * I).circle(BUMP_D / 2).extrude(BUMP_H)
-                          .translate((0, WEB_Y * I, 0)))
+        wing = wing.union(cone((bx * I, WEB_Y * I, bz * I), (0, -1, 0)))
     # the belly: a tongue under the channel's open bottom, flat on the Dual Block's bottom face, so the bracket wraps the
     # channel on three sides (outer face, front, bottom); M4 up into the block.
     belly = cq.Workplane("XY").box((BELLY_X[1] - BELLY_X[0]) * I, (BELLY_Y[1] - BELLY_Y[0]) * I, BELLY_TOP * I - z0,
@@ -219,6 +218,12 @@ def hub_envelope():
     for x, y in HUB_HOLES:
         h = h.cut(cq.Workplane("XY").center(x, y).circle(1.7).extrude(HUB_H))   # M4 threaded
     return h
+
+
+def cone(base, direction):
+    """A locating bump: a cone from BUMP_D at the bracket's face to BUMP_TIP, BUMP_H into a hole."""
+    return cq.Workplane("XY").add(cq.Solid.makeCone(BUMP_D / 2, BUMP_TIP / 2, BUMP_H, cq.Vector(*base),
+                                                    cq.Vector(*direction)))
 
 
 def cylinder(r, z0, z1, x, y):

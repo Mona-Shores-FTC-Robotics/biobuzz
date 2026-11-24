@@ -12,7 +12,7 @@ model:
 - The printed bracket bolts to the **front flange of the intake's side channel**, the 5 Hole Lowside U-Channel the
   intake's Viper slide runs inside. Its two M4 nuts sit in the gap ahead of the slide, so nothing reaches the slide.
 - It **wraps the channel on three sides**, all one part:
-  - **Front:** a 5 mm tab over the whole front flange, two M4 through it, and bumps in the flange's other three holes.
+  - **Front:** a 5 mm tab over the whole front flange, two M4 through it (slots: 2 mm up and down, 0.5 mm sideways), and bumps in the flange's other three holes.
   - **Outer face:** a wing with four bumps in the web's holes.
   - **Bottom:** a belly under the channel's open end, two M4 up into the Dual Block there.
   The screws hold it on; the seven bumps stop it turning or sliding when the wheel takes a hit.
@@ -33,7 +33,7 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
   the bottom, and has a bump in the 1st, 2nd and 4th.
 - **The bolts:** M4 × 12 from the front, with nuts behind the flange.
 - **Why not the two lowest holes:** behind them a nut would sit only 0.02 in above the Dual Block inside the channel.
-- **The bumps:** 3.7 mm across, 1.8 mm tall, into the web's holes at X 7.88 and 8.18 in, Z 3.48 and 4.13 in. The web is
+- **The bumps:** tapered cones, 3.8 mm across at the bracket to 2.4 mm at the tip, 1.8 mm tall, so they find a hole up to about 0.7 mm off (sand one flush if it still won't seat). The wing's four go into the web's holes at X 7.88 and 8.18 in, Z 3.48 and 4.13 in. The web is
   2.5 mm thick, so they stop short of the slide inside.
 - **The belly:** the channel's bottom end is open, with the Dual Block's bottom face flush at Z 2.86 in. The frame rail
   under it stops at X 7.55, so the block's holes at X 7.87 and 8.18 (|Y| 5.05) are open from below. The CAD draws the
