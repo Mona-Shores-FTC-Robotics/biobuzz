@@ -15,16 +15,16 @@ Robot frame (cad/advantagescope/README.md), millimetres in the files, inches in 
 left (the left FLOWER-stick arm assumed moved out to match the right).
 
 How a corner goes together, from the floor up (cad/corner-wheels/README.md has the clearances):
-- The wheel: flaps Z 0.60..1.65 in (a POLLEN's middle, Z 1.40, inside them), bosses 0.40..1.85, axle at X 9.05,
-  |Y| 7.72, outboard of the stick's arm.
+- The wheel: flaps Z 0.60..1.65 in (a POLLEN's middle, Z 1.40, inside them), bosses 0.40..1.85, axle at X 9.22,
+  |Y| 5.95, right in front of the front drive wheel.
 - A goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter), 8 mm, on the boss: four M4 x 30 socket head
   screws come up through the wheel from counterbores in its underside into the hub's threaded holes on the 16 mm
   circle.
 - The servo, a goBILDA 2000 Series Dual Mode Servo (or any standard servo with the same 40 x 20 body and 48 x 10 mm
   flange holes), upside down, spline into the hub, its body pointing back. Its flange is near its spline end, so
   upside down the flange is near the bottom (Z 2.53..2.69 in) and the body stands up above it, to Z 3.76 in.
-- The bracket: a shelf on the flange (Z 2.69..2.94; four M3 up through the flange's slots), a straight bar from it
-  inboard at Z 2.94..3.30 (above a POLLEN's 2.80), and a tab flat on the FRONT flange of the intake's side channel,
+- The bracket: a shelf on the flange (Z 2.69..2.94; four M3 up through the flange's slots), right beside the intake's
+  side channel, a short bar at Z 2.94..3.30 (above a POLLEN's 2.80), and a tab flat on the FRONT flange of that channel,
   bolted with two M4 x 12 through its holes at Z 3.81 and 4.44 in, nuts behind (ahead of the Viper slide).
 
 The servo and hub in the assemblies are envelopes drawn from goBILDA's STEP files (2000-0025-0002, 1908-0025-0032,
@@ -56,7 +56,8 @@ SPLINE_X = -10.0
 SERVO_Z0 = HUB_Z1 + CAP_GAP + SERVO_TOP   # 68.21: robot Z of the servo frame's Z 0 (the flange's body-side face)
 
 # ---- the wheel ----------------------------------------------------------------------------------------------------
-WHEEL_OD = 2.4 * IN          # 61.0: with the servos outboard of the stick arms, 2.5 in made the robot 17.94 in wide
+WHEEL_OD = 2.3 * IN          # 58.4: its front X 10.35 stays inside the 18 in cube (X 10.43 from the back wall) with the
+                             # axle far enough forward for the servo to clear the spinning mecanum by 0.25 in
 FLAP_H = FLAP_Z1 - FLAP_Z0   # 26.7
 HUB_RING_OD = 30.0
 FLAPS = 8
@@ -71,14 +72,15 @@ HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for 
 # ---- the bracket ---------------------------------------------------------------------------------------------------
 # From the mentor's robot STEP of 24 Nov 2026 (both front corners as built). One printed part per corner. A tab lies flat
 # on the FRONT flange of the intake's side channel (the 5 Hole Lowside U-Channel the intake's Viper slide runs inside)
-# and bolts through two of its holes, nuts behind in the gap ahead of the slide. A straight bar runs from the tab
-# outboard, ahead of the front drive wheel and just above a POLLEN's top, under the FLOWER stick's arm, to a shelf at the
-# servo's flange. The servo sits outboard of the stick arm, spline down, body pointing back; the wheel spins under it.
+# and bolts through two of its holes, nuts behind in the gap ahead of the slide. A short bar from the tab, just above a
+# POLLEN's top, joins a shelf on the servo's flange, right beside the channel. The servo sits right in front of the
+# front drive wheel and inboard of the FLOWER stick's arm, spline down, body pointing back; the wheel spins under it.
 PLATE_T = 0.25 * IN                   # the shelf, 6.35 mm
 PLATE_Z0 = SERVO_Z0                   # 68.21 (2.69 in): the shelf's underside on the flange
 SERVO_CUT_L, SERVO_CUT_W = 40.8, 20.6  # the body passes up through it
 SERVO_HOLE_L, SERVO_HOLE_W = 48.0, 10.0
-AXLE = (9.05, 7.72)                   # in, |Y|: outboard of the stick's right arm (|Y| 6.60..7.08) by 0.25 in at the servo
+AXLE = (9.22, 5.95)                   # in, |Y|: right in front of the front drive wheel (|Y| 5.44..6.90); the servo
+                                      # |Y| 5.56..6.34, 0.26 in inboard of the stick's right arm (|Y| 6.60..7.08)
 FLANGE_X = 8.50                       # in: the side channel's front flange, its front face
 FLANGE_Y = 5.12                       # |Y| in: the middle of that flange, where its holes are
 FLANGE_HOLES_Z = (3.806, 4.436)       # in: two of its holes (4 mm, every 8 mm from Z 3.176), 16 mm apart; the nuts clear
@@ -88,8 +90,8 @@ TAB_Y = (4.95, 5.40)                  # |Y| in: over the 12 mm flange (4.89..5.3
 TAB_TOP = 4.70                        # in
 BAR_X = (8.50, 9.00)                  # in
 BAR_Z = (2.94, 3.30)                  # in: its underside 0.14 in above a POLLEN's top (2.80)
-SHELF_X = (7.65, 9.80)                # in: around the servo's flange (its tabs X 7.59..9.73)
-SHELF_Y = (7.12, 8.32)                # |Y| in
+SHELF_X = (7.74, 9.97)                # in: around the servo's flange (its tabs X 7.76..9.89)
+SHELF_Y = (5.38, 6.52)                # |Y| in: just outboard of the side channel's web (5.36)
 
 
 def _flaps():

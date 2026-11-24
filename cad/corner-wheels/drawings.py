@@ -209,22 +209,22 @@ def draw(side, mod, fixed, stick, mec, res):
                    "(ahead of the Viper slide)" % P.FLANGE_HOLES_Z, xy=(fy, P.FLANGE_HOLES_Z[1]),
                    xytext=(s * 8.9, 5.3), color="#c00000", **kw)
     front.annotate("intake side channel\n(5 Hole Lowside U-Channel)", xy=(fy, 5.8), xytext=(s * 8.9, 6.5), **kw)
-    front.annotate("bar, Z 2.94..3.30\n(a POLLEN's top is 2.80)", xy=(s * 6.2, 3.1), xytext=(s * 5.6, 4.6) if s > 0 else (-6.9, 4.6), **kw)
+    front.annotate("bar, Z 2.94..3.30\n(a POLLEN's top is 2.80)", xy=(s * 5.2, 3.1), xytext=(s * 7.4, 4.6), **kw)
     top.annotate("tab on the front flange", xy=(P.FLANGE_X + 0.08, fy), xytext=(5.6, s * 4.5 if s > 0 else -4.6), color="#c00000", **kw)
     top.annotate("wheel axle\n(X %.2f, Y %+.2f)" % (P.AXLE[0], s * P.AXLE[1]), xy=(P.AXLE[0], s * P.AXLE[1]),
-                 xytext=(9.9, s * 9.1 if s > 0 else -9.2), **kw)
+                 xytext=(9.6, s * 4.5), **kw)
     top.annotate("front drive wheel", xy=(6.4, s * 6.2), xytext=(5.5, s * 8.7), **kw)
-    top.annotate("stick arm (drawn down; it\npasses 1.2 in or more above\nthe bar and the servo)", xy=(10.2, s * 6.84), xytext=(9.0, s * 4.75), **kw)
+    top.annotate("stick arm (drawn down;\nthe servo is 0.26 in\ninboard of it)", xy=(10.2, s * 6.84), xytext=(9.6, s * 8.6), **kw)
     elev.annotate("servo, body back,\nup to Z 3.76", xy=(8.7, 3.6), xytext=(6.0, 5.3), **kw)
     elev.annotate("goBILDA 1908 25T hub", xy=(9.3, 2.0), xytext=(9.9, 2.9), **kw)
-    elev.annotate("2.4 in TPU wheel,\nflaps Z 0.60..1.65", xy=(9.9, 1.1), xytext=(9.95, 0.15), **kw)
+    elev.annotate("%.1f in TPU wheel,\nflaps Z 0.60..1.65" % (P.WHEEL_OD / 25.4), xy=(9.9, 1.1), xytext=(9.95, 0.15), **kw)
     lines = ["Clearances (in), %s corner:" % side]
     for name in ("servo", "bracket", "wheel", "hub"):
         d_s, d_m, p = res[name]
         lines.append(f"  {name}: stick's swing {d_s:.2f}, spinning mecanum {d_m:.2f}")
     allp = np.vstack([r[2] for r in res.values()])
     lines.append(f"  front X {allp[:, 0].max():.2f}: {allp[:, 0].max() + 7.57:.2f} in from the back wall")
-    lines.append(f"  out to |Y| {np.abs(allp[:, 1]).max():.2f} (both corners: {2 * np.abs(allp[:, 1]).max():.2f} in wide)")
+    lines.append(f"  out to |Y| {np.abs(allp[:, 1]).max():.2f}: inside the frame's side (|Y| 7.77)")
     elev.text(5.5, 6.55, "\n".join(lines), fontsize=7.5, va="top", zorder=30, bbox=dict(fc="white", ec="#888", alpha=0.95))
     for a in (top, elev):
         a.axvline(10.43, color="#7030a0", ls="--", lw=1)

@@ -7,13 +7,14 @@ the rules: [`doc/corner-wheels.md`](../../doc/corner-wheels.md).
 **Prototype 3 (24 Nov 2026)** is placed on the mentor's STEP export of the whole robot as it is now, not the 31 Oct
 model:
 
-- The servo sits **outboard of the FLOWER stick's arm**, spline down, its body pointing back.
+- The wheel sits **right in front of the front drive wheel**. The servo above it stays **inboard of the FLOWER stick's
+  arm**, spline down, its body pointing back.
 - The printed bracket bolts to the **front flange of the intake's side channel**, the 5 Hole Lowside U-Channel the
   intake's Viper slide runs inside. Its two M4 nuts sit in the gap ahead of the slide, so nothing reaches the slide.
 
 The modules are drawn for the **right** corner's stick arm (|Y| 6.60..7.08). **The left module is its mirror image**,
-which assumes the left arm moves out to match the right. Today the left arm is at |Y| 5.99..6.47, and the left module
-clears it anyway (0.91 in).
+which assumes the left arm moves out to match the right. Today the left arm is at |Y| 5.99..6.47, right where the left
+servo goes: **the left corner needs that arm moved first.**
 
 ![Right corner module](../../doc/corner-wheels/right-corner-module.png)
 
@@ -30,7 +31,7 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
 
 | Item | Qty | Notes |
 |---|---|---|
-| `flap_wheel` (print) | 2 | **One file for both corners**: the same either way up. **Left corner:** this way up (it turns clockwise from above, flaps trailing). **Right corner:** upside down. **TPU 95A**, 3 walls, 30 % infill, no supports. 2.4 in (61 mm) across, 36.7 mm tall |
+| `flap_wheel` (print) | 2 | **One file for both corners**: the same either way up. **Left corner:** this way up (it turns clockwise from above, flaps trailing). **Right corner:** upside down. **TPU 95A**, 3 walls, 30 % infill, no supports. 2.3 in (58 mm) across, 36.7 mm tall |
 | `bracket_left` / `bracket_right` (print) | 1 each | **PETG**, 4 walls, 40 % infill. Mirror images |
 | goBILDA 2000 Series Dual Mode Servo, continuous mode | 2 | Or any standard servo with a 40 × 20 body and 48 × 10 mm flange holes |
 | goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter) | 2 | Counterbored face toward the wheel |
@@ -46,37 +47,38 @@ ahead of the front drive wheel. It has a row of 4 mm holes, 8 mm apart, from Z 3
 | Hub | 1.85..2.16 |
 | Servo top cap and flange (upside down) | 2.02..2.69 |
 | Shelf | 2.69..2.94 |
-| Bar to the tab | 2.94..3.30, so raked POLLEN (2.80 tall) roll under it |
+| Bar to the tab | 2.94..3.30, above a POLLEN's top (2.80) |
 | Servo body | up to 3.76 |
 | Tab | 2.94..4.70 |
 
 **Positions:**
-- **Axle:** X 9.05, |Y| 7.72.
-- **Servo:** X 7.59..9.73 with its tabs, |Y| 7.33..8.11.
-- **Wheel:** to X 10.24 and |Y| 8.91.
+- **Axle:** X 9.22, |Y| 5.95, right in front of the drive wheel (|Y| 5.44..6.90).
+- **Servo:** X 7.76..9.90 with its tabs, |Y| 5.56..6.34.
+- **Wheel:** X 8.08..10.36, |Y| 4.81..7.09. Its inner edge reaches the intake mouth's edge (4.87); its outer edge
+  stays inside the frame's side (7.77).
 
 ## Clearances in the robot's CAD
 
-Measured with the stick swept 162° up from its down pose, and each mecanum spun a full turn:
+Measured with the stick swept 162° up from its down pose, and each mecanum spun a full turn. Right corner:
 
-| | Right | Left (as the CAD is now) |
+| | Stick's swing | Spinning mecanum |
 |---|---|---|
-| Servo to the stick | 0.40 in | 0.91 in |
-| Bracket to the stick | 0.60 in | 0.68 in |
-| Wheel to the stick | 1.32 in | 1.58 in |
-| Servo to the spinning mecanum | 0.51 in | 0.52 in |
-| Bracket to the spinning mecanum | 0.44 in | 0.45 in |
-| Wheel to the spinning mecanum | 0.57 in | 0.58 in |
+| Servo | 0.34 in | 0.27 in |
+| Bracket | 0.46 in | 0.31 in |
+| Wheel | 1.28 in | 0.52 in |
+| Hub | 1.21 in | 1.01 in |
 
 **Size:**
-- **Length:** front X 10.24, which is **17.81 in from the back wall** (X −7.57). With the stick retracted it stays
+- **Length:** front X 10.36, which is **17.93 in from the back wall** (X −7.57). With the stick retracted it stays
   within X −0.16..6.82, so the corner wheels are the front of the robot.
-- **Width:** both corners together, **17.82 in**.
+- **Width:** nothing past the frame's sides.
+- **The wheel is 2.3 in.** The axle had to come forward far enough for the servo's rear mounting tab to clear the
+  spinning mecanum by 0.25 in, and a bigger wheel would then pass the 18 in cube's front.
 
 ## Check on the robot before printing
 
 1. Measure from the back wall to the front of the drive wheels. In the CAD it's 15.14 in. The corner wheels add
-   2.67 in beyond that.
+   2.79 in beyond that, to 17.93 in.
 2. Find the side channel's front-flange holes at 3.81 and 4.44 in up from the tile. Check that an M4 nut fits behind
    each, in front of the Viper slide.
 3. Lower the stick slowly by hand past the servo before running it powered.

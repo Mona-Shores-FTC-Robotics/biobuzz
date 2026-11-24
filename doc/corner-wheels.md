@@ -18,9 +18,9 @@ of the whole robot as built. It replaces the 31 Oct model for the corner. Below,
 robot's CAD" has the result. Sections 1 to 3 otherwise stand as first worked out on the 31 Oct model. The current
 CAD changes three things:
 
-- **The stick's arms sit further out.** The right arm is at |Y| 6.60..7.08, the left at 5.99..6.47. The servo now
-  goes outboard of the arm.
-- **The wheel is 2.4 in, not 2.5.** With both servos outboard, 2.5 in made the robot 17.94 in wide.
+- **The wheel sits right in front of the drive wheel** (the mentor's call), its servo inboard of the stick's right
+  arm (|Y| 6.60..7.08). The left arm (|Y| 5.99..6.47 today) moves out to match.
+- **The wheel is 2.3 in, not 2.5.** The axle had to come forward for the servo to clear the spinning mecanum.
 - **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it.
 
 ## Where the numbers come from
@@ -89,25 +89,24 @@ parts list):
 - **The servo is upside down, spline down into the hub.** A standard servo's flange sits near its spline end (goBILDA
   2000 series: the case is 27.2 mm below the flange and 12.8 mm above it, with the spline 4.1 mm more). So upside
   down, the flange is near the bottom and the body stands up above it: flange Z 2.53..2.69, body up to Z 3.76.
-- **The servo sits outboard of the stick's arm,** body pointing back toward the drive wheel. Axle at X 9.05,
-  |Y| 7.72; servo |Y| 7.33..8.11.
+- **The wheel sits right in front of the front drive wheel,** with the servo above it, body pointing back toward the
+  drive wheel and 0.26 in inboard of the stick's right arm. Axle at X 9.22, |Y| 5.95; servo |Y| 5.56..6.34.
 - **The printed bracket bolts to the front flange of the intake's side channel,** with two M4 × 12 through its holes
   at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
-  - From that tab a straight bar runs outboard at Z 2.94..3.30, just above a POLLEN's top (2.80), under the stick's
-    arm.
-  - The bar ends in a shelf on the servo's flange: four M3 up through the flange.
+  - From that tab a short bar at Z 2.94..3.30, above a POLLEN's top (2.80), joins a shelf on the servo's flange:
+    four M3 up through the flange.
 - **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
   counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
 - **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
-  - servo 0.40 in from the stick, 0.51 in from the mecanum;
-  - bracket 0.60 and 0.44 in;
-  - wheel 1.32 and 0.57 in.
+  - servo 0.34 in from the stick, 0.27 in from the mecanum;
+  - bracket 0.46 and 0.31 in;
+  - wheel 1.28 and 0.52 in.
 - **Size:**
-  - The front is X 10.24, 17.81 in from the back wall; with the stick retracted, the wheels are the front of the
+  - The front is X 10.36, 17.93 in from the back wall; with the stick retracted, the wheels are the front of the
     robot.
-  - Both corners together make the robot 17.82 in wide.
-- **The left module is the right one mirrored,** assuming the left arm moves out to match the right. Today the left
-  module clears the left arm anyway (0.91 in).
+  - Nothing goes past the frame's sides.
+- **The left module is the right one mirrored,** assuming the left arm moves out to match the right. Today's left
+  arm is where the left servo goes.
 
 ![Left corner module](corner-wheels/left-corner-module.png)
 ![Right corner module](corner-wheels/right-corner-module.png)
