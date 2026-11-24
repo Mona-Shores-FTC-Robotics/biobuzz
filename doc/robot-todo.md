@@ -214,6 +214,15 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
+## R-Solo-WallPark beside R-Solo (24 Nov 2026, either robot, Utility menu, a partner robot or a box at the high end)
+
+- [ ] **Drive: R-Solo-WallPark from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on
+      PARTNER_PARK (9.8, 117.4: against the alliance wall, the LOADING ZONE's high end), then R-Solo three runs the
+      same way. **Good:** WallPark's park is done (robot still) by 30 s on the robot's PLAY clock, it ends square
+      to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
+      point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
+      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
+
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 
 - [ ] **R-Solo with its SCORING FLOWER already empty**, three runs. **Good:** that pick's log line reads
