@@ -432,7 +432,9 @@ final class RobotDesign {
      */
     static RobotDesign real() {
         RobotDesign d = new RobotDesign(REAL);
-        d.intakeWidthIn = 0.9 * d.frameWidthIn;
+        // The intake mouth at ball height, between the side rails' inner faces, measured in the CAD: 9.7 in
+        // (doc/corner-wheels.md, "Intake opening"; the roller itself is 7.6 in). It was 0.9 of the frame (14.6 in).
+        d.intakeWidthIn = 9.7;
         d.intakeOnContact = true;
         d.extractorSeatIn = FlowerPicker.push.contactStandoffIn - d.frameIn / 2;
         // The feed's rhythm, measured (23 Nov 2026) from every Auto LaunchAll in the Belding and Fruitport match
