@@ -69,22 +69,27 @@ M4_HEAD_CB = 7.6             # counterbore for an M4 socket head (7.0)
 SCREW_GRIP = 12.0            # wheel material each M4 x 16 clamps under its head: 4 mm into the hub's thread
 HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)]
 
-# ---- the brackets -------------------------------------------------------------------------------------------------
-PLATE_T = 0.25 * IN                   # 6.35
-PLATE_Z0 = SERVO_Z0                   # 68.21 (2.69 in): the plate's underside on the flange
+# ---- the bracket ---------------------------------------------------------------------------------------------------
+# One printed part per corner, bolted to the outside of the light-blue goBILDA pattern plate beside the front drive
+# wheel (96 x 192 mm, the 31 Oct CAD's "1123-0096-0192" on the right; the left assumed to be its mirror image). A wall
+# lies flat on the plate's outer face, flush into its top-front corner, and runs straight forward past the plate's end;
+# a shelf off the wall's inner side, at the servo's flange, takes the servo; a gusset ties the two. goBILDA holes sit on
+# an 8 mm grid 4 mm in from a plate's edges, so with the wall pushed into that corner its holes meet the plate's.
+PLATE_T = 0.25 * IN                   # the shelf, 6.35 mm
+PLATE_Z0 = SERVO_Z0                   # 68.21 (2.69 in): the shelf's underside on the flange
 SERVO_CUT_L, SERVO_CUT_W = 40.8, 20.6  # the body passes up through it
 SERVO_HOLE_L, SERVO_HOLE_W = 48.0, 10.0
-EAR_T = 4.0
-EAR_TOP = 3.65 * IN                   # the left ear stays under the stick arm's swing over its band (Z 3.7 at X 8.5)
-FACE_Y = 5.35                         # the intake side channel's outer face, |Y| in
-FRONT_FACE_X = 7.87                   # the right short channel's front face, X in
-# |Y| outboard; the right side is mirrored at the end. The right stick arm is 0.45 in further out than the left.
-SIDES = {
-    "left": dict(axle=(8.94, 6.85), band_y=6.15, plate_x0=7.60, inner_x1=8.50, plate_x1=10.38, plate_y1=7.45,
-                 ear="side", ear_x=(7.60, 8.50)),
-    "right": dict(axle=(8.94, 6.95), band_y=6.55, plate_x0=7.92, inner_x1=8.50, plate_x1=10.38, plate_y1=7.50,
-                  ear="front", ear_y=(5.55, 7.15)),
-}
+SIDE_PLATE_FACE = 7.72                # |Y| of the light-blue plate's outer face, in
+SIDE_PLATE_FRONT = 7.55               # X of its front end, in
+SIDE_PLATE_TOP = 4.75                 # Z of its top edge, in
+WALL_T = 5.0                          # mm, outboard of the plate's face
+LEG_L = 40.0                          # mm of wall on the plate, behind its front end: five hole columns
+WALL_TOP_FWD = PLATE_Z0 + 28.0        # mm: ahead of the plate the wall stops just above the servo's top (Z 3.79 in)
+SHELF_X0 = 7.65                       # in: 0.27 in clear of the mecanum's rollers at the shelf's height
+SHELF_X1 = 10.40                      # in: the 18 in starting cube's front is X 10.43
+SHELF_IN = 6.45                       # |Y| in: the shelf's inner edge, outboard of the stick arm's band (|Y| <= 6.32)
+GUSSET_W, GUSSET_H = 7.0, 12.0        # mm, on top of the shelf along the wall
+AXLE = (8.94, 6.95)                   # in, |Y|; both corners alike
 
 
 def _flaps():
@@ -117,50 +122,49 @@ def flap_wheel():
     return w
 
 
+def leg_holes():
+    """The wall's M4 holes on the plate, robot frame (X, Z) in mm: the goBILDA grid, 4 mm in from the plate's top and
+    front edges, 8 mm apart. Bolt through the ones that meet a 4 mm hole in the plate (three or four is plenty)."""
+    holes = []
+    for i in range(5):
+        for j in range(6):
+            x = SIDE_PLATE_FRONT * IN - 4.0 - 8.0 * i
+            z = SIDE_PLATE_TOP * IN - 4.0 - 8.0 * j
+            if z - 2.5 > PLATE_Z0:
+                holes.append((x, z))
+    return holes
+
+
 def bracket(side):
-    """The bracket in the robot frame (mm, |Y| outboard: the right one is mirrored by the caller)."""
-    c = SIDES[side]
-    x0 = c["plate_x0"]
-    P = lambda x, y: (x * IN, y * IN)  # noqa: E731
-    outline = [P(x0, FACE_Y), P(c["inner_x1"], FACE_Y), P(c["inner_x1"], c["band_y"]), P(c["plate_x1"], c["band_y"]),
-               P(c["plate_x1"], c["plate_y1"]), P(x0, c["plate_y1"])]
-    b = (cq.Workplane("XY").workplane(offset=PLATE_Z0).polyline(outline).close().extrude(PLATE_T)
-         .edges("|Z").fillet(2.0))
-    ax, ay = c["axle"][0] * IN, c["axle"][1] * IN
-    cx = ax - SPLINE_X                                   # the body's middle, forward of the spline
-    b = b.cut(cq.Workplane("XY").workplane(offset=PLATE_Z0).center(cx, ay).rect(SERVO_CUT_L, SERVO_CUT_W)
-              .extrude(PLATE_T))
+    """The bracket in the robot frame (mm), built for the left (|Y| outboard as +Y); the caller mirrors the right."""
+    face = SIDE_PLATE_FACE * IN
+    front = SIDE_PLATE_FRONT * IN
+    top = SIDE_PLATE_TOP * IN
+    # the wall: on the plate (the leg, up to the plate's top), then straight forward to the shelf's front
+    leg = cq.Workplane("XY").box(LEG_L, WALL_T, top - PLATE_Z0, centered=False).translate((front - LEG_L, face, PLATE_Z0))
+    fwd = cq.Workplane("XY").box(SHELF_X1 * IN - front, WALL_T, WALL_TOP_FWD - PLATE_Z0, centered=False).translate(
+        (front, face, PLATE_Z0))
+    wall = leg.union(fwd)
+    for x, z in leg_holes():
+        wall = wall.cut(cq.Workplane("XZ").center(x, z).circle(M4 / 2).extrude(-WALL_T).translate((0, face, 0)))
+    # the shelf, at the flange, from the wall in to SHELF_IN
+    x0, x1, yi = SHELF_X0 * IN, SHELF_X1 * IN, SHELF_IN * IN
+    shelf = (cq.Workplane("XY").workplane(offset=PLATE_Z0).center((x0 + x1) / 2, (yi + face) / 2)
+             .rect(x1 - x0, face - yi).extrude(PLATE_T).edges("|Z").fillet(2.0))
+    # it meets the wall across the gap between the plate's end and the shelf's back
+    bridge = cq.Workplane("XY").box(x0 - front + 1.0, 8.0, PLATE_T, centered=False).translate((front - 0.5, face - 8.0, PLATE_Z0))
+    ax, ay = AXLE[0] * IN, AXLE[1] * IN
+    cx = ax - SPLINE_X                                   # the servo body's middle, forward of the spline
+    shelf = shelf.union(bridge).cut(cq.Workplane("XY").workplane(offset=PLATE_Z0).center(cx, ay)
+                                    .rect(SERVO_CUT_L, SERVO_CUT_W).extrude(PLATE_T))
     for sx in (-1, 1):
         for sy in (-1, 1):                               # M3 self-tapping up through the flange's slots
-            b = b.cut(cq.Workplane("XY").workplane(offset=PLATE_Z0).center(cx + sx * SERVO_HOLE_L / 2,
-                                                                          ay + sy * SERVO_HOLE_W / 2)
-                      .circle(1.25).extrude(PLATE_T))
-    ear_h = EAR_TOP - PLATE_Z0
-    if c["ear"] == "side":
-        ex0, ex1 = c["ear_x"][0] * IN, c["ear_x"][1] * IN
-        mid, w = (ex0 + ex1) / 2, ex1 - ex0
-        y0 = FACE_Y * IN
-        ear = cq.Workplane("XY").box(w, EAR_T, ear_h, centered=False).translate((ex0, y0, PLATE_Z0))
-        for d in (-8.0, 8.0):                            # M4 slots 16 mm apart, 8 mm of travel up and down
-            slot = (cq.Workplane("XZ").center(mid + d, PLATE_Z0 + PLATE_T + (ear_h - PLATE_T) / 2)
-                    .slot2D(8 + M4, M4, 90).extrude(-EAR_T).translate((0, y0, 0)))
-            ear = ear.cut(slot)
-        gus = (cq.Workplane("YZ").polyline([(y0 + EAR_T, PLATE_Z0 + PLATE_T), (y0 + EAR_T + 8, PLATE_Z0 + PLATE_T),
-                                            (y0 + EAR_T, PLATE_Z0 + PLATE_T + 8)]).close().extrude(w)
-               .translate((ex0, 0, 0)))
-    else:
-        fx = FRONT_FACE_X * IN + 0.3                     # 0.3 mm proud of the face: a washer closes it
-        ey0, ey1 = c["ear_y"][0] * IN, c["ear_y"][1] * IN
-        mid, w = (ey0 + ey1) / 2, ey1 - ey0
-        ear = cq.Workplane("XY").box(EAR_T, w, ear_h, centered=False).translate((fx, ey0, PLATE_Z0))
-        for d in (-8.0, 8.0):
-            slot = (cq.Workplane("YZ").center(mid + d, PLATE_Z0 + PLATE_T + (ear_h - PLATE_T) / 2)
-                    .slot2D(8 + M4, M4, 90).extrude(EAR_T).translate((fx, 0, 0)))
-            ear = ear.cut(slot)
-        gus = (cq.Workplane("XZ").polyline([(fx + EAR_T, PLATE_Z0 + PLATE_T), (fx + EAR_T + 8, PLATE_Z0 + PLATE_T),
-                                            (fx + EAR_T, PLATE_Z0 + PLATE_T + 8)]).close().extrude(-w)
-               .translate((0, ey0, 0)))
-    return b.union(ear).union(gus)
+            shelf = shelf.cut(cq.Workplane("XY").workplane(offset=PLATE_Z0)
+                              .center(cx + sx * SERVO_HOLE_L / 2, ay + sy * SERVO_HOLE_W / 2).circle(1.25).extrude(PLATE_T))
+    z = PLATE_Z0 + PLATE_T
+    gusset = (cq.Workplane("YZ").polyline([(face, z), (face - GUSSET_W, z), (face, z + GUSSET_H)]).close()
+              .extrude(x1 - x0).translate((x0, 0, 0)))
+    return wall.union(shelf).union(gusset)
 
 
 def servo_envelope():
@@ -192,8 +196,7 @@ def cylinder(r, z0, z1, x, y):
 def module(side):
     """One corner assembled in the robot frame, mm, |Y| outboard (mirrored by the caller for the right): a dict of
     part name -> shape."""
-    c = SIDES[side]
-    ax, ay = c["axle"][0] * IN, c["axle"][1] * IN
+    ax, ay = AXLE[0] * IN, AXLE[1] * IN
     parts = {}
     parts["bracket"] = bracket(side)
     # Upside down (turned half a turn about X: Y and Z change sign), spline over the axle, body running forward.
