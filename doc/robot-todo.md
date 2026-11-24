@@ -255,6 +255,15 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
     PR. [PR #740]
   - **19429 counts servos first:** two wheels would make 9, one over R503's 8. Its options are in
     `doc/corner-wheels.md` §4.
+- [ ] **Before printing the corner bracket, count holes at the right front corner** (angled guide plate off;
+      prototype 3, `cad/corner-wheels/README.md`) [PR #747]:
+  1. Along the frame channel, the holes from the front drive axle to the channel's front end. The CAD says
+     6 spacings (48 mm).
+  2. How far the intake's side channel sticks out past that end. The CAD says 3 holes (24 mm), so its front face
+     is 9 holes ahead of the axle.
+  3. Looking straight down, at least 1/4 in between the side channel's outer face, at its front corner, and the
+     mecanum tread as it spins. If not, the bracket's wing comes off.
+  - A hole off in 1 or 2 is one 8 mm change in `parts.py` (`FLANGE_X` and the shapes that follow it).
 - [ ] **Once fitted for real, before a match:**
   1. Add the `RobotDifferences` line `CornerWheelSubsystem.fitted = true`, plus `rightServo = false` for a robot
      with one servo, and set `leftReversed` and `rightReversed` from the bench.
