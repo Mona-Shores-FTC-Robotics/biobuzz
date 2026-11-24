@@ -229,15 +229,22 @@ def export(shape, name):
 ONSHAPE_AXLES_MID = (21.7132, 219.5608, 343.5960)
 
 
-def to_onshape(shape):
-    """A shape in the robot frame (mm) moved into the Onshape Robot assembly's own frame."""
+def to_onshape(shape, z_up=False):
+    """A shape in the robot frame (mm) moved into the Robot assembly's frame: as the mentor's STEP export has it (-Y up),
+    or, with z_up, as Onshape's API reports the assembly (-Z up, +Y forward; cad/advantagescope/from_onshape.py), which
+    is the same frame turned a quarter turn about X."""
     from OCP.BRepBuilderAPI import BRepBuilderAPI_Transform
     from OCP.gp import gp_Trsf
     x0, y0, z0 = ONSHAPE_AXLES_MID
     t = gp_Trsf()
-    t.SetValues(0.0, 1.0, 0.0, x0,
-                0.0, 0.0, -1.0, y0 + 48.0,
-                -1.0, 0.0, 0.0, z0)
+    if z_up:
+        t.SetValues(0.0, 1.0, 0.0, x0,
+                    1.0, 0.0, 0.0, -z0,
+                    0.0, 0.0, -1.0, y0 + 48.0)
+    else:
+        t.SetValues(0.0, 1.0, 0.0, x0,
+                    0.0, 0.0, -1.0, y0 + 48.0,
+                    -1.0, 0.0, 0.0, z0)
     return cq.Shape.cast(BRepBuilderAPI_Transform(shape.wrapped, t, True).Shape())
 
 
@@ -245,6 +252,7 @@ if __name__ == "__main__":
     export(flap_wheel(), "flap_wheel")
     colours = {"bracket": "steelblue", "servo": "gray20", "hub": "gray70", "wheel": "forestgreen", "screws": "black"}
     both = cq.Assembly(name="Corner modules")
+    both_z = cq.Assembly(name="Corner modules")
     for side in ("left", "right"):
         m = module(side)
         mirror = (lambda s: s.mirror("XZ")) if side == "right" else (lambda s: s)
@@ -253,12 +261,16 @@ if __name__ == "__main__":
         export(b.translate((-bb.xmin, -bb.ymin, -bb.zmin)), f"bracket_{side}")   # plate down, as it prints
         asm = cq.Assembly(name=f"corner_module_{side}")
         sub = cq.Assembly(name=f"Corner module {side}")
+        sub_z = cq.Assembly(name=f"Corner module {side}")
         for name, shape in m.items():
             asm.add(mirror(shape), name=name, color=cq.Color(colours[name]))
             sub.add(to_onshape(mirror(shape).val()), name=f"{name} {side}", color=cq.Color(colours[name]))
+            sub_z.add(to_onshape(mirror(shape).val(), True), name=f"{name} {side}", color=cq.Color(colours[name]))
         asm.export(os.path.join(HERE, f"corner_module_{side}.step"))
         both.add(sub, name=f"Corner module {side}")
+        both_z.add(sub_z, name=f"Corner module {side}")
         print(f"corner_module_{side}.step; bracket {bb.xlen:.1f} x {bb.ylen:.1f} x {bb.zlen:.1f} mm")
     # Both corners in the Onshape Robot assembly's own frame: insert at its origin and they land in place.
     both.export(os.path.join(HERE, "corner_modules_onshape.step"))
-    print("corner_modules_onshape.step")
+    both_z.export(os.path.join(HERE, "corner_modules_onshape_zup.step"))
+    print("corner_modules_onshape.step, corner_modules_onshape_zup.step")
