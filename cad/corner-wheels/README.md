@@ -113,5 +113,6 @@ Measured with the stick swept 162° up from its down pose, and each mecanum spun
 |---|---|
 | `corner_module_left.step`, `corner_module_right.step` | Each corner assembled in the robot frame (inches in the comments, mm in the file): bracket, servo, hub, wheel, screws |
 | `flap_wheel.*`, `bracket_*.*` | The printed parts |
+| `flap_wheel_48_h27_left.*`, `_right.*` | A 48 mm wheel (47.6 tip to tip) for a goBILDA Torque servo on the existing corner plate (Tim's mount, 24 Nov 2026): both of the hub's M4 patterns, 8 flaps 1.5 mm thick, the same 26.7 mm flap height. TPU 95A, 3 walls, 30 %, boss down. The right one is the left's mirror |
 | `parts.py` | Makes them. Every size is a constant at the top. `pip install cadquery` |
 | `drawings.py` | The pictures and the clearances, from the robot's STEP (not in git: pass its path) |

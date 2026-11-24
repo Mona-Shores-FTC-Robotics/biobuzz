@@ -75,6 +75,8 @@ BORE = 8.3                   # clears the hub's centre and the servo screw's hea
 M4 = 4.4
 M4_HEAD_CB = 7.6             # counterbore for an M4 socket head (7.0)
 CB_DEPTH = 10.7              # counterbored from both faces this deep; an M4 x 30 from below reaches 4 mm into the hub
+HUB_SQUARE_HOLES = [(11.314 * math.cos(math.radians(a)), 11.314 * math.sin(math.radians(a))) for a in (0, 90, 180, 270)]
+SMALL_OD, SMALL_RING_OD, SMALL_FLAP_T = 48.0, 32.0, 1.5
 HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)]
 
 # ---- the bracket ---------------------------------------------------------------------------------------------------
@@ -115,8 +117,8 @@ BLOCK_HOLES_X = (7.867, 8.182)        # in: two of the Dual Block's holes along 
 BLOCK_HOLE_Y = 5.048                  # (3.3 mm) and 7.867 as 4.2 mm: an M4 x 10 button head goes up into each that threads
 
 
-def _flaps():
-    r0, r1 = HUB_RING_OD / 2 - 1.0, WHEEL_OD / 2
+def _flaps(od=WHEEL_OD, ring_od=HUB_RING_OD, flap_t=FLAP_T):
+    r0, r1 = ring_od / 2 - 1.0, od / 2
     flaps = None
     for k in range(FLAPS):
         a0 = 2 * math.pi * k / FLAPS
@@ -126,22 +128,22 @@ def _flaps():
             r = r0 + (r1 - r0) * t
             a = a0 + math.radians(FLAP_SWEEP_DEG) * t * t
             nx, ny = -math.sin(a), math.cos(a)
-            out.append((r * math.cos(a) + nx * FLAP_T / 2, r * math.sin(a) + ny * FLAP_T / 2))
-            inn.append((r * math.cos(a) - nx * FLAP_T / 2, r * math.sin(a) - ny * FLAP_T / 2))
+            out.append((r * math.cos(a) + nx * flap_t / 2, r * math.sin(a) + ny * flap_t / 2))
+            inn.append((r * math.cos(a) - nx * flap_t / 2, r * math.sin(a) - ny * flap_t / 2))
         f = cq.Workplane("XY").polyline(out + inn[::-1]).close().extrude(FLAP_H)
         flaps = f if flaps is None else flaps.union(f)
     return flaps
 
 
-def flap_wheel():
+def flap_wheel(od=WHEEL_OD, ring_od=HUB_RING_OD, flap_t=FLAP_T, holes=None):
     """The wheel in its own frame: axle on Z, Z 0 its bottom face. The same either way up: a 5 mm boss above and below
     the flaps, and the M4 holes counterbored from both faces. Seen from above, this way up it turns clockwise (the
     left corner: its front moving inward) with each flap's tip trailing; upside down its flaps curve the other way,
     for the right corner."""
     total = FLAP_H + 2 * BOSS_H
-    w = (cq.Workplane("XY").circle(HUB_RING_OD / 2).circle(BORE / 2).extrude(total)
-         .union(_flaps().translate((0, 0, BOSS_H))))
-    for x, y in HUB_HOLES:
+    w = (cq.Workplane("XY").circle(ring_od / 2).circle(BORE / 2).extrude(total)
+         .union(_flaps(od, ring_od, flap_t).translate((0, 0, BOSS_H))))
+    for x, y in holes or HUB_HOLES:
         w = w.cut(cq.Workplane("XY").center(x, y).circle(M4 / 2).extrude(total))
         w = w.cut(cq.Workplane("XY").center(x, y).circle(M4_HEAD_CB / 2).extrude(CB_DEPTH))
         w = w.cut(cq.Workplane("XY").workplane(offset=total - CB_DEPTH).center(x, y).circle(M4_HEAD_CB / 2)
@@ -296,6 +298,13 @@ def to_onshape(shape, z_up=False):
 
 if __name__ == "__main__":
     export(flap_wheel(), "flap_wheel")
+    # The 48 mm wheel for Tim's goBILDA Torque servo on the existing corner plate (24 Nov 2026: 48 mm is as far out as
+    # that mount allows). Both of the hub's M4 patterns (the 16 mm circle and the 16 mm square), so the ring is 32 mm and
+    # the flaps 9 mm long; 1.5 mm thick, so they bend about as easily as the 2.3 in wheel's 15 mm flaps at 2.2 mm. The
+    # same flap height (26.7 mm, h27). Left: this way up; right: its mirror, so each prints boss down.
+    small = flap_wheel(SMALL_OD, SMALL_RING_OD, SMALL_FLAP_T, HUB_HOLES + HUB_SQUARE_HOLES)
+    export(small, "flap_wheel_48_h27_left")
+    export(small.mirror("YZ"), "flap_wheel_48_h27_right")
     colours = {"bracket": "steelblue", "servo": "gray20", "hub": "gray70", "wheel": "forestgreen", "screws": "black"}
     both = cq.Assembly(name="Corner modules")
     both_z = cq.Assembly(name="Corner modules")
