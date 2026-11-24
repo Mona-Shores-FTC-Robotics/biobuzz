@@ -13,6 +13,16 @@ and off by default (section 5).
 Prototype parts: [`cad/corner-wheels/`](../cad/corner-wheels/README.md). The build team's 10-minute hand test is
 in [`doc/robot-todo.md`](robot-todo.md) ("Corner wheels").
 
+**Update, 24 Nov 2026 (prototype 3): the corner module is now fitted to the robot's own CAD,** the mentor's STEP export
+of the whole robot as built. It replaces the 31 Oct model for the corner. Below, "How a corner goes together, on the
+robot's CAD" has the result. Sections 1 to 3 otherwise stand as first worked out on the 31 Oct model. The current
+CAD changes three things:
+
+- **The stick's arms sit further out.** The right arm is at |Y| 6.60..7.08, the left at 5.99..6.47. The servo now
+  goes outboard of the arm.
+- **The wheel is 2.4 in, not 2.5.** With both servos outboard, 2.5 in made the robot 17.94 in wide.
+- **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it.
+
 ## Where the numbers come from
 
 - **The geometry** comes from the AdvantageScope model of the team's Onshape CAD (`cad/advantagescope/`, built
@@ -73,20 +83,31 @@ The robot is then 16.3 in wide, inside both 18 in limits (R102 at the start, R10
 | Hub to the stick | 0.88 | 0.66 |
 | Bracket to the stick | 0.23 | 0.25 |
 
-**How a corner goes together** (fixed 24 Nov 2026: the first version had the servo body hanging below its plate):
+**How a corner goes together, on the robot's CAD** (prototype 3, 24 Nov 2026; `cad/corner-wheels/README.md` has the
+parts list):
 
 - **The servo is upside down, spline down into the hub.** A standard servo's flange sits near its spline end (goBILDA
   2000 series: the case is 27.2 mm below the flange and 12.8 mm above it, with the spline 4.1 mm more). So upside
   down, the flange is near the bottom and the body stands up above it: flange Z 2.53..2.69, body up to Z 3.76.
-- **Its body runs forward from the spline on both corners,** so nothing reaches back over the drive wheel.
-- **The bracket's plate is Z 2.69..2.94,** sitting on top of the flange. The body passes up through its cut-out, and
-  four M3 screws come up through the flange into the plate.
-- **The body is outboard of the stick arm's band** (|Y| from 6.46 left and 6.56 right; the arm is at most |Y| 6.32),
-  so the arm's low pass over its own band (Z 4.6 at X 7.8, Z 3.6 at X 8.8) never reaches it.
-- **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 16 screws
-  that come up from counterbores in its underside. The hub sits Z 1.85..2.16.
-- **The servo's front flange tab ends at X 10.40, 0.03 in inside the 18 in starting cube** (X 10.43). If an inspector's
-  box is tight there, R504.A allows trimming a servo's mounting tabs.
+- **The servo sits outboard of the stick's arm,** body pointing back toward the drive wheel. Axle at X 9.05,
+  |Y| 7.72; servo |Y| 7.33..8.11.
+- **The printed bracket bolts to the front flange of the intake's side channel,** with two M4 × 12 through its holes
+  at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
+  - From that tab a straight bar runs outboard at Z 2.94..3.30, just above a POLLEN's top (2.80), under the stick's
+    arm.
+  - The bar ends in a shelf on the servo's flange: four M3 up through the flange.
+- **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
+  counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
+- **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
+  - servo 0.40 in from the stick, 0.51 in from the mecanum;
+  - bracket 0.60 and 0.44 in;
+  - wheel 1.32 and 0.57 in.
+- **Size:**
+  - The front is X 10.24, 17.81 in from the back wall; with the stick retracted, the wheels are the front of the
+    robot.
+  - Both corners together make the robot 17.82 in wide.
+- **The left module is the right one mirrored,** assuming the left arm moves out to match the right. Today the left
+  module clears the left arm anyway (0.91 in).
 
 ![Left corner module](corner-wheels/left-corner-module.png)
 ![Right corner module](corner-wheels/right-corner-module.png)
