@@ -1,66 +1,96 @@
-# Corner wheels: first prototype
+# Corner wheels: prototype 2
 
-These parts put a TPU flap wheel on a vertical axle at each front corner, ahead of the front drive wheels, spun
-inward by a CR servo. They rake a POLLEN at the robot's corner, or one pinned on a wall there, into the intake
-mouth. Why, where they go, and the rules: [`doc/corner-wheels.md`](../../doc/corner-wheels.md).
+These parts put a TPU flap wheel on a vertical axle at each front corner, ahead of the front drive wheels, turned
+inward by a CR servo. They rake a POLLEN at the robot's corner, or one pinned on a wall there, into the intake mouth.
+Why, where they go, and the rules: [`doc/corner-wheels.md`](../../doc/corner-wheels.md).
 
-**This is a prototype for the build team.** It was placed from the CAD of 31 Oct. Before you print, check both
-corners on each robot with a ruler against the numbers below.
+**Prototype 2 (24 Nov 2026) fixes the servo.** Prototype 1 had the servo's body hanging below its plate. A standard
+servo's flange is near its spline end, so upside down its body stands *up* above the flange. The plate now sits on
+the flange and the body passes up through it. Prototype 1 also had no hub; the wheel now bolts to a goBILDA 25T hub.
 
-![Left corner](../../doc/corner-wheels/left-corner-top.png)
+**Start in Onshape with `corner_module_left.step` and `corner_module_right.step`.** Each is one corner already put
+together in the robot frame: bracket, servo, hub, wheel and screws. Insert it, then line the bracket's ear up on the
+face it bolts to (below). The robot frame is millimetres, +X forward, +Y left, +Z up, origin on the floor under the
+middle of the four drive axles. That isn't the Onshape assembly's origin, so mate the ear rather than trusting the
+coordinates. The servo and hub in them are envelopes drawn from goBILDA's STEP files: insert goBILDA's own
+(2000-0025-0002, 1908-0025-0032, from gobilda.com) if you want the detail.
 
-## The parts
+![Left corner module](../../doc/corner-wheels/left-corner-module.png)
+![Right corner module](../../doc/corner-wheels/right-corner-module.png)
 
-| File | What it is | Print |
+## Where each ear bolts
+
+| Corner | Ear bolts to | Where (robot frame, inches) |
 |---|---|---|
-| `flap_wheel_left.*` | A 2.5 in (63 mm) wheel, 32 mm tall (26.7 mm of flaps and a 5 mm boss). Eight curved flaps, 2.2 mm thick. Seen from above it turns clockwise | **TPU 95A**, boss down, 3 walls, 30 % infill, no supports. 1 per robot |
-| `flap_wheel_right.*` | Its mirror image. It turns the other way, so its flaps curve the other way | the same. 1 per robot |
-| `bracket_left.*` | The servo plate and an ear with two M4 slots 16 mm apart. The ear bolts to the outer face of the intake's left side channel (the 5-hole Lowside U-Channel), ahead of the drive wheel | **PETG**, plate down, 4 walls, 40 %, no supports. 1 per robot |
-| `bracket_right.*` | The right one bolts to the **front** face of the short 2-hole channel in front of the right drive wheel, and its servo runs forward from the spline. In the CAD the right stick arm is 0.45 in further out than the left, and that channel is in the way | the same. 1 per robot |
-| `*.step` | The same parts as solids. Import these into Onshape, not the STLs | |
-| `parts.py` | Makes them. Every size is a constant at the top | `pip install cadquery` |
+| **Left** | The **outer face of the intake's left side channel** (the 5-hole Lowside U-Channel the Viper slide is on), just ahead of the front drive wheel | Face at Y +5.35; ear X 7.60..8.50, Z 2.69..3.65 |
+| **Right** | The **front face of the short 2-hole channel** standing in front of the right drive wheel | Face at X 7.87; ear across Y −5.55..−7.15, Z 2.69..3.65 |
 
-## Where they sit
+Each ear has two vertical M4 slots, 16 mm apart, with 8 mm of travel to find the channel's holes. If the holes don't
+line up, drill.
 
-Robot frame, inches: +X forward, +Y left, +Z up, origin on the floor under the middle of the drive axles.
+## Parts per robot
 
-**The wheels:**
+| Item | Qty | Notes |
+|---|---|---|
+| `flap_wheel_left` / `flap_wheel_right` (print) | 1 each | **TPU 95A**, boss down as exported, 3 walls, 30 % infill, no supports. 63.5 mm (2.5 in) across, 31.7 mm tall. The two are mirror images because they turn opposite ways |
+| `bracket_left` / `bracket_right` (print) | 1 each | **PETG**, plate down as exported, 4 walls, 40 % infill, no supports. The two differ, not just mirrored: the right stick arm sits 0.45 in further out, and the right ear bolts to a front face |
+| goBILDA 2000 Series Dual Mode Servo, continuous mode | 2 | Or any standard servo with a 40 × 20 body and 48 × 10 mm flange holes. Set to continuous with goBILDA's servo programmer |
+| goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter), 1908-0025-0032 | 2 | Counterbored face toward the wheel, with the servo's screw in it |
+| M4 × 16 socket head | 8 | Wheel to hub, from below: heads in the wheel's counterbores, about 4 mm into the hub's threaded holes on the 16 mm circle |
+| M3 × 10 self-tapping, or M3 × 12 with 3.4 mm drilled holes and nuts | 8 | Up through the servo's flange slots into the plate |
+| M4 × 8 or × 10 with nuts | 4 | The ear to the channel |
 
-- **Axle:** X 8.94, Y +6.85 (left) and Y −6.95 (right).
-- **Height:** the flaps span Z 0.60..1.65, so a POLLEN meets them at its equator (Z 1.40). Space the wheel with
-  washers to get there.
-- **Reach:** each rim comes 2.62 in ahead of the drive wheels and about 0.45 in past the frame's side.
-- **Spin:** the front of each wheel moves inward. Fit the wheel so its flaps' tips trail.
+## The stack, from the floor up (inches)
 
-**The servo and bracket:**
+| Part | Z |
+|---|---|
+| Wheel flaps | 0.60..1.65 (a POLLEN's equator, 1.40, inside them) |
+| Wheel boss | 1.65..1.85 |
+| Hub | 1.85..2.16 |
+| Servo top cap and flange (upside down) | 2.02..2.69 |
+| Bracket plate | 2.69..2.94 |
+| Servo body, through the plate | up to 3.76 |
+| Ear | up to 3.65 |
 
-- The plate is Z 3.40..3.65. The servo hangs under it, upside down, spline down over the wheel.
-- The servo is a standard size: goBILDA 2000 series, REV Smart Robot Servo or an Axon. Its body is 40 × 20 mm and
-  its flange holes are 48 × 10 mm. Fix it with M3 self-tappers, or drill the holes to 3.4 for bolts.
-- The wheel's boss takes a goBILDA hub. It has 4 × M4 holes on a 16 mm circle and 4 on a 16 mm square, so either
-  pattern fits, and an 8.3 mm bore. A 25T servo hub, or the **Servo Hub Shaft - 16mm** with a hyper hub, joins it
-  to the servo.
+- **Axle:** X 8.94, Y +6.85 (left) and −6.95 (right).
+- **Servo body:** runs forward from the spline on both corners, X 8.26..10.40 with the flange tab. That is 0.03 in
+  inside the 18 in starting cube's front, X 10.43.
+- **Reach:** the wheel's rim comes 2.62 in ahead of the drive wheels and about 0.45 in past each frame side.
+- **Spin:** the front of each wheel moves inward. Fit the wheels so the flaps' tips trail.
 
-**Measured in the CAD**, with the stick swept through its whole 0..162° swing:
+## Clearances in the CAD
+
+Measured with the stick swept through its whole 0..162° swing (`drawings.py` prints them):
 
 | | Left | Right |
 |---|---|---|
 | Wheel to the stick | 0.75 in | 0.56 in |
 | Servo to the stick | 0.58 in | 0.24 in |
-| Bracket to the stick | 0.21 in | 0.21 in |
-| Wheel to the frame | 0.34 in | 0.08 in, under that short channel |
+| Hub to the stick | 0.88 in | 0.66 in |
+| Bracket to the stick | 0.23 in | 0.25 in |
+| Wheel to the frame | 0.34 in | 0.08 in, under the short channel |
+
+The servo sits outboard of the stick arm's band, so the arm's low pass over its own band never reaches it.
 
 ## Check before printing, on each robot
 
-1. **Put the stick down and measure its arm's outer face from the robot's centre line.** The CAD says 5.88 in
-   (left) and 6.32 in (right).
-   - The servo's inner side sits at |Y| 6.45 (left) and 6.55 (right).
-   - On 19429, also check the blue GARDEN guide.
-2. **Look at what's in front of each drive wheel.** The left bracket wants the intake side channel's outer face
-   clear from X 7.60 to 8.50, and Z 2.95 to 3.65.
-   - The right bracket wants the short channel's front face there.
-   - If it's missing, a bracket that bolts to the side channel like the left one is a one-line change in
-     `parts.py` (`SIDES["right"]`).
+1. **Put the stick down and measure its arm's outer face from the robot's centre line.** The CAD says 5.88 in (left)
+   and 6.32 in (right). The servo's inner side is at |Y| 6.46 (left) and 6.56 (right). On 19429, also check the
+   blue GARDEN guide.
+2. **Look at what each ear bolts to:**
+   - Left: the side channel's outer face, clear from X 7.60 to 8.50 and Z 2.69 to 3.65.
+   - Right: the short channel's front face.
+   - If the right channel isn't on the robot, giving the right bracket a side ear like the left one is a change to
+     `SIDES["right"]` in `parts.py`.
 3. **Lower the stick slowly by hand past the servo** before running it powered.
 
-**Re-run `parts.py` after any change, and commit the outputs.**
+## Files
+
+| File | What |
+|---|---|
+| `corner_module_left.step`, `corner_module_right.step` | Each corner assembled in the robot frame |
+| `flap_wheel_*.step/.stl/.3mf`, `bracket_*.step/.stl/.3mf` | The printed parts, as they print |
+| `parts.py` | Makes them all. Every size is a constant at the top. `pip install cadquery` |
+| `drawings.py` | The corner-module pictures in `doc/corner-wheels/` and the clearances |
+
+**Re-run `parts.py`, then `drawings.py`, after any change, and commit the outputs.**

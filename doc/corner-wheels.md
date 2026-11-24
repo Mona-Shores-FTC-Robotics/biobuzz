@@ -70,12 +70,26 @@ The robot is then 16.3 in wide, inside both 18 in limits (R102 at the start, R10
 | Wheel to the stick, anywhere in its swing | 0.75 | 0.56 |
 | Wheel to the frame | 0.34 | **0.08** (the 2-hole channel's bottom, Z 1.73, over the wheel's top, Z 1.65) |
 | Servo body to the stick | 0.58 | 0.24 |
-| Bracket to the stick | 0.21 | 0.21 |
+| Hub to the stick | 0.88 | 0.66 |
+| Bracket to the stick | 0.23 | 0.25 |
 
-The servo hangs upside down above the wheel, spline down, at Z 2.34..3.40.
+**How a corner goes together** (fixed 24 Nov 2026: the first version had the servo body hanging below its plate):
 
-![Left corner](corner-wheels/left-corner-top.png)
-![Right corner](corner-wheels/right-corner-top.png)
+- **The servo is upside down, spline down into the hub.** A standard servo's flange sits near its spline end (goBILDA
+  2000 series: the case is 27.2 mm below the flange and 12.8 mm above it, with the spline 4.1 mm more). So upside
+  down, the flange is near the bottom and the body stands up above it: flange Z 2.53..2.69, body up to Z 3.76.
+- **Its body runs forward from the spline on both corners,** so nothing reaches back over the drive wheel.
+- **The bracket's plate is Z 2.69..2.94,** sitting on top of the flange. The body passes up through its cut-out, and
+  four M3 screws come up through the flange into the plate.
+- **The body is outboard of the stick arm's band** (|Y| from 6.46 left and 6.56 right; the arm is at most |Y| 6.32),
+  so the arm's low pass over its own band (Z 4.6 at X 7.8, Z 3.6 at X 8.8) never reaches it.
+- **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 16 screws
+  that come up from counterbores in its underside. The hub sits Z 1.85..2.16.
+- **The servo's front flange tab ends at X 10.40, 0.03 in inside the 18 in starting cube** (X 10.43). If an inspector's
+  box is tight there, R504.A allows trimming a servo's mounting tabs.
+
+![Left corner module](corner-wheels/left-corner-module.png)
+![Right corner module](corner-wheels/right-corner-module.png)
 
 **Things to know:**
 
