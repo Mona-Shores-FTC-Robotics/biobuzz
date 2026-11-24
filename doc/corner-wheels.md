@@ -7,6 +7,8 @@ or sits pinned against a wall there, gets raked into the intake mouth. The intak
 **Short answer: yes, a 2.5 in wheel fits at each corner, ahead of the front drive wheels.** Drive each one with
 its own CR servo on the Expansion Hub. It is legal if the wheels stop when the robot holds 4 and stay off during
 FLOWER picks. The centre-mounted stick does not fit before States, and the study says it isn't needed.
+**19429 would have 9 servos with both wheels, one over R503's 8**; its options are in section 4. The code is in
+and off by default (section 5).
 
 Prototype parts: [`cad/corner-wheels/`](../cad/corner-wheels/README.md). The build team's 10-minute hand test is
 in [`doc/robot-todo.md`](robot-todo.md) ("Corner wheels").
@@ -190,17 +192,86 @@ From the 2026-27 BIOBUZZ Competition Manual, TU10 (current), page numbers from i
 **Verdict: don't build a centre stick before States.** Run the study's test first: 19429 with its stick held. If
 it doesn't get 4 on at least 8 of 10 picks, put 20245's passive stick on 19429.
 
-## What the code would need, once the hand test passes
+## 4. The servo budget: 19429 would have 9
 
-Not done here.
+**R503 (p.133):** "ROBOTS are limited to a total of 8 motors and 8 servos. A ROBOT may not have more than 8
+motors and 8 servos from the allowable actuator lists per R501 and R502 for all MECHANISMS used in all
+configurations." Its note adds that servos fitted for different events' configurations count together.
 
-- **Hardware:**
-  - Two `DeviceNames` CR-servo names, for example `cornerWheelLeft` and `cornerWheelRight`.
-  - Put them in each robot's `RobotIdentity.optional`, so a robot without them still starts.
-  - Each robot's XML gets them on Expansion Hub ports 1 and 2.
-  - A `RobotDifferences` line turns them on per robot, like the beam breaks.
-- **Behaviour,** in `IntakeSubsystem` beside the star wheels:
-  - Run them while the intake takes in.
-  - Stop them while the lane is full or `colorSensor.wrongNectarMayBeIn()`, and during a FLOWER pick.
-  - Each needs its own direction switch.
-- **Auto:** a GARDEN or corner gather card that keeps the stick up.
+**Does the indicator light count?**
+
+- R503 counts servos "from the allowable actuator lists per R502", and R502 covers servo actuators.
+- The goBILDA RGB Indicator Light plugs into a servo port but is a light, not an actuator. So by the rule's text
+  it does not count.
+- The manual does not say so in words. Confirm with the inspector at check-in, or ask on the official Q&A,
+  before 19429 relies on it.
+
+**What each robot has today** (the robot XMLs, the light not counted):
+
+| Robot | Servos today | With both corner wheels |
+|---|---|---|
+| 19429 | 7: `intakeStars`, `intakeStarsRight`, `flowerRoller`, `prefeed`, `feedGate`, `turret`, `flowerStick` | **9: over the limit** |
+| 20245 | 5: `intakeStars`, `prefeed`, `feedGate`, `turret`, `flowerStick` | 7 (8 if it ever takes the second star-wheel servo its port 4 is kept for) |
+
+**19429's options.** These are the build team's and the mentor's to choose. The code handles each one.
+
+- **(a) A passive FLOWER stick on 19429, as 20245 has.** That drops `flowerRoller`, so 6 + 2 = **8**.
+  - The FLOWER pick study already points this way if 19429's held test misses 4 on 8 of 10 picks. 20245's held
+    passive stick got 4 on every pick seen clearly on video.
+  - Code: turn off the `FlowerStickSubsystem.roller` line in `RobotDifferences` and remove `flowerRoller`
+    from `robot_19429.xml` and `DeviceNames.ROBOT_19429`.
+- **(b) One servo for both wheels, with a crossed belt** (crossed because the wheels turn opposite ways): 7 + 1 =
+  **8**. It doesn't fit as the CAD stands.
+  - The two axles are 13.8 in apart across the front. At wheel height the belt would cross the intake mouth in
+    front of the roller, where the POLLEN come in.
+  - Above the roller's top (Z 4.42), it runs through the FLOWER stick's swing over each arm's band: the arm comes
+    down to Z 4.6 at X 7.8 and Z 3.6 at X 8.8. It would also run through the intake's side channels (X 6.8..8.5,
+    Z 2.86..8.53).
+  - It would need a route behind the side channels, through holes in them, or another take-off.
+  - Code: `rightServo = false`.
+- **(c) One corner only:** 7 + 1 = **8**.
+  - Which corner is the drivers' call: the one the GARDEN and wall gathers meet most.
+  - Code: `rightServo = false`, with that servo named `cornerWheelLeft` wherever it sits, and its direction set on
+    the bench.
+- **Also possible: put 19429's two star-wheel servos back on one, as 20245 runs.** That gives 6 + 2 = 8.
+  - 19429 split them onto two servos on 13 Nov, and the doc doesn't say why.
+  - Code: turn off the `IntakeSubsystem.rightStarWheel` line.
+
+## 5. The code: in, off by default
+
+`CornerWheelSubsystem`, on `Robot`.
+
+**Hardware:**
+
+- Two optional CR servos, `DeviceNames.CORNER_WHEEL_LEFT` and `CORNER_WHEEL_RIGHT` (`DeviceNames.CORNER_WHEELS`,
+  part of every competition robot's `RobotIdentity.optional`).
+- They are asked for only once a robot's `RobotDifferences` line sets `CornerWheelSubsystem.fitted = true`, and
+  the OpMode refuses to start if that robot's XML lacks one.
+- Both XMLs carry them commented out, on Expansion Hub servo ports 1 (left) and 2 (right), free on both robots.
+- **Check: Hardware** lists them with their switch.
+
+**When they spin:** inward at `power` only when all of these hold (`CornerWheelSubsystem.stopFor`):
+
+- after PLAY;
+- while the OpMode's intake takes in: not a feed's assist, an eject, a reject or a jam clear;
+- the lane doesn't read full and the lane tracker counts fewer than 4 (G407; the driver's R2 past a full lane
+  never runs them);
+- no wrong NECTAR may be in and none is being spat out (G408);
+- the FLOWER stick is up (G418).
+
+Otherwise each servo gets 0, one write per loop.
+
+**Where to see why they're stopped:** the Robot page's "Corner wheels" line.
+
+**Tests:**
+
+- `InitMovesNothingTest` checks nothing moves before PLAY, even with every rule saying rake.
+- `CornerWheelSubsystemTest` checks each stop rule, and that a fitted robot without the servo fails loudly.
+
+**Bench: Corner wheels** (Utility) spins each wheel for the hand test and flips each one's direction (`leftReversed`,
+`rightReversed`). It needs the servos in the XML, not the `RobotDifferences` line.
+
+**Still to do:**
+
+- An Auto GARDEN or corner gather that keeps the stick up.
+- `LoopTimeBaseline` before and after, on the robot (`doc/robot-todo.md`).

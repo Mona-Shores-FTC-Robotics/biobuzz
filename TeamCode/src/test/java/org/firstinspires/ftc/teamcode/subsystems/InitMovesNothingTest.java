@@ -257,6 +257,44 @@ public class InitMovesNothingTest {
     }
 
     @Test
+    public void cornerWheelsWaitForPlayEvenWithEveryRuleSayingRake() {
+        boolean was = CornerWheelSubsystem.fitted;
+        CornerWheelSubsystem.fitted = true;
+        try {
+            Devices devices = new Devices().crServo(DeviceNames.CORNER_WHEEL_LEFT).crServo(DeviceNames.CORNER_WHEEL_RIGHT);
+            CornerWheelSubsystem wheels = new CornerWheelSubsystem(devices.map);
+            // Taking in, the lane empty, nothing wrong, the stick up: all that stops them is PLAY.
+            wheels.watch(() -> true, () -> false, () -> 0, () -> false, () -> false);
+            runInit(wheels, devices);
+
+            wheels.start();
+            wheels.update();
+            assertEquals("at PLAY the left wheel rakes",
+                    Arrays.asList("setPower(" + CornerWheelSubsystem.powerFor(true, CornerWheelSubsystem.power,
+                            CornerWheelSubsystem.leftReversed) + ")"),
+                    devices.calls(DeviceNames.CORNER_WHEEL_LEFT));
+            assertEquals("and the right one, its own way",
+                    Arrays.asList("setPower(" + CornerWheelSubsystem.powerFor(true, CornerWheelSubsystem.power,
+                            CornerWheelSubsystem.rightReversed) + ")"),
+                    devices.calls(DeviceNames.CORNER_WHEEL_RIGHT));
+        } finally {
+            CornerWheelSubsystem.fitted = was;
+        }
+    }
+
+    @Test
+    public void cornerWheelsNotFittedLookUpAndWriteNothing() {
+        Devices devices = new Devices();
+        CornerWheelSubsystem wheels = new CornerWheelSubsystem(devices.map);
+        wheels.watch(() -> true, () -> false, () -> 0, () -> false, () -> false);
+        runInit(wheels, devices);
+        wheels.start();
+        wheels.update();
+        assertFalse(wheels.present());
+        assertEquals(CornerWheelSubsystem.Why.NOT_FITTED, wheels.why());
+    }
+
+    @Test
     public void intakeJoinsAFeedOnlyAfterPlay() {
         Devices devices = new Devices().motor(DeviceNames.INTAKE).crServo(DeviceNames.INTAKE_STARS)
                 .motor(DeviceNames.FEEDER);
@@ -516,7 +554,7 @@ public class InitMovesNothingTest {
 
     private static final List<String> RUN_HERE = Arrays.asList(
             "FlowerStickSubsystem", "TurretSubsystem", "IntakeSubsystem", "FeederSubsystem", "LauncherSubsystem",
-            "PrefeedSubsystem", "FeedGateSubsystem");
+            "PrefeedSubsystem", "FeedGateSubsystem", "CornerWheelSubsystem");
 
     private static final Pattern COMMENTS = Pattern.compile("/\\*.*?\\*/|//[^\\n]*", Pattern.DOTALL);
 
@@ -550,6 +588,12 @@ public class InitMovesNothingTest {
                 Object fake = fakes.get(name);
                 if (fake == null) throw new IllegalArgumentException("no fake named " + name);
                 return type.cast(fake);
+            }
+
+            @Override
+            public <T> T tryGet(Class<? extends T> type, String name) {
+                Object fake = fakes.get(name);
+                return fake == null ? null : type.cast(fake);
             }
         };
         private final Map<String, List<String>> calls = new LinkedHashMap<>();
