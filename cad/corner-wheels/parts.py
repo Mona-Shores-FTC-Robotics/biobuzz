@@ -5,7 +5,7 @@ axle at each front corner, turned inward by a continuous-rotation servo, and the
     python3 cad/corner-wheels/parts.py
 
 Writes, next to this file:
-  flap_wheel_left.* / flap_wheel_right.*   the wheels, boss down as they print
+  flap_wheel.*                             the wheel, one file for both corners (the right one goes in upside down)
   bracket_left.* / bracket_right.*         the brackets, plate down as they print
   corner_module_left.step / _right.step    each corner assembled in the robot frame: bracket, servo, hub, wheel, screws
 
@@ -66,7 +66,7 @@ FLAP_SWEEP_DEG = 35          # each flap curves back against the spin, so it wip
 BORE = 8.3                   # clears the hub's centre and the servo screw's head
 M4 = 4.4
 M4_HEAD_CB = 7.6             # counterbore for an M4 socket head (7.0)
-SCREW_GRIP = 12.0            # wheel material each M4 x 16 clamps under its head: 4 mm into the hub's thread
+CB_DEPTH = 10.7              # counterbored from both faces this deep; an M4 x 30 from below reaches 4 mm into the hub
 HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)]
 
 # ---- the bracket ---------------------------------------------------------------------------------------------------
@@ -111,14 +111,18 @@ def _flaps():
 
 
 def flap_wheel():
-    """The left wheel in its own frame: axle on Z, Z 0 the flaps' bottom, the boss on top. Seen from above it turns
-    clockwise (its front moving inward) and each flap's tip trails its root; the right wheel is its mirror image."""
-    total = FLAP_H + BOSS_H
-    w = cq.Workplane("XY").circle(HUB_RING_OD / 2).circle(BORE / 2).extrude(total).union(_flaps())
-    cb_depth = total - SCREW_GRIP
+    """The wheel in its own frame: axle on Z, Z 0 its bottom face. The same either way up: a 5 mm boss above and below
+    the flaps, and the M4 holes counterbored from both faces. Seen from above, this way up it turns clockwise (the
+    left corner: its front moving inward) with each flap's tip trailing; upside down its flaps curve the other way,
+    for the right corner."""
+    total = FLAP_H + 2 * BOSS_H
+    w = (cq.Workplane("XY").circle(HUB_RING_OD / 2).circle(BORE / 2).extrude(total)
+         .union(_flaps().translate((0, 0, BOSS_H))))
     for x, y in HUB_HOLES:
         w = w.cut(cq.Workplane("XY").center(x, y).circle(M4 / 2).extrude(total))
-        w = w.cut(cq.Workplane("XY").center(x, y).circle(M4_HEAD_CB / 2).extrude(cb_depth))
+        w = w.cut(cq.Workplane("XY").center(x, y).circle(M4_HEAD_CB / 2).extrude(CB_DEPTH))
+        w = w.cut(cq.Workplane("XY").workplane(offset=total - CB_DEPTH).center(x, y).circle(M4_HEAD_CB / 2)
+                  .extrude(CB_DEPTH))
     return w
 
 
@@ -202,11 +206,11 @@ def module(side):
     # Upside down (turned half a turn about X: Y and Z change sign), spline over the axle, body running forward.
     parts["servo"] = servo_envelope().rotate((0, 0, 0), (1, 0, 0), 180).translate((ax - SPLINE_X, ay, SERVO_Z0))
     parts["hub"] = hub_envelope().translate((ax, ay, HUB_Z0))
-    parts["wheel"] = flap_wheel().translate((ax, ay, FLAP_Z0))
+    parts["wheel"] = flap_wheel().translate((ax, ay, FLAP_Z0 - BOSS_H))
     screws = None
-    head_top = FLAP_Z0 + FLAP_H + BOSS_H - SCREW_GRIP
-    for x, y in HUB_HOLES:                                    # M4 x 16 socket head, from below into the hub
-        s = cylinder(2.0, head_top, head_top + 16.0, ax + x, ay + y).union(
+    head_top = FLAP_Z0 - BOSS_H + CB_DEPTH
+    for x, y in HUB_HOLES:                                    # M4 x 30 socket head, from below into the hub
+        s = cylinder(2.0, head_top, head_top + 30.0, ax + x, ay + y).union(
             cylinder(3.5, head_top - 4.0, head_top, ax + x, ay + y))
         screws = s if screws is None else screws.union(s)
     cx = ax - SPLINE_X
@@ -224,9 +228,7 @@ def export(shape, name):
 
 
 if __name__ == "__main__":
-    w = flap_wheel().rotate((0, 0, 0), (1, 0, 0), 180)          # boss down, as it prints
-    export(w, "flap_wheel_left")
-    export(w.mirror("XZ"), "flap_wheel_right")
+    export(flap_wheel(), "flap_wheel")
     for side in ("left", "right"):
         m = module(side)
         mirror = (lambda s: s.mirror("XZ")) if side == "right" else (lambda s: s)
