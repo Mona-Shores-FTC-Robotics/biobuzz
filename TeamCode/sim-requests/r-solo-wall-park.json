@@ -1,0 +1,68 @@
+{
+  "pp": "TeamCode/autos/drafts/r-solo-wall-park.pp",
+  "spec": "RSoloWallParkAuto",
+  "design": "real robot",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "alliance": "RED",
+  "partners": [
+    {
+      "name": "dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "stays out of the way",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "parks high at 15 s (PARTNER_PARK, y 117.4)",
+      "partner": "PartnerPark1Auto"
+    },
+    {
+      "name": "parks low at 15 s (y 99.4): overlaps the wall spot",
+      "partner": "PartnerPark2Auto"
+    },
+    {
+      "name": "contingency: our preloads miss, partner stays out of the way",
+      "partner": "PartnerStillAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner dead on its start",
+      "partner": "PartnerLBrokenDownAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner misses every shot",
+      "partner": "PartnerLTipParkAuto",
+      "oursFails": "misses preloads",
+      "fails": "misses"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "r-solo-wall-park.pp",
+    "SavedBy": "R-Solo with its park legs moved to its own RIGHT_PARK_WALL (14.5, 92.5), driven in along the alliance wall",
+    "SavedAt": "2026-11-24T04:25:00+00:00",
+    "SimNote": "Draft beside R-Solo: real robot; same partners as R-Solo plus a low-parked one"
+  },
+  "usual": true
+}
