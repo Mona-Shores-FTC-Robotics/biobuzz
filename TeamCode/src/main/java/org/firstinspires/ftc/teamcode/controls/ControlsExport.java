@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.controls;
 
 import org.firstinspires.ftc.teamcode.opmodes.ArcLight;
+import org.firstinspires.ftc.teamcode.opmodes.BasicDriveTeleOp;
 import org.firstinspires.ftc.teamcode.opmodes.CycleReadout;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
@@ -71,6 +72,14 @@ public final class ControlsExport {
                 {"chassisAimKp", num(TeleOpConfig.chassisAimKp)},
                 {"chassisAimMinTurn", num(TeleOpConfig.chassisAimMinTurn)},
                 {"chassisAimMaxTurn", num(TeleOpConfig.chassisAimMaxTurn)},
+                {"headingLockConeDeg", num(TeleOpConfig.headingLockConeDeg)},
+                {"headingLockStepDeg", num(TeleOpConfig.headingLockStepDeg)},
+                {"headingLockKp", num(TeleOpConfig.headingLockKp)},
+                {"headingLockKd", num(TeleOpConfig.headingLockKd)},
+                {"headingLockMinTurn", num(TeleOpConfig.headingLockMinTurn)},
+                {"headingLockMaxTurn", num(TeleOpConfig.headingLockMaxTurn)},
+                {"headingLockStopDeg", num(TeleOpConfig.headingLockStopDeg)},
+                {"turretModeHoldMs", num(BasicDriveTeleOp.RESET_HOLD_MS)},
                 {"driveAccelPerSec", num(DriveSubsystem.accelPerSec)},
                 {"turnAccelPerSec", num(DriveSubsystem.turnAccelPerSec)},
                 {"turretLockedForwardShared", String.valueOf(TurretSubsystem.lockedForward)},

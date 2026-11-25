@@ -148,17 +148,22 @@ public class ControlSchemeTest {
     }
 
     @Test
-    public void theTurretModeIsTheDriversR1() {
-        assertEquals(Action.Pad.DRIVER, Action.TURRET_LOCK.pad);
-        Map<Action, Input> aiming = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false, true);
-        assertEquals(Input.R1, aiming.get(Action.TURRET_LOCK));
-        for (Map.Entry<Action, Input> entry : aiming.entrySet()) {
-            if (entry.getKey().pad == Action.Pad.OPERATOR) {
-                assertFalse("the operator's Triangle does nothing: " + entry.getKey(), entry.getValue() == Input.TRIANGLE);
-            }
+    public void theTurretModeIsTheOperatorsTriangleInAMatchAndR1IsTheHeadingLock() {
+        assertEquals(Action.Pad.OPERATOR, Action.TURRET_LOCK.pad);
+        assertEquals(Action.Pad.DRIVER, Action.HEADING_LOCK.pad);
+        for (boolean spot : new boolean[] {true, false}) {
+            Map<Action, Input> aiming = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, false, spot);
+            assertEquals(Input.TRIANGLE, aiming.get(Action.TURRET_LOCK));
+            assertEquals(Input.R1, aiming.get(Action.HEADING_LOCK));
+            // A turret locked forward by config has no mode: not bound and not listed. The lock stays.
+            Map<Action, Input> locked = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, spot);
+            assertFalse(locked.containsKey(Action.TURRET_LOCK));
+            assertEquals(Input.R1, locked.get(Action.HEADING_LOCK));
         }
-        // A turret locked forward by config has no mode: R1 is not bound and not listed.
-        assertFalse(ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK, true, true).containsKey(Action.TURRET_LOCK));
+        // The bench's Triangle is its setup layer, never the turret mode.
+        Map<Action, Input> bench = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
+        assertFalse(bench.containsKey(Action.TURRET_LOCK));
+        assertEquals(Input.TRIANGLE, bench.get(Action.BENCH_SETUP));
     }
 
     @Test

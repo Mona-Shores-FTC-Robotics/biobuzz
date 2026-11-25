@@ -15,6 +15,33 @@ R-Solo running build `733501e`, with the fourth-shot cutoff active and the park 
 at about 28.5 s. Earlier claims that nothing after PR #422 had run are superseded;
 this is not a claim that every unchecked item below has passed.
 
+## Heading lock, the driver's R1 (Saturday 28 Nov 2026, either robot, Basic Drive, a stopwatch)
+
+R1 held: the robot turns to the nearest field cardinal and holds it, and the left stick within 20°
+of an axis drives dead straight along it (`HeadingLock`, `TeleOpConfig.headingLock*`; [#748](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/748)).
+The turret mode moved to the operator's Triangle, held 0.5 s. Gyro reset (D-pad up) facing the
+driver's forward first, or start from the Autos' start.
+
+- [ ] **Snap and hold.** Turn the robot to about 30°, 60°, 135° and 200° off forward, and hold R1
+      each time without touching the right stick. **Good:** it turns the short way to the nearest of
+      0/90/180/270 (the Robot page reads `Heading lock: holding …°`, the log `heading lock (R1):
+      holding …°, from …°`), settles without rocking, and stays put when pushed by hand and let go.
+      **Tune in Panels → TeleOpConfig:** it creeps short → `headingLockMinTurn` up; it swings past →
+      `headingLockKd` 0.05 to 0.2, or `headingLockKp` down; it rocks on the heading → `headingLockStopDeg` up.
+      **Stop:** it turns the long way or spins → let go, push the log.
+- [ ] **Straight along a wall.** Robot against a side wall, facing along it. Hold R1 and strafe and
+      drive the length of the field with the stick pushed loosely (10 to 15° off). **Good:** it stays
+      parallel to the wall, within about an inch of its start distance, with no wiggle. Then a stick
+      30° off: it goes diagonally, as without R1. Let go of R1 mid-drive: the right stick turns again
+      at once, with no kick. **Stop:** it drifts off the wall → push the log (`/Controls/HeadingLockDeg`
+      beside the pose heading).
+- [ ] **Cycle time.** Five pickup ↔ launch-spot cycles without R1, five with it, same driver, same
+      route, stopwatch from leaving the FLOWER to the volley's first ball. **Good:** the R1 runs are no
+      slower on the median. Write both medians here and on the PR; the drivers' call whether it stays.
+- [ ] **Turret mode on the operator's Triangle.** Hold it 0.5 s: one blip on both pads and the Match
+      page reads AIM; again: two blips, LOCKED. A tap does nothing.
+- [ ] Heading lock: snaps and holds ☐, straight along the wall ☐, cycles without __ s / with __ s (median)
+
 ## Next practice: five 5-minute Auto-time A/Bs (23 Nov 2026, either robot, R-Solo, fresh battery each pair)
 
 Each is three runs one way, three the other, Panels → the named knob, no reload. Push the logs after;
@@ -534,14 +561,14 @@ Each step stands alone: what to run, what good looks like, when to stop. Push th
 - [ ] (Optional) Firing arc measured: 19429 left __° right __°, 20245 left __° right __°
 7. **Circle follows the turret mode, both robots** (code in the Circle PR, not on the robot
    tonight). Basic Drive, HIVE upright with our CELL **up**, 4 POLLEN each time, phone filming the
-   CELL. Driver's R1 to **LOCKED** (two rumble blips, Match page reads LOCKED): from three spots (the right launch spot, mid-field facing
+   CELL. Operator's Triangle held 0.5 s to **LOCKED** (two rumble blips, Match page reads LOCKED): from three spots (the right launch spot, mid-field facing
    about 60° off the CELL, and near the far wall with the CELL behind-left), the driver holds Circle
    and does nothing else. **Good:** each time the robot turns onto the CELL by itself, the launcher
    spins up while it turns, and all 4 go once it is on (the match log's `fire (driver's Circle, aim
    then fire)` line, then the shot lines). Letting go mid-turn stops the turn and fires nothing; the
-   right stick moved mid-turn hands the turn back and fires nothing. Then R1 to **AIM** (one blip): Circle
-   fires as before (the turret points). The operator's Circle and Triangle do nothing in either mode,
-   and the Controls page lists no operator fire or turret mode. In INIT, Triangle held 1 s on either
+   right stick moved mid-turn hands the turn back and fires nothing. Then Triangle again to **AIM** (one blip): Circle
+   fires as before (the turret points). The operator's Circle fires nothing in either mode, and the
+   Controls page lists no operator fire. In INIT, Triangle held 1 s on either
    pad still discards a handoff (start fresh). **Stop:** it fires before it is on the CELL, or keeps turning
    after Circle is let go → push the log.
 - [ ] Circle LOCKED: turned on and fired 4 from all three spots; AIM unchanged

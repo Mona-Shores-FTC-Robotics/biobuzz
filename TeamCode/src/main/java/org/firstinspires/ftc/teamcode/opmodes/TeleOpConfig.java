@@ -192,7 +192,8 @@ public final class TeleOpConfig {
     /**
      * Basic Drive starts at PLAY with the turret aiming (AIM) rather than LOCKED straight ahead, on
      * a robot whose turret aims ({@code TurretSubsystem.lockedForward} off: both robots). The
-     * driver's R1 still toggles it. On since 18 Nov 2026 (mentor).
+     * operator's Triangle, held 0.5 s, still toggles it (the driver's R1 until 25 Nov 2026, now the
+     * heading lock). On since 18 Nov 2026 (mentor).
      */
     public static boolean startTurretAiming = true;
 
@@ -339,4 +340,48 @@ public final class TeleOpConfig {
      * in Panels to try it.
      */
     public static boolean stopLaunchingAtMatchEnd = false;
+
+    /**
+     * Heading lock (the driver's R1, held; {@code HeadingLock}): inside this many degrees of an
+     * axis the left stick drives straight along it, at the stick's full magnitude; outside, it
+     * passes through. 20 is a starting point, <b>not measured</b>. Clamped to [0, 45]; NaN or
+     * negative is 0, no snap.
+     */
+    public static double headingLockConeDeg = 20.0;
+
+    /**
+     * Heading lock: the headings it snaps to, degrees apart. 90 is the field's cardinals (0, 90,
+     * 180, 270); 45 adds the diagonals. Rounded to a whole fraction of a turn, 15 to 180; NaN or
+     * not positive is 90.
+     */
+    public static double headingLockStepDeg = 90.0;
+
+    /**
+     * Heading lock: turn power per radian of heading error. A starting point, <b>not measured</b>,
+     * a little stiffer than {@link #chassisAimKp}, since the lock holds against the driver's strafe.
+     * Clamped to [0, 10].
+     */
+    public static double headingLockKp = 1.2;
+
+    /**
+     * Heading lock: turn power taken off per radian/s of turn rate (the Pinpoint's), to damp the
+     * swing onto the heading. 0 (P only) until a run shows it overshoots. Clamped to [0, 2].
+     */
+    public static double headingLockKd = 0.0;
+
+    /**
+     * Heading lock: the least turn power outside {@link #headingLockStopDeg}, so it does not stall
+     * short; as {@link #chassisAimMinTurn}, which 19429 measured (0.14 did not turn, 0.28 did).
+     * Clamped to [0, headingLockMaxTurn].
+     */
+    public static double headingLockMinTurn = 0.2;
+
+    /** Heading lock: the most turn power it asks for. Clamped to [0, 1]. */
+    public static double headingLockMaxTurn = 0.6;
+
+    /**
+     * Heading lock: inside this many degrees of the target it asks for no turn, so the floor
+     * cannot rock it across the heading. Clamped to [0, 10].
+     */
+    public static double headingLockStopDeg = 1.5;
 }

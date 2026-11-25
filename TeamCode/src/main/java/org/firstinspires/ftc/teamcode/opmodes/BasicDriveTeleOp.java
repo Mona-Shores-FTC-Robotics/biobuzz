@@ -73,8 +73,9 @@ import java.util.Map;
  * <h2>Aiming</h2>
  *
  * <p>The turret starts at PLAY aiming when it can ({@code TeleOpConfig.startTurretAiming}, on a
- * robot whose turret is not {@code lockedForward}), else LOCKED straight ahead; the driver's R1
- * (one rumble blip for AIM, two for LOCKED; the mode is large on the Match page) switches it between LOCKED and AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
+ * robot whose turret is not {@code lockedForward}), else LOCKED straight ahead; the operator's
+ * Triangle, held 0.5 s (one rumble blip for AIM, two for LOCKED, on both pads; the mode is large on
+ * the Match page), switches it between LOCKED and AIM at our CELL ({@link TurretAimer}: left half of the field, left CELL; right half, right
  * CELL). While LOCKED, the driver has two ways to shoot. The launch-spot buttons trust the
  * odometry: experimentally, Square drives to the nearest launch spot, on the side wall from the
  * tile row against the end wall and the close one from the next row in ({@link LaunchSpots}),
@@ -88,12 +89,21 @@ import java.util.Map;
  * and at speed; with the turret AIMing it fires at once (the turret points; the usual spin-up,
  * gates and feed). Letting go stops the turn and the feed; a right stick moved after the press hands
  * the turn back and ends that press's fire. The driver owns every shot: the operator has no fire
- * button (18 Nov 2026), and the driver's own R1 (turret mode) sets what Circle does. Pose good, the spot;
+ * button (18 Nov 2026); the operator's turret mode (Triangle, held) sets what Circle does. Pose good, the spot;
  * pose off, a gyro reset and Circle. The
  * operator's trim nudges either one and stays until reset. It zeroes itself, assuming it starts a
  * match at its home mark, or taking the Auto's zero when an Auto just ran
  * ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy}); the zero button always
  * wins.
+ *
+ * <h2>Heading lock</h2>
+ *
+ * <p>The driver's R1, held ({@link HeadingLock}; mentor, 25 Nov 2026): the robot turns to the
+ * nearest field cardinal and holds it, and the left stick near an axis drives dead straight along
+ * it, for a fast cycle between pickup and launch spot. The right stick's turn is ignored while it
+ * is held. A routine that drives (pick, gather, Square) and Circle's turns (chassis aim, arc turn)
+ * win over it while they run; the stick snap stays under Circle's turn. With no heading to hold (no
+ * Pinpoint, a faulted one, robot-centric) R1 only snaps the stick.
  *
  * <h2>What it reports</h2>
  *
@@ -149,7 +159,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
      * How long a reset (gyro, camera, pose, turret zero) must be held. A tap does nothing. 0.5 s since
      * 4 Nov 2026: 1 s felt long to the drivers.
      */
-    private static final long RESET_HOLD_MS = 500;
+    public static final long RESET_HOLD_MS = 500;
 
     /** The hint while a reset is held, built once. */
     private static final String KEEP_HOLDING = String.format(Locale.US,
@@ -202,6 +212,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private final LongPress leftCornerReset = new LongPress(RESET_HOLD_MS);
     private final LongPress rightCornerReset = new LongPress(RESET_HOLD_MS);
     private final LongPress turretZero = new LongPress(RESET_HOLD_MS);
+    /** The operator's turret mode, a hold so a brushed Triangle never changes what Circle does. */
+    private final LongPress turretModeHold = new LongPress(RESET_HOLD_MS);
+    /** The driver's R1: hold the nearest cardinal, snap the left stick to an axis. */
+    private final HeadingLock headingLock = new HeadingLock();
 
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
@@ -395,6 +409,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.RESET_HEADING);
         controls.note(Action.RESET_LEFT_CORNER);
         controls.note(Action.RESET_RIGHT_CORNER);
+        controls.note(Action.HEADING_LOCK);
         controls.note(Action.CAMERA_RELOCALIZE);
         controls.on(Action.AUTO_PARK).onPress(() -> {
             autoParkNote = "Auto-park: not built yet (the loading zone is not measured)";
@@ -415,7 +430,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
         controls.on(Action.LAUNCHER_TRIM_RESET).onPress(this::resetLauncherTrim);
         controls.note(Action.FINE_TRIM);
-        controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
         controls.on(Action.TRIM_RIGHT).onPress(() -> trim(-1));
@@ -425,6 +439,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             resetLauncherTrim();
         });
         controls.note(Action.TURRET_ZERO);
+        controls.note(Action.TURRET_LOCK);
 
         operator.note("Launcher and Square", "spin up early when a shot is coming; while the driver "
                 + "holds Square, your toggle cannot idle it; it idles a few seconds after Square is let go. "
@@ -468,6 +483,30 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
     }
 
+    /**
+     * The driver's R1 ({@link HeadingLock}), one step: it holds a heading only with one to hold, the
+     * field-centric drive's (a Pinpoint not faulted; not the robot-centric TeleOp). A referenced pose
+     * is not needed: the drive's heading is the driver's frame, set at PLAY or by a gyro or corner
+     * reset. One log line on the press and on the let-go.
+     */
+    private void updateHeadingLock(double forward, double strafe, double turn) {
+        boolean headingOk = !robotCentric() && robot.drive.isFieldCentric() && robot.drive.hasHeading()
+                && robot.drive.pinpointTrust() != PinpointTrust.State.FAULTED;
+        double heading = robot.drive.heading();
+        headingLock.update(controls.held(Action.HEADING_LOCK), headingOk, heading,
+                robot.drive.odometryTurnRadPerSec(), forward, strafe, turn);
+        if (headingLock.pressed()) {
+            log.event(headingLock.holding()
+                    ? String.format(Locale.US, "heading lock (R1): holding %.0f°, from %.1f°",
+                            Math.toDegrees(headingLock.targetRad()), Math.toDegrees(heading))
+                    : "heading lock (R1): no heading to hold, stick snap only");
+        }
+        if (headingLock.released()) {
+            log.event(String.format(Locale.US, "heading lock (R1): let go at %.1f°", Math.toDegrees(heading)));
+        }
+        log.put("/Controls/HeadingLockDeg", Math.toDegrees(headingLock.targetRad()));
+    }
+
     /** The pose set to our alliance's measured spot in {@code corner}, if it has been measured. */
     private void resetToSpot(ResetPositions.Corner corner) {
         poseNote = robot.drive.resetToSpot(setup.alliance(), corner);
@@ -503,9 +542,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
             aimer.off();
             robot.turret.home();
         }
-        log.event("turret " + turretMode + " (driver's R1)");
-        // Felt as well as seen: one blip for AIM, two for LOCKED, on the driver's pad.
-        gamepad1.rumbleBlips(turretMode == TurretMode.AIM ? 1 : 2);
+        log.event("turret " + turretMode + " (operator's Triangle)");
+        // Felt as well as seen: one blip for AIM, two for LOCKED, on both pads: the operator held
+        // it, and the driver's Circle changes with it.
+        int blips = turretMode == TurretMode.AIM ? 1 : 2;
+        gamepad1.rumbleBlips(blips);
+        gamepad2.rumbleBlips(blips);
     }
 
     /**
@@ -761,6 +803,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
             log.event("turret zeroed here by the operator" + (hadTrim ? ", aim trim back to 0" : ""));
             buzz(gamepad2, "gamepad2", "turret zero");
         }
+        // The turret mode is set at PLAY (onStart), so the hold does nothing before it.
+        if (!init && turretModeHold.update(controls.held(Action.TURRET_LOCK), now)) {
+            toggleTurretMode();
+        }
     }
 
     /**
@@ -816,6 +862,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         holdResets(now, false);
         endOfMatch();
+        updateHeadingLock(forward, strafe, turn);
 
         // The firing arc is centred on the aim trim: the trim is where the robot's real forward
         // reads on a turret zeroed off its mark (TurretArc).
@@ -893,7 +940,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // Either turn holds the aim gate, so the feed waits until the shot is on the CELL.
         chassisAimDriving = chassisAim || arcTurn;
         if (!routineActive()) {
-            double turnCommand = chassisAim ? chassisAimTurn() : arcTurn ? arcTurnPower() : turn;
+            // R1 held: the left stick snapped to an axis, and the turn holding the cardinal; Circle's
+            // turns still win.
+            forward = headingLock.forward();
+            strafe = headingLock.strafe();
+            double turnCommand = chassisAim ? chassisAimTurn() : arcTurn ? arcTurnPower() : headingLock.turn();
             if (launchSpot.firingFromStall()) {
                 // Square still owns the robot: it stays put but for Circle's arc turn. A stick
                 // ends the press (LaunchSpotDrive); one ignored as stale moves nothing here.
@@ -1166,6 +1217,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", Display.Level.OK, slowHeld ? "slow" : "normal");
+        if (headingLock.held()) {
+            display.status("Heading lock", headingLock.holding() ? Display.Level.OK : Display.Level.WARN,
+                    headingLock.holding() ? String.format(Locale.US, "holding %.0f°", Math.toDegrees(headingLock.targetRad()))
+                            : "stick snap only (no heading)");
+        }
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.waitingToClear() ? "out until clear of the FLOWER" : robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding")
                 + (robot.flowerStick.hasRoller() ? (robot.flowerStick.rollerPowerNow() != 0.0 ? ", roller on" : ", roller off") : ""));
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));

@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 /**
  * What one press of the driver's Circle does, decided as it goes down from the turret mode (the
- * driver's R1), not from the robot's config (mentor, 18 Nov 2026). Pure, so a test drives it.
+ * operator's Triangle, held; the driver's R1 until 25 Nov 2026), not from the robot's config (mentor,
+ * 18 Nov 2026). Pure, so a test drives it.
  *
  * <ul>
  *   <li><b>{@link Kind#FIRE}</b>, the turret AIMing: Circle fires at once (the usual
