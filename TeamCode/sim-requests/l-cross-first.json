@@ -1,0 +1,59 @@
+{
+  "pp": "TeamCode/autos/drafts/l-cross-first.pp",
+  "spec": "LCrossFirstAuto",
+  "design": "real robot",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+    {
+      "name": "hits, last shot at 2 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 2
+    },
+    {
+      "name": "hits, last shot at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5
+    },
+    {
+      "name": "misses, last shot at 5 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5,
+      "fails": "misses"
+    },
+    {
+      "name": "dead on its start",
+      "partner": "PartnerRBrokenDownAuto"
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-cross-first.pp",
+    "SavedBy": "mentor question: cross first beside an unreliable right partner",
+    "SavedAt": "2026-11-25T15:00:00+00:00",
+    "SimNote": "Draft: L crosses under the HIVE at once to RIGHT_AUTO_FIX_TIP; Belding calibration"
+  }
+}
