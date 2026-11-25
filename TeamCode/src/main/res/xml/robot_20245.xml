@@ -147,16 +147,13 @@
                  motor port 0 below. -->
             <ContinuousRotationServo name="turret" port="5" />
 
-            <!-- Corner wheels (CornerWheelSubsystem, doc/corner-wheels.md): a prototype,
-                 not fitted (24 Nov 2026). Planned on this hub's servo ports 1 (left) and
-                 2 (right), free on both robots. When wired, uncomment with the real ports
-                 and add the RobotDifferences line (CornerWheelSubsystem.fitted = true).
-                 Full TeamCode install, then Activate. With one servo only, keep
-                 cornerWheelLeft and set rightServo = false. Servo count: R503 allows 8.
-                 20245 has 5 servos without these, 7 with both.
+            <!-- Corner wheels (CornerWheelSubsystem, doc/corner-wheels.md): two goBILDA
+                 Speed servos in continuous mode, fitted 25 Nov 2026 on this hub's servo
+                 ports 1 (left, seen from behind the robot) and 2 (right). Turned on by
+                 20245's RobotDifferences line (CornerWheelSubsystem.fitted = true).
+                 Servo count: R503 allows 8; 20245 has 7 with these. -->
             <ContinuousRotationServo name="cornerWheelLeft"  port="1" />
             <ContinuousRotationServo name="cornerWheelRight" port="2" />
-            -->
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->

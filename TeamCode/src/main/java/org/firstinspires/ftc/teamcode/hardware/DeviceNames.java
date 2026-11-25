@@ -186,7 +186,7 @@ public final class DeviceNames {
      * The left front corner wheel (mentor, 23 Nov 2026; {@code doc/corner-wheels.md}): a TPU wheel on a
      * vertical axle ahead of the left front drive wheel, spun inward by this continuous-rotation servo
      * to rake a POLLEN at the corner into the intake ({@code subsystems/CornerWheelSubsystem}).
-     * <b>Optional</b> ({@link #CORNER_WHEELS}): fitted on neither robot yet; a robot that has it
+     * <b>Optional</b> ({@link #CORNER_WHEELS}): fitted on 20245 (25 Nov 2026), not 19429; a robot that has it
      * declares it in its XML and turns it on with one {@code RobotDifferences} line
      * ({@code CornerWheelSubsystem.fitted = true}). With only one servo on the robot (one corner, or
      * both wheels on one belt: {@code CornerWheelSubsystem.rightServo = false}) that servo is this one.
@@ -328,7 +328,7 @@ public final class DeviceNames {
 
     /**
      * The two corner wheels' servos ({@link #CORNER_WHEEL_LEFT}, {@link #CORNER_WHEEL_RIGHT}), optional as
-     * the {@link #BEAM_BREAKS} are: a prototype, fitted on neither robot (24 Nov 2026). The code looks them
+     * the {@link #BEAM_BREAKS} are: a prototype, fitted on 20245 only (25 Nov 2026). The code looks them
      * up only with {@code CornerWheelSubsystem.fitted} on (a {@code RobotDifferences} line), and then fails
      * loudly if the XML lacks one.
      */

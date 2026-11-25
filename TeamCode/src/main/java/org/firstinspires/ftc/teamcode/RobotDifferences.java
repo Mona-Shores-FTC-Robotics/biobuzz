@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.PrefeedSubsystem;
@@ -167,6 +168,11 @@ public final class RobotDifferences {
                         + " doc/robot-todo.md step 9 has the backward drive that must pass first, and the lane"
                         + " sensor to re-measure with the plate)",
                 () -> IntakeSubsystem.holdsLoadDrivingBackward = true);
+        differs(RobotIdentity.TEAM_20245,
+                "Corner wheels fitted: two goBILDA Speed servos in continuous mode on Expansion Hub"
+                        + " servo ports 1 (left) and 2 (right), working on the bench (mentor, 25 Nov 2026);"
+                        + " each wheel's direction still to set on Bench: Corner wheels",
+                () -> CornerWheelSubsystem.fitted = true);
     }
 
     /**
