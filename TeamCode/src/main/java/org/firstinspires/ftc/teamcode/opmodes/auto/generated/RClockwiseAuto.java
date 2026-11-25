@@ -73,6 +73,7 @@ public final class RClockwiseAuto {
         Pose catchParkToRightParkSegment1Start = p.of(14.5, 98.7, 268.1);
         Pose toGardenStagingControl1 = p.of(46, 22, 0);
         Pose toGardenStagingControl2 = p.of(30, 22.1, 0);
+        Pose toGardenStagingSegment1Start = p.of(11.5, 22.1, 96.1);
         Pose point9 = p.of(30, 80, 90);
         Pose point9Control1 = p.of(30, 30, 0);
         Pose point9Control2 = p.of(30, 60, 0);
@@ -108,7 +109,7 @@ public final class RClockwiseAuto {
         Path flowerParkToRightPark = Paths.curve(wallFlowerStaging, flowerParkToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
         Path outsideLaneBackwardFromTheFlowerToLeftAutoHive = Paths.curve(wallFlowerStaging, outsideLaneBackwardFromTheFlowerToLeftAutoHiveControl1, outsideLaneBackwardFromTheFlowerToLeftAutoHiveControl2, outsideLaneBackwardFromTheFlowerToLeftAutoHiveControl3, outsideLaneBackwardFromTheFlowerToLeftAutoHiveControl4, leftAutoHive).heading(Interpolator.piecewise().until(0.15, Interpolator.linear(outsideLaneBackwardFromTheFlowerToLeftAutoHiveSegment1Start, outsideLaneBackwardFromTheFlowerToLeftAutoHiveSegment1End)).until(0.82, Interpolator.constant(outsideLaneBackwardFromTheFlowerToLeftAutoHiveSegment2Heading)).until(1, Interpolator.linear(outsideLaneBackwardFromTheFlowerToLeftAutoHiveSegment3Start, leftAutoHive)));
         Path catchParkToRightPark = Paths.curve(leftAutoHive, catchParkToRightParkControl1, catchParkToRightParkControl2, rightPark).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(catchParkToRightParkSegment1Start, rightPark)).until(1, Interpolator.constant(rightPark)));
-        Path toGardenStaging = Paths.curve(rightAutoHive, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).linear(rightAutoHive, gardenStaging);
+        Path toGardenStaging = Paths.curve(rightAutoHive, toGardenStagingControl1, toGardenStagingControl2, gardenStaging).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(toGardenStagingSegment1Start, gardenStaging)).until(1, Interpolator.constant(gardenStaging)));
         Path gardenParkToRightPark = Paths.path(Paths.curve(gardenStaging, point9Control1, point9Control2, point9).linear(gardenStaging, point9), Paths.curve(point10Start, point10Control1, rightPark).linear(point10Start, rightPark));
         Path outsideLaneBackwardFromTheGardenToLeftAutoHive = Paths.curve(gardenStaging, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl1, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl2, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl3, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl4, outsideLaneBackwardFromTheGardenToLeftAutoHiveControl5, leftAutoHive).heading(Interpolator.piecewise().until(0.82, Interpolator.constant(outsideLaneBackwardFromTheGardenToLeftAutoHiveSegment1Heading)).until(1, Interpolator.linear(outsideLaneBackwardFromTheGardenToLeftAutoHiveSegment2Start, leftAutoHive)));
         Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(toScoringFlowerStagingSegment1Heading)).until(1, Interpolator.linear(toScoringFlowerStagingSegment2Start, scoringFlowerStaging)));
@@ -126,7 +127,7 @@ public final class RClockwiseAuto {
                 kit.route("Pickup", 0, () -> kit.firstOf("L clear of LEFT_AUTO_HIVE: go at 9.8 s",
                         kit.atMatchSeconds(9.8))),
                 kit.route("Pickup", 0, () -> kit.path("outside lane BACKWARD from the FLOWER to LEFT_AUTO_HIVE", outsideLaneBackwardFromTheFlowerToLeftAutoHive, 2.9, catchParkToRightPark, 2.2)),
-                kit.route("Pickup", 1, () -> kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenParkToRightPark, 2.8)),
+                kit.route("Pickup", 1, () -> kit.path("to GARDEN_STAGING", toGardenStaging, 2.2, gardenParkToRightPark, 2.8)),
                 kit.route("Pickup", 1, () -> kit.command("GardenGather", 5.5)),
                 kit.route("Pickup", 1, () -> kit.firstOf("L clear of LEFT_AUTO_HIVE: go at 9.9 s",
                         kit.atMatchSeconds(9.9))),
