@@ -9,7 +9,7 @@ import java.util.Map;
  * {@link ControlScheme}; from then on the OpMode never names a button.
  *
  * <pre>{@code
- * controls.on(Action.TURRET_LOCK).onPress(this::toggleTurret);   // an edge, through Bindings
+ * controls.on(Action.LAUNCHER_TOGGLE).onPress(this::toggle);     // an edge, through Bindings
  * controls.note(Action.FIRE);                                     // on the Controls page...
  * if (controls.held(Action.FIRE)) ...                             // ...and read every loop
  * }</pre>

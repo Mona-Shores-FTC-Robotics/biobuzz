@@ -21,7 +21,7 @@ public enum Action {
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 0.5\u00a0s)"),
     RESET_LEFT_CORNER(Pad.DRIVER, "Left Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
     RESET_RIGHT_CORNER(Pad.DRIVER, "Right Corner + Gyro Reset (hold 0.5\u00a0s; intake toward opponents)"),
-    TURRET_LOCK(Pad.DRIVER, "Turret AIM / LOCKED (Toggle; sets what Circle does: 1 buzz AIM, 2 LOCKED)"),
+    HEADING_LOCK(Pad.DRIVER, "Heading Lock (hold): turns to the nearest 90\u00b0 and holds it; left stick drives dead straight near an axis"),
     CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold 0.5\u00a0s, robot still)"),
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
@@ -40,6 +40,7 @@ public enum Action {
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
     TRIM_RESET(Pad.OPERATOR, "Trim reset (aim and launcher)"),
     TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 0.5\u00a0s)"),
+    TURRET_LOCK(Pad.OPERATOR, "Turret AIM / LOCKED (hold 0.5\u00a0s; sets what the driver's Circle does: 1 buzz AIM, 2 LOCKED)"),
     /** The bench's setup layer (Bench: Launch Test), held: never in the match layout. */
     BENCH_SETUP(Pad.OPERATOR, "Setup layer (hold)");
 

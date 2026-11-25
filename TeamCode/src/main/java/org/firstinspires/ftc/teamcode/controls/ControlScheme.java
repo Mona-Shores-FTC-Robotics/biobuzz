@@ -16,11 +16,17 @@ import java.util.Set;
  * wins when both press at once ({@link IntakeArbiter}). The driver's R2 also takes in past a full
  * lane, so a false full reading never leaves the driver without an intake.
  *
- * <p><b>The driver owns every shot</b> (mentor, 18 Nov 2026): the driver's Circle fires, and the
- * driver's R1 (turret AIM or LOCKED) sets what Circle does. The operator has no fire button and no
- * turret-mode button in a match ({@link #BENCH_ONLY}); they keep the launcher spin-up and its trim,
- * the aim trim and zero (Circle held makes both trims step finer, {@link #MATCH_ONLY}), the FLOWER
- * stick, and the intake and unjam.
+ * <p><b>The driver owns every shot</b> (mentor, 18 Nov 2026): the driver's Circle fires. The
+ * operator has no fire button in a match ({@link #BENCH_ONLY}); they keep the launcher spin-up and
+ * its trim, the aim trim and zero (Circle held makes both trims step finer, {@link #MATCH_ONLY}),
+ * the turret mode (Triangle held 0.5 s, AIM or LOCKED, which sets what the driver's Circle does;
+ * {@link #MATCH_ONLY}), the FLOWER stick, and the intake and unjam.
+ *
+ * <p>The driver's R1 is the heading lock (mentor, 25 Nov 2026), held: the robot snaps to the
+ * nearest field cardinal and the left stick drives dead straight along an axis, for the cycle
+ * between pickup and launch spot. The turret mode it had (18 to 25 Nov) was never used in a match,
+ * so it moved to the operator's Triangle, a hold so a brush does not change what Circle does; a
+ * robot whose turret fails still reaches LOCKED there.
  *
  * <p>A layout leaves out what does nothing on this robot, so the Controls page and the cheat
  * sheet show only buttons that work: {@link #NOT_BOUND} always, and {@link #TURRET_ACTIONS} while
@@ -48,17 +54,19 @@ public final class ControlScheme {
     /**
      * Bound only on the bench ({@code Bench: Launch Test}, which runs the operator's layout on one
      * pad, and the base {@link #layout(Input)}): the operator's FIRE (Circle) and the bench's setup
-     * modifier (Triangle). The match TeleOp's layout leaves them out, so the operator's Circle and
-     * Triangle do nothing there and the cheat sheet does not list them.
+     * modifier (Triangle). The match TeleOp's layout leaves them out and gives those two inputs to
+     * {@link #MATCH_ONLY}, so the cheat sheet never lists a bench button.
      */
     public static final Set<Action> BENCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FIRE, Action.BENCH_SETUP));
 
     /**
      * Bound only in the match layout ({@link #layout(Input, boolean, boolean)}), on an input the
      * bench gives to {@link #BENCH_ONLY}: the operator's fine-trim modifier, Circle, held with L1/R1
-     * or the D-pad for smaller trim steps. The operator's Circle is never a fire in a match.
+     * or the D-pad for smaller trim steps, and the turret mode, Triangle held. The operator's Circle
+     * is never a fire in a match.
      */
-    public static final Set<Action> MATCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FINE_TRIM));
+    public static final Set<Action> MATCH_ONLY = Collections.unmodifiableSet(EnumSet.of(Action.FINE_TRIM,
+            Action.TURRET_LOCK));
 
     /**
      * Bound only while the turret is locked forward: the launch trim reset, on D-pad down, the
@@ -90,6 +98,8 @@ public final class ControlScheme {
         for (Action action : BENCH_ONLY) map.remove(action);
         // The operator's Circle, the bench's fire, is the fine-trim modifier in a match.
         map.put(Action.FINE_TRIM, Input.CIRCLE);
+        // The operator's Triangle, the bench's setup layer, is the turret mode in a match.
+        map.put(Action.TURRET_LOCK, Input.TRIANGLE);
         if (turretLocked) {
             for (Action action : TURRET_ACTIONS) map.remove(action);
             map.put(Action.LAUNCHER_TRIM_RESET, Input.DPAD_DOWN);
@@ -115,7 +125,7 @@ public final class ControlScheme {
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         // Back on Triangle (mentor, 14 Nov 2026), after three days on R1 while Triangle drove to
-        // the close launch spots; R1 is free.
+        // the close launch spots.
         map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
         // Experimental, to try against chassis aim (Circle); TeleOpConfig.launchSpot unbinds it.
         // Square: the nearest launch spot by the tile row the robot is in (LaunchSpots).
@@ -126,9 +136,9 @@ public final class ControlScheme {
         map.put(Action.RESET_LEFT_CORNER, Input.DPAD_LEFT);
         map.put(Action.RESET_RIGHT_CORNER, Input.DPAD_RIGHT);
         map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_DOWN);
-        // The turret mode is the driver's (mentor, 18 Nov 2026): the driver drives and shoots, so
-        // the driver picks what Circle does. R1 was free.
-        map.put(Action.TURRET_LOCK, Input.R1);
+        // The heading lock (mentor, 25 Nov 2026), held. R1 was the turret mode from 18 Nov, never
+        // used in a match; that is the operator's Triangle in the match layout now.
+        map.put(Action.HEADING_LOCK, Input.R1);
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);
@@ -137,7 +147,7 @@ public final class ControlScheme {
         map.put(Action.LAUNCHER_TRIM_UP, Input.R1);
         // The bench's fire only (BENCH_ONLY): the match layout leaves it out.
         map.put(Action.FIRE, Input.CIRCLE);
-        // The bench's setup modifier only (BENCH_ONLY): the turret mode is the driver's R1.
+        // The bench's setup modifier only (BENCH_ONLY): in a match, the turret mode (MATCH_ONLY).
         map.put(Action.BENCH_SETUP, Input.TRIANGLE);
         map.put(Action.FLOWER_STICK, Input.SQUARE);
         map.put(Action.TRIM_LEFT, Input.DPAD_LEFT);
