@@ -18,7 +18,7 @@ this is not a claim that every unchecked item below has passed.
 ## Heading lock, the driver's R1 (Saturday 28 Nov 2026, either robot, Basic Drive, a stopwatch)
 
 R1 held: the robot turns to the nearest field cardinal and holds it, and the left stick within 20°
-of an axis drives dead straight along it (`HeadingLock`, `TeleOpConfig.headingLock*`; PR HEADING_LOCK_PR).
+of an axis drives dead straight along it (`HeadingLock`, `TeleOpConfig.headingLock*`; [#748](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/pull/748)).
 The turret mode moved to the operator's Triangle, held 0.5 s. Gyro reset (D-pad up) facing the
 driver's forward first, or start from the Autos' start.
 
