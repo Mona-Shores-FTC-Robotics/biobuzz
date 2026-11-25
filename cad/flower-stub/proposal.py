@@ -29,8 +29,8 @@ PIVOT = np.array([9.1, 1.8])          # X, Z: 0.6 in (2 holes) ahead of the face
 ARM_Y = (4.10, 4.20)                  # each arm, a flat pattern bar, inboard of the corner module
 ARM_HOLES = 10                        # pivot to shaft, 80 mm
 SHAFT_Z, WHEEL_R = 0.77, 0.77         # 8 mm REX shaft on two 39 mm wheels
-WHEEL_Y = (3.05, 3.55)
-BLADE_HALF_W = 3.0                    # 6.0 in: the FLOWER's posts (5.4) plus one hole each side
+WHEEL_Y = (3.25, 3.75)                # outside the FLOWER (2.40 each side) plus 0.8 in of aim
+BLADE_HALF_W = 2.7                    # 5.4 in: the FLOWER (4.8 in, manual Fig. 9-12) plus one hole each side
 SHAFT_BACK = 0.53                     # lip to shaft, the notebook's mountain blade
 TAIL_CUT = 2.0
 STOW_DEG = 83
@@ -79,8 +79,8 @@ ax.plot([SERVO[0] + 0.5, PIVOT[0] - 0.25], [5.6, PIVOT[1] + 0.25], color="#6c348
 ax.text(8.0, 3.9, "link", fontsize=7, color="#6c3483")
 # FLOWER
 fx = flower_x
-ax.add_patch(Rectangle((fx - 2.36, 0), 4.72, 0.35, fc="#777", alpha=0.5, zorder=0)); ax.add_patch(Rectangle((fx + 1.18, 0.35), 1.22, 3.75, fc="#999", alpha=0.3, zorder=0))
-ax.add_patch(Rectangle((fx - 2.41, 3.9), 4.82, 0.35, fc="#555", alpha=0.4, zorder=0))
+ax.add_patch(Rectangle((fx - 2.36, 0), 4.72, 0.43, fc="#777", alpha=0.5, zorder=0)); ax.add_patch(Rectangle((fx + 1.18, 0.35), 1.22, 3.75, fc="#999", alpha=0.3, zorder=0))
+ax.add_patch(Rectangle((fx - 2.41, 3.55), 4.82, 0.35, fc="#555", alpha=0.4, zorder=0))
 for sg in (1, -1): ax.add_patch(Rectangle((fx + sg * 1.72 - 0.525, 4.25), 1.05, 5.0, fc="#8a8", alpha=0.2, zorder=0))
 for bz in (1.75, 4.6): ax.add_patch(Circle((fx - 0.1, bz), 1.4, fc="#e8d44a", ec="#aa9", alpha=0.25, zorder=0))
 ax.text(fx + 0.6, 9.6, "FLOWER (behind)", fontsize=8, ha="center")
@@ -118,19 +118,19 @@ at.add_patch(Rectangle((FACE - 1.0, -4.84), 1.0, 9.68, fc="#bbb", ec="k", lw=0.6
 at.add_patch(Rectangle((KICKER[0], -KICKER[4]), KICKER[1] - KICKER[0], 2 * KICKER[4], fc="#e0552b", ec="k", lw=0.6))
 at.plot([shaft[0], shaft[0]], [-ARM_Y[1], ARM_Y[1]], color="k", lw=1.2)
 at.add_patch(Rectangle((lip - TAIL_CUT, -BLADE_HALF_W), TAIL_CUT, 2 * BLADE_HALF_W, fc="#f4c20d", ec="k", lw=0.8))
-at.add_patch(Rectangle((flower_x - 2.36, -2.36), 4.72, 4.72, fc="#777", alpha=0.35))
+at.add_patch(Rectangle((flower_x - 2.36, -2.40), 4.72, 4.80, fc="#777", alpha=0.35))
 for sx in (1, -1):
     for sy in (1, -1): at.add_patch(Circle((flower_x + sx * 1.72, sy * 1.2), 0.5, fc="#8a8", alpha=0.6))
 at.text(flower_x + 1.2, -3.0, "FLOWER", fontsize=8)
 at.axvline(BOX_FRONT, color="#c0392b", lw=1, ls=":")
 at.axhline(9.0, color="#c0392b", lw=0.6, ls=":"); at.axhline(-9.0, color="#c0392b", lw=0.6, ls=":")
-at.annotate(f"foot {2 * BLADE_HALF_W:.1f} in wide ({2 * BLADE_HALF_W / HOLE:.0f} holes):\nthe FLOWER's posts + 1 hole each side", (lip - 0.8, BLADE_HALF_W), (10.5, 6.3), fontsize=8, arrowprops=dict(arrowstyle="->"))
+at.annotate(f"foot {2 * BLADE_HALF_W:.1f} in wide ({2 * BLADE_HALF_W / HOLE:.0f} holes):\nthe FLOWER (4.8) + 1 hole each side;\nwheels outside it with 0.8 in of aim", (lip - 0.8, BLADE_HALF_W), (10.5, 6.3), fontsize=8, arrowprops=dict(arrowstyle="->"))
 at.annotate("arms inboard of the\ncorner modules", (PIVOT[0] + 1.0, -ARM_Y[1]), (10.6, -7.6), fontsize=8, arrowprops=dict(arrowstyle="->"))
 at.set_xlim(1.5, 14.5); at.set_ylim(-9.5, 9.5); at.set_aspect("equal"); at.grid(True, lw=0.3, alpha=0.4)
 at.set_title("TOP (front to the right). Deployed.", fontsize=10); at.set_xlabel("in, forward of the drive axles"); at.set_ylabel("in, left of centre")
 
 P = np.vstack([blade_s, [shaft_s + [WHEEL_R, 0]]])
-fig.suptitle(f"FLOWER stub, proposal 1 (to scale; robot numbers from the 24 Nov STEP and the October notebook, not measured). "
+fig.suptitle(f"FLOWER stub, proposal 1 (to scale; robot numbers from the 24 Nov STEP and the October notebook; FLOWER from manual Fig. 9-12). "
              f"Stowed: front {P[:, 0].max():.2f} in (cube {BOX_FRONT}), bottom {blade_s[:, 1].min():.1f} in up, top {max(blade_s[:, 1].max(), shaft_s[1] + WHEEL_R):.1f} in",
              fontsize=9.5)
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "proposal.png"), dpi=120)
