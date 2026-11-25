@@ -102,6 +102,7 @@ def read(path):
             elif typ == 'int64': v = struct.unpack('<q', p)[0]
             elif typ == 'boolean': v = bool(p[0])
             elif typ in ('string', 'json'): v = p.decode(errors='replace')
+            elif typ == 'double[]': v = struct.unpack('<%dd' % (len(p) // 8), p)
             else: continue
         except (struct.error, IndexError):
             continue
