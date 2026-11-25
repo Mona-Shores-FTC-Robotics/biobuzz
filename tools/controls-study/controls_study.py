@@ -308,6 +308,59 @@ def study(path):
     return res
 
 
+TURN_CORRECTING = 0.1    # |right stick X| above this is the driver steering
+TRANSLATING = 0.5        # left stick magnitude above this is the driver driving
+MOVING_IN_S = 3.0        # odometry speed above this is the robot moving
+LONG_RUN_IN = 36.0
+
+
+def heading_corrections(d, a, b):
+    """How much the driver steered while driving: the seconds of TeleOp with the right stick past
+    TURN_CORRECTING while the left stick is past TRANSLATING and the robot moves, as a share of the
+    seconds translating; and, per run translating more than LONG_RUN_IN inches, the steering presses
+    (the right stick crossing TURN_CORRECTING) in it. Read from the driver's logged axes, sampled at
+    each odometry speed sample. The ceiling on what a heading lock could take over."""
+    import bisect
+    axes = [(t, v) for t, v in d.get('/DriverStation/Joystick0/AxisValues', []) if isinstance(v, tuple) and len(v) >= 6]
+    ts = [t for t, _ in axes]
+    speed = [(t, v) for t, v in d.get('/Drive/OdometrySpeedInPerSec', []) if a <= t <= b and isinstance(v, (int, float))]
+    trans_s = turn_s = 0.0
+    runs, cur = [], None
+    prev_t = None
+    for t, v in speed:
+        dt = 0.0 if prev_t is None else min(t - prev_t, 0.1)
+        prev_t = t
+        i = bisect.bisect_right(ts, t) - 1
+        ax = axes[i][1] if i >= 0 else (0.0,) * 6
+        moving = abs(v) > MOVING_IN_S
+        trans = moving and (ax[0] ** 2 + ax[1] ** 2) ** 0.5 > TRANSLATING
+        turning = abs(ax[2]) > TURN_CORRECTING
+        if trans:
+            trans_s += dt
+            if turning:
+                turn_s += dt
+            if cur is None:
+                cur = {'start': t, 'in': 0.0, 'corrections': 0, 'turning': turning}
+                if turning:
+                    cur['corrections'] = 1
+            else:
+                if turning and not cur['turning']:
+                    cur['corrections'] += 1
+                cur['turning'] = turning
+            cur['in'] += abs(v) * dt
+        elif cur is not None:
+            runs.append(cur)
+            cur = None
+    if cur is not None:
+        runs.append(cur)
+    long_runs = [r for r in runs if r['in'] > LONG_RUN_IN]
+    return {'translating_s': round(trans_s, 1), 'turning_while_translating_s': round(turn_s, 1),
+            'share_of_translating': round(turn_s / trans_s, 3) if trans_s else None,
+            'share_of_teleop': round(turn_s / (b - a), 3) if b > a else None,
+            'long_runs': len(long_runs), 'corrections_in_long_runs': sum(r['corrections'] for r in long_runs),
+            'corrections_per_long_run': round(sum(r['corrections'] for r in long_runs) / len(long_runs), 2) if long_runs else None}
+
+
 def _count(presses, pad, act):
     return sum(1 for p in presses if p['pad'] == pad and p['action'] == act)
 
@@ -506,6 +559,7 @@ def summarise(d, res, presses, tev, a, b, labels, by_input):
     s['cycles'] = [{k: (round(v, 2) if isinstance(v, float) else v) for k, v in r.items() if k not in ('start', 'end')}
                    for r in rows]
     s['after_last_volley_s'] = round(b - last_end, 1)
+    s['heading'] = heading_corrections(d, a, b)
     s['pieces'] = sum(r['shots'] for r in rows)
     return s
 
@@ -572,6 +626,11 @@ def report(paths):
             print('  Square volleys: gate %d on the approach, %d after arriving (waited %s s at the spot)'
                   % (sum(1 for x in sq if x['on_approach']), sum(1 for x in sq if not x['on_approach']),
                      ', '.join('%.2f' % x['after_arriving'] for x in sq if not x['on_approach'])))
+        h = s['heading']
+        print('  steering while driving: %.1f s of %.1f s translating (%s), %d runs over %.0f in with %s corrections each'
+              % (h['turning_while_translating_s'], h['translating_s'],
+                 '-' if h['share_of_translating'] is None else '%.0f%%' % (100 * h['share_of_translating']),
+                 h['long_runs'], LONG_RUN_IN, h['corrections_per_long_run']))
         print('  cycles: %d volleys, %d pieces, %.1f s after the last' % (len(s['cycles']), s['pieces'], s['after_last_volley_s']))
         for c in s['cycles']:
             print('    %5.1f  to pieces %4.1f  pick %4.1f  loaded %4.1f  spin/aim %4.1f  feed %4.1f  %d pcs  %s%s'

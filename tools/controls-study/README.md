@@ -20,6 +20,9 @@ Event logs: `git fetch origin 'refs/heads/events/*:refs/remotes/origin/events/*'
   the log's `GitCommit` (`git show`), with the match TeleOp's rules applied. Belding's build is not
   Fruitport's (the operator's Circle was FIRE there). A shallow clone needs `git fetch --unshallow origin`;
   without the commit it falls back to the working tree and says so.
+- **Steering while driving** (`heading` in the summary): seconds with the right stick past 0.1 while the left stick is
+  past 0.5 and the robot moves over 3 in/s, and the steering presses per run over 36 in. Read from the raw axes,
+  since the event builds had no `/Controls/StickTurn`. The ceiling on what a heading lock could take over.
 - **Outcomes** come from the TeleOp's own event lines and series (fire lines and their gates, launch spot,
   FLOWER pick, GARDEN gather, launcher, trims, resets) and cycles from `read_logs.py`'s `cycle_rows`.
 - A launcher line tagged `(operator)` means a spin-up that was not Square's (usually the driver's Circle), not
