@@ -1,189 +1,277 @@
-"""The pictures in doc/corner-wheels/ and the clearances in doc/corner-wheels.md, from the AdvantageScope model of the
-Onshape CAD (cad/advantagescope/Robot_BIOBUZZ) and this folder's parts.
+"""The corner-module pictures in doc/corner-wheels/ and their clearances, from the robot's own STEP export and this
+folder's modules (parts.py).
 
-    pip install cadquery trimesh shapely matplotlib scipy
-    python3 cad/corner-wheels/parts.py && python3 cad/corner-wheels/drawings.py     # a few minutes
+    pip install cadquery trimesh matplotlib scipy
+    python3 cad/corner-wheels/drawings.py path/to/Robot.step     # a few minutes; the robot STEP is not in git
 
-Robot frame, inches: +X forward, +Y left, +Z up, origin on the floor under the middle of the drive axles. The FLOWER
-stick is swept 0..162 deg in 1 deg steps about its axis from components.json.
+The robot STEP is the mentor's Onshape export of the whole Robot assembly (24 Nov 2026, 178 MB). Its frame is turned to
+the robot frame used everywhere here (inches, +X forward, +Y left, +Z up, origin on the floor under the middle of the
+drive axles) from its own four drive axles. The FLOWER stick is every part reaching past X 8.7 (it is drawn down in the
+CAD), swept 162 deg up about its pivot (the Servo Shaft, X 5.77, Z 7.59). The mecanum wheels are spun a full turn.
 """
-import os, sys
+import os
+import pickle
+import re
+import sys
+import tempfile
+
+import cadquery as cq
+import matplotlib
 import numpy as np
-import math
-from matplotlib.collections import PolyCollection
+import trimesh
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.collections import PolyCollection  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
+from scipy.spatial import cKDTree  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUTDIR = os.path.join(HERE, "..", "..", "doc", "corner-wheels")
 sys.path.insert(0, HERE)
-import trimesh, numpy as np
-IN=0.0254
-R = os.path.join(HERE, "..", "advantagescope", "Robot_BIOBUZZ") + "/"
-def parts(stick_deg=None):
-    out=[]
-    s=trimesh.load(R+"model.glb")
-    for node in s.graph.nodes_geometry:
-        T,g=s.graph[node]; m=s.geometry[g].copy(); m.apply_transform(T); m.apply_scale(1/IN); out.append((node,m,"fixed"))
-    if stick_deg is not None:
-        s=trimesh.load(R+"model_1.glb")
-        ax=np.array([0.15449,0.13883,0.18462]); d=np.array([0.00107,1,0]); d/=np.linalg.norm(d)
-        Rm=trimesh.transformations.rotation_matrix(np.radians(stick_deg),d,ax)
-        for node in s.graph.nodes_geometry:
-            T,g=s.graph[node]; m=s.geometry[g].copy(); m.apply_transform(T); m.apply_transform(Rm); m.apply_scale(1/IN); out.append((node,m,"stick"))
-    s=trimesh.load(R+"model_0.glb")
-    for node in s.graph.nodes_geometry:
-        T,g=s.graph[node]; m=s.geometry[g].copy(); m.apply_transform(T); m.apply_scale(1/IN); out.append((node,m,"turret"))
+import parts as P  # noqa: E402
+
+OUT = os.path.join(HERE, "..", "..", "doc", "corner-wheels")
+PIVOT = (5.765, 7.585)                 # the stick's pivot, X and Z, inches
+SWING_DEG = 162
+COLOURS = {"bracket": "#4f81bd", "servo": "#404040", "hub": "#a6a6a6", "wheel": "#2e7d32", "screws": "#c00000"}
+
+
+def read_step(path):
+    """Every part's triangles (mm, the STEP's own frame), cached beside the STEP."""
+    cache = path + ".tris.pkl"
+    if os.path.exists(cache):
+        return pickle.load(open(cache, "rb"))
+    from OCP.BRep import BRep_Tool
+    from OCP.BRepMesh import BRepMesh_IncrementalMesh
+    from OCP.STEPCAFControl import STEPCAFControl_Reader
+    from OCP.TCollection import TCollection_ExtendedString
+    from OCP.TDataStd import TDataStd_Name
+    from OCP.TDF import TDF_Label, TDF_LabelSequence
+    from OCP.TDocStd import TDocStd_Document
+    from OCP.TopAbs import TopAbs_FACE
+    from OCP.TopExp import TopExp_Explorer
+    from OCP.TopLoc import TopLoc_Location
+    from OCP.TopoDS import TopoDS
+    from OCP.XCAFDoc import XCAFDoc_DocumentTool
+    doc = TDocStd_Document(TCollection_ExtendedString("doc"))
+    r = STEPCAFControl_Reader()
+    r.SetNameMode(True)
+    r.ReadFile(path)
+    r.Transfer(doc)
+    st = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
+
+    def name(label):
+        a = TDataStd_Name()
+        return a.Get().ToExtString() if label.FindAttribute(TDataStd_Name.GetID_s(), a) else "?"
+    out = []
+
+    def walk(label, loc, path_):
+        if st.IsReference_s(label):
+            ref = TDF_Label()
+            st.GetReferredShape_s(label, ref)
+            walk(ref, loc.Multiplied(st.GetLocation_s(label)), path_ + [name(label)])
+            return
+        if st.IsAssembly_s(label):
+            comps = TDF_LabelSequence()
+            st.GetComponents_s(label, comps)
+            for i in range(1, comps.Length() + 1):
+                walk(comps.Value(i), loc, path_)
+            return
+        shape = st.GetShape_s(label).Moved(loc)
+        BRepMesh_IncrementalMesh(shape, 0.8, False, 0.5, True)
+        tris = []
+        ex = TopExp_Explorer(shape, TopAbs_FACE)
+        while ex.More():
+            f = TopoDS.Face_s(ex.Current())
+            L = TopLoc_Location()
+            tri = BRep_Tool.Triangulation_s(f, L)
+            if tri is not None:
+                T = L.Transformation()
+                pts = np.array([[*tri.Node(i).Transformed(T).Coord()] for i in range(1, tri.NbNodes() + 1)])
+                for i in range(1, tri.NbTriangles() + 1):
+                    a, b, c = tri.Triangle(i).Get()
+                    tris.append(pts[[a - 1, b - 1, c - 1]])
+            ex.Next()
+        if tris:
+            out.append((" / ".join(path_), np.array(tris, np.float32)))
+    free = TDF_LabelSequence()
+    st.GetFreeShapes(free)
+    for i in range(1, free.Length() + 1):
+        walk(free.Value(i), TopLoc_Location(), [])
+    pickle.dump(out, open(cache, "wb"))
     return out
 
-# ---- the stick's swing
-s=trimesh.load(R+"model_1.glb")
-stick=np.vstack([ (lambda m:(m.apply_transform(T),m.vertices)[1])(s.geometry[g].copy()) for T,g in [s.graph[n] for n in s.graph.nodes_geometry]])
-ax=np.array([0.15449,0.13883,0.18462]); d=np.array([0.00107,1,0]); d/=np.linalg.norm(d)
-sw=[]
-for a in range(0,163,1):
-    Rm=trimesh.transformations.rotation_matrix(np.radians(a),d,ax)
-    sw.append((stick@Rm[:3,:3].T+Rm[:3,3])/IN)
-sw=np.vstack(sw)
-fixed=np.vstack([m.vertices for n,m,k in parts(None) if k=="fixed"])
+
+def robot(path):
+    """The robot in the robot frame (inches): fixed parts, the stick's parts, the front mecanum wheels."""
+    raw = read_step(path)
+    axles = [t.reshape(-1, 3) for n, t in raw if "Wheel Assembly" in n and "Shaft" in n]
+    centres = np.array([(p.min(0) + p.max(0)) / 2 for p in axles])
+    if len(centres) != 4 or np.ptp(centres[:, 0]) < np.ptp(centres[:, 2]) - 1e3:
+        sys.exit("expected four drive axles along the STEP's X")
+    c = centres.mean(0)
+    floor = c[1] + 48.0                                   # 96 mm mecanum: the floor is 48 mm below the axles (STEP -Y is up)
+
+    def to_robot(t):                                      # robot (fwd, left, up) = STEP (-Z, X, -Y), inches
+        q = np.empty_like(t)
+        q[..., 0] = -(t[..., 2] - c[2])
+        q[..., 1] = t[..., 0] - c[0]
+        q[..., 2] = -(t[..., 1] - floor)
+        return q / 25.4
+    fixed, stick, mec = [], [], []
+    for n, t in raw:
+        if re.search(r"(?i)nectar|pollen", n) or n.split(" / ")[0] == "Part 1":   # game pieces; the mentor's trial parts
+            continue
+        if "HTD5 belt 55" in n:                           # the rear belts are drawn out of place in the CAD
+            continue
+        t = to_robot(t)
+        p = t.reshape(-1, 3)
+        if p[:, 0].max() > 8.7 and p[:, 0].min() > -1:
+            stick.append((n, t))
+        elif "Wheel Assembly <2>" in n or "Wheel Assembly <4>" in n:
+            mec.append((n, t))
+        else:
+            fixed.append((n, t))
+    return fixed, stick, mec
 
 
-# ---- clearances
-import parts as PP
-from scipy.spatial import cKDTree
-TS, TF = cKDTree(sw), cKDTree(fixed)
-D = HERE + "/"
-for side in ("left", "right"):
-    c, (x0, y0, z0), s = PP.placed(side)
-    t = trimesh.load(D + f"bracket_{side}.stl")
-    P = np.vstack([t.vertices, t.sample(30000)]) / 25.4 + np.array([x0, y0, z0])
-    print(side, "bracket: stick", TS.query(P)[0].min().round(2), "frame", TF.query(P)[0].min().round(2))
-    ax = np.array(c["axle"]) * np.array([1, s]); off = (40.6 / 2 - 10) / 25.4
-    cx = ax[0] - off if c["body"] == "back" else ax[0] + off
-    g = np.mgrid[-0.8:0.8:17j, -0.4:0.4:9j, 2.34:3.4:9j].reshape(3, -1).T
-    S = np.c_[cx + g[:, 0], ax[1] + g[:, 1], g[:, 2]]
-    print(side, "servo: stick", TS.query(S)[0].min().round(2), "frame", TF.query(S)[0].min().round(2))
-    W = trimesh.load(D + f"flap_wheel_{side}.stl"); Q = np.vstack([W.vertices, W.sample(20000)]) / 25.4
-    Q = Q + np.array([ax[0], ax[1], 0.60])
-    print(side, "wheel: stick", TS.query(Q)[0].min().round(2), "frame", TF.query(Q)[0].min().round(2))
-
-# ---- top views
-import sys, numpy as np, trimesh, matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from shapely.geometry import Polygon, Point, box
-from shapely.ops import unary_union
+def swept(stick):
+    S = np.vstack([t.reshape(-1, 3) for _, t in stick])[::2]
+    out = []
+    for a in np.radians(np.arange(0, -SWING_DEG - 1, -1.0)):
+        c, s = np.cos(a), np.sin(a)
+        dx, dz = S[:, 0] - PIVOT[0], S[:, 2] - PIVOT[1]
+        out.append(np.c_[PIVOT[0] + dx * c + dz * s, S[:, 1], PIVOT[1] - dx * s + dz * c])
+    return np.vstack(out)
 
 
-IN=25.4
-def proj(tris, z0, z1):
-    zmn=tris[:,:,2].min(1); zmx=tris[:,:,2].max(1)
-    t=tris[(zmx>z0)&(zmn<z1)]
-    polys=[Polygon(tt[:,:2]) for tt in t]
-    polys=[p.buffer(0.005) for p in polys if p.area>1e-7]
-    return unary_union(polys) if polys else None
-P=parts(162)
-fixed_ball=unary_union([g for g in (proj(m.triangles,0.1,2.9) for n,m,k in P if k=="fixed") if g])
-fixed_above=unary_union([g for g in (proj(m.triangles,2.9,10) for n,m,k in P if k=="fixed") if g])
-stick_ball=unary_union([g for g in (proj(m.triangles,0.0,2.9) for n,m,k in P if k=="stick") if g])
+def spun(mec):
+    M = np.vstack([t.reshape(-1, 3) for _, t in mec])
+    out = []
+    for a in np.radians(np.arange(0, 360, 6)):
+        c, s = np.cos(a), np.sin(a)
+        dx, dz = M[:, 0] - 5.672, M[:, 2] - 1.89
+        out.append(np.c_[5.672 + dx * c + dz * s, M[:, 1], 1.89 - dx * s + dz * c])
+    return np.vstack(out)[::3]
 
-def draw(side, fn):
-    c,(x0,y0,z0),s=PP.placed(side)
-    fig,ax=plt.subplots(figsize=(8,7))
-    def fill(g,**kw):
-        if g is None or g.is_empty: return
-        for poly in getattr(g,"geoms",[g]):
-            if poly.geom_type!="Polygon": continue
-            x,y=poly.exterior.xy; ax.fill(x,y,**kw)
-    win=box(5.5,(2.8 if s>0 else -9.5),13.6,(9.5 if s>0 else -2.8))
-    fill(fixed_above.intersection(win),color="#d9d9d9",lw=0,zorder=1)
-    fill(fixed_ball.intersection(win),color="#7a7a7a",lw=0,zorder=2)
-    # stick sweep at ball height in the arm band (z<2.9) and above (z<4)
-    for zt,col,a in ((4.0,"#f4b183",0.35),(2.9,"#e07b39",0.55)):
-        q=sw[(sw[:,2]<zt)&(sw[:,0]>5.5)]
-        q=q[(q[:,1]*s>4)]
-        if len(q):
-            from shapely.geometry import MultiPoint
-            g=unary_union([Point(p).buffer(0.06) for p in q[::7,:2]])
-            fill(g.intersection(win),color=col,alpha=a,lw=0,zorder=3)
-    fill(stick_ball.intersection(win),color="#c0504d",lw=0,zorder=4)
-    # bracket
-    t=trimesh.load(D+f"bracket_{side}.stl")
-    bt=t.triangles/IN+np.array([x0,y0,z0])
-    fill(proj(bt,-1,10),color="#4f81bd",alpha=0.8,lw=0,zorder=6)
-    axl=np.array(c["axle"])*np.array([1,s]); off=(40.6/2-10)/IN
-    cx=axl[0]-off if c["body"]=="back" else axl[0]+off
-    ax.add_patch(plt.Rectangle((cx-0.8,axl[1]-0.4),1.6,0.8,fill=False,ec="#1f3864",lw=1.4,ls="--",zorder=7))
-    W=trimesh.load(D+f"flap_wheel_{side}.stl"); wt=W.triangles/IN+np.array([axl[0],axl[1],0.6])
-    fill(proj(wt,0.5,1.7),color="#2e7d32",alpha=0.9,lw=0,zorder=8)
-    ax.plot(*axl,"k+",ms=10,zorder=9)
-    # POLLEN: one pinned at the corner against a wall 0.3 in ahead of the wheel's front; one in the mouth
-    wall_x=axl[0]+1.25+2.8+0.0
-    for (bx,by),lab in (((axl[0]+1.25+1.4, axl[1]+s*0.9),"POLLEN at a wall"),((9.95, s*3.4),"raked POLLEN,\nahead of the roller")):
-        ax.add_patch(plt.Circle((bx,by),1.4,fill=False,ec="#bf9000",lw=1.6,zorder=10))
-        ax.text(bx,by,lab,fontsize=6.5,ha="center",va="center",color="#7f6000",zorder=11)
-    ax.axvline(wall_x,color="k",lw=2.5,zorder=5); ax.text(wall_x+0.08,s*3.0,"wall (nose-in)",rotation=90,fontsize=7,va="bottom" if s>0 else "top")
-    edge=7.63 if s>0 else -7.77
-    ax.axhline(edge,color="k",ls=":",lw=1); ax.text(5.6,edge+s*0.08,"frame side",fontsize=7,va="bottom" if s>0 else "top")
-    ax.axvline(7.57,color="k",ls=":",lw=1); ax.text(7.6,s*9.3,"frame front (drive wheels) X 7.57",fontsize=7,va="center")
-    ax.axvline(10.43,color="#7030a0",ls="--",lw=1); ax.text(10.46,s*9.3,"18 in cube front\n(from back at X -7.57)",fontsize=6.5,color="#7030a0",va="center")
-    ax.axhline(s*9.0,color="#7030a0",ls="--",lw=1)
-    # arrow: spin
-    ang=np.linspace(0.3,1.3,20)*s
-    ax.annotate("",xy=(axl[0]+1.55,axl[1]-s*0.5),xytext=(axl[0]+1.2,axl[1]+s*1.1),arrowprops=dict(arrowstyle="->",color="#2e7d32",lw=1.5,connectionstyle=f"arc3,rad={-0.4*s}"),zorder=12)
-    ax.set_xlim(5.5,13.6); ax.set_ylim((2.8,9.5) if s>0 else (-9.5,-2.8)); ax.set_aspect("equal")
-    ax.set_xlabel("X forward (in)"); ax.set_ylabel("Y left (in)")
-    ax.grid(True,lw=0.3,alpha=0.5)
-    ax.set_title(f"{side.upper()} front corner, top view, to scale (CAD of 31 Oct)\n"
-                 f"2.5 in TPU flap wheel, axle ({axl[0]:.2f}, {axl[1]:+.2f}), wheel Z 0.60..1.65",fontsize=9)
-    from matplotlib.patches import Patch
-    hs=[Patch(color="#7a7a7a",label="robot at ball height (Z<2.9)"),Patch(color="#d9d9d9",label="robot above ball height"),
-        Patch(color="#c0504d",label="FLOWER stick down (Z<2.9)"),Patch(color="#e07b39",alpha=0.55,label="stick swing, Z<2.9"),
-        Patch(color="#f4b183",alpha=0.35,label="stick swing, Z<4.0"),Patch(color="#4f81bd",label="bracket (Z 2.95..3.65)"),
-        Patch(fill=False,ec="#1f3864",ls="--",label="servo body (Z 2.34..3.40)"),Patch(color="#2e7d32",label="corner wheel")]
-    ax.legend(handles=hs,fontsize=6.5,loc="lower right" if s>0 else "upper right",framealpha=0.9)
-    fig.tight_layout(); fig.savefig(fn,dpi=110); plt.close(fig)
-import os
-os.makedirs(OUTDIR, exist_ok=True)
-draw("left",os.path.join(OUTDIR, "left-corner-top.png"))
-draw("right",os.path.join(OUTDIR, "right-corner-top.png"))
 
-# ---- side view
-fig,ax=plt.subplots(figsize=(9,7))
-P0=parts(0); P1=parts(162)
-def pc(tris,col,a=1,z=1):
-    ax.add_collection(PolyCollection(tris[:,:,[0,2]],facecolors=col,edgecolors="none",alpha=a,zorder=z))
-for n,m,k in P0:
-    if k=="fixed": pc(m.triangles,"#bdbdbd",1,1)
-    if k=="turret": pc(m.triangles,"#8e8e8e",1,2)
-    if "Limelight" in n: pc(m.triangles,"#2f5597",1,6)
-    if k=="stick": pc(m.triangles,"#c0504d",0.35,3)
-for n,m,k in P1:
-    if k=="stick": pc(m.triangles,"#c0504d",0.8,3)
-for n,m,k in P0:
-    if "Limelight" in n: pc(m.triangles,"#2f5597",1,6)
-# camera view wedge: lens at (4.40, 14.84), pitch 45 up, vertical FOV 42 -> 24..66 deg
-L=(4.40,14.84)
-for a in (24,66):
-    ax.plot([L[0],L[0]+12*math.cos(math.radians(a))],[L[1],L[1]+12*math.sin(math.radians(a))],color="#2f5597",lw=1)
-ax.fill([L[0],L[0]+12*math.cos(math.radians(24)),L[0]+12*math.cos(math.radians(66))],[L[1],L[1]+12*math.sin(math.radians(24)),L[1]+12*math.sin(math.radians(66))],color="#2f5597",alpha=0.12)
-ax.text(10.6,19.3,"Limelight view\n(45° up, 42° tall:\n24°..66° above level)",color="#2f5597",fontsize=8)
-# centre stick from the tower
-piv=(2.45,8.0); tip=(12.6,0.5)
-Lr=math.hypot(tip[0]-piv[0],tip[1]-piv[1])
-ax.plot(*zip(piv,tip),color="#2e7d32",lw=5,solid_capstyle="round",zorder=7)
-ax.plot(*piv,"ko",zorder=8)
-up=(piv[0],piv[1]+Lr)
-ax.plot(*zip(piv,up),color="#2e7d32",lw=3,ls=":",zorder=7)
-ang=math.radians(180-49)
-back=(piv[0]+Lr*math.cos(ang),piv[1]+Lr*math.sin(ang))
-ax.plot(*zip(piv,back),color="#2e7d32",lw=3,ls="--",zorder=7)
-ax.text(10.9,6.6,f"centre stick down: pivot on\nthe tower (X {piv[0]}, Z {piv[1]}), {Lr:.1f} in\nto today's ramp tip. At Y 0 it\ncrosses a servo block, the intake\nmotor and the intake roller", color="#2e7d32",fontsize=7.5,bbox=dict(fc="white",ec="none",alpha=0.85))
-ax.text(up[0]+0.3,up[1]-1.2,f"stowed straight up: Z {up[1]:.1f}\n(over the 18 in cube, R102)",color="#2e7d32",fontsize=8)
-ax.text(-8.8,20.6,"stowed back under 18 in:\nthrough the turret",color="#2e7d32",fontsize=8)
-# start cube
-ax.add_patch(plt.Rectangle((-7.57,0),18,18,fill=False,ec="#7030a0",ls="--",lw=1))
-ax.text(-7.4,18.25,"18 in starting cube (R102), back at X -7.57",color="#7030a0",fontsize=8)
-ax.axhline(0,color="k",lw=1)
-ax.add_patch(plt.Circle((14.2,1.4),1.4,fill=False,ec="#bf9000",lw=1.5)); ax.text(13.2,3.1,"POLLEN",fontsize=7,color="#7f6000")
-ax.set_xlim(-9,17.5); ax.set_ylim(-0.5,23.5); ax.set_aspect("equal"); ax.grid(True,lw=0.3,alpha=0.5)
-ax.set_xlabel("X forward (in)"); ax.set_ylabel("Z up (in)")
-ax.set_title("Side view, to scale (CAD of 31 Oct): today's corner stick (red, faint stowed, solid down)\nand a centre stick off the Limelight tower (green)",fontsize=9)
-fig.tight_layout(); fig.savefig(os.path.join(OUTDIR, "centre-stick-side.png"),dpi=110)
+def module_tris(side):
+    out = {}
+    for name, shape in P.module(side).items():
+        f = tempfile.mktemp(suffix=".stl")
+        cq.exporters.export(shape.val(), f, tolerance=0.1)
+        t = trimesh.load(f).triangles / 25.4
+        os.remove(f)
+        if side == "right":
+            t = t * np.array([1, -1, 1])
+        out[name] = t
+    return out
+
+
+def clearances(mod, sw, env):
+    TS, TM = cKDTree(sw), cKDTree(env)
+    res = {}
+    for name, t in mod.items():
+        p = t.reshape(-1, 3)
+        res[name] = (TS.query(p)[0].min(), TM.query(p)[0].min(), p)
+    return res
+
+
+def draw(side, mod, fixed, stick, mec, res):
+    s = 1 if side == "left" else -1
+    fig, (top, front, elev) = plt.subplots(1, 3, figsize=(17, 6.6), gridspec_kw={"width_ratios": [1.05, 1, 1.15]})
+    yl = (4.2, 9.4) if s > 0 else (-9.4, -4.2)
+
+    def keep(t, x=(5.4, 11.0), z=6.8):
+        cc = t.mean(1)
+        return t[(cc[:, 0] > x[0]) & (cc[:, 0] < x[1]) & (cc[:, 1] > yl[0]) & (cc[:, 1] < yl[1]) & (cc[:, 2] < z)]
+    for group, col, z0 in ((fixed, "#d4d4d4", 1), (mec, "#9e9e9e", 2), (stick, "#c3b1e1", 2)):
+        for n, t in group:
+            t = keep(t)
+            if not len(t):
+                continue
+            c = "#f4a259" if "5 Hole Lowside U-Channel" in n else col
+            z = 3 if c == "#f4a259" else z0
+            top.add_collection(PolyCollection(t[t[:, :, 2].min(1) < 4.8][:, :, :2], facecolors=c, edgecolors="none", zorder=z))
+            fr = t[t[:, :, 0].min(1) > 7.6]                       # the front view: what is ahead of the drive wheel
+            front.add_collection(PolyCollection(fr[:, :, 1:], facecolors=c, edgecolors="none", zorder=z))
+            e = t[(t[:, :, 1].mean(1) * s) > 5.0]
+            elev.add_collection(PolyCollection(e[:, :, [0, 2]], facecolors=c, edgecolors="none", zorder=z))
+    order = ["wheel", "hub", "servo", "bracket", "screws"]
+    for name in order:
+        t = mod[name]
+        for ax_, cols in ((top, [0, 1]), (front, [1, 2]), (elev, [0, 2])):
+            ax_.add_collection(PolyCollection(t[:, :, cols], facecolors=COLOURS[name], edgecolors="none", alpha=0.92,
+                                              zorder=6 + order.index(name)))
+    kw = dict(fontsize=8, zorder=30, bbox=dict(fc="white", ec="none", alpha=0.88), arrowprops=dict(arrowstyle="->", lw=1.1))
+    fy = s * P.FLANGE_Y
+    front.annotate("TAB on the side channel's FRONT flange:\n2 x M4 x 12 through its holes at\nZ %.2f and %.2f in, nuts behind\n"
+                   "(ahead of the Viper slide)" % P.FLANGE_HOLES_Z, xy=(fy, P.FLANGE_HOLES_Z[1]),
+                   xytext=(s * 8.9, 5.3), color="#c00000", **kw)
+    front.annotate("intake side channel\n(5 Hole Lowside U-Channel)", xy=(fy, 5.8), xytext=(s * 8.9, 6.5), **kw)
+    front.annotate("belly under the channel, Z 2.66..2.86:\n2 x M4 x 10 up into the Dual Block", xy=(s * 5.05, 2.76), xytext=(s * 7.4, 4.6), **kw)
+    top.annotate("tab on the front flange", xy=(P.FLANGE_X + 0.08, fy), xytext=(5.6, s * 4.5 if s > 0 else -4.6), color="#c00000", **kw)
+    top.annotate("wheel axle\n(X %.2f, Y %+.2f)" % (P.AXLE[0], s * P.AXLE[1]), xy=(P.AXLE[0], s * P.AXLE[1]),
+                 xytext=(9.6, s * 4.5), **kw)
+    top.annotate("front drive wheel", xy=(6.4, s * 6.2), xytext=(5.5, s * 8.7), **kw)
+    top.annotate("stick arm (drawn down;\nthe servo clears its\nswing by 0.34 in)", xy=(10.2, s * 6.84), xytext=(9.6, s * 8.6), **kw)
+    elev.annotate("servo, body across,\nup to Z 3.80", xy=(9.2, 3.6), xytext=(6.0, 5.3), **kw)
+    elev.annotate("goBILDA 1908 25T hub", xy=(9.3, 2.0), xytext=(9.9, 2.9), **kw)
+    elev.annotate("%.1f in TPU wheel,\nflaps Z 0.60..1.65" % (P.WHEEL_OD / 25.4), xy=(9.9, 1.1), xytext=(9.95, 0.15), **kw)
+    lines = ["Clearances (in), %s corner:" % side]
+    for name in ("servo", "bracket", "wheel", "hub"):
+        d_s, d_m, p = res[name]
+        lines.append(f"  {name}: stick's swing {d_s:.2f}, spinning mecanum {d_m:.2f}")
+    allp = np.vstack([r[2] for r in res.values()])
+    lines.append(f"  front X {allp[:, 0].max():.2f}: {allp[:, 0].max() + 7.57:.2f} in from the back wall")
+    lines.append(f"  out to |Y| {np.abs(allp[:, 1]).max():.2f}: inside the frame's side (|Y| 7.77)")
+    elev.text(5.5, 6.55, "\n".join(lines), fontsize=7.5, va="top", zorder=30, bbox=dict(fc="white", ec="#888", alpha=0.95))
+    for a in (top, elev):
+        a.axvline(10.43, color="#7030a0", ls="--", lw=1)
+        a.set_xlim(5.4, 11.0)
+        a.set_xlabel("X forward (in)")
+    for a in (top, front, elev):
+        a.set_aspect("equal")
+        a.grid(True, lw=0.3, alpha=0.5)
+    top.set_ylim(*yl)
+    top.set_ylabel("Y left (in)")
+    top.set_title("Top view (robot below Z 4.8)", fontsize=9)
+    front.set_xlim(*(yl[::-1] if s > 0 else yl))
+    front.set_ylim(0, 7.0)
+    front.set_xlabel("Y left (in)")
+    front.set_ylabel("Z up (in)")
+    front.set_title("From the front (robot ahead of X 7.6)", fontsize=9)
+    elev.set_ylim(0, 6.8)
+    elev.set_ylabel("Z up (in)")
+    elev.set_title("From the side (robot outboard of |Y| 5.0)", fontsize=9)
+    for a in (top, front, elev):
+        a.axhline(0, color="k", lw=0.8) if a is not top else None
+    hs = [Patch(color="#f4a259", label="what the tab bolts to"), Patch(color="#9e9e9e", label="front drive wheel"),
+          Patch(color="#c3b1e1", label="FLOWER stick (down)"), Patch(color="#d4d4d4", label="rest of the robot"),
+          Patch(color=COLOURS["bracket"], label="bracket (PETG)"), Patch(color=COLOURS["servo"], label="servo"),
+          Patch(color=COLOURS["hub"], label="25T hub"), Patch(color=COLOURS["wheel"], label="TPU wheel"),
+          Patch(color=COLOURS["screws"], label="screws")]
+    fig.suptitle(f"{side.upper()} corner module on the robot's own CAD (STEP of 24 Nov 2026), to scale; "
+                 f"purple dashed: the 18 in starting cube's front", fontsize=10)
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    fig.legend(handles=hs, fontsize=8, loc="lower center", ncol=9, framealpha=0.9)
+    fig.savefig(os.path.join(OUT, f"{side}-corner-module.png"), dpi=110)
+    plt.close(fig)
+
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit(__doc__)
+    fixed, stick, mec = robot(sys.argv[1])
+    sw, env = swept(stick), spun(mec)
+    os.makedirs(OUT, exist_ok=True)
+    for side in ("right", "left"):
+        mod = module_tris(side)
+        res = clearances(mod, sw, env)
+        for name, (d_s, d_m, p) in res.items():
+            print(f"{side:5s} {name:8s} stick {d_s:.2f}  spinning mecanum {d_m:.2f}  X {p[:, 0].min():.2f}..{p[:, 0].max():.2f}")
+        draw(side, mod, fixed, stick, mec, res)
+
+
+if __name__ == "__main__":
+    main()

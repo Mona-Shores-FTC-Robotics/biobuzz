@@ -13,6 +13,18 @@ and off by default (section 5).
 Prototype parts: [`cad/corner-wheels/`](../cad/corner-wheels/README.md). The build team's 10-minute hand test is
 in [`doc/robot-todo.md`](robot-todo.md) ("Corner wheels").
 
+**Update, 24 Nov 2026 (prototype 3): the corner module is now fitted to the robot's own CAD,** the mentor's STEP export
+of the whole robot as built. It replaces the 31 Oct model for the corner. Below, "How a corner goes together, on the
+robot's CAD" has the result. Sections 1 to 3 otherwise stand as first worked out on the 31 Oct model. The current
+CAD changes three things:
+
+- **The wheel sits right in front of the drive wheel** (the mentor's call), its servo inboard of the stick's right
+  arm (|Y| 6.60..7.08). The left arm (|Y| 5.99..6.47 today) moves out to match.
+- **The wheel is 2.3 in, not 2.5.** The axle had to come forward for the servo to clear the spinning mecanum.
+- **The module bolts to the intake side channel's front flange,** clear of the Viper slide inside it, and a wing
+  and a belly under it lock it on three sides: the wheel will be hit hard and often.
+- **The servo is a SWYFT Speed** (mentor's choice: more robust), in continuous mode.
+
 ## Where the numbers come from
 
 - **The geometry** comes from the AdvantageScope model of the team's Onshape CAD (`cad/advantagescope/`, built
@@ -70,12 +82,42 @@ The robot is then 16.3 in wide, inside both 18 in limits (R102 at the start, R10
 | Wheel to the stick, anywhere in its swing | 0.75 | 0.56 |
 | Wheel to the frame | 0.34 | **0.08** (the 2-hole channel's bottom, Z 1.73, over the wheel's top, Z 1.65) |
 | Servo body to the stick | 0.58 | 0.24 |
-| Bracket to the stick | 0.21 | 0.21 |
+| Hub to the stick | 0.88 | 0.66 |
+| Bracket to the stick | 0.23 | 0.25 |
 
-The servo hangs upside down above the wheel, spline down, at Z 2.34..3.40.
+**How a corner goes together, on the robot's CAD** (prototype 3, 24 Nov 2026; `cad/corner-wheels/README.md` has the
+parts list):
 
-![Left corner](corner-wheels/left-corner-top.png)
-![Right corner](corner-wheels/right-corner-top.png)
+- **The servo, a SWYFT Speed, is upside down, spline down into the hub.** A standard servo's flange sits near its
+  spline end (the SWYFT, measured from its model in the robot's STEP: the case is 29.0 mm below the flange and
+  11.2 mm above it, with the output boss and spline 5.7 mm more). So upside down, the flange is near the bottom and the
+  body stands up above it: flange Z 2.56..2.66, body up to Z 3.80.
+- **The wheel sits right in front of the front drive wheel,** with the servo above it, its body lying side to side, inboard
+  of the spline, so nothing reaches back toward the intake (the real robot has no room there). Axle at X 9.22,
+  |Y| 5.95; servo X 8.83..9.61, |Y| 4.49..6.62.
+- **The printed bracket bolts to the front flange of the intake's side channel,** with two M4 × 12 through its holes
+  at Z 3.81 and 4.44 and nuts behind, in the gap ahead of the Viper slide.
+  - From that tab a shelf runs straight forward onto the servo's flange: four M4 self-tapping up through the
+    flange's 5 mm holes, with a wall in front of the servo's body and one behind it.
+  - It wraps the channel on three sides: the tab over the whole front flange, a wing on the outer face, and a belly
+    under the channel's open bottom with two M4 up into the Dual Block there. Seven bumps sit in the channel's
+    holes (shorter than its 2.5 mm wall, so nothing reaches the slide); the screws hold it on, the bumps stop it
+    turning or sliding.
+- **The wheel bolts to a goBILDA 1908 Series Servo Hub (25 Tooth Spline, 32mm Diameter)** with four M4 × 30 from
+  counterbores in its underside. It is one file, the same either way up: the right corner's goes in upside down.
+- **Clearances,** with the stick swept 162° and the mecanum spun a full turn, right corner:
+  - servo 0.34 in from the stick, 1.25 in from the mecanum;
+  - bracket 0.32 and 0.26 in;
+  - wheel 1.28 and 0.52 in.
+- **Size:**
+  - The front is X 10.36, 17.93 in from the back wall; with the stick retracted, the wheels are the front of the
+    robot.
+  - Nothing goes past the frame's sides.
+- **The left module is the right one mirrored,** assuming the left arm moves out to match the right. Today's left
+  arm is where the left servo goes.
+
+![Left corner module](corner-wheels/left-corner-module.png)
+![Right corner module](corner-wheels/right-corner-module.png)
 
 **Things to know:**
 
