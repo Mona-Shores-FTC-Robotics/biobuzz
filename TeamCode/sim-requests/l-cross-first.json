@@ -40,6 +40,11 @@
       "lastShotS": 5
     },
     {
+      "name": "hits, last shot at 7 s (stays on its start until 8 s)",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 7
+    },
+    {
       "name": "misses, last shot at 5 s",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 5,
