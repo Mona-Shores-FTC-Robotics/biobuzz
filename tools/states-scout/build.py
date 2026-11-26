@@ -13,6 +13,7 @@ OUT = os.path.join(ROOT, 'TeamCode', 'autos', 'states-partners.json')
 ASK_SIDE = 'Which side do you start, and do you shoot your preloads right at the start?'
 ASK_RESHOOT = 'If your preloads miss, do you shoot at that CELL again?'
 ASK_PARK = 'Where do you park, and by when?'
+ASK_CROSS = 'If your preloads miss, do you drive off your start before 10 s, or stay on it until 16 s?'
 ASK_LEAVE = 'Does your Auto LEAVE and PARK every time?'
 
 # Our plan per archetype. Sim numbers: sim-results branch, latest run of each Auto's
@@ -22,11 +23,13 @@ ARCHETYPES = {
         'label': 'RIGHT-SHOOT-PARK',
         'auto': 'L-NoCross', 'weStart': 'LEFT_START',
         'init': ['Wait: shoots right at the start -> leave "waiting for TIP 1 until 9 s"; later -> D-pad right to 6 s after their second',
-                 'if no TIP 1: CROSS AND FIX IT (default) - WAIT FOR PARTNER FIX only if they re-shoot',
+                 'if no TIP 1: CROSS AND FIX IT if they leave their start before 10 s or stay on it until 16 s; WAIT FOR PARTNER FIX if they leave at 10-16 s, are not sure, or re-shoot',
                  'Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land'],
-        'ask': [ASK_SIDE, ASK_RESHOOT, ASK_PARK],
+        'ask': [ASK_SIDE, ASK_RESHOOT, ASK_CROSS, ASK_PARK],
         'sim': 'On time 48 pts, 1.6 TIPs, parked 100%. Missing: CROSS AND FIX IT 32 pts vs WAIT FOR PARTNER FIX 16. Dead: 28 vs 8. No contact in any run.',
-        'watch': 'CROSS AND FIX IT drives under the HIVE to RIGHT_AUTO_FIX_TIP: if they are still near the right launch spot after ~12 s, pick WAIT FOR PARTNER FIX.'},
+        'watch': 'CROSS AND FIX IT puts us in the right lane from about 9 to 15.3 s: a partner leaving RIGHT_START between about 10.3 and 16 s hits us (reality-check sims). Raising our partner wait moves that window later by the same amount.',
+        'crossWindow': {'oursInRightLaneS': [9.0, 15.3], 'partnerLeavesHitsS': [10.3, 16.0],
+                        'shiftsWithPartnerWait': True, 'source': 'partner reality-check sims, 26 Nov 2026'}},
     'LEFT-SHOOT-PARK': {
         'label': 'LEFT-SHOOT-PARK',
         'auto': 'R-NoCross', 'weStart': 'RIGHT_START',
