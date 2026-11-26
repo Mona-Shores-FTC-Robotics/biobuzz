@@ -10,6 +10,12 @@ ride over the corner wheel's servo, which today's flat goBILDA bar can't. The st
 
 ![Both arms, cut at their band, stick down](render_section.png)
 
+**Passive on both robots (mentor, 26 Nov).** These arms carry no chain: a chain runs straight between its sprockets,
+along the old arm line, so it would hit the corner servo and wheels where today's arm does. 19429's active roller stick
+goes passive too, which also brings it back to 8 servos with the corner wheels (R503; `doc/corner-wheels.md` section 4).
+The code side is a `RobotDifferences` line turning `FlowerStickSubsystem.roller` off for 19429 and `flowerRoller` out of
+its XML, in its own PR.
+
 ## The stick, as a U
 
 | Piece | What | Print / buy |
