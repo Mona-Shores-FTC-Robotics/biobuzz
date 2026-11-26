@@ -32,7 +32,7 @@ steel shaft wouldn't fit there, and the mountain needs the shaft as its axle any
 - **The hump.** Around hole stations 5 to 7 (counted from the pivot, 24 mm apart) the arm bows forward and up (seen
   with the stick down), so its lower edge passes over the corner wheel's servo and mount with 4 mm (half a goBILDA
   hole) to spare through the whole 0..162° swing. `parts.py` sizes it from the corner parts in `geometry.py`: today
-  53.5 mm high, one goBILDA hole of slack included. It leaves the old line at hole 3.3 and is back on it by hole 10.1; the arm's centre line never bends
+  55 mm high, one goBILDA hole of slack included. It leaves the old line at hole 3.3 and is back on it by hole 10.25, just short of the tip hole's bolt pattern; the arm's centre line never bends
   tighter than a 22 mm radius, which sets how long the ramps are. The pivot and tip holes don't move.
 - **The ends** stop 16 mm past the pivot and tip holes (the channel went 24). The arm then fits a Prusa
   250 × 210 mm bed, laid corner to corner, and its tip no longer pokes past the roller.
@@ -55,10 +55,11 @@ straight arm meets the servo and the wheels' top from hole 5.4 to 8.2, as the me
 | | Left | Right |
 |---|---|---|
 | Today's straight arm to the wheels and servo | **0: hits** | **0: hits** |
-| Printed arm to the wheels | 14.3 mm (0.56 in) at 162° | 14.3 mm (0.56 in) at 162° |
-| Printed arm to the wheels' screw and washer | 12.6 mm (0.50 in) at 162° | 12.6 mm (0.50 in) at 162° |
-| Printed arm to the servo | 29.2 mm (1.15 in) at 162° | 29.2 mm (1.15 in) at 162° |
-| Printed arm to the mount | 25.2 mm (0.99 in) at 162° | 25.2 mm (0.99 in) at 162° |
+| Printed arm to the wheels | 15.0 mm (0.59 in) at 162° | 15.0 mm (0.59 in) at 162° |
+| Printed arm to the wheels' screw and washer | 12.7 mm (0.50 in) at 162° | 12.7 mm (0.50 in) at 162° |
+| Printed arm to the servo's body | 29.6 mm (1.17 in) at 162° | 29.6 mm (1.17 in) at 162° |
+| Printed arm to the servo's mounting tabs | 22.4 mm (0.88 in) at 162° | 22.4 mm (0.88 in) at 162° |
+| Printed arm to the mount | 25.6 mm (1.01 in) at 162° | 25.6 mm (1.01 in) at 162° |
 | Printed arm to the rest of the robot (31 Oct CAD) | 0.1 mm (0.00 in) at 159° | 9.1 mm (0.36 in) at 162° |
 | Today's arm to the rest of the robot | 0.1 mm (0.00 in) at 162° | 3.8 mm (0.15 in) at 162° |
 
@@ -66,16 +67,17 @@ straight arm meets the servo and the wheels' top from hole 5.4 to 8.2, as the me
 
 | Corner parts moved | Left | Right |
 |---|---|---|
-| corner parts 8 mm forward, 0 mm up | 4.6 mm (screw) | 4.6 mm (screw) |
-| corner parts 0 mm forward, 8 mm up | 6.3 mm (wheel) | 6.4 mm (wheel) |
-| corner parts 8 mm forward, 8 mm up | 4.3 mm (wheel) | 4.4 mm (wheel) |
-| corner parts 8 mm back, 0 mm up | 14.9 mm (wheel) | 14.9 mm (wheel) |
-| corner parts 8 mm back, 8 mm up | 6.9 mm (wheel) | 6.9 mm (wheel) |
+| corner parts 8 mm forward, 0 mm up | 4.7 mm (screw) | 4.7 mm (screw) |
+| corner parts 0 mm forward, 8 mm up | 7.1 mm (wheel) | 7.1 mm (wheel) |
+| corner parts 8 mm forward, 8 mm up | 4.7 mm (screw) | 4.7 mm (screw) |
+| corner parts 8 mm back, 0 mm up | 15.3 mm (wheel) | 15.3 mm (wheel) |
+| corner parts 8 mm back, 8 mm up | 7.3 mm (wheel) | 7.3 mm (wheel) |
 
+- **The servo** is goBILDA's Speed servo (2000-0025-0003) from its own STEP (`vendor/`), upright, spline forward; its mounting tabs stand 37 mm above the spline and are the tallest thing under the arm.
 - **The wheels' screw and washer** (mentor, 26 Nov): drawn 20 mm across, 8 mm proud of the wheels' front face, on the axle. A guess at its size.
-- **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.1–0.2 mm on the left is at the pivot end, beside the left pivot's hub and block, the same for both.
-- **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18). The corner wheels as drawn reach 10.65 in with the screw, past the cube's front, but the mentor says the real ones sit behind the nose (1.7 in past the intake face), so they're drawn too far forward; the slack covers them 8 mm further back.
-- **The Limelight:** no part of either printed arm enters its view (54.5° × 42°, pitched 45° up, from the 31 Oct CAD's camera) at any angle of the swing; the nearest is 16.7° outside the view's edge, the left arm at 56°.
+- **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.1 mm on the left is at the pivot end, beside the left pivot's hub and block, the same for both.
+- **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18). The corner wheels as drawn reach 10.65 in with the screw, but the mentor says the real ones sit behind the nose (1.7 in past the intake face).
+- **The Limelight:** no part of either printed arm enters its view (54.5° × 42°, pitched 45° up, from the 31 Oct CAD's camera) at any angle of the swing.
 
 ## The tip, the feet and the FLOWER
 
@@ -102,7 +104,7 @@ not offered:** at the contact standoff it would reach the wall before the FLOWER
 
 | | Today | Printed |
 |---|---|---|
-| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 414 g |
+| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 415 g |
 | Holding torque, stowed (0°) | 4.0 kg·cm | 3.8 kg·cm |
 | Holding torque, down for a pick (162°) | 6.3 kg·cm | 5.8 kg·cm |
 | Worst, through the swing | 9.1 kg·cm at 116° | 8.1 kg·cm at 118° |
@@ -121,8 +123,8 @@ is a faster printer). `print-estimates.json`.
 
 | Part | PETG | Prusa MK3/MK4-class | Faster printer |
 |---|---|---|---|
-| arm (print 2) | 74 g | 4h 53m 46s | 3h 15m 41s |
-| arm, hex pivot | 74 g | 4h 53m 46s | 3h 15m 35s |
+| arm (print 2) | 74 g | 4h 54m 29s | 3h 16m 1s |
+| arm, hex pivot | 74 g | 4h 54m 44s | 3h 16m 10s |
 | skid (print 2) | 6 g | 37m 39s | 31m 28s |
 
 Today's aluminium arm is ESTIMATED at 75 g (weigh one).
@@ -154,7 +156,7 @@ python3 cad/flower-printed-arms/torque.py && python3 cad/flower-printed-arms/ren
 
 ## Before printing
 
-1. In Onshape, both corners: the arm (53.5 mm hump) against the real servo and mount, swung
+1. In Onshape: insert `onshape/stick_down_with_corners.step` (`python3 export_onshape.py` writes it; not in git, it's 34 MB), line its arm up with the stick, and compare its corners with the real ones; then the arm (55 mm hump) against the real servo and mount, swung
    through.
 2. Print one arm first; check the 14 mm holes take the bearing and the hubs (drill to 4.5 if an M4 binds), and that
    the axle and shaft run true.
