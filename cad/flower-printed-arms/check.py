@@ -2,7 +2,7 @@
 
     python3 cad/flower-printed-arms/check.py     # prints the table and writes clearance.json
 
-- **Against the corner parts** (geometry.corner_boxes: wheel, servo, SWYFT mount; PLACEHOLDERS until measured):
+- **Against the corner parts** (geometry.corner_boxes: wheels, servo, goBILDA servo frame):
   exact solid-to-solid distances (OpenCascade), each arm against its own corner, for today's straight channel and the
   printed arm.
 - **Against the rest of the robot:** the 31 Oct CAD (cad/advantagescope/Robot_BIOBUZZ/model.glb, the stick left out),
@@ -81,8 +81,10 @@ def real_servo(side):
     lo, hi = b["servo"][1], b["servo"][2]
     wz = b["wheel"][1][2]
     wy = b["wheel"][1][1]
-    # STEP (x, y, z) -> robot (X, Y, Z) = (lo.X + z + 27.2, wy - y, wz + x + 10)
-    M = np.array([[0, 0, 1, lo[0] + 27.2], [0, -1, 0, wy], [1, 0, 0, wz + 10.0], [0, 0, 0, 1.0]])
+    # STEP (x, y, z) -> robot (X, Y, Z) = (lo.X + z + 27.2, wy -+ y, wz + x + 10): its flat side (STEP +y, 8.2 mm from the
+    # spline) inboard, against the intake channel, on both sides (the right one mirrored)
+    sy = -1.0 if side == "left" else 1.0
+    M = np.array([[0, 0, 1, lo[0] + 27.2], [0, sy, 0, wy], [1, 0, 0, wz + 10.0], [0, 0, 0, 1.0]])
     return _SERVO.transformGeometry(to_cq_matrix(M))
 
 
@@ -161,7 +163,7 @@ def _row(d):
 
 
 def main():
-    report = {"units": "mm and in", "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and mount PLACEHOLDERS "
+    report = {"units": "mm and in", "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and goBILDA 1802 servo frame on the intake channel's front flange holes; wheel height from the mentor's photo, hub gap and screw PLACEHOLDERS "
                                                     "(geometry.CORNER) until measured", "sides": {}}
     tree = cKDTree(robot_points())
     angles = list(np.arange(0, SWING_DEG, 3.0)) + [SWING_DEG]
