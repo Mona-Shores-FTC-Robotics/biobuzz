@@ -20,6 +20,11 @@
       "in": 0.0,
       "at_deg": 159.0
      },
+     "screw": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 156.0
+     },
      "rest of robot (31 Oct CAD)": {
       "mm": 0.1,
       "in": 0.0,
@@ -44,9 +49,14 @@
       "in": 0.99,
       "at_deg": 162.0
      },
+     "screw": {
+      "mm": 12.6,
+      "in": 0.5,
+      "at_deg": 162.0
+     },
      "rest of robot (31 Oct CAD)": {
-      "mm": 0.2,
-      "in": 0.01,
+      "mm": 0.1,
+      "in": 0.0,
       "at_deg": 159.0
      }
     },
@@ -64,6 +74,11 @@
      "mount": {
       "mm": 75.4,
       "in": 2.97,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 47.5,
+      "in": 1.87,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
@@ -92,6 +107,11 @@
       "in": 0.0,
       "at_deg": 159.0
      },
+     "screw": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 156.0
+     },
      "rest of robot (31 Oct CAD)": {
       "mm": 3.8,
       "in": 0.15,
@@ -116,8 +136,13 @@
       "in": 0.99,
       "at_deg": 162.0
      },
+     "screw": {
+      "mm": 12.6,
+      "in": 0.5,
+      "at_deg": 162.0
+     },
      "rest of robot (31 Oct CAD)": {
-      "mm": 9.2,
+      "mm": 9.1,
       "in": 0.36,
       "at_deg": 162.0
      }
@@ -138,6 +163,11 @@
       "in": 2.97,
       "at_deg": 162.0
      },
+     "screw": {
+      "mm": 46.9,
+      "in": 1.84,
+      "at_deg": 162.0
+     },
      "rest of robot (31 Oct CAD)": {
       "mm": 58.4,
       "in": 2.3,
@@ -150,14 +180,14 @@
  "slack": {
   "corner parts 8 mm forward, 0 mm up": {
    "left": {
-    "mm": 7.0,
+    "mm": 4.6,
     "at_deg": 162.0,
-    "nearest": "wheel"
+    "nearest": "screw"
    },
    "right": {
-    "mm": 7.0,
+    "mm": 4.6,
     "at_deg": 162.0,
-    "nearest": "wheel"
+    "nearest": "screw"
    }
   },
   "corner parts 0 mm forward, 8 mm up": {
@@ -183,6 +213,30 @@
     "at_deg": 162.0,
     "nearest": "wheel"
    }
+  },
+  "corner parts -8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 14.9,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 14.9,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  },
+  "corner parts -8 mm forward, 8 mm up": {
+   "left": {
+    "mm": 6.9,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 6.9,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
   }
  },
  "stowed": {
@@ -202,9 +256,9 @@
   "leaves_line_u_mm": 54.0,
   "full_u_mm": [
    134.0,
-   134.0
+   142.0
   ],
-  "back_on_line_u_mm": 210.0,
+  "back_on_line_u_mm": 218.0,
   "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
  }
 }

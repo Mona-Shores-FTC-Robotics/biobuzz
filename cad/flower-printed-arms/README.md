@@ -32,7 +32,7 @@ steel shaft wouldn't fit there, and the mountain needs the shaft as its axle any
 - **The hump.** Around hole stations 5 to 7 (counted from the pivot, 24 mm apart) the arm bows forward and up (seen
   with the stick down), so its lower edge passes over the corner wheel's servo and mount with 4 mm (half a goBILDA
   hole) to spare through the whole 0..162° swing. `parts.py` sizes it from the corner parts in `geometry.py`: today
-  53.5 mm high, one goBILDA hole of slack included. It leaves the old line at hole 3.3 and is back on it by hole 9.8; the arm's centre line never bends
+  53.5 mm high, one goBILDA hole of slack included. It leaves the old line at hole 3.3 and is back on it by hole 10.1; the arm's centre line never bends
   tighter than a 22 mm radius, which sets how long the ramps are. The pivot and tip holes don't move.
 - **The ends** stop 16 mm past the pivot and tip holes (the channel went 24). The arm then fits a Prusa
   250 × 210 mm bed, laid corner to corner, and its tip no longer pokes past the roller.
@@ -56,23 +56,25 @@ straight arm meets the servo and the wheels' top from hole 5.4 to 8.2, as the me
 |---|---|---|
 | Today's straight arm to the wheels and servo | **0: hits** | **0: hits** |
 | Printed arm to the wheels | 14.3 mm (0.56 in) at 162° | 14.3 mm (0.56 in) at 162° |
+| Printed arm to the wheels' screw and washer | 12.6 mm (0.50 in) at 162° | 12.6 mm (0.50 in) at 162° |
 | Printed arm to the servo | 29.2 mm (1.15 in) at 162° | 29.2 mm (1.15 in) at 162° |
 | Printed arm to the mount | 25.2 mm (0.99 in) at 162° | 25.2 mm (0.99 in) at 162° |
-| Printed arm to the rest of the robot (31 Oct CAD) | 0.2 mm (0.01 in) at 159° | 9.2 mm (0.36 in) at 162° |
+| Printed arm to the rest of the robot (31 Oct CAD) | 0.1 mm (0.00 in) at 159° | 9.1 mm (0.36 in) at 162° |
 | Today's arm to the rest of the robot | 0.1 mm (0.00 in) at 162° | 3.8 mm (0.15 in) at 162° |
-| Skid to the corner parts (nearest: the wheels) | 42.9 mm (1.69 in) at 162° | 42.8 mm (1.69 in) at 162° |
 
-**Slack.** The hump is sized so it still clears the corner parts by 4 mm if they sit a goBILDA hole (8 mm) further forward, higher, or both (`parts.SIZING_SHIFTS`). Measured gaps with them moved:
+**Slack.** The hump is sized so it still clears the corner parts by 4 mm if they sit a goBILDA hole (8 mm) further forward, back, higher, or a mix (`parts.SIZING_SHIFTS`). Measured gaps with them moved:
 
 | Corner parts moved | Left | Right |
 |---|---|---|
-| corner parts 8 mm forward, 0 mm up | 7.0 mm (wheel) | 7.0 mm (wheel) |
+| corner parts 8 mm forward, 0 mm up | 4.6 mm (screw) | 4.6 mm (screw) |
 | corner parts 0 mm forward, 8 mm up | 6.3 mm (wheel) | 6.4 mm (wheel) |
 | corner parts 8 mm forward, 8 mm up | 4.3 mm (wheel) | 4.4 mm (wheel) |
+| corner parts 8 mm back, 0 mm up | 14.9 mm (wheel) | 14.9 mm (wheel) |
+| corner parts 8 mm back, 8 mm up | 6.9 mm (wheel) | 6.9 mm (wheel) |
 
-- **Where they're drawn,** the arm clears the wheels by 14.3 mm and the servo by about 29 mm, through the whole swing.
+- **The wheels' screw and washer** (mentor, 26 Nov): drawn 20 mm across, 8 mm proud of the wheels' front face, on the axle. A guess at its size.
 - **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.1–0.2 mm on the left is at the pivot end, beside the left pivot's hub and block, the same for both.
-- **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18).
+- **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18). The corner wheels as drawn reach 10.65 in with the screw, past the cube's front, but the mentor says the real ones sit behind the nose (1.7 in past the intake face), so they're drawn too far forward; the slack covers them 8 mm further back.
 - **The Limelight:** no part of either printed arm enters its view (54.5° × 42°, pitched 45° up, from the 31 Oct CAD's camera) at any angle of the swing; the nearest is 16.7° outside the view's edge, the left arm at 56°.
 
 ## The tip, the feet and the FLOWER
@@ -119,8 +121,8 @@ is a faster printer). `print-estimates.json`.
 
 | Part | PETG | Prusa MK3/MK4-class | Faster printer |
 |---|---|---|---|
-| arm (print 2) | 74 g | 4h 53m 56s | 3h 15m 51s |
-| arm, hex pivot | 74 g | 4h 54m 14s | 3h 16m 7s |
+| arm (print 2) | 74 g | 4h 53m 46s | 3h 15m 41s |
+| arm, hex pivot | 74 g | 4h 53m 46s | 3h 15m 35s |
 | skid (print 2) | 6 g | 37m 39s | 31m 28s |
 
 Today's aluminium arm is ESTIMATED at 75 g (weigh one).
