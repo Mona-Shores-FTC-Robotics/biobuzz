@@ -169,6 +169,22 @@ def main():
                 res[pname] = {**{k: _row(v) for k, v in worst.items()}, "rest of robot (31 Oct CAD)": _row(rob)}
             rs[label] = res
         report["sides"][side] = rs
+    # slack: the corner parts shifted forward and up (parts.SIZING_SHIFTS), the printed arm only
+    report["slack"] = {}
+    env = envelope(False)
+    for dx, dz in parts.SIZING_SHIFTS[1:]:
+        key = f"corner parts {dx:.0f} mm forward, {dz:.0f} mm up"
+        report["slack"][key] = {}
+        for side in ("left", "right"):
+            obst = {k: s.translate(cq.Vector(dx, 0, dz)) for k, s in corner_solids(side).items()}
+            worst = (1e9, None, None)
+            for th in list(np.arange(0, SWING_DEG, 6.0)) + [SWING_DEG]:
+                placed = env.transformGeometry(to_cq_matrix(placement(side, th)))
+                for k, s in obst.items():
+                    d = placed.distance(s)
+                    if d < worst[0]:
+                        worst = (d, float(th), k)
+            report["slack"][key][side] = {"mm": round(worst[0], 1), "at_deg": worst[1], "nearest": worst[2]}
     # the starting cube (R102), stowed; and the reach, down
     for key, th in (("stowed", 0.0), ("down", SWING_DEG)):
         qs = []

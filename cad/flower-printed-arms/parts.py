@@ -40,7 +40,10 @@ RIB = 2.5
 RIB_PITCH = 24.0      # one diagonal per hole station
 PAD = 20.0            # solid from each end to this far inside the pivot / tip hole
 M4 = 4.3              # clearance; drill to 4.5 if a bolt binds
-BEARING_BORE = 14.15  # 8x14x4 bearing, light press. Print the test coupon first (README)
+BEARING_BORE = 14.15  # 8x14x4 bearing, light press (the left pivot). Print the test coupon first (README)
+# The tip: the 8 mm REX shaft (goBILDA's rounded hex) is keyed in each arm so it can't turn, and the mountain on its
+# hex stays put. 8 mm across the flats, the corners rounded off at a 9.0 mm circle, 0.15 mm clearance all round.
+REX_AF, REX_ROUND_D, REX_CLEAR = 8.0, 9.0, 0.15
 HEX_AF = 12.7 + 0.25  # 1/2 in hex option, across flats
 # goBILDA's hub patterns round a 14 mm hole: 4 holes on a 16 mm circle (diagonal) and 4 on a 16 mm square.
 HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)] + \
@@ -52,6 +55,7 @@ TIP_LINE = [TIP_U - 16.0]
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
 HUMP_TO = TIP_U - PAD - 2.0      # u 216: ... and is back on it before the tip pad, so the tip end stays straight
+SIZING_SHIFTS = [(0.0, 0.0), (GRID, 0.0), (0.0, GRID), (GRID, GRID)]   # mm (X forward, Z up): one goBILDA hole of slack
 SIZING_MARGIN = 1.0             # mm on top of CLEARANCE: the sizing samples the parts, check.py measures them exactly
 MIN_RADIUS = ARM_W / 2 + 6.0     # the centre line never bends tighter than this, so the inner edge stays smooth
 
@@ -74,9 +78,12 @@ def obstacle_profile(step=1.5):
     us = np.arange(-30, 270, 2.0)
     need = np.full(us.shape, -1e9)
     for side in ("left", "right"):
-        p = sample_corner(side, step)
+        p0 = sample_corner(side, step)
         y0, y1 = sorted(ARM_Y[side])
-        p = p[(p[:, 1] > y0 - CLEARANCE) & (p[:, 1] < y1 + CLEARANCE)]
+        p0 = p0[(p0[:, 1] > y0 - CLEARANCE) & (p0[:, 1] < y1 + CLEARANCE)]
+        # the corner parts where geometry.py puts them, and shifted by SIZING_SHIFTS (forward, up), so the hump still
+        # clears them if they sit a little further forward or higher on the robot than drawn
+        p = np.vstack([p0 + [dx, 0.0, dz] for dx, dz in SIZING_SHIFTS])
         for th in np.arange(0, SWING_DEG + 0.1, 2.0):
             a = robot_to_arm(p, th)
             idx = np.round((a[:, 0] - us[0]) / 2).astype(int)
@@ -211,8 +218,12 @@ def arm(pivot="bearing"):
             ribs = r if ribs is None else ribs.union(r)
     body = body.union(ribs.intersect(_poly(outline, ARM_T)))
     # holes
-    for u0, bore in ((0.0, pivot), (TIP_U, "bearing")):
-        if bore == "hex":
+    for u0, bore in ((0.0, pivot), (TIP_U, "rex")):
+        if bore == "rex":
+            af = REX_AF + 2 * REX_CLEAR
+            hole = cq.Workplane("XY").polygon(6, af / math.cos(math.radians(30))).extrude(ARM_T) \
+                .intersect(cq.Workplane("XY").circle(REX_ROUND_D / 2 + REX_CLEAR).extrude(ARM_T)).translate((u0, 0, 0))
+        elif bore == "hex":
             hole = cq.Workplane("XY").polygon(6, HEX_AF / math.cos(math.radians(30))).extrude(ARM_T) \
                 .translate((u0, 0, 0))
         else:
