@@ -188,7 +188,7 @@ def main():
     ax.set_box_aspect((300, 150, 90))
     ax.view_init(55, -75)
     ax.set_axis_off()
-    ax.set_title("The printed arm, as it lies on the bed (web down)", fontsize=10)
+    ax.set_title("The printed arm, as it lies on the bed (the web in the middle; both faces alike)", fontsize=10)
     fig.tight_layout()
     fig.savefig(os.path.join(HERE, "render_part.png"))
     plt.close(fig)

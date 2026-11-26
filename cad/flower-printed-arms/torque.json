@@ -33,11 +33,11 @@
   "worst_at_deg": 116.0
  },
  "printed": {
-  "mass_g": 401.0,
+  "mass_g": 402.0,
   "items": [
    {
     "what": "2 printed arms",
-    "g": 135.5
+    "g": 136.3
    },
    {
     "what": "2 skids",
@@ -58,7 +58,7 @@
   ],
   "torque_kgcm_stowed_0deg": -3.54,
   "torque_kgcm_pick_162deg": 5.56,
-  "torque_kgcm_worst": 7.92,
+  "torque_kgcm_worst": 7.93,
   "worst_at_deg": 117.0
  },
  "margin_printed": {

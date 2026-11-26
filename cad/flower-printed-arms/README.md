@@ -14,7 +14,7 @@ ride over the corner wheel's servo, which today's flat goBILDA bar can't. The st
 
 | Piece | What | Print / buy |
 |---|---|---|
-| `arm.step` / `.stl` | Each arm. **One part, print 2:** both sides use it the same way round (hump up when the stick is down), so the flat web faces inboard on the left and outboard on the right. The pads round the holes are solid and flat on both faces, so hubs and bearings bolt on either way. Today's pivot hole and tip hole, 240 mm apart (10 hole stations), with goBILDA's hub patterns round both, so the axle, its hub, the servo hub and the tip shaft bolt on as now | PETG, **on its side** (the flat web down), 4 walls, 40 % gyroid, no supports. 2 per robot |
+| `arm.step` / `.stl` | Each arm. **One part, print 2,** alike on both faces (the web is in the middle), so it looks the same on either side. Fit it with the hump away from the tile when the stick is down. Today's pivot hole and tip hole, 240 mm apart (10 hole stations), with goBILDA's hub patterns round both, so the axle, its hub, the servo hub and the tip shaft bolt on as now | PETG, **on its side**, 4 walls, 40 % gyroid, no supports (the middle web bridges between the ribs). 2 per robot |
 | `arm_hex_pivot.*` | The same, with a 1/2 in hex bore at the pivot, if the axle through both pivot bosses becomes hex | the same |
 | `arm_hump40.*` | A more pronounced hump (40 mm), only for looking at in Onshape | — |
 | `foot_skid.*` | Foot (a): a smooth puck in the tip roller's place, the roller's size, bolted to the arm so it never turns | PETG, arm face down. 2 per robot |
@@ -36,8 +36,8 @@ steel shaft wouldn't fit there, and the mountain needs the shaft as its axle any
   tighter than a 22 mm radius, which sets how long the ramps are. The pivot and tip holes don't move.
 - **The ends** stop 16 mm past the pivot and tip holes (the channel went 24). The arm then fits a Prusa
   250 × 210 mm bed, laid corner to corner, and its tip no longer pokes past the roller.
-- **The section** is a ribbed channel: a 2.4 mm web (the face on the bed, against the arm's inner side on the robot),
-  3 mm walls round the edges, diagonal ribs, 12 mm deep (the channel's band). Solid round the pivot and the tip.
+- **The section** is a ribbed I: a 2.4 mm web in the middle, 3 mm walls round the edges, diagonal ribs, 12 mm deep
+  (the channel's band), so both faces look alike. Solid round the pivot and the tip.
 
 **Moving the arm outboard instead** (the mentor's first choice): the width is fine (both arms 2 in out: 16.2 in
 across, under R102/R105's 18 in) and the FLOWER pick doesn't change (the mountain stays on the same axis, so its lip
@@ -94,7 +94,7 @@ not offered:** at the contact standoff it would reach the wall before the FLOWER
 
 | | Today | Printed |
 |---|---|---|
-| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 401 g |
+| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 402 g |
 | Holding torque, stowed (0°) | 4.0 kg·cm | 3.5 kg·cm |
 | Holding torque, down for a pick (162°) | 6.3 kg·cm | 5.6 kg·cm |
 | Worst, through the swing | 9.1 kg·cm at 116° | 7.9 kg·cm at 117° |
@@ -113,17 +113,17 @@ is a faster printer). `print-estimates.json`.
 
 | Part | PETG | Prusa MK3/MK4-class | Faster printer |
 |---|---|---|---|
-| arm (print 2) | 68 g | 4h 31m 8s | 2h 58m 41s |
-| arm, hex pivot | 68 g | 4h 31m 54s | 2h 59m 21s |
+| arm (print 2) | 68 g | 4h 26m 2s | 2h 54m 24s |
+| arm, hex pivot | 68 g | 4h 26m 47s | 2h 54m 59s |
 | skid (print 2) | 6 g | 37m 39s | 31m 28s |
 
 Today's aluminium arm is ESTIMATED at 75 g (weigh one).
 
 ## In Onshape
 
-`arm.step` is in its own frame: the pivot hole on the origin, the tip hole at +X 240 mm, the flat web face on Z 0,
+`arm.step` is in its own frame: the pivot hole on the origin, the tip hole at +X 240 mm, its faces on Z 0 and Z 12,
 the hump toward +Y. Mate the pivot hole to the stick's axle and the tip hole to the shaft, in the channel's band
-(web inboard on the left, outboard on the right: the same part, not mirrored), and the hump on the side away from the tile when the stick is down. Then swing
+(the same part both sides), and the hump on the side away from the tile when the stick is down. Then swing
 the stick and look at the corner servo and mount. If a stretch still touches, tell the session the hole station and
 how much; `geometry.CORNER` takes it and every file here regenerates.
 

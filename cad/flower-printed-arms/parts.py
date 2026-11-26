@@ -17,8 +17,9 @@ What changes: around hole stations 5 to 7 the arm's centre line humps forward-up
 a goBILDA hole) above them through the whole swing, on the worse of the two corners. Its centre line never bends
 tighter than MIN_RADIUS, which sets how long the ramps up and down are. One part fits both sides.
 
-The section is a ribbed channel printed on its side: a 2.4 mm web on the bed, 3 mm walls round the edge and the
-holes, diagonal ribs, all 12 mm tall (the arm's thickness in Y). The pads round the pivot and tip holes are solid.
+The section is a ribbed I printed on its side: a 2.4 mm web in the middle of the arm's 12 mm (it bridges between the
+ribs as it prints), 3 mm walls round the edge, diagonal ribs, all 12 mm tall. Both faces are alike, so it goes on
+either side either way round. The pads round the pivot and tip holes are solid.
 """
 import math
 import os
@@ -33,7 +34,7 @@ from geometry import (ARM_T, ARM_W, ARM_Y, CLEARANCE, END_PAST, GRID, PITCH, TIP
                       sample_corner, SWING_DEG)
 
 # ---- section and holes ----------------------------------------------------------------------------------------------
-WEB = 2.4             # the face on the bed (6 layers at 0.4)
+WEB = 2.4             # the web, in the middle of the arm's 12 mm (an I-section: both faces alike)
 WALL = 3.0            # the edge walls and the hole rims
 RIB = 2.5
 RIB_PITCH = 24.0      # one diagonal per hole station
@@ -174,8 +175,8 @@ def spine_at(u):
 
 def arm(pivot="bearing"):
     """One arm, either side (it is symmetric about its own mid-plane), in its own frame: u along X (pivot hole at the
-    origin, tip hole at X 240), v along Y (+v forward-up once the stick is down), Z 0..12 its thickness, the web on the
-    bed at Z 0..2.4. On the robot (check.placement) the web lies against the arm's inner face.
+    origin, tip hole at X 240), v along Y (+v forward-up once the stick is down), Z 0..12 its thickness, the web at
+    Z 4.8..7.2.
 
     `pivot`: "bearing" keeps today's 14 mm hole and goBILDA hub patterns, so the axle, its hub and the servo hub
     bolt on as they do now; "hex" is a 1/2 in hex bore, keyed to a hex axle, with the same bolt patterns."""
@@ -183,7 +184,8 @@ def arm(pivot="bearing"):
     half = ARM_W / 2
     outline = _outline(hm, half)
     body = _poly(outline, ARM_T)
-    pocket = _poly(_outline(hm, half - WALL), ARM_T, WEB)
+    inner = _outline(hm, half - WALL)
+    pocket = _poly(inner, (ARM_T - WEB) / 2).union(_poly(inner, (ARM_T - WEB) / 2, (ARM_T + WEB) / 2))
     solid = cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True)) \
         .translate((-END_PAST - 20, 0, 0))
     solid = solid.union(cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True))
