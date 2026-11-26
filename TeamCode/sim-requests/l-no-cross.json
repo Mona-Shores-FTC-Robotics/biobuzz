@@ -25,22 +25,22 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "RIGHT-SHOOT-PARK, last shot at 2 s (seen 9 of 32: 7 hit, 2 missed)",
+      "name": "RIGHT-SHOOT-PARK, last shot at 2 s (seen 7 of 32)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 2
     },
     {
-      "name": "RIGHT-SHOOT-PARK, last shot at 5 s (seen 9 of 32: 7 hit, 2 missed)",
+      "name": "RIGHT-SHOOT-PARK, last shot at 5 s (seen 7 of 32)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 5
     },
     {
-      "name": "last shot at 8 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs)",
+      "name": "last shot at 8 s (later than any seen)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 8
     },
     {
-      "name": "last shot at 12 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs)",
+      "name": "last shot at 12 s (later than any seen)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 12
     },
@@ -57,12 +57,28 @@
       "fails": "misses"
     },
     {
-      "name": "dead on its start (never seen: no partner sat on RIGHT_START all AUTO in 32 runs), said 8 s",
+      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 10.3 s (like 8513, Fruitport M-1)",
+      "partner": "PartnerRLaunchParkAuto",
+      "fails": "misses",
+      "timing": {
+        "startDelayS": 7
+      }
+    },
+    {
+      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 12.3 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "fails": "misses",
+      "timing": {
+        "startDelayS": 9
+      }
+    },
+    {
+      "name": "dead on its start (never seen), said 8 s",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8
     },
     {
-      "name": "dead on its start (never seen: no partner sat on RIGHT_START all AUTO in 32 runs), said 8 s, WAIT FOR PARTNER FIX",
+      "name": "dead on its start (never seen), said 8 s, WAIT FOR PARTNER FIX",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8,
       "picks": {
@@ -93,7 +109,7 @@
       }
     },
     {
-      "name": "last shot at 12 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs), Endgame TIPS FIRST",
+      "name": "last shot at 12 s (later than any seen), Endgame TIPS FIRST",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 12,
       "picks": {

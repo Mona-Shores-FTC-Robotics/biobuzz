@@ -138,5 +138,38 @@ The retirements are listed, not done here: the requests and the drafts that stil
 
 ## Simulator results against the realistic set
 
-See the section below, written from the local runs (`tools/simulate-auto/simulate_auto.py <auto> --study
---seeds 5`, `"calibration": "belding"`).
+**How these were run:**
+- Local runs with `tools/simulate-auto/simulate_auto.py <auto> --study --seeds 5`, `"calibration": "belding"`.
+- Master at `7279012`, with this PR's stand-ins and requests.
+- Mean points over 5 seeds; "contact" is runs with a robot collision, of 5.
+- The paired Autos (Clockwise, LeftUnderHive) run beside our other robot, not an outside partner. Their only
+  contacts are in "our other robot dead on its start", which never happened: both robots ran every match at
+  both events.
+- The open drafts #751 (L-NoCross), #752 (R-NoCross) and #753 (R-Clockwise) were run the same way. In every
+  case they have the same contacts as master.
+
+### Contacts left, ranked by how often their partner behaviour is real
+
+| # | Auto | Partner (seen of 32) | When, where | Path or card | Smallest fix |
+|---|---|---|---|---|---|
+| 1 | **R-Solo** | **LEAVE-PARK (11)** | 22.0–23.9 s, 4 of 5 runs. Ours at about (23.6, 101.2, 344°) on the drive into `RIGHT_PARK`; the partner parked at (9.8, 117.4) | `to RIGHT_PARK` from `LEFT_AUTO_HIVE` (and the guard's park from there). The curve comes in from above, still turning, and our back corner swings up into the top of the LOADING ZONE | **Path: fixed in #759** (control points (40, 95) and (30, 98.7), turn done by 40%: R-NoCross's park shape). 0 of 5, same points, finishes 0.27 s later. On video at Fruitport we parked within inches of such partners (Q-4: likely contact) |
+| 2 | **L-NoCross**, CROSS AND FIX IT | **RIGHT-SHOOT-PARK that misses (2)** and stays on its start, then leaves between 11.3 and 18.3 s | 12.5–12.9 s on the cross (ours at (60, 46) and (58, 32) under the HIVE, the partner's park drive across it); 13.3–15.3 s at `RIGHT_AUTO_FIX_TIP` (ours at (55.3, 25.7), a partner on `RIGHT_START` only 2.6 in behind our frame, touched by its first 2 in) | the under-HIVE cross and the volley at `RIGHT_AUTO_FIX_TIP` | **No path fix**: the partner's own exit runs through a team spot. **Queue:** "If your preloads miss, drive off your start before 10 s, or stay on it until 16 s." If they can't, pick WAIT FOR PARTNER FIX. The window is our wait limit + 2 to + 7 s, so a longer wait moves it later. Seen: 9133 left at 3.9 s (safe); 8513 at 10.4 s, at the edge (video: half a robot width from our crossing robot at 12.1–12.5 s) |
+| 3 | R-Solo, R-NoCross | **STILL in the LOADING ZONE (3)** | R-Solo 21.5–23.9 s, R-NoCross 25.9–26.5 s, 5 of 5. At `RIGHT_PARK` itself | the park | **No path fix**: a robot at (8.2, 110) overlaps `RIGHT_PARK`'s footprint. **Queue:** "If you won't move, sit in the corner past the LOADING ZONE tape, by the scoring-table wall". 4 of 9 still partners already sat there, and it costs them their own AUTO PARK (5). Or an own, lower park spot for R-Solo, like `r-solo-wall-park`'s `RIGHT_PARK_WALL` (14.5, 92.5). Where in the zone the real three sat is not certain from the video |
+| 4 | R-Solo | LEFT-SHOOT-PARK (3, all 10255) | 10.5–10.8 s, 5 of 5. Ours arriving at `LEFT_AUTO_HIVE`; the stand-in at its launch spot (57.5, 123.5) | `LEFT_AUTO_HIVE` (a team spot, staying put) | **INIT choice:** beside a left shooter run R-NoCross, as we did all three times (no contact on video, none in the simulator) |
+| 5 | R-NoCross + L-NoCross (our pair) | our own robot on CROSS AND FIX IT | 12.7 s | both robots fix the same TIP (#752) | **INIT choice:** WAIT FOR PARTNER FIX on L-NoCross beside our own R-NoCross |
+| — | R-Solo, R-Clockwise, R-LeftUnderHive | dead on `LEFT_START` (**never seen**) | 10.9 s, 12.9 s, 13.1 s | `LEFT_AUTO_HIVE` is 13.35 in from `LEFT_START` | none needed: labelled "never seen" |
+
+No contact is left with STILL in the corner (4), with RIGHT-SHOOT-PARK that hits (7), or between R-NoCross and
+LEAVE-PARK.
+
+### Frequency-weighted, per Auto
+
+These are weighted by how often each archetype was seen beside the Auto's start. With the right start taken,
+the partner is LEAVE-PARK, STILL or LEFT-SHOOT-PARK; with the left start taken, it is RIGHT-SHOOT-PARK.
+
+| Auto | Partners it meets (seen) | Mean points, weighted | Runs with contact, weighted |
+|---|---|---|---|
+| R-Solo, master | LEAVE-PARK 11, STILL corner 4, STILL zone 3 | 33.7 | 66% (LEAVE-PARK 4/5, zone 5/5) |
+| R-Solo, #759 | the same | 33.7 | **17%** (zone only) |
+| R-NoCross | LEFT-SHOOT-PARK 3 (+ the 18 above if chosen) | 40 beside a left shooter | 0% beside a left shooter; 17% over the other 18 (zone) |
+| L-NoCross, CROSS AND FIX IT | RIGHT-SHOOT-PARK 9 (7 hit, 2 missed) | 40 hit, 28 missed: 37.3 | 0% for every seen exit time but 8513's edge case; contact if a missing partner leaves at 11–18 s |
