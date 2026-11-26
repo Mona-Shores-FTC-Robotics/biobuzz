@@ -21,14 +21,14 @@ from geometry import ARM_Y, SWING_DEG  # noqa: E402
 
 OUT = os.path.join(HERE, "onshape")
 COLOURS = {"arm": (0.16, 0.37, 0.82), "wheel": (0.95, 0.95, 0.92), "servo": (0.12, 0.12, 0.14),
-           "mount": (0.76, 0.25, 0.18), "screw": (0.6, 0.6, 0.62)}
+           "frame": (0.75, 0.76, 0.78), "screw": (0.6, 0.6, 0.62)}
 
 
 def corner(side):
     a = cq.Assembly(name=f"corner_{side}")
     for name, s in corner_solids(side, real_wheel=True).items():
         label = {"wheel": "SWYFT wheels x2", "servo": "goBILDA Speed servo 2000-0025-0003",
-                 "mount": "mount (guess)", "screw": "wheel screw and washer (guess)"}.get(name, name)
+                 "frame": "corner servo frame (goBILDA 1802-0043-0001)", "screw": "wheel screw and washer (guess)"}.get(name, name)
         a.add(s, name=label, color=cq.Color(*COLOURS.get(name, (0.5, 0.5, 0.5))))
     return a
 

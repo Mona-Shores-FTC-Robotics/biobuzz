@@ -116,8 +116,17 @@ def corner_solids(side, real_wheel=False):
     return out
 
 
+REAL_CAD_POINTS = os.environ.get("REAL_CAD_POINTS")   # an .npy of the 26 Nov STEP's points (robot frame, mm), the
+                                                      # stick's moving parts left out; else the 31 Oct glb
+
+
 def robot_points(n=1_500_000):
-    """Surface samples of the 31 Oct robot near the arms' bands, mm."""
+    """Surface samples of the robot near the arms' bands and the stick's sweep, mm."""
+    if REAL_CAD_POINTS:
+        p = np.load(REAL_CAD_POINTS)
+        r = np.hypot(p[:, 0] - PIVOT_XZ[0], p[:, 2] - PIVOT_XZ[1])
+        p = p[(r < 320) & (np.abs(p[:, 1]) > 100) & (np.abs(p[:, 1]) < 220)]
+        return np.unique(np.round(p, 1), axis=0)
     s = trimesh.load(ROBOT_GLB)
     m = s.to_geometry() if hasattr(s, "to_geometry") else s.dump(concatenate=True)
     m.apply_scale(1000.0)
@@ -192,7 +201,7 @@ def main():
     # slack: the corner parts shifted forward and up (parts.SIZING_SHIFTS), the printed arm only
     report["slack"] = {}
     env = envelope(False)
-    for dx, dz in parts.SIZING_SHIFTS[1:]:
+    for dx, dz in list(parts.SIZING_SHIFTS[1:]) + [(8.0, 0.0)]:     # forward: for information, not sized for
         key = f"corner parts {dx:.0f} mm forward, {dz:.0f} mm up"
         report["slack"][key] = {}
         for side in ("left", "right"):

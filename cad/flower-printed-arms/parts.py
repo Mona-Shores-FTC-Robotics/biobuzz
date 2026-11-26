@@ -55,7 +55,9 @@ TIP_LINE = [TIP_U - 16.0]
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
 HUMP_TO = TIP_U - 16.0 - 2.0     # u 222: ... and is back on it before the tip hole's bolt pattern (16 mm round it)
-SIZING_SHIFTS = [(0.0, 0.0), (GRID, 0.0), (0.0, GRID), (GRID, GRID), (-GRID, 0.0), (-GRID, GRID)]   # mm (X forward, Z up): a goBILDA hole of slack each way
+SIZING_SHIFTS = [(0.0, 0.0), (0.0, GRID), (-GRID, 0.0), (-GRID, GRID)]   # mm (X forward, Z up): a goBILDA hole of
+# slack up and back. Not forward: the wheels and their screw are drawn with their front at the 18 in starting cube's
+# (R102), and the mentor says the real ones sit behind the nose, so they can only be further back.
 SIZING_MARGIN = 1.0             # mm on top of CLEARANCE: the sizing samples the parts, check.py measures them exactly
 MIN_RADIUS = ARM_W / 2 + 6.0     # the centre line never bends tighter than this, so the inner edge stays smooth
 

@@ -6,12 +6,13 @@ axles. **Millimetres here**; the README gives inches and goBILDA holes too.
 
 Where the numbers come from:
 
-- **The arm, its pivot and its swing** are the 31 Oct 2026 CAD as cad/advantagescope/Robot_BIOBUZZ holds it
-  (`model_1.glb`, `components.json`). Each arm there is an `11 Hole Mini U-Channel (GB)`: 288 mm long, 32 mm wide in
-  the swing plane, 12 mm across (in Y). Its pivot hole (the SWYFT servo's hub on the right arm, an 8x14x4 bearing on
-  the left) and its tip hole (the 312 mm 8 mm REX shaft, the rollers and the ramp) are 240 mm apart: 10 of the
-  channel's 24 mm hole stations, 30 goBILDA 8 mm holes. The ends reach 24 mm past both.
-- **The corner wheels are PLACEHOLDERS** until the mentor's hole counts come: the built wheel (a 3.5 in SWYFT Intake
+- **The arm, its pivot and its swing** are the mentor's robot STEP of 26 Nov 2026 (`robotdhs.step`, not in git; the
+  session's stripped copy is `corners_and_stick.step` on branch claude/flower-arm-real-cad): the stick's pivot is its
+  servo hub's axis, the tip its 384 mm 8 mm REX shaft, 240.0 mm apart, and each arm's band in Y is that arm's 9 Hole
+  Mini U-Channel (12.2 mm across; the right arm sits 15 mm further out than the left). The STEP draws the stick down,
+  taken here as 162 deg. Before 26 Nov this file used the 31 Oct CAD in cad/advantagescope, whose arms sat 0.3 in
+  further forward, 0.3 in lower and 0.6 to 0.8 in further in.
+- **The corner wheels are PLACEHOLDERS** (the servo frame is goBILDA's 1802-0043-0001, from its STEP) until the mentor's hole counts come: the built wheel (a 3.5 in SWYFT Intake
   Wheel, upright, axle forward, a goBILDA Speed servo behind it in a SWYFT mount) is not in any CAD this session can
   read (Onshape's API: HTTP 402 on 26 Nov). They are placed so the straight arm, down, first meets them at its 6th hole
   station from the pivot, which is what the mentor saw. Every number is a constant below; change it and rerun.
@@ -22,9 +23,9 @@ import numpy as np
 
 IN = 25.4
 
-# ---- the arm and its swing (31 Oct CAD) -----------------------------------------------------------------------------
-PIVOT_XZ = np.array([154.49, 184.62])          # the stick's axis, along Y (components.json)
-STOWED_DIR = np.array([-0.44571, 0.89518])     # pivot -> tip hole, stowed (0 deg): up and back
+# ---- the arm and its swing (26 Nov STEP) -----------------------------------------------------------------------------
+PIVOT_XZ = np.array([146.16, 192.60])          # the stick's axis, along Y: the mentor's robot STEP of 26 Nov (its servo hub)
+STOWED_DIR = np.array([-0.44330, 0.89637])     # pivot -> tip hole, stowed (0 deg): the STEP's stick, drawn down, turned back 162 deg
 STOWED_PERP = np.array([-STOWED_DIR[1], STOWED_DIR[0]])   # +v: forward-up once the stick is down
 SWING_DEG = 162.0                              # FlowerStickSubsystem.swingDegrees(): 0 in, 162 out
 PITCH = 24.0                                   # the channel's hole stations (3 goBILDA 8 mm holes)
@@ -34,7 +35,7 @@ END_PAST = 16.0                                # the printed arm ends this far p
 ARM_W = 32.0                                   # in the swing plane
 ARM_T = 12.0                                   # across, in Y: the channel's band
 # Each arm's band in Y (inner face, outer face). The right arm sits 0.45 in further out than the left in the CAD.
-ARM_Y = {"left": (137.4, 149.4), "right": (-148.2, -160.2)}
+ARM_Y = {"left": (152.23, 164.43), "right": (-167.53, -179.73)}   # the arms' bands in the 26 Nov STEP (9 Hole Mini U-Channels)
 
 # ---- the corner wheel, its servo and its mount ------------------------------------------------------------------------
 # Mentor, 26 Nov: a 3.5 in SWYFT Intake Wheel (vendor/ STEP: 88.74 mm across, 12.7 mm wide), two side by side, on a
@@ -55,7 +56,11 @@ CORNER = dict(
     tab_h=54.3,              # its mounting tabs, upright: 17.15 mm below the spline, 37.15 above
     tab_len=12.8,            # along the spline (X), at the spline end
     hub_gap=6.0,             # PLACEHOLDER: servo face to the wheels' back face (horn, hub)
-    mount_wall=4.0,          # PLACEHOLDER: the mount round the servo, inboard and front-back (none outboard: the wall)
+    frame_w=43.0,            # goBILDA 1802-0043-0001 Servo Frame (vendor/ STEP; mentor, 26 Nov: "what we were using"): a 6 mm
+    frame_len=59.0,          # aluminium plate, 59 x 43, the servo's body through its 41 x 21 window and its ears on it; one
+    frame_t=6.0,             # 59 mm edge against the intake wall (its side holes, as inside a U-channel), so the servo's centre
+                             # sits frame_w / 2 off the wall
+    ear_x=27.2,              # the servo's ears' underside, from its body's back end (vendor/ STEP)
     screw_d=20.0,            # PLACEHOLDER: the screw and washer on the wheels' front face, on the axle (mentor, 26 Nov):
     screw_len=8.0,           # a washer up to 20 mm across, the head and washer standing 8 mm proud
 )
@@ -69,9 +74,9 @@ def corner_boxes(side):
     """The corner's parts as simple solids: ('cyl', centre, axis, radius, half-length) or ('box', lo, hi)."""
     c = CORNER
     s = 1 if side == "left" else -1
-    y_in = c["wall_y"]
+    wy = s * (c["wall_y"] + c["frame_w"] / 2)          # the spline, so the wheels' axle: the frame's middle
+    y_in = abs(wy) - c["servo_w"] / 2
     y_out = y_in + c["servo_w"]
-    wy = s * (y_out + y_in) / 2                       # the spline, so the wheels' axle
     sx0 = c["drive_front_x"] + c["servo_gap_x"]
     sx1 = sx0 + c["servo_len"]
     wx0 = sx1 + c["hub_gap"]
@@ -83,17 +88,14 @@ def corner_boxes(side):
     servo = ("box", np.array([sx0, ylo, zlo]), np.array([sx1, yhi, zhi]))
     tabs = ("box", np.array([sx1 - c["tab_len"], ylo, c["wheel_z"] - 17.15]),
             np.array([sx1, yhi, c["wheel_z"] - 17.15 + c["tab_h"]]))
-    w = c["mount_wall"]
-    mlo = np.array([sx0, ylo - w, zlo - w])           # no wall behind: the mecanum is there
-    mhi = np.array([wx0 - 1.0, yhi + w, zhi + w])
-    if s > 0:
-        mlo[1] = ylo                                   # nothing inboard of the intake wall
-    else:
-        mhi[1] = yhi
-    mount = ("box", mlo, mhi)
+    fx1 = sx0 + c["ear_x"]                            # the frame plate, under the ears
+    flo = sorted((s * c["wall_y"], s * (c["wall_y"] + c["frame_w"])))
+    zc = c["wheel_z"] + 10.0                          # the servo body's middle, upright
+    frame = ("box", np.array([fx1 - c["frame_t"], flo[0], zc - c["frame_len"] / 2]),
+             np.array([fx1, flo[1], zc + c["frame_len"] / 2]))
     screw = ("cyl", np.array([wx1 + c["screw_len"] / 2, wy, c["wheel_z"]]), np.array([1.0, 0, 0]), c["screw_d"] / 2,
              c["screw_len"] / 2)
-    return {"wheel": wheel, "servo": servo, "tabs": tabs, "mount": mount, "screw": screw}
+    return {"wheel": wheel, "servo": servo, "tabs": tabs, "frame": frame, "screw": screw}
 
 
 def rot_y(theta_deg):

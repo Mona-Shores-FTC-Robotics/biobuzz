@@ -27,8 +27,8 @@
     "g": 30.0
    }
   ],
-  "torque_kgcm_stowed_0deg": -4.0,
-  "torque_kgcm_pick_162deg": 6.33,
+  "torque_kgcm_stowed_0deg": -3.97,
+  "torque_kgcm_pick_162deg": 6.32,
   "torque_kgcm_worst": 9.12,
   "worst_at_deg": 116.0
  },
@@ -56,9 +56,9 @@
     "g": 30.0
    }
   ],
-  "torque_kgcm_stowed_0deg": -3.82,
-  "torque_kgcm_pick_162deg": 5.85,
-  "torque_kgcm_worst": 8.13,
+  "torque_kgcm_stowed_0deg": -3.77,
+  "torque_kgcm_pick_162deg": 5.82,
+  "torque_kgcm_worst": 8.14,
   "worst_at_deg": 118.0
  },
  "margin_printed": {
