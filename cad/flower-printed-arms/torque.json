@@ -1,6 +1,6 @@
 {
  "today": {
-  "mass_g": 435.0,
+  "mass_g": 460.0,
   "items": [
    {
     "what": "2 aluminium arms (estimate)",
@@ -20,24 +20,24 @@
    },
    {
     "what": "mountain (estimate)",
-    "g": 75.0
+    "g": 100.0
    },
    {
     "what": "tip hubs, collars, bearings (estimate)",
     "g": 30.0
    }
   ],
-  "torque_kgcm_stowed_0deg": -3.77,
-  "torque_kgcm_pick_162deg": 5.96,
-  "torque_kgcm_worst": 8.56,
+  "torque_kgcm_stowed_0deg": -4.0,
+  "torque_kgcm_pick_162deg": 6.33,
+  "torque_kgcm_worst": 9.12,
   "worst_at_deg": 116.0
  },
  "printed": {
-  "mass_g": 376.0,
+  "mass_g": 401.0,
   "items": [
    {
     "what": "2 printed arms",
-    "g": 135.4
+    "g": 135.5
    },
    {
     "what": "2 skids",
@@ -49,30 +49,30 @@
    },
    {
     "what": "mountain (estimate)",
-    "g": 75.0
+    "g": 100.0
    },
    {
     "what": "tip hubs, collars, bearings (estimate)",
     "g": 30.0
    }
   ],
-  "torque_kgcm_stowed_0deg": -3.31,
-  "torque_kgcm_pick_162deg": 5.18,
-  "torque_kgcm_worst": 7.36,
+  "torque_kgcm_stowed_0deg": -3.54,
+  "torque_kgcm_pick_162deg": 5.56,
+  "torque_kgcm_worst": 7.92,
   "worst_at_deg": 117.0
  },
  "margin_printed": {
-  "goBILDA Torque": "3.4x stall (1.1x a third of stall)",
-  "goBILDA Speed": "1.3x stall (0.4x a third of stall)",
-  "SWYFT Balance": "3.7x stall (1.2x a third of stall)",
-  "SWYFT Torque": "4.6x stall (1.5x a third of stall)",
-  "SWYFT Speed": "2.6x stall (0.9x a third of stall)"
+  "goBILDA Torque": "3.2x stall (1.1x a third of stall)",
+  "goBILDA Speed": "1.2x stall (0.4x a third of stall)",
+  "SWYFT Balance": "3.4x stall (1.1x a third of stall)",
+  "SWYFT Torque": "4.2x stall (1.4x a third of stall)",
+  "SWYFT Speed": "2.4x stall (0.8x a third of stall)"
  },
  "margin_today": {
-  "goBILDA Torque": "2.9x stall",
-  "goBILDA Speed": "1.1x stall",
-  "SWYFT Balance": "3.2x stall",
-  "SWYFT Torque": "3.9x stall",
-  "SWYFT Speed": "2.2x stall"
+  "goBILDA Torque": "2.7x stall",
+  "goBILDA Speed": "1.0x stall",
+  "SWYFT Balance": "3.0x stall",
+  "SWYFT Torque": "3.7x stall",
+  "SWYFT Speed": "2.1x stall"
  }
 }

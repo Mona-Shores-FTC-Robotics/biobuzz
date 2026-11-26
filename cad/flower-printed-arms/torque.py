@@ -9,7 +9,7 @@ Masses (grams) and where each one sits (u along the arm from the pivot, v across
 - **Today's arm:** an 11 Hole Mini U-Channel, ESTIMATED at 75 g from its section (2.5 mm 6061, 32 x 12 mm, about a
   quarter of its face holes), at u 120. Weigh one and change `ALU_ARM_G`.
 - **At the tip (u 240), the same today and printed:** the 312 mm 8 mm REX steel shaft (0.395 g/mm round 8 mm steel),
-  the mountain (the 31 Oct CAD's Flower Ramp, 96.5 cm^3 solid, printed: ESTIMATED 75 g, at its own centroid), the
+  the mountain (mountain_wide_2in, the CAD's Flower Ramp: about 100 g as printed, at its centroid), the
   hubs, collars and bearings there (ESTIMATED 30 g). Today's two tip rollers (8.6 g each, the CAD's aluminium
   3400-0014-0032 volume) and two tip plates (ESTIMATED 20 g each) go; the printed version has two skids instead.
 - The pivot axle and hub sit on the axis and cost no holding torque.
@@ -32,8 +32,8 @@ from geometry import SWING_DEG, TIP_U, arm_to_robot, PIVOT_XZ  # noqa: E402
 
 ALU_ARM_G = 75.0            # ESTIMATE: weigh one
 SHAFT_G = 0.395 * 312       # 8 mm round steel
-MOUNTAIN_G = 75.0           # ESTIMATE: weigh it
-MOUNTAIN_UV = (234.0, -6.0)  # the CAD ramp's centroid, near the tip axis
+MOUNTAIN_G = 100.0          # mountain_wide_2in: 97 cm^3, about 100 g as printed (PETG, 5 walls, 40 %; Hub, 26 Nov)
+MOUNTAIN_UV = (231.9, -7.8)  # the CAD Flower Ramp's centroid (the same part), near the tip axis
 TIP_HARDWARE_G = 30.0       # ESTIMATE: hubs, collars, bearings at the tip
 ROLLER_G = 8.6
 TIP_PLATE_G = 20.0          # ESTIMATE

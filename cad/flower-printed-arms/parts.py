@@ -251,6 +251,16 @@ def main():
     for name, shape in parts.items():
         export(shape, name)
         print(name, "volume", round(shape.val().Volume() / 1000, 1), "cm^3")
+    # A more pronounced hump, for looking at in Onshape against the real corner (mentor, 26 Nov): 40 mm high, full
+    # from hole 5.7 to 6.3, leaving the line at hole 2.5 and back on it at hole 9.5.
+    global _HUMP
+    sized = _HUMP
+    _HUMP = PRONOUNCED
+    export(arm(), "arm_hump40")
+    _HUMP = sized
+
+
+PRONOUNCED = (40.0, 36.0, 112.0, 128.0, 204.0)
 
 
 if __name__ == "__main__":
