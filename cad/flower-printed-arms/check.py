@@ -66,7 +66,24 @@ def envelope(straight):
 
 
 WHEEL_STEP = os.path.join(HERE, "vendor", "SR-INTAKEWHEEL-3.5in-0.5inHEX-02.step")
+SERVO_STEP = os.path.join(HERE, "vendor", "goBILDA-2000-0025-0003-speed-servo.step")
 _WHEEL = None
+_SERVO = None
+
+
+def real_servo(side):
+    """goBILDA's Speed servo from its STEP, placed as geometry.corner_boxes puts the servo: its spline (STEP: on +Z at
+    X -10, Y 0, the body's bottom at Z -27.2) pointing forward on the wheels' axle, the long side upright."""
+    global _SERVO
+    if _SERVO is None:
+        _SERVO = cq.importers.importStep(SERVO_STEP).val()
+    b = corner_boxes(side)
+    lo, hi = b["servo"][1], b["servo"][2]
+    wz = b["wheel"][1][2]
+    wy = b["wheel"][1][1]
+    # STEP (x, y, z) -> robot (X, Y, Z) = (lo.X + z + 27.2, wy - y, wz + x + 10)
+    M = np.array([[0, 0, 1, lo[0] + 27.2], [0, -1, 0, wy], [1, 0, 0, wz + 10.0], [0, 0, 0, 1.0]])
+    return _SERVO.transformGeometry(to_cq_matrix(M))
 
 
 def corner_solids(side, real_wheel=False):
@@ -93,6 +110,9 @@ def corner_solids(side, real_wheel=False):
             _, lo, hi = k
             s = cq.Solid.makeBox(*(hi - lo), cq.Vector(*lo))
         out[name] = s
+    if real_wheel:                                   # the viewer and the export: goBILDA's servo for the two boxes
+        out.pop("tabs", None)
+        out["servo"] = real_servo(side)
     return out
 
 

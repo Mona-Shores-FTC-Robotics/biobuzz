@@ -49,9 +49,11 @@ CORNER = dict(
     drive_front_x=192.0,     # the front mecanum module's front, X (31 Oct CAD)
     servo_gap_x=1.0,         # the servo's back face this far ahead of it
     wheel_z=2.4 * IN,        # PLACEHOLDER: axle height (the rim 0.65 in off the tile; "1-2 in off the ground")
-    servo_len=38.0,          # goBILDA Speed servo body along its spline (X), without the spline
+    servo_len=40.0,          # goBILDA Speed servo (2000-0025-0003, vendor/ STEP): the body along its spline (X), with its cap
     servo_w=20.0,            # across (Y); the spline on the body's centre line
     servo_h=40.0,            # upright (Z): the spline 10 mm up from its bottom end
+    tab_h=54.3,              # its mounting tabs, upright: 17.15 mm below the spline, 37.15 above
+    tab_len=12.8,            # along the spline (X), at the spline end
     hub_gap=6.0,             # PLACEHOLDER: servo face to the wheels' back face (horn, hub)
     mount_wall=4.0,          # PLACEHOLDER: the mount round the servo, inboard and front-back (none outboard: the wall)
     screw_d=20.0,            # PLACEHOLDER: the screw and washer on the wheels' front face, on the axle (mentor, 26 Nov):
@@ -79,6 +81,8 @@ def corner_boxes(side):
     ylo, yhi = sorted((s * y_in, s * y_out))
     zlo, zhi = c["wheel_z"] - 10.0, c["wheel_z"] + c["servo_h"] - 10.0
     servo = ("box", np.array([sx0, ylo, zlo]), np.array([sx1, yhi, zhi]))
+    tabs = ("box", np.array([sx1 - c["tab_len"], ylo, c["wheel_z"] - 17.15]),
+            np.array([sx1, yhi, c["wheel_z"] - 17.15 + c["tab_h"]]))
     w = c["mount_wall"]
     mlo = np.array([sx0, ylo - w, zlo - w])           # no wall behind: the mecanum is there
     mhi = np.array([wx0 - 1.0, yhi + w, zhi + w])
@@ -89,7 +93,7 @@ def corner_boxes(side):
     mount = ("box", mlo, mhi)
     screw = ("cyl", np.array([wx1 + c["screw_len"] / 2, wy, c["wheel_z"]]), np.array([1.0, 0, 0]), c["screw_d"] / 2,
              c["screw_len"] / 2)
-    return {"wheel": wheel, "servo": servo, "mount": mount, "screw": screw}
+    return {"wheel": wheel, "servo": servo, "tabs": tabs, "mount": mount, "screw": screw}
 
 
 def rot_y(theta_deg):

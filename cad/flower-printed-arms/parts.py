@@ -54,7 +54,7 @@ TIP_LINE = [TIP_U - 16.0]
 
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
-HUMP_TO = TIP_U - PAD - 2.0      # u 216: ... and is back on it before the tip pad, so the tip end stays straight
+HUMP_TO = TIP_U - 16.0 - 2.0     # u 222: ... and is back on it before the tip hole's bolt pattern (16 mm round it)
 SIZING_SHIFTS = [(0.0, 0.0), (GRID, 0.0), (0.0, GRID), (GRID, GRID), (-GRID, 0.0), (-GRID, GRID)]   # mm (X forward, Z up): a goBILDA hole of slack each way
 SIZING_MARGIN = 1.0             # mm on top of CLEARANCE: the sizing samples the parts, check.py measures them exactly
 MIN_RADIUS = ARM_W / 2 + 6.0     # the centre line never bends tighter than this, so the inner edge stays smooth
@@ -122,7 +122,7 @@ def hump():
                         break
         return best
 
-    hi = next((h for h in np.arange(2.0, 60.0, 2.0) if shortest(h) is not None), None)
+    hi = next((h for h in np.arange(2.0, 90.0, 2.0) if shortest(h) is not None), None)
     if hi is None:
         raise RuntimeError("no hump clears the corner parts without bending tighter than MIN_RADIUS")
     while hi - 0.5 > 0 and shortest(hi - 0.5) is not None:   # then down to the lowest, in 0.5 mm steps
