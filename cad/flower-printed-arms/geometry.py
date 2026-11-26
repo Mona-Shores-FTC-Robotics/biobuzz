@@ -38,13 +38,14 @@ ARM_Y = {"left": (137.4, 149.4), "right": (-148.2, -160.2)}
 
 # ---- the corner wheel, its servo and its mount ------------------------------------------------------------------------
 # Mentor, 26 Nov: a 3.5 in SWYFT Intake Wheel (vendor/ STEP: 88.74 mm across, 12.7 mm wide), two side by side, on a
-# goBILDA Speed servo (continuous) standing up, axle forward; the servo flush against the chassis side wall, just ahead
-# of the front mecanum wheel. From the 31 Oct CAD: the side plate's inner face at |Y| 193.6 mm, ending at X 192 mm with
-# the mecanum module (|Y| 150..175, front at X 192). Not measured on the robot; the mount is a guess.
+# goBILDA Speed servo (continuous) standing up, axle forward; the servo flush against the intake's side wall, under the
+# FLOWER stick's arm, just ahead of the front mecanum (mentor's arrows on the 3D view, 26 Nov). The wall: the intake side
+# channel's outer face, |Y| 5.363 in; the mecanum module's front at X 192 mm (31 Oct CAD). Not measured; the mount is a guess.
 CORNER = dict(
     wheel_d=88.74,           # SWYFT Intake Wheel 3.5 in, from its STEP (vendor/)
     wheel_w=2 * 0.5 * IN,    # two SWYFT wheels side by side, no spacer (mentor, 26 Nov): 2 x 12.7 mm
-    wall_y=193.6,            # the side plate's inner face, |Y| (31 Oct CAD): the servo's outer face against it
+    wall_y=136.2,            # the intake side channel's outer face, |Y| 5.363 in (24 Nov STEP, via cad/corner-wheels on
+                             # claude/corner-module-wall-wip): the servo's INNER face against it (mentor's arrows, 26 Nov)
     drive_front_x=192.0,     # the front mecanum module's front, X (31 Oct CAD)
     servo_gap_x=1.0,         # the servo's back face this far ahead of it
     wheel_z=2.4 * IN,        # PLACEHOLDER: axle height (the rim 0.65 in off the tile; "1-2 in off the ground")
@@ -64,8 +65,8 @@ def corner_boxes(side):
     """The corner's parts as simple solids: ('cyl', centre, axis, radius, half-length) or ('box', lo, hi)."""
     c = CORNER
     s = 1 if side == "left" else -1
-    y_out = c["wall_y"]
-    y_in = y_out - c["servo_w"]
+    y_in = c["wall_y"]
+    y_out = y_in + c["servo_w"]
     wy = s * (y_out + y_in) / 2                       # the spline, so the wheels' axle
     sx0 = c["drive_front_x"] + c["servo_gap_x"]
     sx1 = sx0 + c["servo_len"]
@@ -77,12 +78,12 @@ def corner_boxes(side):
     zlo, zhi = c["wheel_z"] - 10.0, c["wheel_z"] + c["servo_h"] - 10.0
     servo = ("box", np.array([sx0, ylo, zlo]), np.array([sx1, yhi, zhi]))
     w = c["mount_wall"]
-    mlo = np.array([sx0, ylo - w, zlo - w])                 # no wall behind: the mecanum is there
+    mlo = np.array([sx0, ylo - w, zlo - w])           # no wall behind: the mecanum is there
     mhi = np.array([wx0 - 1.0, yhi + w, zhi + w])
     if s > 0:
-        mhi[1] = yhi                                   # nothing outboard of the wall
+        mlo[1] = ylo                                   # nothing inboard of the intake wall
     else:
-        mlo[1] = ylo
+        mhi[1] = yhi
     mount = ("box", mlo, mhi)
     return {"wheel": wheel, "servo": servo, "mount": mount}
 
