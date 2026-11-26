@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-20T03:35:11.871Z",
+  "timestamp": "2026-11-26T13:10:00.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -62,13 +62,49 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 18,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 180,
-        "endDeg": 0
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -151,46 +187,65 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 95
+          "x": 32,
+          "y": 121
         },
         {
-          "x": 30,
-          "y": 98.7
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 273,
-        "endDeg": 0,
+        "endDeg": 270,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.4,
+              "endProgress": 0.2,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 273,
-                "endDeg": 0
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.4,
+              "startProgress": 0.2,
               "endProgress": 1,
-              "interpolationType": "linear",
+              "interpolationType": "constant",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 0,
-                "endDeg": 0
+                "degrees": 270
               }
             }
           ]
@@ -245,18 +300,69 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 96
+          "x": 38,
+          "y": 121
+        },
+        {
+          "x": 32.5,
+          "y": 106
+        },
+        {
+          "x": 32.5,
+          "y": 86
+        },
+        {
+          "x": 32.5,
+          "y": 76
+        },
+        {
+          "x": 32.5,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 90,
-        "endDeg": 0
+        "endDeg": -90,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": -90
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -298,7 +404,7 @@
     {
       "id": "line-mw2h249a-0a0w4q",
       "color": "#b07aa1",
-      "name": "to RIGHT_PARK",
+      "name": "to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -307,46 +413,65 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 95
+          "x": 32,
+          "y": 121
         },
         {
-          "x": 30,
-          "y": 98.7
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 268.9,
-        "endDeg": 0,
+        "endDeg": 270,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.4,
+              "endProgress": 0.2,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 268.9,
-                "endDeg": 0
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.4,
+              "startProgress": 0.2,
               "endProgress": 1,
-              "interpolationType": "linear",
+              "interpolationType": "constant",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 0,
-                "endDeg": 0
+                "degrees": 270
               }
             }
           ]
@@ -371,7 +496,7 @@
     {
       "id": "line-mwdn0a01-rsp3c",
       "color": "#b07aa1",
-      "name": "to RIGHT_PARK",
+      "name": "to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -380,46 +505,65 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 95
+          "x": 32,
+          "y": 121
         },
         {
-          "x": 30,
-          "y": 98.7
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
         "type": "piecewise",
         "startDeg": 268.9,
-        "endDeg": 0,
+        "endDeg": 270,
         "degrees": 0,
         "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.4,
+              "endProgress": 0.2,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 268.9,
-                "endDeg": 0
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.4,
+              "startProgress": 0.2,
               "endProgress": 1,
-              "interpolationType": "linear",
+              "interpolationType": "constant",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 0,
-                "endDeg": 0
+                "degrees": 270
               }
             }
           ]
@@ -506,7 +650,7 @@
     {
       "id": "line-mw2h249b-qfhry3",
       "color": "#4e79a7",
-      "name": "to RIGHT_PARK",
+      "name": "to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -515,18 +659,53 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 23.318491425705457,
-          "y": 25.553800445201325
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 16,
+          "y": 62
+        },
+        {
+          "x": 14,
+          "y": 72
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 96.10000000000002,
-        "endDeg": 0
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 96.10000000000002,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -547,7 +726,7 @@
     {
       "id": "line-mwdn0a01-rspfb",
       "color": "#4e79a7",
-      "name": "to RIGHT_PARK",
+      "name": "to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -556,18 +735,53 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 98.7
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 23.318491425705457,
-          "y": 25.553800445201325
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 16,
+          "y": 62
+        },
+        {
+          "x": 14,
+          "y": 72
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 96.10000000000002,
-        "endDeg": 0
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 96.10000000000002,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     }
   ],
@@ -903,21 +1117,26 @@
         59.2,
         20.9,
         96.1
+      ],
+      "RIGHT_PARK_WALL": [
+        14.5,
+        92.5,
+        270
       ]
     },
     "pathEnds": {
       "line-mw0be8id-zhk73u": "WALL_FLOWER_STAGING",
-      "line-mw0cnl7i-qkksz9": "RIGHT_PARK",
+      "line-mw0cnl7i-qkksz9": "RIGHT_PARK_WALL",
       "line-mw2h249a-6eklj4": "SCORING_FLOWER_STAGING",
-      "line-mw2h249a-0a0w4q": "RIGHT_PARK",
-      "line-mw2h249b-qfhry3": "RIGHT_PARK",
-      "line-mw2h249i-g9eamy": "RIGHT_PARK",
+      "line-mw2h249a-0a0w4q": "RIGHT_PARK_WALL",
+      "line-mw2h249b-qfhry3": "RIGHT_PARK_WALL",
+      "line-mw2h249i-g9eamy": "RIGHT_PARK_WALL",
       "line-mw2z05td-jkwfz4": "LEFT_AUTO_HIVE",
-      "line-mw2z05th-whpzzi": "RIGHT_PARK",
+      "line-mw2z05th-whpzzi": "RIGHT_PARK_WALL",
       "line-mw2z1rrz-ltmk3y": "RIGHT_AUTO_HIVE",
       "line-mw2z8m8r-d4cyle": "LEFT_AUTO_HIVE",
-      "line-mwdn0a01-rsp3c": "RIGHT_PARK",
-      "line-mwdn0a01-rspfb": "RIGHT_PARK",
+      "line-mwdn0a01-rsp3c": "RIGHT_PARK_WALL",
+      "line-mwdn0a01-rspfb": "RIGHT_PARK_WALL",
       "line-r-solo-to-right-auto-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
