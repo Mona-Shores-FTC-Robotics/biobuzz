@@ -38,7 +38,7 @@ WEB = 2.4             # the face on the bed (6 layers at 0.4)
 WALL = 3.0            # the edge walls and the hole rims
 RIB = 2.5
 RIB_PITCH = 24.0      # one diagonal per hole station
-PAD = 22.0            # solid from each end to this far inside the pivot / tip hole
+PAD = 20.0            # solid from each end to this far inside the pivot / tip hole
 M4 = 4.3              # clearance; drill to 4.5 if a bolt binds
 BEARING_BORE = 14.15  # 8x14x4 bearing, light press. Print the test coupon first (README)
 HEX_AF = 12.7 + 0.25  # 1/2 in hex option, across flats
@@ -46,8 +46,8 @@ HEX_AF = 12.7 + 0.25  # 1/2 in hex option, across flats
 HUB_HOLES = [(8 * math.cos(math.radians(a)), 8 * math.sin(math.radians(a))) for a in (45, 135, 225, 315)] + \
             [(8.0, 8.0 * s) for s in (-1, 1)] + [(-8.0, 8.0 * s) for s in (-1, 1)]
 # Plain 8 mm-grid holes along the centre line, in the solid pads, for the GARDEN guides and anything else bolted there.
-PIVOT_LINE = [-16.0, 16.0]
-TIP_LINE = [TIP_U - 16.0, TIP_U + 16.0]
+PIVOT_LINE = [16.0]
+TIP_LINE = [TIP_U - 16.0]
 
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
@@ -151,116 +151,155 @@ def _clears(hm, us, need):
 
 # ---- building it -----------------------------------------------------------------------------------------------------
 def _outline(hm, half):
-    """The arm's outline, offset `half` either side of its centre line, with round ends (radius `half`) whose far
+    """The arm's outline, offset `half` either side of its centre line, with round ends (radius ARM_W/2) whose far
     points sit END_PAST past the pivot and tip holes. A closed list of (u, v)."""
     lo, hi = edges(hm, half)
     u0, u1 = lo[0, 0], lo[-1, 0]
     cap1 = [(u1 + half * math.sin(t), half * -math.cos(t)) for t in np.linspace(0, math.pi, 13)[1:-1]]
     cap0 = [(u0 - half * math.sin(t), half * math.cos(t)) for t in np.linspace(0, math.pi, 13)[1:-1]]
-    pts = [tuple(p) for p in lo] + cap1 + [tuple(p) for p in hi[::-1]] + cap0
-    return pts
+    return [tuple(p) for p in lo] + cap1 + [tuple(p) for p in hi[::-1]] + cap0
 
 
 def _poly(pts, height, z0=0.0):
     return cq.Workplane("XY").workplane(offset=z0).polyline(pts).close().extrude(height)
 
 
-def arm(pivot="bearing", cheeks=False):
-    """One arm in its own frame: u along X (pivot hole at the origin, tip hole at X 240), v along Y (+v forward-up once
-    the stick is down), Z 0..12 its thickness (the web on the bed at Z 0..2.4). Robot frame: geometry.arm_to_robot,
-    with the web against the arm's inner face (the side the servo hub bolts to)."""
+def _cyl(r, h, u, v, z0=0.0):
+    return cq.Workplane("XY").workplane(offset=z0).circle(r).extrude(h).translate((u, v, 0))
+
+
+def spine_at(u):
+    us, vs = spine(hump(), 1.0)
+    return float(np.interp(u, us, vs))
+
+
+# ---- the cross piece: where it sits on the arms ---------------------------------------------------------------------
+CROSS_U = (182.0, 206.0)       # along the arm: just behind the mountain (the 31 Oct CAD's ramp starts at u 208)
+CROSS_DEPTH = ARM_W            # across the arm (v), centred on the arm's centre line there
+CROSS_BOLTS_U = 194.0          # two M4 per end, 16 mm apart across the arm, into nut traps in the cross piece's end
+CROSS_WALL = 2.0
+MOUNTAIN_ROWS = (-8.0, 8.0)    # M4 rows on the cross piece's front face, v from the arm's centre line there
+MOUNTAIN_HALF_SPAN = 96.0      # holes every 8 mm out to here either side of the robot's middle
+
+
+def cross_bolts():
+    v0 = spine_at(CROSS_BOLTS_U)
+    return [(CROSS_BOLTS_U, v0 - 8.0), (CROSS_BOLTS_U, v0 + 8.0)]
+
+
+def arm(pivot="bearing"):
+    """One arm, either side (it is symmetric about its own mid-plane), in its own frame: u along X (pivot hole at the
+    origin, tip hole at X 240), v along Y (+v forward-up once the stick is down), Z 0..12 its thickness, the web on the
+    bed at Z 0..2.4. On the robot (check.placement) the web lies against the arm's inner face.
+
+    `pivot`: "bearing" keeps today's 14 mm hole and goBILDA hub patterns, so the axle, its hub and the servo hub
+    bolt on as they do now; "hex" is a 1/2 in hex bore, keyed to a hex axle, with the same bolt patterns."""
     hm = hump()
     half = ARM_W / 2
-    body = _poly(_outline(hm, half), ARM_T)
-    # pocket the middle down to the web, leaving the edge walls and solid pads at both ends
-    inner = _outline(hm, half - WALL)
-    pocket = _poly(inner, ARM_T, WEB)
-    keep = cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True)) \
+    outline = _outline(hm, half)
+    body = _poly(outline, ARM_T)
+    pocket = _poly(_outline(hm, half - WALL), ARM_T, WEB)
+    solid = cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True)) \
         .translate((-END_PAST - 20, 0, 0))
-    keep = keep.union(cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True))
-                      .translate((TIP_U - PAD, 0, 0)))
-    pocket = pocket.cut(keep)
-    body = body.cut(pocket)
-    # diagonal ribs between the pads, one per hole station, alternating, following the hump
+    solid = solid.union(cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True))
+                        .translate((TIP_U - PAD, 0, 0)))
+    cu0, cu1 = CROSS_U          # solid where the cross piece bolts on
+    solid = solid.union(cq.Workplane("XY").box(cu1 - cu0, 200, 3 * ARM_T, centered=(False, True, True))
+                        .translate((cu0, 0, 0)))
+    body = body.cut(pocket.cut(solid))
+    # diagonal ribs in the pockets, alternating, following the hump
     u_s, v_s = spine(hm, 1.0)
-    rib_u = np.arange(PAD, TIP_U - PAD + 1e-6, RIB_PITCH / 2)
+    edges_u = [PAD, cu0, cu1, TIP_U - PAD]
     ribs = None
-    for i in range(len(rib_u) - 1):
-        ua, ub = rib_u[i], rib_u[i + 1]
-        va, vb = np.interp(ua, u_s, v_s), np.interp(ub, u_s, v_s)
-        sa, sb = (-1, 1) if i % 2 == 0 else (1, -1)
-        p0 = np.array([ua, va + sa * half])
-        p1 = np.array([ub, vb + sb * half])
-        L = float(np.linalg.norm(p1 - p0))
-        ang = math.degrees(math.atan2(*(p1 - p0)[::-1]))
-        r = cq.Workplane("XY").box(L + 6, RIB, ARM_T, centered=(True, True, False)) \
-            .rotate((0, 0, 0), (0, 0, 1), ang).translate((*(p0 + p1) / 2, 0))
-        ribs = r if ribs is None else ribs.union(r)
-    if ribs is not None:
-        body = body.union(ribs.intersect(_poly(_outline(hm, half), ARM_T)))
-    if cheeks:
-        body = body.union(_cheek_boss())
+    for ua_, ub_ in ((edges_u[0], edges_u[1]), (edges_u[2], edges_u[3])):
+        n = max(1, int(round((ub_ - ua_) / (RIB_PITCH / 2))))
+        rib_u = np.linspace(ua_, ub_, n + 1)
+        for i in range(n):
+            ua, ub = rib_u[i], rib_u[i + 1]
+            va, vb = np.interp(ua, u_s, v_s), np.interp(ub, u_s, v_s)
+            sa, sb = (-1, 1) if i % 2 == 0 else (1, -1)
+            p0 = np.array([ua, va + sa * half])
+            p1 = np.array([ub, vb + sb * half])
+            L = float(np.linalg.norm(p1 - p0))
+            ang = math.degrees(math.atan2(*(p1 - p0)[::-1]))
+            r = cq.Workplane("XY").box(L + 6, RIB, ARM_T, centered=(True, True, False)) \
+                .rotate((0, 0, 0), (0, 0, 1), ang).translate((*(p0 + p1) / 2, 0))
+            ribs = r if ribs is None else ribs.union(r)
+    body = body.union(ribs.intersect(_poly(outline, ARM_T)))
     # holes
     for u0, bore in ((0.0, pivot), (TIP_U, "bearing")):
         if bore == "hex":
-            hole = cq.Workplane("XY").polygon(6, HEX_AF / math.cos(math.radians(30))).extrude(ARM_T).translate((u0, 0, 0))
+            hole = cq.Workplane("XY").polygon(6, HEX_AF / math.cos(math.radians(30))).extrude(ARM_T) \
+                .translate((u0, 0, 0))
         else:
-            hole = cq.Workplane("XY").circle(BEARING_BORE / 2).extrude(ARM_T).translate((u0, 0, 0))
+            hole = _cyl(BEARING_BORE / 2, ARM_T, u0, 0)
         body = body.cut(hole)
         for du, dv in HUB_HOLES:
-            body = body.cut(cq.Workplane("XY").circle(M4 / 2).extrude(ARM_T).translate((u0 + du, dv, 0)))
+            body = body.cut(_cyl(M4 / 2, ARM_T, u0 + du, dv))
     for u0 in PIVOT_LINE + TIP_LINE:
-        body = body.cut(cq.Workplane("XY").circle(M4 / 2).extrude(ARM_T).translate((u0, 0, 0)))
-    if cheeks:
-        for u0, v0 in CHEEK_HOLES:
-            body = body.cut(cq.Workplane("XY").circle(M4 / 2).extrude(ARM_T).translate((u0, v0, 0)))
+        body = body.cut(_cyl(M4 / 2, ARM_T, u0, 0))
+    for u0, v0 in cross_bolts():
+        body = body.cut(_cyl(M4 / 2, ARM_T, u0, v0))
     return body
 
 
-# ---- layout (b): the ramp, printed, on cheeks that bolt to the arms behind the rollers --------------------------------
-# The ramp's section is the 31 Oct CAD's `Flower Ramp` (u 208..255, v -28.6..10.8 about the tip hole's line), traced.
-RAMP_SECTION = [(212.0, -24.3), (215.6, -28.5), (228.6, -17.6), (237.8, -9.7), (242.8, -5.7), (249.3, -0.6),
-                (254.5, 4.0), (249.3, 7.1), (239.7, 10.6), (235.0, 5.0), (230.0, -1.4), (220.1, -13.9)]
-RAMP_HALF_W = 100.0          # the CAD ramp spans Y -105..95; the rollers and hubs sit between it and each arm
-CHEEK_U = (196.0, 218.0)     # behind the rollers (about 36 mm across, centred on the tip hole: u 222..258), past the hump
-CHEEK_V = (-14.0, 2.0)       # inside the arm's band
-CHEEK_HOLES = [(201.0, -6.0), (213.0, -6.0)]
-BAR_U, BAR_V = (204.0, 218.0), (-22.0, -6.0)   # cheek to the ramp's back
+def cross_piece():
+    """The U's cross piece: a closed box beam between the arms' inner faces, just behind the mountain. Its own frame:
+    X along its length (robot Y, 0 at the right arm's inner face), Y = u - CROSS_U[0] (its width, 24 mm), Z = v from
+    the bottom of its section (its depth, 32 mm). It prints lying flat (Z up) corner to corner on the bed.
 
-
-def _cheek_boss():
-    """Solid where the cheek bolts on (layout b), so the two M4 holes have meat round them."""
-    u0, u1 = CHEEK_U
-    v0, v1 = CHEEK_V
-    return cq.Workplane("XY").box(u1 - u0, v1 - v0, ARM_T, centered=False).translate((u0, v0, 0))
-
-
-def ramp_b(gap_y):
-    """Layout (b)'s ramp, in the arm frame of the left arm turned so Y is across the robot: X = u, Y = robot Y, Z = v.
-    `gap_y`: (right arm's inner face, left arm's inner face) in robot Y. The CAD ramp's section, extruded over
-    |Y| <= RAMP_HALF_W, plus a cheek at each end out to the arm's inner face, behind the rollers, 6 mm thick."""
-    yl, yr = gap_y[1], gap_y[0]
-    sec = cq.Workplane("XZ").polyline(RAMP_SECTION).close().extrude(-RAMP_HALF_W).translate((0, 0, 0))
-    sec = sec.union(cq.Workplane("XZ").polyline(RAMP_SECTION).close().extrude(RAMP_HALF_W))
-    body = sec
-    u0, u1 = CHEEK_U
-    v0, v1 = CHEEK_V
-    for y_in, sgn in ((yl, 1), (yr, -1)):
-        # a plate in the arm's plane against the arm, joined to the ramp's back by a bar
-        y_face = y_in
-        plate = cq.Workplane("XY").box(u1 - u0, 6.0, v1 - v0, centered=False) \
-            .translate((u0, y_face - 6.0 if sgn > 0 else y_face, v0))
-        bar_y0, bar_y1 = (RAMP_HALF_W - 2, y_face) if sgn > 0 else (y_face, -RAMP_HALF_W + 2)
-        bar = cq.Workplane("XY").box(BAR_U[1] - BAR_U[0], bar_y1 - bar_y0, BAR_V[1] - BAR_V[0], centered=False) \
-            .translate((BAR_U[0], bar_y0, BAR_V[0]))
-        body = body.union(plate).union(bar)
-        for hu, hv in CHEEK_HOLES:
-            # heat-set M4 inserts (5.6 mm hole) from the arm side
-            body = body.cut(cq.Workplane("XZ").circle(2.8).extrude(12 if sgn > 0 else -12)
-                            .translate((hu, y_face, hv)))
-    # the 8 mm REX shaft still passes through the ramp at the tip hole
-    body = body.cut(cq.Workplane("XZ").circle(4.3).extrude(-300).translate((TIP_U, 150, 0)))
+    Each end: two M4 nut traps (7.0 mm across flats, 3.4 deep) 16 mm apart, for M4 x 25 from the arm's outer face.
+    Its front face (toward the tip, Y = 24) has two rows of M4 holes every 8 mm across the middle for the mountain."""
+    length = ARM_Y["left"][0] - ARM_Y["right"][0]
+    w = CROSS_U[1] - CROSS_U[0]
+    d = CROSS_DEPTH
+    body = cq.Workplane("XY").box(length, w, d, centered=False)
+    cav = cq.Workplane("XY").box(length - 2 * 14.0, w - 2 * CROSS_WALL, d - 2 * CROSS_WALL, centered=False) \
+        .translate((14.0, CROSS_WALL, CROSS_WALL))
+    body = body.cut(cav)
+    v_mid = spine_at(CROSS_BOLTS_U)
+    for x_end, sgn in ((0.0, 1), (length, -1)):
+        for _, vb in cross_bolts():
+            z = vb - v_mid + d / 2
+            y = CROSS_BOLTS_U - CROSS_U[0]
+            bolt = cq.Workplane("YZ").circle(M4 / 2).extrude(14.0 * sgn).translate((x_end, y, z))
+            nut = cq.Workplane("YZ").polygon(6, 7.0 / math.cos(math.radians(30))).extrude(3.4) \
+                .translate((x_end + sgn * 8.0 - (3.4 if sgn < 0 else 0), y, z))
+            # a slot from the top so the nut drops in
+            slot = cq.Workplane("XY").box(3.4, 7.0, d, centered=(False, True, False)) \
+                .translate((x_end + sgn * 8.0 - (3.4 if sgn < 0 else 0), y, z))
+            body = body.cut(bolt).cut(nut).cut(slot)
+    y_mid = (ARM_Y["left"][0] + ARM_Y["right"][0]) / 2     # the robot's middle, in robot Y
+    x_mid = -ARM_Y["right"][0] + y_mid
+    for row in MOUNTAIN_ROWS:
+        for k in range(-int(MOUNTAIN_HALF_SPAN // GRID), int(MOUNTAIN_HALF_SPAN // GRID) + 1):
+            x = x_mid + k * GRID - y_mid       # robot Y = 0 at x = -ARM_Y["right"][0]
+            x = -ARM_Y["right"][0] + k * GRID
+            body = body.cut(cq.Workplane("XZ").circle(M4 / 2).extrude(-w).translate((x, 0, d / 2 + row)))
     return body
+
+
+# ---- the tip feet -----------------------------------------------------------------------------------------------------
+FOOT_R = 17.5          # today's tip roller (the CAD's 3400-0014-0032): its rim is the stick's floor contact
+FOOT_T = 8.0           # across, inboard of the arm (the roller sits Y 129.4..135.5 on the left, the arm from 137.4)
+
+
+def foot_skid():
+    """Foot (a): a smooth puck with today's roller's rim, so the ramp's nose rides at the same height. Bolts to the arm's
+    inner face on the tip hole's 16 mm square (4 x M4 x 25, counterbored, heads inboard). Own frame: the tip hole's
+    axis on Z, the arm's face at Z 0, the puck Z 0..8 (print it face down)."""
+    puck = cq.Workplane("XY").circle(FOOT_R).extrude(FOOT_T).edges(">Z").fillet(3.0)
+    for du, dv in [(8.0, 8.0), (8.0, -8.0), (-8.0, 8.0), (-8.0, -8.0)]:
+        puck = puck.cut(_cyl(M4 / 2, FOOT_T, du, dv)).cut(_cyl(4.0, 4.0, du, dv, FOOT_T - 4.0))
+    return puck
+
+
+def axle_bushing():
+    """Foot (b): today's roller kept, on an M8 x 45 bolt through this bushing in the arm's 14 mm tip hole (nyloc
+    outboard). Flange on the inner face; the roller and its two 8x14x4 bearings ride on the bolt beside it."""
+    b = cq.Workplane("XY").circle(14.0 / 2 - 0.1).extrude(ARM_T).union(cq.Workplane("XY").circle(10.0).extrude(1.6)
+                                                                    .translate((0, 0, -1.6)))
+    return b.cut(cq.Workplane("XY").circle(8.2 / 2).extrude(30).translate((0, 0, -5)))
 
 
 def export(shape, name):
@@ -271,14 +310,11 @@ def export(shape, name):
 def main():
     h, a, b, c, e = hump()
     print(f"hump: {h:.1f} mm; leaves the old line at u {a:.0f}, full from {b:.0f} to {c:.0f}, back on it at {e:.0f}")
-    a = arm()
-    export(a, "arm")
-    export(arm(pivot="hex"), "arm_hex_pivot")
-    export(arm(cheeks=True), "arm_b")
-    r = ramp_b((ARM_Y["right"][0], ARM_Y["left"][0]))
-    export(r, "ramp_b")
-    print("volumes, cm^3: arm", round(a.val().Volume() / 1000, 1), "arm_b", round(arm(cheeks=True).val().Volume() / 1000, 1),
-          "ramp_b", round(r.val().Volume() / 1000, 1))
+    parts = {"arm": arm(), "arm_hex_pivot": arm("hex"), "cross_piece": cross_piece(), "foot_skid": foot_skid(),
+             "axle_bushing": axle_bushing()}
+    for name, shape in parts.items():
+        export(shape, name)
+        print(name, "volume", round(shape.val().Volume() / 1000, 1), "cm^3")
 
 
 if __name__ == "__main__":

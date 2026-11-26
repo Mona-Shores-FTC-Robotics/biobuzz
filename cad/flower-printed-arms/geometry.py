@@ -30,7 +30,7 @@ SWING_DEG = 162.0                              # FlowerStickSubsystem.swingDegre
 PITCH = 24.0                                   # the channel's hole stations (3 goBILDA 8 mm holes)
 GRID = 8.0                                     # goBILDA's hole grid
 TIP_U = 240.0                                  # pivot hole -> tip hole, along the arm
-END_PAST = 24.0                                # the channel reaches this far past both holes
+END_PAST = 16.0                                # the printed arm ends this far past both holes (the channel: 24)
 ARM_W = 32.0                                   # in the swing plane
 ARM_T = 12.0                                   # across, in Y: the channel's band
 # Each arm's band in Y (inner face, outer face). The right arm sits 0.45 in further out than the left in the CAD.
@@ -38,14 +38,15 @@ ARM_Y = {"left": (137.4, 149.4), "right": (-148.2, -160.2)}
 
 # ---- the corner wheel, its servo and its mount: PLACEHOLDERS ---------------------------------------------------------
 CORNER = dict(
-    wheel_d=3.5 * IN,        # SWYFT Intake Wheel, 3.5 in
-    wheel_w=1.0 * IN,        # PLACEHOLDER: its width along the axle (X)
+    wheel_d=88.74,           # SWYFT Intake Wheel 3.5 in, from its STEP (vendor/)
+    wheel_w=0.5 * IN,        # SWYFT's page: "all 0.5\" wide"
     wheel_front_x=10.35 * IN,  # PLACEHOLDER: inside the 18 in cube's front, X 10.43 in
     wheel_y=7.0 * IN,        # PLACEHOLDER: axle |Y| (the rim then reaches |Y| 8.75, inside 9)
     wheel_z=1.85 * IN,       # PLACEHOLDER: axle height (the rim 0.1 in off the tile)
-    servo_len=38.0,          # goBILDA Speed servo body along its spline (X), without the spline
-    servo_w=40.0,            # across (Y), the spline 10 mm in from its outboard end
-    servo_h=20.0,            # height (Z)
+    servo_len=38.0,          # a standard servo body along its spline (X), without the spline
+    servo_w=20.0,            # across (Y), centred on the wheel's axle
+    servo_h=40.0,            # upright (Z), as the 25 Nov photos show: the spline 10 mm up from its bottom end, its top
+                             # about at the frame's lower channel
     hub_gap=0.30 * IN,       # PLACEHOLDER: servo face to the wheel's back face (horn, hub)
     mount_wall=4.0,          # PLACEHOLDER: the SWYFT mount around the servo, each side
 )
@@ -66,10 +67,9 @@ def corner_boxes(side):
              c["wheel_w"] / 2)
     sx1 = wx0 - c["hub_gap"]
     sx0 = sx1 - c["servo_len"]
-    # the spline on the wheel's axle, 10 mm in from the servo's outboard end; the body reaches inboard
-    y_out, y_in = wy + s * 10.0, wy - s * (c["servo_w"] - 10.0)
-    ylo, yhi = min(y_out, y_in), max(y_out, y_in)
-    zlo, zhi = c["wheel_z"] - c["servo_h"] / 2, c["wheel_z"] + c["servo_h"] / 2
+    # upright, on the wheel's axle: the spline 10 mm up from the body's bottom
+    ylo, yhi = wy - c["servo_w"] / 2, wy + c["servo_w"] / 2
+    zlo, zhi = c["wheel_z"] - 10.0, c["wheel_z"] + c["servo_h"] - 10.0
     servo = ("box", np.array([sx0, ylo, zlo]), np.array([sx1, yhi, zhi]))
     w = c["mount_wall"]
     mount = ("box", np.array([sx0, ylo - w, zlo - w]), np.array([wx0 - 1.0, yhi + w, zhi + w]))
