@@ -2724,7 +2724,14 @@ public final class AutoSim {
          * ({@link BeldingCalibration#rollerStick}, the mentor's 19 Nov observation); 20245, with the passive stick,
          * keeps the touch model.
          *
-         * <p>The FLOWER stick goes down as master's does ({@link GardenApproach}, then the card's own prep): on the drive
+         * <p><b>The corner wheels are a placeholder here.</b> Master's gather keeps the FLOWER stick up and lets the corner
+         * wheels rake ({@code CornerWheelSubsystem}, both robots, mentor, 26 Nov 2026), and the simulator still takes a
+         * GARDEN's POLLEN by the mouth's touch alone, with no wheel. TODO: model the wheels from the mentor's clip
+         * (26 Nov 2026, unverified): the intake grabs a ball about 1.2 in ahead of the wheel faces, and a wheel moves a
+         * ball pressed against it inward at about 6.3 in/s. The Visualizer's GARDEN page predicts, unverified, a
+         * corner row 3 of 4, a packed GARDEN 1 of 4 and a scattered one 0 of 4.
+         *
+         * <p>With {@code GardenGather.stick.useStick} on, the FLOWER stick goes down as master's does ({@link GardenApproach}, then the card's own prep): on the drive
          * in once its turn is over, or by the card, which stands until it has been on its way down {@code stickDownMs};
          * it stays down the whole gather and rises {@code raiseAfterStopMs} after the drive back stops. It is shown
          * ({@code Extractor/Down}, the CAD model's stick) and timed, but takes nothing: a GARDEN's POLLEN go by the
@@ -2879,8 +2886,10 @@ public final class AutoSim {
                             // stops (master's stopMechanisms); without a timed raise, master's backs out first: up now.
                             gardenStickUpAt = now + Math.max(0, GardenGather.stick.raiseAfterStopMs) / 1000.0;
                             // Best case (BIOBUZZ_BELDING_ROBOT=full, or _OURS / _PARTNER for one robot): every load is four,
-                            // a gather's too. The roller stick (19429) fills the lane on a gather that ran to its end.
-                            if (BeldingCalibration.on && (BeldingCalibration.fullLoads(index) || BeldingCalibration.rollerFills(index))) {
+                            // a gather's too. The roller stick (19429) fills the lane on a gather that ran to its end, but
+                            // only a gather with the stick down (GardenGather.stick.useStick, off since 26 Nov 2026).
+                            boolean rollerInGarden = GardenGather.stick.useStick && BeldingCalibration.rollerFills(index);
+                            if (BeldingCalibration.on && (BeldingCalibration.fullLoads(index) || rollerInGarden)) {
                                 int more = sim.topUpFromGarden(body, 2 * FieldSim.GARDEN_LENGTH_IN, 4, BeldingCalibration.bestCase);
                                 if (more > 0) pending.add("GardenGather: " + more + " more taken, "
                                         + (BeldingCalibration.fullLoads(index) ? "a full load (best case)" : "the roller stick fills the lane"));

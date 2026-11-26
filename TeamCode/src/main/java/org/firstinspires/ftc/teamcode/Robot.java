@@ -105,8 +105,8 @@ public class Robot {
     public final BeamBreakSubsystem beams;
 
     /**
-     * The corner wheels, raking a POLLEN at a front corner into the intake: optional, off until a
-     * {@code RobotDifferences} line says the robot has them ({@link CornerWheelSubsystem}).
+     * The corner wheels, raking a POLLEN at a front corner into the intake: on both robots
+     * ({@link CornerWheelSubsystem#fitted}), off for one whose {@code RobotDifferences} line says it has none.
      */
     public final CornerWheelSubsystem cornerWheels;
 

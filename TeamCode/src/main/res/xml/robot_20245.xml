@@ -149,8 +149,8 @@
 
             <!-- Corner wheels (CornerWheelSubsystem, doc/corner-wheels.md): two goBILDA
                  Speed servos in continuous mode, fitted 25 Nov 2026 on this hub's servo
-                 ports 1 (left, seen from behind the robot) and 2 (right). Turned on by
-                 20245's RobotDifferences line (CornerWheelSubsystem.fitted = true).
+                 ports 1 (left, seen from behind the robot) and 2 (right). On for both robots
+                 in the shared value (CornerWheelSubsystem.fitted, mentor, 26 Nov 2026).
                  Servo count: R503 allows 8; 20245 has 7 with these. -->
             <ContinuousRotationServo name="cornerWheelLeft"  port="1" />
             <ContinuousRotationServo name="cornerWheelRight" port="2" />
