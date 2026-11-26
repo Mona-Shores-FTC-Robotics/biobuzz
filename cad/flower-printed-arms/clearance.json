@@ -1,0 +1,118 @@
+{
+ "units": "mm and in",
+ "corner_parts": "PLACEHOLDERS (geometry.CORNER) until measured",
+ "sides": {
+  "left": {
+   "straight (today)": {
+    "wheel": {
+     "mm": 0.0,
+     "in": 0.0,
+     "at_deg": 154.0
+    },
+    "servo": {
+     "mm": 19.6,
+     "in": 0.77,
+     "at_deg": 162.0
+    },
+    "mount": {
+     "mm": 12.1,
+     "in": 0.48,
+     "at_deg": 162.0
+    },
+    "rest of robot (31 Oct CAD)": {
+     "mm": 0.1,
+     "in": 0.0,
+     "at_deg": 158.0
+    }
+   },
+   "printed": {
+    "wheel": {
+     "mm": 6.2,
+     "in": 0.25,
+     "at_deg": 162.0
+    },
+    "servo": {
+     "mm": 43.3,
+     "in": 1.7,
+     "at_deg": 162.0
+    },
+    "mount": {
+     "mm": 36.1,
+     "in": 1.42,
+     "at_deg": 162.0
+    },
+    "rest of robot (31 Oct CAD)": {
+     "mm": 0.1,
+     "in": 0.0,
+     "at_deg": 160.0
+    }
+   }
+  },
+  "right": {
+   "straight (today)": {
+    "wheel": {
+     "mm": 0.0,
+     "in": 0.0,
+     "at_deg": 152.0
+    },
+    "servo": {
+     "mm": 19.6,
+     "in": 0.77,
+     "at_deg": 162.0
+    },
+    "mount": {
+     "mm": 12.1,
+     "in": 0.48,
+     "at_deg": 162.0
+    },
+    "rest of robot (31 Oct CAD)": {
+     "mm": 3.7,
+     "in": 0.15,
+     "at_deg": 162.0
+    }
+   },
+   "printed": {
+    "wheel": {
+     "mm": 3.9,
+     "in": 0.15,
+     "at_deg": 162.0
+    },
+    "servo": {
+     "mm": 43.3,
+     "in": 1.7,
+     "at_deg": 162.0
+    },
+    "mount": {
+     "mm": 36.1,
+     "in": 1.42,
+     "at_deg": 162.0
+    },
+    "rest of robot (31 Oct CAD)": {
+     "mm": 4.2,
+     "in": 0.17,
+     "at_deg": 162.0
+    }
+   }
+  }
+ },
+ "stowed": {
+  "front_x_in": 6.85,
+  "cube_front_x_in": 10.43,
+  "top_z_in": 16.64,
+  "cube_top_z_in": 18.0
+ },
+ "down": {
+  "front_x_in": 13.55,
+  "lowest_z_in": -0.33
+ },
+ "hump": {
+  "height_mm": 30.0,
+  "leaves_line_u_mm": 78.0,
+  "full_u_mm": [
+   142.0,
+   142.0
+  ],
+  "back_on_line_u_mm": 208.0,
+  "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
+ }
+}
