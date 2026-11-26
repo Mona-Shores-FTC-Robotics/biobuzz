@@ -14,7 +14,7 @@ ride over the corner wheel's servo, which today's flat goBILDA bar can't. The st
 
 | Piece | What | Print / buy |
 |---|---|---|
-| `arm.step` / `.stl` | Each arm. Both sides use the same part; on the right it goes on flipped. Today's pivot hole and tip hole, 240 mm apart (10 hole stations), with goBILDA's hub patterns round both, so the axle, its hub, the servo hub and the tip shaft bolt on as now | PETG, **on its side** (the flat web down), 4 walls, 40 % gyroid, no supports. 2 per robot |
+| `arm.step` / `.stl` | Each arm. **One part, print 2:** both sides use it the same way round (hump up when the stick is down), so the flat web faces inboard on the left and outboard on the right. The pads round the holes are solid and flat on both faces, so hubs and bearings bolt on either way. Today's pivot hole and tip hole, 240 mm apart (10 hole stations), with goBILDA's hub patterns round both, so the axle, its hub, the servo hub and the tip shaft bolt on as now | PETG, **on its side** (the flat web down), 4 walls, 40 % gyroid, no supports. 2 per robot |
 | `arm_hex_pivot.*` | The same, with a 1/2 in hex bore at the pivot, if the axle through both pivot bosses becomes hex | the same |
 | `arm_hump40.*` | A more pronounced hump (40 mm), only for looking at in Onshape | — |
 | `foot_skid.*` | Foot (a): a smooth puck in the tip roller's place, the roller's size, bolted to the arm so it never turns | PETG, arm face down. 2 per robot |
@@ -97,8 +97,8 @@ Today's aluminium arm is ESTIMATED at 75 g (weigh one).
 ## In Onshape
 
 `arm.step` is in its own frame: the pivot hole on the origin, the tip hole at +X 240 mm, the flat web face on Z 0,
-the hump toward +Y. Mate the pivot hole to the stick's axle and the tip hole to the shaft, the web face against
-where the channel's inner face is, and the hump on the side away from the tile when the stick is down. Then swing
+the hump toward +Y. Mate the pivot hole to the stick's axle and the tip hole to the shaft, in the channel's band
+(web inboard on the left, outboard on the right: the same part, not mirrored), and the hump on the side away from the tile when the stick is down. Then swing
 the stick and look at the corner servo and mount. If a stretch still touches, tell the session the hole station and
 how much; `geometry.CORNER` takes it and every file here regenerates.
 
