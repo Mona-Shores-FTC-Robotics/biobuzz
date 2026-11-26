@@ -16,7 +16,7 @@ ride over the corner wheel's servo, which today's flat goBILDA bar can't. The st
 |---|---|---|
 | `arm.step` / `.stl` | Each arm. **One part, print 2,** alike on both faces (the web is in the middle), so it looks the same on either side. Fit it with the hump away from the tile when the stick is down. Today's pivot hole and tip hole, 240 mm apart (10 hole stations), with goBILDA's hub patterns round both, so the axle, its hub, the servo hub and the tip shaft bolt on as now | PETG, **on its side**, 4 walls, 40 % gyroid, no supports (the middle web bridges between the ribs). 2 per robot |
 | `arm_hex_pivot.*` | The same, with a 1/2 in hex bore at the pivot, if the axle through both pivot bosses becomes hex | the same |
-| `arm_hump40.*` | A 40 mm hump, for comparing in Onshape (the sized hump is now 38 mm, so they're close) | — |
+| `arm_hump40.*` | A 40 mm hump, for comparing in Onshape (the sized hump is now 42 mm, so they're close) | — |
 | `foot_skid.*` | Foot (a): a smooth puck in the tip roller's place, the roller's size, bolted to the arm so it never turns | PETG, arm face down. 2 per robot |
 | the 312 mm 8 mm REX shaft | Stays, across the tips. It is the mountain's axle and the U's tip cross member | today's |
 | `mountain_wide_2in` | Stays on the shaft, between hubs and spacers, as now | today's |
@@ -32,41 +32,40 @@ steel shaft wouldn't fit there, and the mountain needs the shaft as its axle any
 - **The hump.** Around hole stations 5 to 7 (counted from the pivot, 24 mm apart) the arm bows forward and up (seen
   with the stick down), so its lower edge passes over the corner wheel's servo and mount with 4 mm (half a goBILDA
   hole) to spare through the whole 0..162° swing. `parts.py` sizes it from the corner parts in `geometry.py`: today
-  38 mm high. It leaves the old line at hole 3.8 and is back on it by hole 9.6; the arm's centre line never bends
+  42 mm high. It leaves the old line at hole 3.4 and is back on it by hole 9.7; the arm's centre line never bends
   tighter than a 22 mm radius, which sets how long the ramps are. The pivot and tip holes don't move.
 - **The ends** stop 16 mm past the pivot and tip holes (the channel went 24). The arm then fits a Prusa
   250 × 210 mm bed, laid corner to corner, and its tip no longer pokes past the roller.
 - **The section** is a ribbed I: a 2.4 mm web in the middle, 3 mm walls round the edges, diagonal ribs, 12 mm deep
   (the channel's band), so both faces look alike. Solid round the pivot and the tip.
 
-**Moving the arm outboard instead** (the mentor's first choice) doesn't work with the servo where it is now: flush
-against the side wall, it fills |Y| 6.8 to 7.6 in, and an arm moved 1 to 2 in out (to |Y| 6.4 to 8.3) would land on it
-and on the wheels beside it. The arm at today's |Y| 5.4 to 6.3 is inboard of the servo, so only the wheels' top is in
-its way, and the hump rides over that.
+**Moving the arm outboard instead** (the mentor's first choice): with the servo flush against the intake's side wall
+it fills |Y| 5.4 to 6.2 in, right under today's arm (5.4 to 6.3), so the arm would have to move out about an inch to
+clear it, and the wheels on the servo's spline reach |Y| 7.5 in, so it would still meet their top. The hump clears
+both without moving the pivot or the tip.
 
 ## Clearance through the swing
 
 `check.py`, 0..162° in 3° steps plus 162°. The corner: the SWYFT wheel from its STEP (`vendor/`), two side by side
-(25.4 mm), and the servo and its mount as boxes: the servo upright, flush against the chassis side wall and just ahead of the
-mecanum (mentor, 26 Nov), from the 31 Oct CAD's side plate and drive module (`geometry.CORNER`; not measured on the
-robot). Today's straight arm meets the wheels' top from hole 5.8 to 8.2. The rest of the robot: the 31 Oct CAD (no corner wheels, no transfer).
+(25.4 mm), and the servo and its mount as boxes: the servo upright, flush against the intake's side wall, under the arm, just
+ahead of the mecanum (mentor's arrows, 26 Nov; `geometry.CORNER`, from the CAD, not measured on the robot). Today's
+straight arm meets the servo and the wheels' top from hole 5.4 to 8.2, as the mentor saw. The rest of the robot: the 31 Oct CAD (no corner wheels, no transfer).
 `clearance.json` has every number.
 
 | | Left | Right |
 |---|---|---|
-| Today's straight arm to the wheels | **0: hits** | **0: hits** |
-| Printed arm to the wheels | 9.4 mm (0.37 in) at 162° | 4.8 mm (0.19 in) at 162° |
-| Printed arm to the servo | 31.3 mm (1.23 in) at 162° | 24.0 mm (0.94 in) at 162° |
-| Printed arm to the mount | 25.6 mm (1.01 in) at 162° | 18.3 mm (0.72 in) at 162° |
-| Printed arm to the rest of the robot (31 Oct CAD) | 0.0 mm (0.00 in) at 162° | 6.9 mm (0.27 in) at 162° |
+| Today's straight arm to the wheels and servo | **0: hits** | **0: hits** |
+| Printed arm to the wheels | 4.5 mm (0.18 in) at 162° | 4.6 mm (0.18 in) at 162° |
+| Printed arm to the servo | 25.5 mm (1.00 in) at 162° | 25.5 mm (1.00 in) at 162° |
+| Printed arm to the mount | 21.2 mm (0.83 in) at 162° | 21.2 mm (0.83 in) at 162° |
+| Printed arm to the rest of the robot (31 Oct CAD) | 0.1 mm (0.00 in) at 159° | 9.1 mm (0.36 in) at 162° |
 | Today's arm to the rest of the robot | 0.1 mm (0.00 in) at 162° | 3.8 mm (0.15 in) at 162° |
-| Skid to the corner parts (nearest: the wheels) | 47.2 mm (1.86 in) at 162° | 44.8 mm (1.76 in) at 162° |
+| Skid to the corner parts (nearest: the wheels) | 42.9 mm (1.69 in) at 162° | 42.8 mm (1.69 in) at 162° |
 
-- **Minimum gap to the corner parts:** 9.4 mm left, 4.8 mm right, both at the wheels' top with the stick down; the target is 4 mm. The servo sits outboard of the arm's band, so only the wheels' inboard top reaches it.
-- **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.0–0.1 mm on the left is at the pivot end, the arm beside the left pivot's hub and block, the same for both.
+- **Minimum gap to the corner parts:** 4.5 mm left, 4.6 mm right, at the wheels' top with the stick down; the target is 4 mm. The servo sits right under the arm's band, and the hump clears its top by about 25 mm.
+- **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.1 mm on the left is at the pivot end, the arm beside the left pivot's hub and block, the same for both.
 - **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18).
 - **Down:** the front of the arm is at X 13.39 in, today's roller's reach.
-- **Width:** the wheels' outer edges are at |Y| 8.98 in, so the robot is 17.96 in across there, inside 18 in (R102) by 0.04 in. Measure it.
 
 ## The tip, the feet and the FLOWER
 
@@ -93,8 +92,8 @@ not offered:** at the contact standoff it would reach the wall before the FLOWER
 
 | | Today | Printed |
 |---|---|---|
-| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 407 g |
-| Holding torque, stowed (0°) | 4.0 kg·cm | 3.6 kg·cm |
+| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 408 g |
+| Holding torque, stowed (0°) | 4.0 kg·cm | 3.7 kg·cm |
 | Holding torque, down for a pick (162°) | 6.3 kg·cm | 5.7 kg·cm |
 | Worst, through the swing | 9.1 kg·cm at 116° | 8.0 kg·cm at 117° |
 | Margin to 25 kg·cm stall | 2.7× | 3.1× |
@@ -112,8 +111,8 @@ is a faster printer). `print-estimates.json`.
 
 | Part | PETG | Prusa MK3/MK4-class | Faster printer |
 |---|---|---|---|
-| arm (print 2) | 71 g | 4h 36m 3s | 3h 1m 0s |
-| arm, hex pivot | 71 g | 4h 36m 24s | 3h 1m 16s |
+| arm (print 2) | 71 g | 4h 38m 14s | 3h 2m 30s |
+| arm, hex pivot | 71 g | 4h 38m 49s | 3h 2m 55s |
 | skid (print 2) | 6 g | 37m 39s | 31m 28s |
 
 Today's aluminium arm is ESTIMATED at 75 g (weigh one).
@@ -145,7 +144,7 @@ python3 cad/flower-printed-arms/torque.py && python3 cad/flower-printed-arms/ren
 
 ## Before printing
 
-1. In Onshape, both corners: the arm (38 mm hump; `arm_hump40` is about the same now) against the real servo and mount, swung
+1. In Onshape, both corners: the arm (42 mm hump; `arm_hump40` is about the same) against the real servo and mount, swung
    through.
 2. Print one arm first; check the 14 mm holes take the bearing and the hubs (drill to 4.5 if an M4 binds), and that
    the axle and shaft run true.

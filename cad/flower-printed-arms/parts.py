@@ -52,6 +52,7 @@ TIP_LINE = [TIP_U - 16.0]
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
 HUMP_TO = TIP_U - PAD - 2.0      # u 216: ... and is back on it before the tip pad, so the tip end stays straight
+SIZING_MARGIN = 1.0             # mm on top of CLEARANCE: the sizing samples the parts, check.py measures them exactly
 MIN_RADIUS = ARM_W / 2 + 6.0     # the centre line never bends tighter than this, so the inner edge stays smooth
 
 
@@ -80,7 +81,7 @@ def obstacle_profile(step=1.5):
             a = robot_to_arm(p, th)
             idx = np.round((a[:, 0] - us[0]) / 2).astype(int)
             ok = (idx >= 0) & (idx < len(us))
-            np.maximum.at(need, idx[ok], a[ok, 1] + CLEARANCE)
+            np.maximum.at(need, idx[ok], a[ok, 1] + CLEARANCE + SIZING_MARGIN)
     return us, need
 
 
