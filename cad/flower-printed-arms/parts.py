@@ -1,25 +1,24 @@
 """Printed FLOWER stick arms (mentor's idea, 26 Nov 2026): the same arms in the same place, printed instead of the
-goBILDA 11 Hole Mini U-Channel, with a hump that rides over the corner wheel and its servo.
+goBILDA 11 Hole Mini U-Channel, with a hump that rides over the corner wheel's servo and mount.
 
     pip install cadquery numpy
     python3 cad/flower-printed-arms/parts.py     # writes the parts next to this file
 
-What stays exactly as today (geometry.py): the pivot hole, the tip hole 240 mm from it (10 hole stations), the arm's
-32 x 12 mm band, its Y position on each side, its ends 24 mm past both holes, and the 0..162 deg swing. The bearing,
-the servo hub, the 312 mm REX shaft, the rollers, the ramp and the GARDEN guides bolt on unchanged.
+The stick is a U: these two arms, the pivot axle through their top bosses (driven by the servo hub, as today), and
+the 312 mm 8 mm REX shaft across their tips carrying the mountain, as today. The tip rollers come off; a foot takes
+their place (README: why the shaft stays, and which foot).
 
-What changes: between hole stations 4 and 9 the arm's centre line humps forward-up (seen with the stick down) by
+What stays exactly as today (geometry.py): the pivot hole, the tip hole 240 mm from it (10 hole stations), the arm's
+32 x 12 mm band, its Y position on each side, and the 0..162 deg swing. Each end now stops 16 mm past its hole (the
+channel went 24): the arm fits a 250 x 210 bed corner to corner, and its tip no longer reaches past the roller.
+
+What changes: around hole stations 5 to 7 the arm's centre line humps forward-up (seen with the stick down) by
 `hump()`'s height, sized here from the corner parts in geometry.py so the arm's lower edge stays CLEARANCE (4 mm, half
-a goBILDA hole) above them through the whole swing, on the worse of the two corners. One part fits both sides.
+a goBILDA hole) above them through the whole swing, on the worse of the two corners. Its centre line never bends
+tighter than MIN_RADIUS, which sets how long the ramps up and down are. One part fits both sides.
 
 The section is a ribbed channel printed on its side: a 2.4 mm web on the bed, 3 mm walls round the edge and the
 holes, diagonal ribs, all 12 mm tall (the arm's thickness in Y). The pads round the pivot and tip holes are solid.
-
-Two layouts (the README compares them):
-  (a) `arm`: arms only; the ramp you have stays on the shaft.          Print 2 per robot.
-  (b) `arm_b` x 2 + `ramp_b`: the ramp printed too, bolted to each arm by a cheek behind the roller.
-      As one piece it would be a 310 x 290 x 70 mm U standing on its arms (layers across the arms' bending): not
-      offered. `u_assembly_b.step` is the three pieces together, for Onshape only.
 """
 import math
 import os
@@ -173,20 +172,6 @@ def spine_at(u):
     return float(np.interp(u, us, vs))
 
 
-# ---- the cross piece: where it sits on the arms ---------------------------------------------------------------------
-CROSS_U = (182.0, 206.0)       # along the arm: just behind the mountain (the 31 Oct CAD's ramp starts at u 208)
-CROSS_DEPTH = ARM_W            # across the arm (v), centred on the arm's centre line there
-CROSS_BOLTS_U = 194.0          # two M4 per end, 16 mm apart across the arm, into nut traps in the cross piece's end
-CROSS_WALL = 2.0
-MOUNTAIN_ROWS = (-8.0, 8.0)    # M4 rows on the cross piece's front face, v from the arm's centre line there
-MOUNTAIN_HALF_SPAN = 96.0      # holes every 8 mm out to here either side of the robot's middle
-
-
-def cross_bolts():
-    v0 = spine_at(CROSS_BOLTS_U)
-    return [(CROSS_BOLTS_U, v0 - 8.0), (CROSS_BOLTS_U, v0 + 8.0)]
-
-
 def arm(pivot="bearing"):
     """One arm, either side (it is symmetric about its own mid-plane), in its own frame: u along X (pivot hole at the
     origin, tip hole at X 240), v along Y (+v forward-up once the stick is down), Z 0..12 its thickness, the web on the
@@ -203,15 +188,11 @@ def arm(pivot="bearing"):
         .translate((-END_PAST - 20, 0, 0))
     solid = solid.union(cq.Workplane("XY").box(PAD + END_PAST + 20, 200, 3 * ARM_T, centered=(False, True, True))
                         .translate((TIP_U - PAD, 0, 0)))
-    cu0, cu1 = CROSS_U          # solid where the cross piece bolts on
-    solid = solid.union(cq.Workplane("XY").box(cu1 - cu0, 200, 3 * ARM_T, centered=(False, True, True))
-                        .translate((cu0, 0, 0)))
     body = body.cut(pocket.cut(solid))
     # diagonal ribs in the pockets, alternating, following the hump
     u_s, v_s = spine(hm, 1.0)
-    edges_u = [PAD, cu0, cu1, TIP_U - PAD]
     ribs = None
-    for ua_, ub_ in ((edges_u[0], edges_u[1]), (edges_u[2], edges_u[3])):
+    for ua_, ub_ in ((PAD, TIP_U - PAD),):
         n = max(1, int(round((ub_ - ua_) / (RIB_PITCH / 2))))
         rib_u = np.linspace(ua_, ub_, n + 1)
         for i in range(n):
@@ -238,44 +219,6 @@ def arm(pivot="bearing"):
             body = body.cut(_cyl(M4 / 2, ARM_T, u0 + du, dv))
     for u0 in PIVOT_LINE + TIP_LINE:
         body = body.cut(_cyl(M4 / 2, ARM_T, u0, 0))
-    for u0, v0 in cross_bolts():
-        body = body.cut(_cyl(M4 / 2, ARM_T, u0, v0))
-    return body
-
-
-def cross_piece():
-    """The U's cross piece: a closed box beam between the arms' inner faces, just behind the mountain. Its own frame:
-    X along its length (robot Y, 0 at the right arm's inner face), Y = u - CROSS_U[0] (its width, 24 mm), Z = v from
-    the bottom of its section (its depth, 32 mm). It prints lying flat (Z up) corner to corner on the bed.
-
-    Each end: two M4 nut traps (7.0 mm across flats, 3.4 deep) 16 mm apart, for M4 x 25 from the arm's outer face.
-    Its front face (toward the tip, Y = 24) has two rows of M4 holes every 8 mm across the middle for the mountain."""
-    length = ARM_Y["left"][0] - ARM_Y["right"][0]
-    w = CROSS_U[1] - CROSS_U[0]
-    d = CROSS_DEPTH
-    body = cq.Workplane("XY").box(length, w, d, centered=False)
-    cav = cq.Workplane("XY").box(length - 2 * 14.0, w - 2 * CROSS_WALL, d - 2 * CROSS_WALL, centered=False) \
-        .translate((14.0, CROSS_WALL, CROSS_WALL))
-    body = body.cut(cav)
-    v_mid = spine_at(CROSS_BOLTS_U)
-    for x_end, sgn in ((0.0, 1), (length, -1)):
-        for _, vb in cross_bolts():
-            z = vb - v_mid + d / 2
-            y = CROSS_BOLTS_U - CROSS_U[0]
-            bolt = cq.Workplane("YZ").circle(M4 / 2).extrude(14.0 * sgn).translate((x_end, y, z))
-            nut = cq.Workplane("YZ").polygon(6, 7.0 / math.cos(math.radians(30))).extrude(3.4) \
-                .translate((x_end + sgn * 8.0 - (3.4 if sgn < 0 else 0), y, z))
-            # a slot from the top so the nut drops in
-            slot = cq.Workplane("XY").box(3.4, 7.0, d, centered=(False, True, False)) \
-                .translate((x_end + sgn * 8.0 - (3.4 if sgn < 0 else 0), y, z))
-            body = body.cut(bolt).cut(nut).cut(slot)
-    y_mid = (ARM_Y["left"][0] + ARM_Y["right"][0]) / 2     # the robot's middle, in robot Y
-    x_mid = -ARM_Y["right"][0] + y_mid
-    for row in MOUNTAIN_ROWS:
-        for k in range(-int(MOUNTAIN_HALF_SPAN // GRID), int(MOUNTAIN_HALF_SPAN // GRID) + 1):
-            x = x_mid + k * GRID - y_mid       # robot Y = 0 at x = -ARM_Y["right"][0]
-            x = -ARM_Y["right"][0] + k * GRID
-            body = body.cut(cq.Workplane("XZ").circle(M4 / 2).extrude(-w).translate((x, 0, d / 2 + row)))
     return body
 
 
@@ -285,21 +228,15 @@ FOOT_T = 8.0           # across, inboard of the arm (the roller sits Y 129.4..13
 
 
 def foot_skid():
-    """Foot (a): a smooth puck with today's roller's rim, so the ramp's nose rides at the same height. Bolts to the arm's
-    inner face on the tip hole's 16 mm square (4 x M4 x 25, counterbored, heads inboard). Own frame: the tip hole's
-    axis on Z, the arm's face at Z 0, the puck Z 0..8 (print it face down)."""
+    """Foot (a): a smooth puck in place of today's tip roller, with the roller's rim, so the ramp's nose rides at the
+    same height. It slides onto the 8 mm REX shaft (8.4 mm bore) where the roller was and bolts to the arm's inner face
+    on the tip hole's 16 mm square (4 x M4 x 20, counterbored, heads inboard), so it never turns. Own frame: the tip
+    hole's axis on Z, the arm's face at Z 0, the puck Z 0..8 (print it arm-face down)."""
     puck = cq.Workplane("XY").circle(FOOT_R).extrude(FOOT_T).edges(">Z").fillet(3.0)
+    puck = puck.cut(_cyl(8.4 / 2, FOOT_T, 0, 0))
     for du, dv in [(8.0, 8.0), (8.0, -8.0), (-8.0, 8.0), (-8.0, -8.0)]:
         puck = puck.cut(_cyl(M4 / 2, FOOT_T, du, dv)).cut(_cyl(4.0, 4.0, du, dv, FOOT_T - 4.0))
     return puck
-
-
-def axle_bushing():
-    """Foot (b): today's roller kept, on an M8 x 45 bolt through this bushing in the arm's 14 mm tip hole (nyloc
-    outboard). Flange on the inner face; the roller and its two 8x14x4 bearings ride on the bolt beside it."""
-    b = cq.Workplane("XY").circle(14.0 / 2 - 0.1).extrude(ARM_T).union(cq.Workplane("XY").circle(10.0).extrude(1.6)
-                                                                    .translate((0, 0, -1.6)))
-    return b.cut(cq.Workplane("XY").circle(8.2 / 2).extrude(30).translate((0, 0, -5)))
 
 
 def export(shape, name):
@@ -310,8 +247,7 @@ def export(shape, name):
 def main():
     h, a, b, c, e = hump()
     print(f"hump: {h:.1f} mm; leaves the old line at u {a:.0f}, full from {b:.0f} to {c:.0f}, back on it at {e:.0f}")
-    parts = {"arm": arm(), "arm_hex_pivot": arm("hex"), "cross_piece": cross_piece(), "foot_skid": foot_skid(),
-             "axle_bushing": axle_bushing()}
+    parts = {"arm": arm(), "arm_hex_pivot": arm("hex"), "foot_skid": foot_skid()}
     for name, shape in parts.items():
         export(shape, name)
         print(name, "volume", round(shape.val().Volume() / 1000, 1), "cm^3")

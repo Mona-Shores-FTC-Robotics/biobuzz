@@ -46,18 +46,46 @@ def to_cq_matrix(M):
     return cq.Matrix([list(map(float, row)) for row in M[:3]])
 
 
+def foot_placement(side, theta):
+    """4x4 from a foot's own frame (parts.foot_skid: the tip hole's axis on Z, the arm's inner face at Z 0, Z inboard)
+    to the robot frame."""
+    R = rot_y(theta)
+    d, n = R @ STOWED_DIR, R @ STOWED_PERP
+    origin = PIVOT_XZ + TIP_U * d
+    sy = -1.0 if side == "left" else 1.0           # inboard
+    return np.array([[d[0], n[0], 0, origin[0]],
+                     [0, 0, sy, ARM_Y[side][0]],
+                     [d[1], n[1], 0, origin[1]],
+                     [0, 0, 0, 1.0]])
+
+
 def envelope(straight):
     """The arm's outer shape, no pockets or holes: what clearance is measured to."""
     hm = (0.0, 0, 1, 2, 3) if straight else parts.hump()
     return parts._poly(parts._outline(hm, ARM_W / 2), ARM_T).val()
 
 
+WHEEL_STEP = os.path.join(HERE, "vendor", "SR-INTAKEWHEEL-3.5in-0.5inHEX-02.step")
+_WHEEL = None
+
+
 def corner_solids(side):
+    """The corner's parts, robot frame: the SWYFT wheel from its STEP (its axle turned to point forward), the servo and
+    its mount as boxes."""
+    global _WHEEL
     out = {}
     for name, k in corner_boxes(side).items():
         if k[0] == "cyl":
             _, c, ax, r, h = k
-            s = cq.Solid.makeCylinder(r, 2 * h, cq.Vector(*(c - ax * h)), cq.Vector(*ax))
+            if _WHEEL is None:
+                _WHEEL = cq.importers.importStep(WHEEL_STEP).val()
+            # the STEP: axle on Z, faces at Z 0 and 12.7, centred on X = Y = 0. Z -> +X, X -> -Z.
+            w1 = 12.7                                   # one wheel; geometry.CORNER may stack several
+            s = None
+            for x0 in np.arange(c[0] - h, c[0] + h - 1e-6, w1):
+                M = np.array([[0, 0, 1, x0], [0, 1, 0, c[1]], [-1, 0, 0, c[2]], [0, 0, 0, 1.0]])
+                one = _WHEEL.transformGeometry(to_cq_matrix(M))
+                s = one if s is None else s.fuse(one)
         else:
             _, lo, hi = k
             s = cq.Solid.makeBox(*(hi - lo), cq.Vector(*lo))
@@ -89,45 +117,66 @@ def arm_points(straight, step=1.5):
     return pts
 
 
+def _pts(shape, n=40000):
+    v, f = shape.tessellate(0.3)
+    m = trimesh.Trimesh([[p.x, p.y, p.z] for p in v], f)
+    p, _ = trimesh.sample.sample_surface_even(m, n, seed=2)
+    return p
+
+
+def _row(d):
+    return {"mm": round(d[0], 1), "in": round(d[0] / IN, 2), "at_deg": d[1]}
+
+
 def main():
-    report = {"units": "mm and in", "corner_parts": "PLACEHOLDERS (geometry.CORNER) until measured", "sides": {}}
-    robot = robot_points()
-    tree = cKDTree(robot)
-    shapes = {"straight (today)": envelope(True), "printed": envelope(False)}
-    pts = {"straight (today)": arm_points(True), "printed": arm_points(False)}
+    report = {"units": "mm and in", "corner_parts": "SWYFT wheel from its STEP; servo and mount PLACEHOLDERS "
+                                                    "(geometry.CORNER) until measured", "sides": {}}
+    tree = cKDTree(robot_points())
+    angles = list(np.arange(0, SWING_DEG, 3.0)) + [SWING_DEG]
+    foot = parts.foot_skid().val()
+    pieces = {
+        "straight (today)": {"arm": (envelope(True), placement)},
+        "printed": {"arm": (envelope(False), placement), "foot (a) skid": (foot, foot_placement)},
+    }
+    samples = {"straight (today)": {"arm": arm_points(True)},
+               "printed": {"arm": arm_points(False), "foot (a) skid": _pts(foot)}}
     for side in ("left", "right"):
         obst = corner_solids(side)
         rs = {}
-        for label, env in shapes.items():
-            worst = {k: (1e9, None) for k in obst}
-            for th in np.arange(0, SWING_DEG + 0.01, 1.0):
-                placed = env.transformGeometry(to_cq_matrix(placement(side, th)))
-                for k, s in obst.items():
-                    dist = placed.distance(s)
-                    if dist < worst[k][0]:
-                        worst[k] = (dist, float(th))
-            # the robot
-            p = pts[label]
-            p = p[np.hypot(p[:, 0], p[:, 1]) > 30.0]          # leave out the pivot pad
-            rob = (1e9, None)
-            for th in np.arange(0, SWING_DEG + 0.01, 2.0):
-                M = placement(side, th)
-                q = p @ M[:3, :3].T + M[:3, 3]
-                dd, _ = tree.query(q, distance_upper_bound=60)
-                if dd.min() < rob[0]:
-                    rob = (float(dd.min()), float(th))
-            rs[label] = {k: {"mm": round(v[0], 1), "in": round(v[0] / IN, 2), "at_deg": v[1]} for k, v in worst.items()}
-            rs[label]["rest of robot (31 Oct CAD)"] = {"mm": round(rob[0], 1), "in": round(rob[0] / IN, 2),
-                                                       "at_deg": rob[1]}
+        for label, group in pieces.items():
+            res = {}
+            for pname, (shape, place) in group.items():
+                worst = {k: (1e9, None) for k in obst}
+                for th in angles:
+                    placed = shape.transformGeometry(to_cq_matrix(place(side, th)))
+                    for k, s in obst.items():
+                        dist = placed.distance(s)
+                        if dist < worst[k][0]:
+                            worst[k] = (dist, float(th))
+                p = samples[label][pname]
+                if pname == "arm":
+                    p = p[np.hypot(p[:, 0], p[:, 1]) > 30.0]          # leave out the pivot pad
+                rob = (1e9, None)
+                for th in angles:
+                    M = place(side, th)
+                    q = p @ M[:3, :3].T + M[:3, 3]
+                    dd, _ = tree.query(q, distance_upper_bound=60)
+                    if dd.min() < rob[0]:
+                        rob = (float(dd.min()), float(th))
+                res[pname] = {**{k: _row(v) for k, v in worst.items()}, "rest of robot (31 Oct CAD)": _row(rob)}
+            rs[label] = res
         report["sides"][side] = rs
-    # the starting cube, stowed
-    M = placement("left", 0.0)
-    q = pts["printed"] @ M[:3, :3].T + M[:3, 3]
-    report["stowed"] = {"front_x_in": round(q[:, 0].max() / IN, 2), "cube_front_x_in": round(CUBE_FRONT_X / IN, 2),
-                        "top_z_in": round(q[:, 2].max() / IN, 2), "cube_top_z_in": 18.0}
-    M = placement("left", SWING_DEG)
-    q = pts["printed"] @ M[:3, :3].T + M[:3, 3]
-    report["down"] = {"front_x_in": round(q[:, 0].max() / IN, 2), "lowest_z_in": round(q[:, 2].min() / IN, 2)}
+    # the starting cube (R102), stowed; and the reach, down
+    for key, th in (("stowed", 0.0), ("down", SWING_DEG)):
+        qs = []
+        for pname, (shape, place) in pieces["printed"].items():
+            M = place("left", th)
+            qs.append(samples["printed"][pname] @ M[:3, :3].T + M[:3, 3])
+        q = np.vstack(qs)
+        report[key] = {"front_x_in": round(q[:, 0].max() / IN, 2), "top_z_in": round(q[:, 2].max() / IN, 2),
+                       "lowest_z_in": round(q[:, 2].min() / IN, 2)}
+    report["stowed"]["cube_front_x_in"] = round(CUBE_FRONT_X / IN, 2)
+    report["stowed"]["cube_top_z_in"] = 18.0
     h, a, b, c, e = parts.hump()
     report["hump"] = {"height_mm": h, "leaves_line_u_mm": a, "full_u_mm": [b, c], "back_on_line_u_mm": e,
                       "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"}

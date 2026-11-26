@@ -37,18 +37,21 @@ ARM_T = 12.0                                   # across, in Y: the channel's ban
 ARM_Y = {"left": (137.4, 149.4), "right": (-148.2, -160.2)}
 
 # ---- the corner wheel, its servo and its mount: PLACEHOLDERS ---------------------------------------------------------
+# What is known (mentor, 26 Nov): a 3.5 in SWYFT Intake Wheel (vendor/ STEP: 88.74 mm across, 12.7 mm wide) on a
+# goBILDA Speed servo (continuous), the servo standing up flush to the chassis side, axle forward; today's straight arm
+# hits it between holes 5 and 7 (stations from the pivot). The position below is PLACED to reproduce exactly that
+# (the straight arm, down, meets these parts from hole 5.4 to 7.0) until the hole counts come.
 CORNER = dict(
     wheel_d=88.74,           # SWYFT Intake Wheel 3.5 in, from its STEP (vendor/)
-    wheel_w=0.5 * IN,        # SWYFT's page: "all 0.5\" wide"
-    wheel_front_x=10.35 * IN,  # PLACEHOLDER: inside the 18 in cube's front, X 10.43 in
-    wheel_y=7.0 * IN,        # PLACEHOLDER: axle |Y| (the rim then reaches |Y| 8.75, inside 9)
-    wheel_z=1.85 * IN,       # PLACEHOLDER: axle height (the rim 0.1 in off the tile)
-    servo_len=38.0,          # a standard servo body along its spline (X), without the spline
+    wheel_w=2 * 0.5 * IN,    # two SWYFT wheels side by side, no spacer (mentor, 26 Nov): 2 x 12.7 mm
+    wheel_front_x=9.5 * IN,  # PLACEHOLDER
+    wheel_y=7.0 * IN,        # PLACEHOLDER: axle |Y|
+    wheel_z=2.4 * IN,        # PLACEHOLDER: axle height (the rim 0.65 in off the tile)
+    servo_len=38.0,          # goBILDA Speed servo body along its spline (X), without the spline
     servo_w=20.0,            # across (Y), centred on the wheel's axle
-    servo_h=40.0,            # upright (Z), as the 25 Nov photos show: the spline 10 mm up from its bottom end, its top
-                             # about at the frame's lower channel
+    servo_h=40.0,            # upright (Z): the spline 10 mm up from its bottom end
     hub_gap=0.30 * IN,       # PLACEHOLDER: servo face to the wheel's back face (horn, hub)
-    mount_wall=4.0,          # PLACEHOLDER: the SWYFT mount around the servo, each side
+    mount_wall=4.0,          # PLACEHOLDER: the mount around the servo, each side
 )
 
 CLEARANCE = 4.0              # the brief's "about half a hole" (goBILDA 8 mm grid)
