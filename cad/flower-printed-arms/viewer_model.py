@@ -84,10 +84,16 @@ def main(out):
             a.invert()
         add(f"printed/printed arm, {side}", a)
         for name, s in corner_solids(side, real_wheel=True).items():
+            if name == "mount":
+                continue                       # the proposed bracket below stands in for it
             label = {"wheel": "SWYFT wheels", "screw": "wheel screw and washer (placed, not measured)"}.get(
                 name, name + " (placed, not measured)")
             add(f"corner/{label}, {side}",
                 solid_mesh(s))
+    import corner_bracket
+    br = corner_bracket.bracket_left()
+    for side in ("left", "right"):
+        add(f"corner/printed corner bracket (proposed), {side}", solid_mesh((br if side == "left" else br.mirror("XZ")).val()))
     scene.export(out)
     print(out, os.path.getsize(out) // 1024, "KB")
 

@@ -85,6 +85,26 @@ straight arm meets the servo and the wheels' top from hole 5.4 to 8.2, as the me
 - **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18). The corner wheels as drawn reach 10.65 in with the screw, but the mentor says the real ones sit behind the nose (1.7 in past the intake face).
 - **The Limelight:** no part of either printed arm enters its view (54.5° × 42°, pitched 45° up, from the 31 Oct CAD's camera) at any angle of the swing.
 
+## A printed corner bracket (proposed, 26 Nov)
+
+The mentor asked for a corner mount that is sturdier and easier to fit than today's, which bolts through the intake side
+channel's wall with nuts behind it, beside the slide. `corner_bracket.py` writes `corner_bracket_left.*` and
+`corner_bracket_right.*` (mirror images). The servo stays exactly where it is today: upright, flush against the
+channel, spline forward.
+
+- **A plate** sits flat on the front of the channel's front flange; the servo goes in from behind through a cutout and
+  its ears land on the plate's front face: four M4 x 16 from the front into M4 heat-set inserts (the plate is thickened
+  behind them, outboard of the channel).
+- **A tongue** runs back under the channel's open bottom: two M4 x 10 button heads up from underneath into the goBILDA
+  Dual Block's threaded holes inside the channel. No nuts behind the wall.
+- Two optional holes line up with the flange's holes, for M4 with nuts if you can reach; it doesn't need them.
+- **Fit:** it doesn't touch the servo (goBILDA's STEP), it's 18.8 mm from the wheels and 15.7 mm below the printed arm
+  at its closest (stick down). Against the 31 Oct CAD it only touches the channel, where it's meant to.
+- **Print:** PETG, plate face down, about 17 g and 1.8 h each.
+- **Where the channel is** comes from the 24 Nov robot STEP as measured on `claude/corner-module-wall-wip`
+  (`cad/corner-wheels/parts.py`), and that file mirrored the left from the right. Check on the robot before printing:
+  the channel's front face against the servo's ears (the plate fills a 4.3 mm gap), and the Dual Block's two holes.
+
 ## The tip, the feet and the FLOWER
 
 **What the tip touches during a pick** (the 31 Oct CAD, `FlowerFieldPoints`, `FlowerPicker`, the pick study):
