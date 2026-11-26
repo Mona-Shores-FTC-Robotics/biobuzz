@@ -7,6 +7,8 @@ Controls page and the printed cheat sheet are the only place for those.
 
 ## In the queue, with the partner
 
+- [ ] **At States: look the partner up** on the States Partner Lookup page (`tools/states-scout/README.md`):
+      it gives our Auto, its INIT settings and the questions to ask for that partner.
 - [ ] **Ask the partner when their last preload leaves**, in seconds after the start. Take their
       slowest honest answer. It is the one number we ask a partner.
 - [ ] **Agree who parks where**: R- Autos end on `RIGHT_PARK`, L-NoCross on `LEFT_PARK`. If the

@@ -1,0 +1,10 @@
+{
+  "_doc": "Hand-scouted facts that win over the score-based guess in build.py. Keys: archetype (an id in build.py's ARCHETYPES), side (RIGHT or LEFT), lastPreloadS (seconds after PLAY, from video), source (where it was seen), note (one line for the queue). Times are ours from video traces on the scouting branch's scouting/2026/partners.json.",
+  "teams": {
+    "10255": {"archetype": "RIGHT-SHOOT-PARK", "side": "RIGHT", "lastPreloadS": 2.1, "source": "video: Kentwood Q (8 matches), Fruitport Q + playoffs", "note": "Starts beside our RIGHT_START (51, 8); preloads tip it (8/8 at Kentwood), then corner pick, a LEFT volley from the scoring end, wall FLOWER, park. Parks late (~25 s); 2 of 16 no park."},
+    "11846": {"archetype": "RIGHT-SHOOT-PARK", "side": "RIGHT", "lastPreloadS": 6.5, "source": "video: Kentwood Q + playoffs (8 matches)", "note": "Right corner (10, 12), volley from (26, 13.5) ~3-6.5 s (its TIP swung 8-10 s), wall FLOWER pick ~11 s, second volley ~18 s, then parks. Slow first TIP: set the wait long."},
+    "11228": {"archetype": "RIGHT-SHOOT-PARK", "side": "RIGHT", "lastPreloadS": 3.8, "source": "video: Coloma Q + playoffs (8 matches)", "note": "Starts at (31, 9) on the audience wall, three preloads, last ball ~3.8 s (2.2-4.8); its CELL tipped 4/8. Parks at the red wall (15, 98) by ~8 s, then still. Out of our way early."},
+    "15104": {"archetype": "RIGHT-SHOOT-PARK", "side": "RIGHT", "lastPreloadS": 3.5, "source": "video: Battle Creek M-11 only", "note": "Starts beside our RIGHT_START; preloads ~1.5-3.5 s, waits on RIGHT_AUTO_HIVE (59, 21) 7-19 s, wall FLOWER, second volley ~25 s, late park. Sits on our right launch spot: never run an R- Auto beside it."},
+    "24371": {"archetype": "RIGHT-SHOOT-PARK", "source": "FTCScout only", "note": "Leave and park reliable lately (every match at its last meet). Start side not seen: ask."}
+  }
+}
