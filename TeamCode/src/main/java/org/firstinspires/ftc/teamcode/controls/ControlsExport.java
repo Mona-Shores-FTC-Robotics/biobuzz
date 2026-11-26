@@ -145,7 +145,7 @@ public final class ControlsExport {
     }
 
     /** {@code s} as a JSON string. */
-    static String quote(String s) {
+    public static String quote(String s) {
         StringBuilder b = new StringBuilder("\"");
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

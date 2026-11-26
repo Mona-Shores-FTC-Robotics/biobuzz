@@ -52,6 +52,11 @@ public final class Display {
         Level(String color) {
             this.color = color;
         }
+
+        /** The colour as HTML ({@code #4CAF50}), for an export that draws the page elsewhere. */
+        public String color() {
+            return color;
+        }
     }
 
     private static final Page[] PAGES = Page.values();
@@ -192,8 +197,13 @@ public final class Display {
     /** The first line of every page: where you are and how to move on. */
     public void header() {
         used = 0;
-        add("<b>" + page.title + "</b>  <small>(" + (page.ordinal() + 1)
-                + "/" + PAGES.length + " · Share (Back) for next page)</small>");
+        add(headerLine(page));
+    }
+
+    /** {@link #header}'s line on {@code page}. */
+    public static String headerLine(Page page) {
+        return "<b>" + page.title + "</b>  <small>(" + (page.ordinal() + 1)
+                + "/" + PAGES.length + " · Share (Back) for next page)</small>";
     }
 
     /** A bold heading. */

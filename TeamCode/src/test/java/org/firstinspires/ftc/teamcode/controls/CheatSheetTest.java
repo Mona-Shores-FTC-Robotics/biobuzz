@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.controls;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.opmodes.MatchPageExport;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.junit.Test;
 
@@ -20,7 +21,8 @@ import java.util.Map;
  *
  * <p>It also keeps {@code TeamCode/cheat-sheets/controls.json} ({@link ControlsExport}), the same
  * layout as data for the Visualizer's driver drill: it rewrites the file and fails while the committed
- * copy was stale, so running the tests once and committing the file brings it up to date.
+ * copy was stale, so running the tests once and committing the file brings it up to date. The same
+ * goes for {@code match-page.json}, the TeleOp's Match page.
  *
  * <p>A team's logo is {@code TeamCode/cheat-sheets/logo-<number>.jpg} (or {@code .png}, {@code .svg});
  * without one the sheet draws an emblem in the team's colours.
@@ -61,6 +63,23 @@ public class CheatSheetTest {
             Files.write(file.toPath(), json.getBytes(StandardCharsets.UTF_8));
         }
         assertEquals("TeamCode/cheat-sheets/controls.json was stale and has been rewritten: commit it", json, committed);
+    }
+
+    /**
+     * {@code TeamCode/cheat-sheets/match-page.json} ({@code MatchPageExport}), the TeleOp's Match page as
+     * data for the drill's simulated Driver Station: rewritten here, and a failure while the committed
+     * copy was stale. {@code MatchPageExportTest} checks the samples are the helpers' own lines.
+     */
+    @Test
+    public void matchPageExportIsCommittedUpToDate() throws IOException {
+        File teamCode = new File("src").isDirectory() ? new File(".") : new File("TeamCode");
+        File file = new File(new File(teamCode, "cheat-sheets"), "match-page.json");
+        String json = MatchPageExport.json();
+        String committed = file.isFile() ? new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8) : "";
+        if (!committed.equals(json)) {
+            Files.write(file.toPath(), json.getBytes(StandardCharsets.UTF_8));
+        }
+        assertEquals("TeamCode/cheat-sheets/match-page.json was stale and has been rewritten: commit it", json, committed);
     }
 
     /** The team's logo as a data URI, or null when there is none in the folder. */
