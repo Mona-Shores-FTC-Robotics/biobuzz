@@ -149,17 +149,13 @@
                  and EXTENDED are not yet measured on it (doc/robot-todo.md). -->
             <Servo name="flowerStick" port="5" />
 
-            <!-- Corner wheels (CornerWheelSubsystem, doc/corner-wheels.md): a prototype,
-                 not fitted (24 Nov 2026). Planned on this hub's servo ports 1 (left) and
-                 2 (right), free on both robots. When wired, uncomment with the real ports
-                 and add the RobotDifferences line (CornerWheelSubsystem.fitted = true).
-                 Full TeamCode install, then Activate. With one servo only, keep
-                 cornerWheelLeft and set rightServo = false. Servo count: R503 allows 8.
-                 19429 has 7 servos without these, so both would make 9:
-                 doc/corner-wheels.md has the options.
+            <!-- Corner wheels (CornerWheelSubsystem, doc/corner-wheels.md): two continuous
+                 servos on this hub's servo ports 1 (left, seen from behind the robot) and 2
+                 (right), the same as 20245 (mentor, 26 Nov 2026: both robots have them;
+                 CornerWheelSubsystem.fitted is on in the shared value). Servo count: R503
+                 allows 8, and 19429 has 9 with these: an open item in doc/robot-todo.md. -->
             <ContinuousRotationServo name="cornerWheelLeft"  port="1" />
             <ContinuousRotationServo name="cornerWheelRight" port="2" />
-            -->
 
             <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
                  port 0, where the build team plugged it in (23 Oct 2026). -->

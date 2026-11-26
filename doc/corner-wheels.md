@@ -1,17 +1,31 @@
-# Corner wheels: do they fit, are they legal, and the centre-mounted stick
+# Corner wheels
 
-The idea (mentor, 23 Nov 2026): stop using the FLOWER stick for GARDEN and corner gathers. Put a small wheel on
-a vertical axle at each front corner of the intake, spinning inward, so a POLLEN that touches the robot's corner,
-or sits pinned against a wall there, gets raked into the intake mouth. The intake is not widened.
+**Both robots have them** (mentor, 26 Nov 2026, after robot testing: they "worked very, very well"). At each front
+corner of the intake sits a **3.5 in SWYFT Intake Wheel** on a 1/2 in hex axle, **upright**: the axle points
+forward, the servo sits behind the wheel, and the wheel's bottom edge sweeps inward. A POLLEN that touches the
+robot's corner, or sits pinned against a wall there, is raked into the intake mouth. The intake is not widened.
 
-**Short answer: yes, a 2.5 in wheel fits at each corner, ahead of the front drive wheels.** Drive each one with
-its own CR servo on the Expansion Hub. It is legal if the wheels stop when the robot holds 4 and stay off during
-FLOWER picks. The centre-mounted stick does not fit before States, and the study says it isn't needed.
-**19429 would have 9 servos with both wheels, one over R503's 8**; its options are in section 4. The code is in
-and off by default (section 5).
+- **Wiring, both robots:** a continuous-rotation servo per wheel on the **Expansion Hub, servo port 1**
+  (`cornerWheelLeft`, left seen from behind the robot) and **port 2** (`cornerWheelRight`).
+- **Code:** `CornerWheelSubsystem`, `fitted` on in the shared value (section 5). The wheels spin only while the
+  intake takes in, the robot holds fewer than 4, no wrong NECTAR may be in, and the FLOWER stick is up.
+- **The GARDEN gather keeps the FLOWER stick up**, in the TeleOp and in every Auto (`GardenGather.stick.useStick`,
+  off): the robot drives into the corner with the intake running and the wheels rake. The stick is still the FLOWER
+  pick's.
+- **Measured from the mentor's clip (26 Nov 2026):** the intake grabs a ball about 1.2 in ahead of the wheel faces,
+  and a wheel moves a ball pressed against it inward at about 6.3 in/s. The Visualizer's GARDEN page predicts a
+  corner row 3 of 4, a packed GARDEN 1 of 4 and a scattered one 0 of 4; none of those is checked yet.
+- **Servo count:** 19429 has 9 servos with these, one over R503's 8 (section 4). The mentor has set it aside for
+  now; it is an open item in [`doc/robot-todo.md`](robot-todo.md).
+- **Still to check on the robot:** each wheel's direction on **Bench: Corner wheels**, and GARDEN gathers with the
+  stick up ([`doc/robot-todo.md`](robot-todo.md), "Corner wheels").
 
-Prototype parts: [`cad/corner-wheels/`](../cad/corner-wheels/README.md). The build team's 10-minute hand test is
-in [`doc/robot-todo.md`](robot-todo.md) ("Corner wheels").
+**History.** The idea came on 23 Nov 2026: stop using the FLOWER stick for GARDEN and corner gathers. The study
+below (sections 1 to 4) was written for that first design, a flat 2.5 in TPU wheel on a vertical axle with the
+servo hanging above it. The built wheel is the upright SWYFT wheel above, so section 1's fit numbers describe the
+studied design, not the built one; the rules (section 2) and the servo budget (section 4) still apply. 20245 got
+its wheels on 25 Nov, 19429 on 26 Nov. Prototype parts of the first design:
+[`cad/corner-wheels/`](../cad/corner-wheels/README.md).
 
 ## Where the numbers come from
 
@@ -237,7 +251,7 @@ configurations." Its note adds that servos fitted for different events' configur
   - 19429 split them onto two servos on 13 Nov, and the doc doesn't say why.
   - Code: turn off the `IntakeSubsystem.rightStarWheel` line.
 
-## 5. The code: in, off by default
+## 5. The code
 
 `CornerWheelSubsystem`, on `Robot`.
 
@@ -245,9 +259,10 @@ configurations." Its note adds that servos fitted for different events' configur
 
 - Two optional CR servos, `DeviceNames.CORNER_WHEEL_LEFT` and `CORNER_WHEEL_RIGHT` (`DeviceNames.CORNER_WHEELS`,
   part of every competition robot's `RobotIdentity.optional`).
-- They are asked for only once a robot's `RobotDifferences` line sets `CornerWheelSubsystem.fitted = true`, and
-  the OpMode refuses to start if that robot's XML lacks one.
-- Both XMLs carry them commented out, on Expansion Hub servo ports 1 (left) and 2 (right), free on both robots.
+- `CornerWheelSubsystem.fitted` is on in the shared value (both robots, 26 Nov 2026), so they are asked for on
+  every competition robot, and the OpMode refuses to start if its XML lacks one. A robot without them turns
+  `fitted` off with a `RobotDifferences` line.
+- Both XMLs declare them on Expansion Hub servo ports 1 (left) and 2 (right).
 - **Check: Hardware** lists them with their switch.
 
 **When they spin:** inward at `power` only when all of these hold (`CornerWheelSubsystem.stopFor`):
@@ -269,9 +284,13 @@ Otherwise each servo gets 0, one write per loop.
 - `CornerWheelSubsystemTest` checks each stop rule, and that a fitted robot without the servo fails loudly.
 
 **Bench: Corner wheels** (Utility) spins each wheel for the hand test and flips each one's direction (`leftReversed`,
-`rightReversed`). It needs the servos in the XML, not the `RobotDifferences` line.
+`rightReversed`). It needs the servos in the XML, not `fitted`. The directions are shared by both robots until the
+bench shows they differ.
+
+**The GARDEN gather** (`GardenGather`, the TeleOp's button and both Auto cards) keeps the stick up and relies on the
+wheels; `GardenGather.stick.useStick` on brings back the old stick-down gather. The simulator does not model the
+wheels yet: its GARDEN gather takes POLLEN by the mouth's touch alone (a TODO in `AutoSim`, with the clip's numbers).
 
 **Still to do:**
 
-- An Auto GARDEN or corner gather that keeps the stick up.
 - `LoopTimeBaseline` before and after, on the robot (`doc/robot-todo.md`).

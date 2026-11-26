@@ -11,28 +11,20 @@ import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 /**
- * The corner wheels (mentor, 23 Nov 2026; {@code doc/corner-wheels.md}): a TPU wheel on a vertical axle
- * ahead of each front drive wheel, spun inward by a continuous-rotation servo, so a POLLEN at the robot's
- * corner, or pinned on a wall there, is raked into the intake mouth. A prototype: <b>off until a robot has
- * them</b>, as the beam breaks are ({@link BeamBreakSubsystem}).
- *
- * <h2>Turning them on, the day they are fitted</h2>
- *
- * <ol>
- *   <li>Wire each servo to an Expansion Hub servo port and uncomment its line in that robot's
- *       {@code res/xml/robot_<team>.xml} with that port: {@code <ContinuousRotationServo
- *       name="cornerWheelLeft" port="N" />} ({@code cornerWheelRight} for the right one).</li>
- *   <li>One {@code RobotDifferences} line under that robot, with the date:
- *       {@code () -> CornerWheelSubsystem.fitted = true}. A robot with one servo only (one corner, or both
- *       wheels on one belt) adds {@code rightServo = false} to the same line and wires that servo as
- *       {@code cornerWheelLeft}.</li>
- *   <li>Full TeamCode install (an XML changed), Activate the config, run <b>Check: Hardware</b>, then
- *       <b>Bench: Corner wheels</b> to set each wheel's direction ({@link #leftReversed},
- *       {@link #rightReversed}).</li>
- * </ol>
+ * The corner wheels ({@code doc/corner-wheels.md}): a 3.5 in SWYFT Intake Wheel at each front corner, upright,
+ * its 1/2 in hex axle pointing forward and its servo behind it, the wheel's bottom edge sweeping inward, so a
+ * POLLEN at the robot's corner, or pinned on a wall there, is raked into the intake mouth. Each is spun by a
+ * continuous-rotation servo. <b>Both robots have them</b> (mentor, 26 Nov 2026, after robot testing: "worked
+ * very, very well"), on Expansion Hub servo ports 1 ({@code cornerWheelLeft}) and 2 ({@code cornerWheelRight}),
+ * so {@link #fitted} is on in the shared value. The GARDEN gather relies on them, with the FLOWER stick up
+ * ({@code GardenGather.Stick#useStick}).
  *
  * <p>With {@link #fitted} on, the constructor asks for each servo and the OpMode refuses to start if the XML
- * lacks one. With it off, nothing is looked up and nothing is written: the robot runs exactly as before.
+ * lacks one. A robot without them (a new chassis) gets a {@code RobotDifferences} line,
+ * {@code () -> CornerWheelSubsystem.fitted = false}; one with a single servo (one corner, or both wheels on one
+ * belt) adds {@code rightServo = false} and wires that servo as {@code cornerWheelLeft}. Each wheel's direction
+ * is set on <b>Bench: Corner wheels</b> ({@link #leftReversed}, {@link #rightReversed}), shared until the bench
+ * shows the robots differ.
  *
  * <h2>When they spin</h2>
  *
@@ -59,8 +51,11 @@ import java.util.function.IntSupplier;
 @Configurable
 public class CornerWheelSubsystem implements Subsystem {
 
-    /** The corner wheels are fitted on this robot: a {@code RobotDifferences} line turns them on. */
-    public static boolean fitted = false;
+    /**
+     * The corner wheels are fitted on this robot. On for both robots (mentor, 26 Nov 2026); a robot without them
+     * turns it off with a {@code RobotDifferences} line.
+     */
+    public static boolean fitted = true;
 
     /**
      * The right wheel has its own servo, {@link DeviceNames#CORNER_WHEEL_RIGHT}. Off: the robot has one servo

@@ -13,15 +13,18 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * Gathers from the nearest GARDEN the way the FLOWER pick works: the FLOWER stick down and the
- * intake on, a drive in to the GARDEN's gather pose (plus {@link DriveIn#extraDepthIn}), a dwell, and a
- * drive back to where the drive in started, the stick coming up once the robot has backed
- * {@link Stick#retractAfterBackIn} out. The sequence is {@link GrabRoutine}'s, shared with the FLOWER
+ * Gathers from the nearest GARDEN: the intake on, the FLOWER stick stowed, a drive in to the GARDEN's
+ * gather pose (plus {@link DriveIn#extraDepthIn}), a dwell, and a drive back to where the drive in
+ * started. The corner wheels ({@code CornerWheelSubsystem}) rake the corner and the wall's POLLEN into
+ * the mouth while the intake takes in. The sequence is {@link GrabRoutine}'s, shared with the FLOWER
  * pick; this class says where a GARDEN is and what the mechanisms do.
  *
- * <p>The stick went in on 30 Oct 2026: a drive in with the intake alone did not reach deep enough
- * into the GARDEN. A sweep, coming in at an angle, or another helper is a change here, and every
- * Auto that gathers gets it.
+ * <p><b>The stick stays up</b> ({@link Stick#useStick} off, mentor, 26 Nov 2026, after robot testing: the
+ * corner wheels "worked very, very well", and both robots have them). The stick went in on 30 Oct 2026,
+ * when a drive in with the intake alone did not reach deep enough into the GARDEN; the corner wheels
+ * replace it here. It is still the FLOWER pick's. {@link Stick#useStick} on brings the old gather back
+ * whole: the stick down for the drive in, its wait, and its early lowering on an Auto's drive to the card.
+ * A change to the gather is a change here, and every Auto that gathers gets it.
  *
  * <p>The driver's GARDEN gather button runs it while held (BasicDriveTeleOp; the button is in
  * {@code controls/ControlScheme}), lining up first at the GARDEN's line-up pose
@@ -35,7 +38,7 @@ import java.util.function.Consumer;
  * and back out, mirrored to the wall the robot runs along. An Auto's card is unchanged: its own
  * GARDEN, facing the audience wall.
  *
- * <p><b>In an Auto the stick comes down on the drive to the card.</b> The path card before a
+ * <p><b>With {@link Stick#useStick} on, in an Auto the stick comes down on the drive to the card.</b> The path card before a
  * {@code GardenGather} card runs this gather's {@link #approach} ({@code AutoKit},
  * {@code AutoRegistry.Approach}): over the last {@link AutoStick#approachLowerWithinIn} of that drive the stick
  * goes down and the intake starts, so the stick is down when the card starts ({@link #readySinceNs}).
@@ -44,9 +47,10 @@ import java.util.function.Consumer;
  * turning or facing another way</b> ({@link #lowerOnApproach}): the drive must end facing the GARDEN,
  * and the robot must have held that facing (to {@link AutoStick#approachFacingDeg}) for {@link AutoStick#facingHoldMs}.
  * So only a drive whose turn is finished early gains the time; one that turns all the way in
- * (R-NoCross's) leaves the stick to the card, as before.
+ * (R-NoCross's) leaves the stick to the card, as before. With the stick up (the default) the approach does
+ * nothing, and the card starts the intake itself.
  *
- * <p><b>What the logs say (72 gathers on both robots that drove in, 1 to 14 Nov 2026):</b> with the
+ * <p><b>What the logs said with the stick (72 gathers on both robots that drove in, 1 to 14 Nov 2026):</b> with the
  * stick down the robot stops with the stick on the audience wall, its centre about 13 in out. That
  * is the stick doing its job: it is the ramp the GARDEN's POLLEN pop over as the robot drives in
  * (mentor, 13 Nov 2026: three come over it; the corner one is a mechanical fix, printed guides on
@@ -145,13 +149,15 @@ public final class GardenGather extends GrabRoutine {
     /** The FLOWER stick: whether it is used, when it goes down on the button's line-up or an Auto's card, and when it comes back up. */
     public static final class Stick {
         /**
-         * The FLOWER stick goes down for the gather. Off: the stick stays in, there is no stick wait,
-         * and the drive in aims {@link DriveIn#noStickExtraDepthIn} deeper, so the intake itself goes all the
-         * way to the audience wall. A test (mentor, 6 Nov 2026) of whether the stick helps at all: it
-         * went in on 30 Oct because the intake alone did not reach deep enough, but that was the
-         * diagonal drive in, which stopped short anyway.
+         * The FLOWER stick goes down for the gather. Off (the default): the stick stays in, there is no stick
+         * wait, an Auto's drive to the card lowers nothing ({@link #approach}), and the drive in aims
+         * {@link DriveIn#noStickExtraDepthIn} deeper; the corner wheels rake instead. Off since 26 Nov 2026
+         * (mentor, after robot testing: the corner wheels "worked very, very well", both robots get them, and
+         * the GARDEN gather no longer lowers the stick, in any Auto or the TeleOp). On: the gather as it was
+         * from 30 Oct, the stick down for the drive in, with every rule below. The stick numbers in this class
+         * apply only with it on.
          */
-        public boolean useStick = true;
+        public boolean useStick = false;
         /**
          * The stick goes down and the intake starts once the robot is this close to the line-up,
          * inches, and faces the GARDEN to within {@link Stick#lowerWithinDeg}. The GARDEN is in a corner, so
@@ -285,10 +291,13 @@ public final class GardenGather extends GrabRoutine {
         public double extraDepthIn = -3.0;
         /**
          * Without the stick ({@link Stick#useStick} off), how much deeper the drive in aims, inches, on top of
-         * {@link DriveIn#extraDepthIn}: the gather pose puts the nose 1.5 in beyond the robot's front at the
-         * wall, and a drive in that meets the wall first just stalls there, so a little more is safe.
+         * {@link DriveIn#extraDepthIn}. 0 since 26 Nov 2026 (2 before): the drive in ends where it did with the
+         * stick down, the path tuned on 20 Nov ({@link DriveIn#extraDepthIn}), since the logs showed the robot
+         * meeting the wall within about 1 in of the gather pose with the stick down too, and the dwell's push
+         * closes the rest. More is safe (a drive in that meets the wall first just stalls there) if the gather
+         * stops short with the stick up.
          */
-        public double noStickExtraDepthIn = 2.0;
+        public double noStickExtraDepthIn = 0.0;
         /**
          * The drive in curves over to the side wall first: from wherever it starts (the button's line-up
          * spot, or GARDEN_STAGING where an Auto's card starts) it is a Pedro curve whose control point is

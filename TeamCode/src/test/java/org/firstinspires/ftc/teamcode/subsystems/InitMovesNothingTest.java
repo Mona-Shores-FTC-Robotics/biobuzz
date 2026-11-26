@@ -284,14 +284,21 @@ public class InitMovesNothingTest {
 
     @Test
     public void cornerWheelsNotFittedLookUpAndWriteNothing() {
-        Devices devices = new Devices();
-        CornerWheelSubsystem wheels = new CornerWheelSubsystem(devices.map);
-        wheels.watch(() -> true, () -> false, () -> 0, () -> false, () -> false);
-        runInit(wheels, devices);
-        wheels.start();
-        wheels.update();
-        assertFalse(wheels.present());
-        assertEquals(CornerWheelSubsystem.Why.NOT_FITTED, wheels.why());
+        // Both robots have them (fitted is on in the shared value); a robot without them turns it off.
+        boolean was = CornerWheelSubsystem.fitted;
+        CornerWheelSubsystem.fitted = false;
+        try {
+            Devices devices = new Devices();
+            CornerWheelSubsystem wheels = new CornerWheelSubsystem(devices.map);
+            wheels.watch(() -> true, () -> false, () -> 0, () -> false, () -> false);
+            runInit(wheels, devices);
+            wheels.start();
+            wheels.update();
+            assertFalse(wheels.present());
+            assertEquals(CornerWheelSubsystem.Why.NOT_FITTED, wheels.why());
+        } finally {
+            CornerWheelSubsystem.fitted = was;
+        }
     }
 
     @Test

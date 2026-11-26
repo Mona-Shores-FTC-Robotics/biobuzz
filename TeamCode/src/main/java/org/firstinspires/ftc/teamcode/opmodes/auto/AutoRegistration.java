@@ -299,13 +299,14 @@ public final class AutoRegistration {
                 .grab("PickFlower", PICK_FLOWER_TYPICAL_S, () -> FlowerPicker.command(robot, note, registry::grantGrabSeconds),
                         robot == null ? null : FlowerPicker.approach(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's GARDEN gather button. It drives in
-                // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract). The
-                // drive before it lowers the stick on the way in once it faces the GARDEN (its approach).
+                // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract), the
+                // FLOWER stick up and the corner wheels raking. Its approach lowers the stick on the drive before
+                // it only with GardenGather.stick.useStick on (off since 26 Nov 2026); otherwise it does nothing.
                 .grab("GardenGather", GARDEN_GATHER_TYPICAL_S, () -> GardenGather.command(robot, note),
                         robot == null ? null : GardenGather.approach(robot, note))
                 // ---- real: the same gather the other way in (GardenGather.AlongWall): along the audience wall into
                 // the corner, facing the side wall, with no drive back; it hands over to the next path 1 in out.
-                // The drive before it lowers the stick once it faces the side wall along that wall.
+                // Stick up as well; its approach, as the corner gather's, acts only with useStick on.
                 .grab("GardenGatherAlongWall", GARDEN_GATHER_ALONG_WALL_TYPICAL_S,
                         () -> GardenGather.alongWallCommand(robot, note),
                         robot == null ? null : GardenGather.alongWallApproach(robot, note))

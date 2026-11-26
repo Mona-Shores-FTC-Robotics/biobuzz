@@ -82,12 +82,29 @@ public class GardenGatherTest {
      */
     @Test
     public void theDriveInLowersTheStickOnceCloseAndTheTurnIsOver() {
-        assertEquals("30 in from the drive's end: not yet", false, GardenGather.lowerOnApproach(30.0, 1000));
-        assertEquals("22 in from the end, facing for a second: now", true, GardenGather.lowerOnApproach(22.0, 1000));
-        assertEquals("just turned to face it: not yet", false, GardenGather.lowerOnApproach(22.0, 50));
-        // R-NoCross turns half a turn evenly on its way in: it faces the GARDEN only for its last 0.1 s.
-        assertEquals("facing for 100 ms, 2 in out: the card lowers it, standing", false,
-                GardenGather.lowerOnApproach(2.0, 100));
+        boolean was = GardenGather.stick.useStick;
+        try {
+            GardenGather.stick.useStick = true;
+            assertEquals("30 in from the drive's end: not yet", false, GardenGather.lowerOnApproach(30.0, 1000));
+            assertEquals("22 in from the end, facing for a second: now", true, GardenGather.lowerOnApproach(22.0, 1000));
+            assertEquals("just turned to face it: not yet", false, GardenGather.lowerOnApproach(22.0, 50));
+            // R-NoCross turns half a turn evenly on its way in: it faces the GARDEN only for its last 0.1 s.
+            assertEquals("facing for 100 ms, 2 in out: the card lowers it, standing", false,
+                    GardenGather.lowerOnApproach(2.0, 100));
+        } finally {
+            GardenGather.stick.useStick = was;
+        }
+    }
+
+    /**
+     * The GARDEN gather keeps the FLOWER stick up by default (mentor, 26 Nov 2026: the corner wheels rake instead),
+     * so no Auto's drive to a gather lowers it, and the drive in ends where the stick-down gather's did.
+     */
+    @Test
+    public void theGatherKeepsTheStickUpByDefault() {
+        assertEquals(false, new GardenGather.Stick().useStick);
+        assertEquals("the approach lowers nothing", false, GardenGather.lowerOnApproach(2.0, 10_000));
+        assertEquals("the same drive in as with the stick", 0.0, new GardenGather.DriveIn().noStickExtraDepthIn, 0.0);
     }
 
     /** Facing is within lowerWithinDeg (10°) of the GARDEN's heading: red's 270°, blue's 90°. */

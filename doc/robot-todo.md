@@ -257,39 +257,41 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       pieces and dwells as before. **Stop:** a loaded FLOWER's pick ends at 1.3 s with pieces left in it →
       `FlowerPicker.dwell.dwellEmptyMs` 0 (off, as before) and bring the logs. [PR #724]
 
-## Corner wheels: the build team's 10-minute hand test (23 Nov idea, either robot)
+## Corner wheels and the stick-up GARDEN gather (Saturday 28 Nov 2026, both robots)
 
-- [ ] **Does an inward-spinning corner wheel rake a POLLEN into the mouth?**
-  - **Set up:**
-    - Zip-tie a CR servo with any 2 to 2.5 in soft wheel (TPU, or a SWYFT star wheel) on a vertical axle at
-      one front corner, ahead of the drive wheel: about X 8.9, 6.9 in out from the centre line, the wheel's
-      middle about 1.4 in off the tile. The numbers and a printable wheel are in `doc/corner-wheels.md` and
-      `cad/corner-wheels/`.
-    - Plug it into **Expansion Hub servo port 1**. Uncomment `cornerWheelLeft` in that robot's XML (both
-      XMLs have it on port 1), then do a full TeamCode install and Activate.
-    - Run **Bench: Corner wheels** (Utility). Cross starts the wheel; Square flips it until its front moves
-      inward. No `RobotDifferences` line is needed for the bench.
-    - Or use a servo tester in continuous mode, with no code at all.
-    - Push the robot by hand with the stick up and the intake running (Basic Drive, intake held).
-  - **Do, 5 times each:**
-    1. Nose-in to a wall with a POLLEN pinned at that corner.
-    2. Along a wall with a POLLEN against the frame's corner.
-    3. With 4 balls already in the lane: the wheel must not drag in a 5th (G407).
-  - **Film from above.**
-  - **Good:** 4 of 5 of runs 1 and 2 end with the ball at the roller; the stick, lowered by hand, clears the wheel
-    and the servo.
-  - **Stop:** a ball wedged between the wheel and the drive wheel, or bounced off. Bring the clip to the corner-wheel
-    PR. [PR #740]
-  - **19429 counts servos first:** two wheels would make 9, one over R503's 8. Its options are in
-    `doc/corner-wheels.md` §4.
-- [ ] **Once fitted for real, before a match:**
-  1. Add the `RobotDifferences` line `CornerWheelSubsystem.fitted = true`, plus `rightServo = false` for a robot
-     with one servo, and set `leftReversed` and `rightReversed` from the bench.
-  2. Run **Check: Hardware**: both servos read "ok", with the switch on.
-  3. In Basic Drive, the Robot page's "Corner wheels" line reads "raking" only while intake is held with the stick
-     up and fewer than 4 in.
-  4. Run **LoopTimeBaseline** before the line goes in and after, and put both numbers in the PR (CLAUDE.md, Loop
-     time).
+Both robots have the corner wheels on Expansion Hub servo ports 1 (left) and 2 (right), and
+`CornerWheelSubsystem.fitted` is on for both in the shared value; the GARDEN gather keeps the FLOWER stick
+up in the TeleOp and every Auto (`GardenGather.stick.useStick` off; mentor, 26 Nov 2026). Full TeamCode
+install on 19429 first (its XML changed), Activate, then **Check: Hardware**: both servos read "ok". A
+tripod over the GARDEN corner, filming from above. `doc/corner-wheels.md` has the design.
+
+- [ ] **Bench: Corner wheels, each robot.** Cross spins each wheel; Square / Circle flip `leftReversed` /
+      `rightReversed` until each wheel's bottom edge sweeps inward. **Good:** both robots need the shared
+      values (`leftReversed` false, `rightReversed` true). **Otherwise:** a robot that needs a flip gets a
+      `RobotDifferences` line with the date; if both need the same flip, change the shared value.
+- [ ] **Basic Drive, the Robot page's "Corner wheels" line,** each robot: "raking" only while intake is held,
+      the stick up and fewer than 4 in; "FLOWER stick down" with the stick out; "holds 4" with a full lane.
+- [ ] **TeleOp GARDEN gather (driver Triangle), stick up, each robot,** 5 times facing the audience wall and
+      5 facing the side wall, the GARDEN staged as the field model has it. **Good:** the stick never moves, the
+      log has no "stick down" line, and the count each time (`read_logs.py volleys` after a volley, not the lane
+      counter) is 3 or 4. **Tune:** stops short of the wall → `GardenGather.driveIn.noStickExtraDepthIn` 1 to 2;
+      the line-up starts far back now that no stick needs room → try `lineUp.lineUpBackIn` 6.
+      **Stop:** a ball wedged between a wheel and a drive wheel, or the robot climbing a ball → bring the clip.
+- [ ] **Each Auto that gathers, stick up, once per robot it runs on:** L-Clockwise and R-Clockwise (Pickup
+      GARDEN), L-LeftUnderHive, R-NoCross, and **Drive: L-LeftUnderHive-StrangeGarden** (Utility,
+      its `GardenGatherAlongWall`). **Good:** no "stick down on the drive in" line, the gather's log line has no stick
+      wait, and its time is within `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3.0 s; along the wall 2.0 s).
+      Write each gather's time and count on the PR.
+- [ ] **Tripod clips of four GARDEN layouts,** stick up, the TeleOp gather facing the audience wall, 3 runs each:
+      the staged **row** against the audience wall, a ball pinned in the **corner**, the 4 **packed** together,
+      and **scattered** within a robot width of the corner. Count each. The simulator does not model the wheels
+      yet (a TODO in `AutoSim`); the Visualizer's GARDEN page predicts row 3/4, packed 1/4 and scattered 0/4,
+      unverified, so these counts are what it gets calibrated from.
+- [ ] **LoopTimeBaseline** on each robot, against the last number before the wheels, both in the PR (CLAUDE.md,
+      Loop time).
+- [ ] **Open: R503's servo count on 19429.** With both corner wheels it has 9 servos (the indicator light not
+      counted), one over R503's 8. The mentor has set it aside for now (26 Nov 2026); the options are in
+      `doc/corner-wheels.md` §4. Settle it before inspection at the next event.
 
 ## The GARDEN guides on the FLOWER sticks (24 Nov 2026, both robots, stick out on the bench)
 
