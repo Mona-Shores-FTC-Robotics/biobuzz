@@ -54,7 +54,20 @@ what's drawn.
 between holes 5.2 and 7.0, as the mentor saw. The rest of the robot: the 31 Oct CAD (no corner wheels, no transfer).
 `clearance.json` has every number.
 
-CLEARANCE_TABLE
+| | Left | Right |
+|---|---|---|
+| Today's straight arm to the wheels | **0: hits** | **0: hits** |
+| Printed arm to the wheels | 8.2 mm (0.32 in) at 162° | 4.5 mm (0.18 in) at 162° |
+| Printed arm to the servo | 31.8 mm (1.25 in) at 162° | 27.1 mm (1.07 in) at 162° |
+| Printed arm to the mount | 25.2 mm (0.99 in) at 162° | 21.0 mm (0.83 in) at 162° |
+| Printed arm to the rest of the robot (31 Oct CAD) | 0.3 mm (0.01 in) at 159° | 9.2 mm (0.36 in) at 162° |
+| Today's arm to the rest of the robot | 0.1 mm (0.00 in) at 162° | 3.8 mm (0.15 in) at 162° |
+| Skid to the corner parts (nearest: the wheels) | 66.0 mm (2.60 in) at 162° | 64.7 mm (2.55 in) at 162° |
+
+- **Minimum gap to the corner parts:** 8.2 mm left, 4.5 mm right, both at the wheels' top with the stick down; the target is 4 mm.
+- **The rest of the robot:** the printed arm comes no closer than today's channel does. The 0.1–0.3 mm on the left is at the pivot end, beside the stick's servo, and the same for both.
+- **R102, stowed:** the printed pieces reach X 6.71 in (the cube's front is 10.43) and Z 16.42 in (18).
+- **Down:** the front of the arm is at X 13.39 in, today's roller's reach.
 
 ## The tip, the feet and the FLOWER
 
@@ -79,7 +92,15 @@ not offered:** at the contact standoff it would reach the wall before the FLOWER
 
 `torque.py`: the gravity moment about the pivot, both arms, through the swing (kg·cm).
 
-TORQUE_TABLE
+| | Today | Printed |
+|---|---|---|
+| Stick mass (both arms, tip parts, shaft, mountain) | 460 g | 401 g |
+| Holding torque, stowed (0°) | 4.0 kg·cm | 3.5 kg·cm |
+| Holding torque, down for a pick (162°) | 6.3 kg·cm | 5.6 kg·cm |
+| Worst, through the swing | 9.1 kg·cm at 116° | 7.9 kg·cm at 117° |
+| Margin to 25 kg·cm stall | 2.7× | 3.2× |
+
+Down, the feet rest on the tile, so the servo holds less than the 162° figure. The steel shaft (123 g) and the mountain (100 g) are over half the stick and sit at the tip; the printed arms save about 15 g of arm and the tip plates and rollers.
 
 The FLOWER-stick servo is a SWYFT (the label in the 26 Nov clip reads "BALANCE"; the Hub says Torque). SWYFT's table
 gives Balance 27.3 and Torque 33.5 with no unit; read as kg·cm. The margins above are against goBILDA Torque's
@@ -90,7 +111,11 @@ gives Balance 27.3 and Torque 33.5 with no unit; read as kg·cm. The margins abo
 PrusaSlicer 2.7, PETG, 0.4 nozzle, 0.2 mm layers, 4 walls, 40 % gyroid, a 250 × 210 bed (`slice.ini`; `slice-fast.ini`
 is a faster printer). `print-estimates.json`.
 
-PRINT_TABLE
+| Part | PETG | Prusa MK3/MK4-class | Faster printer |
+|---|---|---|---|
+| arm (print 2) | 68 g | 4h 31m 8s | 2h 58m 41s |
+| arm, hex pivot | 68 g | 4h 31m 54s | 2h 59m 21s |
+| skid (print 2) | 6 g | 37m 39s | 31m 28s |
 
 Today's aluminium arm is ESTIMATED at 75 g (weigh one).
 

@@ -45,7 +45,7 @@ def robot_crop():
 
 def corner_meshes(side):
     out = []
-    for name, s in corner_solids(side).items():
+    for name, s in corner_solids(side, real_wheel=True).items():
         v, f = s.tessellate(0.5)
         out.append(trimesh.Trimesh([[p.x, p.y, p.z] for p in v], f))
     return out

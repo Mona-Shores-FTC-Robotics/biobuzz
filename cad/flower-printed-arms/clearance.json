@@ -1,0 +1,172 @@
+{
+ "units": "mm and in",
+ "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and mount PLACEHOLDERS (geometry.CORNER) until measured",
+ "sides": {
+  "left": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 156.0
+     },
+     "servo": {
+      "mm": 21.6,
+      "in": 0.85,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 14.9,
+      "in": 0.59,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 0.1,
+      "in": 0.0,
+      "at_deg": 162.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 8.2,
+      "in": 0.32,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 31.8,
+      "in": 1.25,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 25.2,
+      "in": 0.99,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 0.3,
+      "in": 0.01,
+      "at_deg": 159.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 66.0,
+      "in": 2.6,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 107.3,
+      "in": 4.22,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 98.9,
+      "in": 3.89,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 59.7,
+      "in": 2.35,
+      "at_deg": 42.0
+     }
+    }
+   }
+  },
+  "right": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 153.0
+     },
+     "servo": {
+      "mm": 13.6,
+      "in": 0.53,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 5.2,
+      "in": 0.2,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 3.8,
+      "in": 0.15,
+      "at_deg": 162.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 4.5,
+      "in": 0.18,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 27.1,
+      "in": 1.07,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 21.0,
+      "in": 0.83,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 9.2,
+      "in": 0.36,
+      "at_deg": 162.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 64.7,
+      "in": 2.55,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 104.7,
+      "in": 4.12,
+      "at_deg": 162.0
+     },
+     "mount": {
+      "mm": 96.6,
+      "in": 3.8,
+      "at_deg": 162.0
+     },
+     "rest of robot (31 Oct CAD)": {
+      "mm": 58.4,
+      "in": 2.3,
+      "at_deg": 42.0
+     }
+    }
+   }
+  }
+ },
+ "stowed": {
+  "front_x_in": 6.71,
+  "top_z_in": 16.42,
+  "lowest_z_in": 6.64,
+  "cube_front_x_in": 10.43,
+  "cube_top_z_in": 18.0
+ },
+ "down": {
+  "front_x_in": 13.39,
+  "top_z_in": 7.9,
+  "lowest_z_in": -0.16
+ },
+ "hump": {
+  "height_mm": 24.5,
+  "leaves_line_u_mm": 60.0,
+  "full_u_mm": [
+   116.0,
+   124.0
+  ],
+  "back_on_line_u_mm": 176.0,
+  "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
+ }
+}

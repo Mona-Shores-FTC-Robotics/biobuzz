@@ -69,7 +69,7 @@ WHEEL_STEP = os.path.join(HERE, "vendor", "SR-INTAKEWHEEL-3.5in-0.5inHEX-02.step
 _WHEEL = None
 
 
-def corner_solids(side):
+def corner_solids(side, real_wheel=False):
     """The corner's parts, robot frame: the SWYFT wheel from its STEP (its axle turned to point forward), the servo and
     its mount as boxes."""
     global _WHEEL
@@ -77,6 +77,9 @@ def corner_solids(side):
     for name, k in corner_boxes(side).items():
         if k[0] == "cyl":
             _, c, ax, r, h = k
+            if not real_wheel:                      # the wheels' outer cylinder: an envelope, and fast
+                out[name] = cq.Solid.makeCylinder(r, 2 * h, cq.Vector(*(c - ax * h)), cq.Vector(*ax))
+                continue
             if _WHEEL is None:
                 _WHEEL = cq.importers.importStep(WHEEL_STEP).val()
             # the STEP: axle on Z, faces at Z 0 and 12.7, centred on X = Y = 0. Z -> +X, X -> -Z.
@@ -129,7 +132,7 @@ def _row(d):
 
 
 def main():
-    report = {"units": "mm and in", "corner_parts": "SWYFT wheel from its STEP; servo and mount PLACEHOLDERS "
+    report = {"units": "mm and in", "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and mount PLACEHOLDERS "
                                                     "(geometry.CORNER) until measured", "sides": {}}
     tree = cKDTree(robot_points())
     angles = list(np.arange(0, SWING_DEG, 3.0)) + [SWING_DEG]
