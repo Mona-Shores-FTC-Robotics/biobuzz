@@ -24,26 +24,47 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
-      "name": "dead on its start",
-      "partner": "PartnerLBrokenDownAuto"
+      "name": "LEAVE-PARK (seen 11 of 32)",
+      "partner": "PartnerLeaveParkAuto"
     },
     {
-      "name": "stays out of the way",
+      "name": "STILL in the corner (seen 4 of 32)",
       "partner": "PartnerStillAuto"
     },
     {
-      "name": "parks at 15 s",
+      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
+      "partner": "PartnerZoneStillAuto"
+    },
+    {
+      "name": "LEFT-SHOOT-PARK on time (seen 3 of 32)",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "dead on its start (never seen)",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "parks at 15 s (never seen)",
       "partner": "PartnerPark1Auto"
     },
     {
-      "name": "contingency: our preloads miss, partner stays out of the way",
+      "name": "contingency: our preloads miss, partner LEAVE-PARK",
+      "partner": "PartnerLeaveParkAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner STILL in the corner",
       "partner": "PartnerStillAuto",
       "oursFails": "misses preloads"
     },
     {
-      "name": "contingency: our preloads miss, partner dead on its start",
+      "name": "contingency: our preloads miss, partner dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto",
       "oursFails": "misses preloads"
     },

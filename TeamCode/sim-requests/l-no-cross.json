@@ -22,24 +22,25 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
-      "name": "last shot at 2 s",
+      "name": "RIGHT-SHOOT-PARK, last shot at 2 s (seen 7 of 32)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 2
     },
     {
-      "name": "last shot at 5 s",
+      "name": "RIGHT-SHOOT-PARK, last shot at 5 s (seen 7 of 32)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 5
     },
     {
-      "name": "last shot at 8 s",
+      "name": "last shot at 8 s (later than any seen)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 8
     },
     {
-      "name": "last shot at 12 s",
+      "name": "last shot at 12 s (later than any seen)",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 12
     },
@@ -50,12 +51,34 @@
       "fails": "misses"
     },
     {
-      "name": "dead on its start, said 8 s",
+      "name": "RIGHT-SHOOT-PARK misses, said 5 s (seen 2 of 32)",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5,
+      "fails": "misses"
+    },
+    {
+      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 10.3 s (like 8513, Fruitport M-1)",
+      "partner": "PartnerRLaunchParkAuto",
+      "fails": "misses",
+      "timing": {
+        "startDelayS": 7
+      }
+    },
+    {
+      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 12.3 s",
+      "partner": "PartnerRLaunchParkAuto",
+      "fails": "misses",
+      "timing": {
+        "startDelayS": 9
+      }
+    },
+    {
+      "name": "dead on its start (never seen), said 8 s",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8
     },
     {
-      "name": "dead on its start, said 8 s, WAIT FOR PARTNER FIX",
+      "name": "dead on its start (never seen), said 8 s, WAIT FOR PARTNER FIX",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 8,
       "picks": {
@@ -86,7 +109,7 @@
       }
     },
     {
-      "name": "last shot at 12 s, Endgame TIPS FIRST",
+      "name": "last shot at 12 s (later than any seen), Endgame TIPS FIRST",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 12,
       "picks": {

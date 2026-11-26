@@ -24,9 +24,10 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
-      "name": "on time, typical 50 in/s",
+      "name": "LEFT-SHOOT-PARK on time, typical 50 in/s (seen 3 of 32)",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 50
@@ -41,11 +42,40 @@
       }
     },
     {
-      "name": "dead on its start",
+      "name": "LEAVE-PARK (seen 11 of 32)",
+      "partner": "PartnerLeaveParkAuto"
+    },
+    {
+      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
+      "partner": "PartnerZoneStillAuto"
+    },
+    {
+      "name": "LEAVE-PARK, R on CROSS AND FIX IT",
+      "partner": "PartnerLeaveParkAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "STILL in the corner, R on CROSS AND FIX IT",
+      "partner": "PartnerStillAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "STILL in the LOADING ZONE, R on CROSS AND FIX IT",
+      "partner": "PartnerZoneStillAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto"
     },
     {
-      "name": "stays out of the way",
+      "name": "STILL in the corner (seen 4 of 32)",
       "partner": "PartnerStillAuto"
     },
     {

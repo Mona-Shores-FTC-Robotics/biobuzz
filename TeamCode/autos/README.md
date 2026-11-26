@@ -193,9 +193,11 @@ accepts a `SOURCE` here as it does in the folder itself.
 
 | Stand-in | What it does |
 |---|---|
-| `partner-still` | A partner that is not going to move: it starts where we ask it to, out of the way, back on the side wall in the corner by our alliance wall at (15, 133.8), and sits there for the whole of AUTO. One spot, ours to pick, so there is no right-side twin (mentor, 3 Nov 2026). |
-| `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. |
-| `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). |
+| `partner-leave-park` | **LEAVE-PARK**, the commonest partner at Belding and Fruitport (11 of 32): leaves `LEFT_START` at 1 s, launches nothing, and is at `PARTNER_PARK` (9.8, 117.4), the top of the LOADING ZONE, by about 3 s. |
+| `partner-zone-still` | **STILL** in the LOADING ZONE (3 of 32): never moves, back to the alliance wall at (8.2, 110). Its frame overlaps `RIGHT_PARK`'s. |
+| `partner-still` | **STILL** in the corner (4 of 32). A partner that is not going to move: it starts where we ask it to, out of the way, back on the side wall in the corner by our alliance wall at (15, 133.8), and sits there for the whole of AUTO. One spot, ours to pick, so there is no right-side twin (mentor, 3 Nov 2026). |
+| `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. **Never seen** in 32 partner runs: their runs are labelled so, and do not drive decisions. |
+| `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). Never seen: leavers left at 0.5–2 s; `partner-leave-park` replaces them. |
 | `partner-r-launch-park`, `partner-l-launch-park` | Spins up, waits for its own CELL to be up (at most 12 s), fires all four preloads at it, parks. The right CELL is up at the start, so the right one fires at once; the left one fires once our first TIP raises the left CELL. |
 | `partner-l-tip-park` | The left launch-park, then the scoring FLOWER, four more at the left CELL (eight pieces: a TIP), then parks. |
 | `partner-push-start` | A motionless 16 x 16 in partner at (10.254, 82), heading 70°, one corner on the wall. Drawn for the nudge drafts (removed 19 Nov 2026); `SimRequestsTest` previews it alone. |
@@ -203,6 +205,8 @@ accepts a `SOURCE` here as it does in the folder itself.
 
 A stand-in is drawn and exported like any Auto (Visualizer, or `node scripts/export-auto.mjs`
 from a Visualizer checkout); a new one goes here with its class, and into the curation below.
+What real partners did, archetype by archetype and with how often each was seen, is
+`doc/partner-autos-belding-fruitport.md`: a new stand-in matches something seen there.
 
 To change a stand-in's start position or route, open its `.pp`, edit it, then **Save to GitHub
 and simulate…**. The save keeps the source in `partners/` and creates or updates its own
@@ -224,9 +228,9 @@ they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The 
 
 | Auto | Alone | On time | Missing | Dead |
 |---|---|---|---|---|
-| L-NoCross | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s | the same, said 8 s | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch |
-| R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-still` (out of the way) | the same | `partner-l-broken-down` |
-| R-Solo | yes | `partner-park-1` (no launches), `partner-still` (out of the way) | | `partner-l-broken-down` |
+| L-NoCross | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s (seen: 1.0–5.3 s) | the same, said 5 and 8 s; and missed, staying on its start to 10.3 or 12.3 s (`startDelayS`) | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch (never seen) |
+| R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-leave-park`; `partner-still`; `partner-zone-still` | the same | `partner-l-broken-down` (never seen) |
+| R-Solo | yes | `partner-leave-park`, `partner-still`, `partner-zone-still`, `partner-l-tip-park`; `partner-park-1` (never seen) | | `partner-l-broken-down` (never seen) |
 | R-Solo-Nudge (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our

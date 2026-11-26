@@ -204,7 +204,7 @@
       "fails": "misses"
     },
     {
-      "name": "contingency: R dead on its start",
+      "name": "contingency: R dead on its start (never seen)",
       "partner": "PartnerRBrokenDownAuto",
       "picks": {
         "Pickup": "GARDEN"
