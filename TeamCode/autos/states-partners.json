@@ -1,0 +1,1693 @@
+{
+ "_doc": "Written by tools/states-scout/build.py; refresh with fetch.py --refetch, analyze.py, build.py. tipRate is the team's own AUTO TIPs per match, a least-squares share of its alliances' TIPs (FTCScout scores TIPs per alliance). leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance's AUTO points (best/median/worst).",
+ "event": "USMINWCMP",
+ "eventName": "Michigan FiM Championship NW (Midland, 10-12 Dec 2026)",
+ "built": "2026-11-26",
+ "dataFetched": "2026-11-26",
+ "archetypes": {
+  "R_SHOOT_PARK": {
+   "label": "Right-start shooter, then park",
+   "auto": "L-NoCross",
+   "weStart": "LEFT_START",
+   "init": [
+    "Wait: shoots right at the start -> leave \"waiting for TIP 1 until 9 s\"; later -> D-pad right to 6 s after their second",
+    "if no TIP 1: CROSS AND FIX IT (default) - WAIT FOR PARTNER FIX only if they re-shoot",
+    "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
+   ],
+   "ask": [
+    "Which side do you start, and do you shoot your preloads right at the start?",
+    "If your preloads miss, do you shoot at that CELL again?",
+    "Where do you park, and by when?"
+   ],
+   "sim": "On time 48 pts, 1.6 TIPs, parked 100%. Missing: CROSS AND FIX IT 32 pts vs WAIT FOR PARTNER FIX 16. Dead: 28 vs 8. No contact in any run.",
+   "watch": "CROSS AND FIX IT drives under the HIVE to RIGHT_AUTO_FIX_TIP: if they are still near the right launch spot after ~12 s, pick WAIT FOR PARTNER FIX."
+  },
+  "L_SHOOT_PARK": {
+   "label": "Left-start shooter, then park",
+   "auto": "R-NoCross",
+   "weStart": "RIGHT_START",
+   "init": [
+    "Wait: nothing to set (our preloads make TIP 1; they shoot after it)",
+    "if no TIP 2: WAIT FOR PARTNER (default) - CROSS AND FIX IT only if they park out of the wall lane and are clear by 20 s",
+    "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
+   ],
+   "ask": [
+    "Which side do you start, and do you shoot your preloads right at the start?",
+    "Where do you park, and by when?"
+   ],
+   "sim": "On time 56 pts, 2.0 TIPs. Missing 36 pts, 1 TIP. With CROSS AND FIX IT beside a fast partner 56, no contact.",
+   "watch": "Their CELL is down until our TIP 1: they must wait for it, so ask \"do you wait for the LEFT CELL to come up?\""
+  },
+  "LEAVE_PARK": {
+   "label": "LEAVE / park only",
+   "auto": "R-NoCross",
+   "weStart": "RIGHT_START",
+   "init": [
+    "Ask them to start LEFT. Wait: nothing to set",
+    "if no TIP 2: WAIT FOR PARTNER (default)",
+    "Endgame: PARK FIRST (their park is our SWARM)"
+   ],
+   "ask": [
+    "Can you start on the left?",
+    "Does your Auto LEAVE and PARK every time?",
+    "Where do you park, and by when?"
+   ],
+   "sim": "Beside a still partner 28 pts, 1 TIP, no contact (R-NoCross, partner-still). If they must start right: L-NoCross, wait D-pad left to 0, CROSS AND FIX IT (28 pts beside a dead right partner).",
+   "watch": "We get one TIP alone; SWARM needs their LEAVE and PARK too."
+  },
+  "STILL": {
+   "label": "Still or dead",
+   "auto": "R-NoCross",
+   "weStart": "RIGHT_START",
+   "init": [
+    "They sit on LEFT_START: R-NoCross, if no TIP 2: WAIT FOR PARTNER",
+    "If they can only sit on the right: L-NoCross, wait D-pad left to 0, if no TIP 1: CROSS AND FIX IT",
+    "Endgame: PARK FIRST"
+   ],
+   "ask": [
+    "Do you have an Auto at all? Will it LEAVE?",
+    "Which start do you want to sit on?"
+   ],
+   "sim": "R-NoCross beside a dead left partner 28 pts, 1 TIP, no contact. L-NoCross beside a dead right partner, CROSS AND FIX IT: 28 pts, 1 TIP, 2.2 in clear of it.",
+   "watch": "Never run R-Clockwise/R-LeftUnderHive halves beside a dead LEFT_START robot (known overlap)."
+  },
+  "CROSSER": {
+   "label": "Crosser / makes more than one TIP",
+   "auto": "L-NoCross or R-NoCross (the side they leave us)",
+   "weStart": "their other side",
+   "init": [
+    "Never CROSS AND FIX IT: their route crosses ours",
+    "L-NoCross: if no TIP 1: WAIT FOR PARTNER FIX; R-NoCross: if no TIP 2: WAIT FOR PARTNER",
+    "Endgame: PARK FIRST"
+   ],
+   "ask": [
+    "Which side do you start, and do you shoot your preloads right at the start?",
+    "Draw us your path: where are you at 10 s and 20 s, and where do you park?"
+   ],
+   "sim": "Not simulated as a stand-in yet: plan from their answer.",
+   "watch": "Contact risk: these teams use both ends of the field in AUTO."
+  }
+ },
+ "teams": [
+  {
+   "team": 5290,
+   "name": "Steel Eagles",
+   "city": "Hartland",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.08,
+   "leave": 0.8,
+   "park": 0.8,
+   "leaveRecent": 0.8,
+   "parkRecent": 0.8,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 5,
+   "events": [
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 23,
+    "median": 13,
+    "worst": 8
+   },
+   "autoOpr": 9.7,
+   "autoOprRank": 1378,
+   "allianceTipsDist": {
+    "0": 4,
+    "1": 1,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5292,
+   "name": "Red Storm Robotics-White",
+   "city": "Kentwood",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.49,
+   "leave": 0.95,
+   "park": 0.95,
+   "leaveRecent": 0.91,
+   "parkRecent": 0.91,
+   "recentEvent": "Kentwood Qualifier",
+   "matches": 20,
+   "events": [
+    "Belding Qualifier",
+    "Kentwood Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 34.5,
+    "worst": 8
+   },
+   "autoOpr": 23.0,
+   "autoOprRank": 183,
+   "allianceTipsDist": {
+    "0": 4,
+    "1": 15,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5385,
+   "name": "Enigma Riddlers",
+   "city": "Grand Rapids",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.5,
+   "leave": 0.95,
+   "park": 0.86,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.75,
+   "recentEvent": "West Michigan Meet 9",
+   "matches": 22,
+   "events": [
+    "West Michigan Meet 3",
+    "Kentwood Qualifier",
+    "West Michigan Meet 8",
+    "West Michigan Meet 9"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 31.0,
+    "worst": 6
+   },
+   "autoOpr": 25.7,
+   "autoOprRank": 109,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 14,
+    "2": 2,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5386,
+   "name": "Fabricators",
+   "city": "Freeland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.57,
+   "leave": 1.0,
+   "park": 0.86,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.73,
+   "recentEvent": "Midland Qualifier",
+   "matches": 22,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36.0,
+    "worst": 16
+   },
+   "autoOpr": 26.4,
+   "autoOprRank": 91,
+   "allianceTipsDist": {
+    "0": 1,
+    "1": 19,
+    "2": 2,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5663,
+   "name": "Twisted Devils Red",
+   "city": "Richland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.28,
+   "leave": 0.95,
+   "park": 0.85,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.88,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 20,
+   "events": [
+    "Coloma Qualifier",
+    "Lakeview Qualifier",
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 28.0,
+    "worst": 6
+   },
+   "autoOpr": 21.0,
+   "autoOprRank": 306,
+   "allianceTipsDist": {
+    "0": 9,
+    "1": 11,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5957,
+   "name": "Sonic Eagles",
+   "city": "Hartland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.33,
+   "leave": 1.0,
+   "park": 0.78,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.78,
+   "recentEvent": "Midland Qualifier",
+   "matches": 9,
+   "events": [
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 36,
+    "worst": 3
+   },
+   "autoOpr": 5.6,
+   "autoOprRank": 2508,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 6,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 5960,
+   "name": "Iron Dams",
+   "city": "Battle Creek",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.42,
+   "leave": 0.82,
+   "park": 0.88,
+   "leaveRecent": 0.9,
+   "parkRecent": 0.9,
+   "recentEvent": "Lakeview Qualifier",
+   "matches": 17,
+   "events": [
+    "Coloma Qualifier",
+    "Lakeview Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36,
+    "worst": 0
+   },
+   "autoOpr": 17.0,
+   "autoOprRank": 531,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 7,
+    "2": 4,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 6482,
+   "name": "Red Storm Robotics-Red",
+   "city": "Kentwood",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.38,
+   "leave": 0.45,
+   "park": 0.65,
+   "leaveRecent": 0.67,
+   "parkRecent": 0.78,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 20,
+   "events": [
+    "Kentwood Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 29.5,
+    "worst": 5
+   },
+   "autoOpr": 14.1,
+   "autoOprRank": 746,
+   "allianceTipsDist": {
+    "0": 5,
+    "1": 15,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 8027,
+   "name": "Twisted Devils Blue",
+   "city": "Richland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.42,
+   "leave": 0.92,
+   "park": 0.84,
+   "leaveRecent": 0.75,
+   "parkRecent": 0.75,
+   "recentEvent": "Lakeview Qualifier",
+   "matches": 25,
+   "events": [
+    "Coloma Qualifier",
+    "Kentwood Qualifier",
+    "Lakeview Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 36,
+    "worst": 6
+   },
+   "autoOpr": 25.5,
+   "autoOprRank": 114,
+   "allianceTipsDist": {
+    "0": 7,
+    "1": 18,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 8513,
+   "name": "Joe Bots - Maize",
+   "city": "Saint Joseph",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.0,
+   "leave": 0.93,
+   "park": 1.0,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 15,
+   "events": [
+    "Coloma Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 16,
+    "worst": 8
+   },
+   "autoOpr": 10.1,
+   "autoOprRank": 1299,
+   "allianceTipsDist": {
+    "0": 10,
+    "1": 5,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 9087,
+   "name": "Twisted Devils Green",
+   "city": "Richland",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.24,
+   "leave": 0.83,
+   "park": 0.83,
+   "leaveRecent": 0.57,
+   "parkRecent": 0.71,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 30,
+   "events": [
+    "Saline Preview Event",
+    "Coloma Qualifier",
+    "Kentwood Qualifier",
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 21.0,
+    "worst": 8
+   },
+   "autoOpr": 15.6,
+   "autoOprRank": 623,
+   "allianceTipsDist": {
+    "0": 15,
+    "1": 15,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 9931,
+   "name": "Northeast Viking Vortex",
+   "city": "Midland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.59,
+   "leave": 1.0,
+   "park": 0.69,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.4,
+   "recentEvent": "Midland Qualifier",
+   "matches": 16,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36.0,
+    "worst": 23
+   },
+   "autoOpr": 22.7,
+   "autoOprRank": 207,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 15,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 10024,
+   "name": "Twisted Devils Black",
+   "city": "Richland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.57,
+   "leave": 0.88,
+   "park": 0.54,
+   "leaveRecent": 0.89,
+   "parkRecent": 1.0,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 24,
+   "events": [
+    "Coloma Qualifier",
+    "Lakeview Qualifier",
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 28.0,
+    "worst": 5
+   },
+   "autoOpr": 18.9,
+   "autoOprRank": 414,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 18,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 10035,
+   "name": "Robo Rangers",
+   "city": "Bloomfield Hills",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.45,
+   "leave": 0.86,
+   "park": 0.57,
+   "leaveRecent": 0.86,
+   "parkRecent": 0.57,
+   "recentEvent": "Royal Oak Qualifier",
+   "matches": 7,
+   "events": [
+    "Royal Oak Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 53,
+    "median": 28,
+    "worst": 8
+   },
+   "autoOpr": 23.7,
+   "autoOprRank": 162,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 3,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 10062,
+   "name": "Robogators",
+   "city": "Marquette",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.43,
+   "leave": 1.0,
+   "park": 0.57,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.57,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 7,
+   "events": [
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 26,
+    "worst": 11
+   },
+   "autoOpr": 16.0,
+   "autoOprRank": 593,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 4,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 10104,
+   "name": "That OTHER Team",
+   "city": "Belmont",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.69,
+   "leave": 0.93,
+   "park": 0.43,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.8,
+   "recentEvent": "West Michigan Meet 9",
+   "matches": 28,
+   "events": [
+    "Belding Qualifier",
+    "West Michigan Meet 4",
+    "West Michigan Meet 5",
+    "West Michigan Meet 8",
+    "West Michigan Meet 9"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 31.0,
+    "worst": 5
+   },
+   "autoOpr": 23.7,
+   "autoOprRank": 161,
+   "allianceTipsDist": {
+    "0": 4,
+    "1": 21,
+    "2": 3,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 10255,
+   "name": "RoboDux",
+   "city": "Zeeland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "scouted",
+   "why": "video: Kentwood Q (8 matches), Fruitport Q + playoffs",
+   "side": "RIGHT",
+   "lastPreloadS": 2.1,
+   "note": "Starts beside our RIGHT_START (51, 8); preloads tip it (8/8 at Kentwood), then corner pick, a LEFT volley from the scoring end, wall FLOWER, park. Parks late (~25 s); 2 of 16 no park.",
+   "tipRate": 0.91,
+   "leave": 1.0,
+   "park": 0.81,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 16,
+   "events": [
+    "Kentwood Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36.0,
+    "worst": 26
+   },
+   "autoOpr": 28.6,
+   "autoOprRank": 55,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 11,
+    "2": 5,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 10309,
+   "name": "Jefferson  TechnoHuskies",
+   "city": "Midland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.42,
+   "leave": 0.92,
+   "park": 0.75,
+   "leaveRecent": 0.86,
+   "parkRecent": 1.0,
+   "recentEvent": "Midland Qualifier",
+   "matches": 12,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 32.0,
+    "worst": 13
+   },
+   "autoOpr": 21.2,
+   "autoOprRank": 290,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 9,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 10477,
+   "name": "Rapid Robots",
+   "city": "Novi",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.22,
+   "leave": 0.67,
+   "park": 0.83,
+   "leaveRecent": 0.71,
+   "parkRecent": 0.71,
+   "recentEvent": "Midland Qualifier",
+   "matches": 12,
+   "events": [
+    "Chelsea Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 28.0,
+    "worst": 10
+   },
+   "autoOpr": 8.4,
+   "autoOprRank": 1640,
+   "allianceTipsDist": {
+    "0": 5,
+    "1": 7,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 10538,
+   "name": "Team KILTS",
+   "city": "Howell",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.46,
+   "leave": 0.68,
+   "park": 0.59,
+   "leaveRecent": 0.88,
+   "parkRecent": 0.0,
+   "recentEvent": "Midland Qualifier",
+   "matches": 34,
+   "events": [
+    "Saline Preview Event",
+    "Bullock Creek Qualifier",
+    "Lakeview Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 76,
+    "median": 31.0,
+    "worst": 8
+   },
+   "autoOpr": 23.4,
+   "autoOprRank": 175,
+   "allianceTipsDist": {
+    "0": 10,
+    "1": 18,
+    "2": 5,
+    "3": 1
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 10615,
+   "name": "Jefferson CyDogs",
+   "city": "Midland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.69,
+   "leave": 0.83,
+   "park": 0.67,
+   "leaveRecent": 0.86,
+   "parkRecent": 0.71,
+   "recentEvent": "Midland Qualifier",
+   "matches": 12,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 31.0,
+    "worst": 23
+   },
+   "autoOpr": 22.5,
+   "autoOprRank": 222,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 12,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 10653,
+   "name": "Dragatrons",
+   "city": "Saginaw",
+   "archetype": "CROSSER",
+   "archetypeFrom": "guessed",
+   "why": "TIP share over 1 and 2+ TIPs in a third of its matches",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 1.0,
+   "leave": 1.0,
+   "park": 0.56,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.62,
+   "recentEvent": "Midland Qualifier",
+   "matches": 16,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 48.0,
+    "worst": 26
+   },
+   "autoOpr": 35.0,
+   "autoOprRank": 17,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 7,
+    "2": 9,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 11228,
+   "name": "OverClucked Bots",
+   "city": "Zeeland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "scouted",
+   "why": "video: Coloma Q + playoffs (8 matches)",
+   "side": "RIGHT",
+   "lastPreloadS": 3.8,
+   "note": "Starts at (31, 9) on the audience wall, three preloads, last ball ~3.8 s (2.2-4.8); its CELL tipped 4/8. Parks at the red wall (15, 98) by ~8 s, then still. Out of our way early.",
+   "tipRate": 0.57,
+   "leave": 1.0,
+   "park": 1.0,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 18,
+   "events": [
+    "Coloma Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 36.0,
+    "worst": 8
+   },
+   "autoOpr": 22.8,
+   "autoOprRank": 198,
+   "allianceTipsDist": {
+    "0": 5,
+    "1": 13,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 11531,
+   "name": "Techno Trojans - Green - Sponsored by MSI",
+   "city": "Fruitport",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.2,
+   "leave": 1.0,
+   "park": 0.75,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.62,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 12,
+   "events": [
+    "Belding Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 22.0,
+    "worst": 8
+   },
+   "autoOpr": 16.2,
+   "autoOprRank": 582,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 6,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 11846,
+   "name": "Wayland Wildcat Cat-a-Tech-Nics",
+   "city": "Wayland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "scouted",
+   "why": "video: Kentwood Q + playoffs (8 matches)",
+   "side": "RIGHT",
+   "lastPreloadS": 6.5,
+   "note": "Right corner (10, 12), volley from (26, 13.5) ~3-6.5 s (its TIP swung 8-10 s), wall FLOWER pick ~11 s, second volley ~18 s, then parks. Slow first TIP: set the wait long.",
+   "tipRate": 0.39,
+   "leave": 0.86,
+   "park": 0.86,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.6,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 14,
+   "events": [
+    "Kentwood Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 33.0,
+    "worst": 6
+   },
+   "autoOpr": 15.5,
+   "autoOprRank": 630,
+   "allianceTipsDist": {
+    "0": 5,
+    "1": 9,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 12740,
+   "name": "Robo Next-Gen 12740",
+   "city": "Troy",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.7,
+   "leave": 0.89,
+   "park": 0.78,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.8,
+   "recentEvent": "OCCRA4",
+   "matches": 18,
+   "events": [
+    "OCCRA1",
+    "Bullock Creek Qualifier",
+    "OCCRA4"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 34.5,
+    "worst": 11
+   },
+   "autoOpr": 26.2,
+   "autoOprRank": 96,
+   "allianceTipsDist": {
+    "0": 1,
+    "1": 16,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 13702,
+   "name": "Joe Bots - White",
+   "city": "Saint Joseph",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.29,
+   "leave": 0.87,
+   "park": 0.87,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 15,
+   "events": [
+    "Coloma Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 36,
+    "worst": 3
+   },
+   "autoOpr": 18.0,
+   "autoOprRank": 460,
+   "allianceTipsDist": {
+    "0": 7,
+    "1": 8,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 13917,
+   "name": "ZooBOTix Hillside",
+   "city": "Kalamazoo",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.51,
+   "leave": 0.83,
+   "park": 0.72,
+   "leaveRecent": 0.78,
+   "parkRecent": 0.89,
+   "recentEvent": "Lakeview Qualifier",
+   "matches": 18,
+   "events": [
+    "Coloma Qualifier",
+    "Lakeview Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 32.0,
+    "worst": 16
+   },
+   "autoOpr": 17.0,
+   "autoOprRank": 528,
+   "allianceTipsDist": {
+    "0": 2,
+    "1": 16,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 15104,
+   "name": "Static Eagles",
+   "city": "Hartland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "scouted",
+   "why": "video: Battle Creek M-11 only",
+   "side": "RIGHT",
+   "lastPreloadS": 3.5,
+   "note": "Starts beside our RIGHT_START; preloads ~1.5-3.5 s, waits on RIGHT_AUTO_HIVE (59, 21) 7-19 s, wall FLOWER, second volley ~25 s, late park. Sits on our right launch spot: never run an R- Auto beside it.",
+   "tipRate": 1.0,
+   "leave": 0.78,
+   "park": 0.89,
+   "leaveRecent": 0.78,
+   "parkRecent": 0.89,
+   "recentEvent": "Lakeview Qualifier",
+   "matches": 9,
+   "events": [
+    "Lakeview Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 76,
+    "median": 36,
+    "worst": 28
+   },
+   "autoOpr": 31.5,
+   "autoOprRank": 27,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 6,
+    "2": 2,
+    "3": 1
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 15344,
+   "name": "RockMonsterZ Green",
+   "city": "Berrien Springs",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.16,
+   "leave": 0.82,
+   "park": 0.79,
+   "leaveRecent": 0.8,
+   "parkRecent": 0.6,
+   "recentEvent": "Midland Qualifier",
+   "matches": 28,
+   "events": [
+    "Saline Preview Event",
+    "Coloma Qualifier",
+    "Lakeview Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 16.0,
+    "worst": 5
+   },
+   "autoOpr": 18.5,
+   "autoOprRank": 437,
+   "allianceTipsDist": {
+    "0": 16,
+    "1": 12,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 15357,
+   "name": "MOre Bots",
+   "city": "Escanaba",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.49,
+   "leave": 1.0,
+   "park": 1.0,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 8,
+   "events": [
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 34.5,
+    "worst": 16
+   },
+   "autoOpr": 15.8,
+   "autoOprRank": 604,
+   "allianceTipsDist": {
+    "0": 2,
+    "1": 6,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 15815,
+   "name": "DCS Defender Robotics",
+   "city": "Caledonia",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.16,
+   "leave": 0.74,
+   "park": 0.51,
+   "leaveRecent": 0.8,
+   "parkRecent": 1.0,
+   "recentEvent": "West Michigan Meet 9",
+   "matches": 35,
+   "events": [
+    "West Michigan Meet 1",
+    "West Michigan Meet 2",
+    "West Michigan Meet 3",
+    "Kentwood Qualifier",
+    "West Michigan Meet 8",
+    "West Michigan Meet 9"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 16,
+    "worst": 0
+   },
+   "autoOpr": 13.1,
+   "autoOprRank": 845,
+   "allianceTipsDist": {
+    "0": 21,
+    "1": 14,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 16883,
+   "name": "DinoByte!",
+   "city": "Troy",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.14,
+   "leave": 0.73,
+   "park": 0.59,
+   "leaveRecent": 0.67,
+   "parkRecent": 0.56,
+   "recentEvent": "Madison Hts Qualifier",
+   "matches": 22,
+   "events": [
+    "Southgate Qualifier",
+    "Lakeview Qualifier",
+    "Madison Hts Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 14.5,
+    "worst": 3
+   },
+   "autoOpr": 20.6,
+   "autoOprRank": 321,
+   "allianceTipsDist": {
+    "0": 13,
+    "1": 8,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 18092,
+   "name": "Techno Trojans - Blue - Sponsored by Studica",
+   "city": "Fruitport",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.03,
+   "leave": 1.0,
+   "park": 0.85,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.8,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 13,
+   "events": [
+    "Belding Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 16,
+    "worst": 3
+   },
+   "autoOpr": 9.9,
+   "autoOprRank": 1344,
+   "allianceTipsDist": {
+    "0": 10,
+    "1": 3,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 19250,
+   "name": "Vikingbots",
+   "city": "Saginaw",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.15,
+   "leave": 0.92,
+   "park": 0.62,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Bullock Creek Qualifier",
+   "matches": 13,
+   "events": [
+    "Saline Preview Event",
+    "Bullock Creek Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 23,
+    "worst": 6
+   },
+   "autoOpr": 8.4,
+   "autoOprRank": 1657,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 7,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 21331,
+   "name": "Silver Hornets",
+   "city": "Troy",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.49,
+   "leave": 0.94,
+   "park": 0.97,
+   "leaveRecent": 0.82,
+   "parkRecent": 0.91,
+   "recentEvent": "Novi Qualifier",
+   "matches": 35,
+   "events": [
+    "OCCRA4",
+    "OCCRA5",
+    "Lakeview Qualifier",
+    "OCCRA6",
+    "Novi Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36,
+    "worst": 8
+   },
+   "autoOpr": 23.6,
+   "autoOprRank": 169,
+   "allianceTipsDist": {
+    "0": 6,
+    "1": 24,
+    "2": 5,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 21672,
+   "name": "More Fabricators",
+   "city": "Freeland",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.52,
+   "leave": 0.94,
+   "park": 1.0,
+   "leaveRecent": 1.0,
+   "parkRecent": 1.0,
+   "recentEvent": "Midland Qualifier",
+   "matches": 18,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 51,
+    "median": 36.0,
+    "worst": 28
+   },
+   "autoOpr": 26.0,
+   "autoOprRank": 99,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 17,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 22091,
+   "name": "Cyber Coyotes: ACME Innovations",
+   "city": "Reed City",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.76,
+   "leave": 0.62,
+   "park": 0.75,
+   "leaveRecent": 0.62,
+   "parkRecent": 0.75,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 8,
+   "events": [
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 53,
+    "median": 34.5,
+    "worst": 28
+   },
+   "autoOpr": 22.9,
+   "autoOprRank": 196,
+   "allianceTipsDist": {
+    "0": 0,
+    "1": 7,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 24371,
+   "name": "Proto Pioneers",
+   "city": "Grand Rapids",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "scouted",
+   "why": "FTCScout only",
+   "side": null,
+   "lastPreloadS": null,
+   "note": "Leave and park reliable lately (every match at its last meet). Start side not seen: ask.",
+   "tipRate": 0.5,
+   "leave": 0.68,
+   "park": 0.79,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.88,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 28,
+   "events": [
+    "West Michigan Meet 2",
+    "West Michigan Meet 4",
+    "West Michigan Meet 5",
+    "West Michigan Meet 7",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 31.0,
+    "worst": 5
+   },
+   "autoOpr": 25.7,
+   "autoOprRank": 107,
+   "allianceTipsDist": {
+    "0": 10,
+    "1": 17,
+    "2": 1,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 30552,
+   "name": "Red Devil Robotics",
+   "city": "Ironwood",
+   "archetype": "LEAVE_PARK",
+   "archetypeFrom": "guessed",
+   "why": "TIP share under 0.25",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.0,
+   "leave": 0.88,
+   "park": 0.88,
+   "leaveRecent": 0.88,
+   "parkRecent": 0.88,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 8,
+   "events": [
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 31,
+    "median": 13.5,
+    "worst": 8
+   },
+   "autoOpr": -2.4,
+   "autoOprRank": 3944,
+   "allianceTipsDist": {
+    "0": 5,
+    "1": 3,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 31969,
+   "name": "Techno Trojans - Gray",
+   "city": "Fruitport",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.29,
+   "leave": 1.0,
+   "park": 0.84,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.89,
+   "recentEvent": "Fruitport Qualifier",
+   "matches": 19,
+   "events": [
+    "Belding Qualifier",
+    "Fruitport Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 16,
+    "worst": 6
+   },
+   "autoOpr": 15.5,
+   "autoOprRank": 631,
+   "allianceTipsDist": {
+    "0": 11,
+    "1": 8,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 33429,
+   "name": "Bionic Brood",
+   "city": "Saginaw",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.72,
+   "leave": 1.0,
+   "park": 0.79,
+   "leaveRecent": 1.0,
+   "parkRecent": 0.82,
+   "recentEvent": "Midland Qualifier",
+   "matches": 19,
+   "events": [
+    "Bullock Creek Qualifier",
+    "Midland Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 56,
+    "median": 36,
+    "worst": 16
+   },
+   "autoOpr": 24.7,
+   "autoOprRank": 134,
+   "allianceTipsDist": {
+    "0": 1,
+    "1": 12,
+    "2": 6,
+    "3": 0
+   },
+   "hardToPlan": false
+  },
+  {
+   "team": 38259,
+   "name": "DynaMos",
+   "city": "Escanaba",
+   "archetype": "STILL",
+   "archetypeFrom": "guessed",
+   "why": "LEAVE in under half its last event's matches",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.28,
+   "leave": 0.44,
+   "park": 1.0,
+   "leaveRecent": 0.44,
+   "parkRecent": 1.0,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 9,
+   "events": [
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 36,
+    "median": 33,
+    "worst": 8
+   },
+   "autoOpr": 14.7,
+   "autoOprRank": 699,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 6,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  },
+  {
+   "team": 39016,
+   "name": "Tech BraveBots White",
+   "city": "GLADSTONE",
+   "archetype": "R_SHOOT_PARK",
+   "archetypeFrom": "guessed",
+   "why": "tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)",
+   "side": null,
+   "lastPreloadS": null,
+   "note": null,
+   "tipRate": 0.53,
+   "leave": 0.88,
+   "park": 0.12,
+   "leaveRecent": 0.88,
+   "parkRecent": 0.12,
+   "recentEvent": "Houghton (UP) FTC Qualifier",
+   "matches": 8,
+   "events": [
+    "Houghton (UP) FTC Qualifier"
+   ],
+   "allianceAuto": {
+    "best": 31,
+    "median": 29.5,
+    "worst": 8
+   },
+   "autoOpr": 13.7,
+   "autoOprRank": 793,
+   "allianceTipsDist": {
+    "0": 3,
+    "1": 5,
+    "2": 0,
+    "3": 0
+   },
+   "hardToPlan": true
+  }
+ ]
+}

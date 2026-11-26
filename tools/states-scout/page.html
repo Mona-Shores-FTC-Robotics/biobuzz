@@ -1,0 +1,177 @@
+<title>States Partner Lookup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column, phone-first. Search sticks to the top; the looked-up team is a single card; the full roster sits below as compact rows. */
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --ink: #1b1f27; --muted: #5d6676; --line: #dde1e8;
+  --honey: #b07400; --honey-soft: #fff1cf;
+  --ok: #1d7a46; --warn: #a35a00; --bad: #b3261e;
+  --chip-r: #e7efff; --chip-r-ink: #1f4fae;
+  --chip-l: #efe8ff; --chip-l-ink: #5b33b0;
+  --chip-p: #e9f5ee; --chip-p-ink: #1d6a3f;
+  --chip-s: #f2f2f2; --chip-s-ink: #555;
+  --chip-x: #ffe9e5; --chip-x-ink: #a3291c;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --panel: #1b1f27; --ink: #e8eaef; --muted: #9aa3b2; --line: #2c323d;
+  --honey: #f2b53a; --honey-soft: #3a2c0c;
+  --ok: #5ccf8d; --warn: #f0a54a; --bad: #ff8a80;
+  --chip-r: #1d2b47; --chip-r-ink: #9dbcff; --chip-l: #2a2146; --chip-l-ink: #c9b3ff;
+  --chip-p: #17301f; --chip-p-ink: #8fdcaa; --chip-s: #2a2d33; --chip-s-ink: #c2c6cd;
+  --chip-x: #3d1b17; --chip-x-ink: #ffaa9e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151b; --panel: #1b1f27; --ink: #e8eaef; --muted: #9aa3b2; --line: #2c323d;
+  --honey: #f2b53a; --honey-soft: #3a2c0c;
+  --ok: #5ccf8d; --warn: #f0a54a; --bad: #ff8a80;
+  --chip-r: #1d2b47; --chip-r-ink: #9dbcff; --chip-l: #2a2146; --chip-l-ink: #c9b3ff;
+  --chip-p: #17301f; --chip-p-ink: #8fdcaa; --chip-s: #2a2d33; --chip-s-ink: #c2c6cd;
+  --chip-x: #3d1b17; --chip-x-ink: #ffaa9e; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 12px 48px; display: grid; gap: 16px }
+header h1 { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: .01em; margin: 0; text-wrap: balance }
+header p { margin: 2px 0 0; color: var(--muted); font-size: 13px }
+.search { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px }
+.search input { width: 100%; font: 600 26px var(--mono); padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink) }
+.search input:focus { outline: none; border-color: var(--honey) }
+.filters { display: flex; flex-wrap: wrap; gap: 6px }
+.filters button { font: 500 13px var(--body); border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 5px 10px; cursor: pointer }
+.filters button[aria-pressed="true"] { border-color: var(--honey); background: var(--honey-soft) }
+.filters button:focus-visible, .row:focus-visible { outline: 2px solid var(--honey); outline-offset: 2px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px }
+.card .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px }
+.num { font: 700 40px/1 var(--display) }
+.tname { font-weight: 600; font-size: 17px; min-width: 0 }
+.city { color: var(--muted); font-size: 13px }
+.chip { display: inline-block; font: 600 12px var(--body); letter-spacing: .02em; padding: 3px 9px; border-radius: 999px; white-space: nowrap }
+.a-R_SHOOT_PARK { background: var(--chip-r); color: var(--chip-r-ink) }
+.a-L_SHOOT_PARK { background: var(--chip-l); color: var(--chip-l-ink) }
+.a-LEAVE_PARK { background: var(--chip-p); color: var(--chip-p-ink) }
+.a-STILL { background: var(--chip-s); color: var(--chip-s-ink) }
+.a-CROSSER { background: var(--chip-x); color: var(--chip-x-ink) }
+.guess { font-size: 12px; color: var(--muted) }
+.run { background: var(--honey-soft); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px }
+.run .lab, .sec .lab { font: 600 11px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
+.run .auto { font: 700 26px/1.1 var(--display) }
+.run ul, .sec ul { margin: 0; padding-left: 18px; display: grid; gap: 4px }
+.sec { display: grid; gap: 6px }
+.ask li { font-weight: 500 }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center }
+.stat b { display: block; font: 500 18px var(--mono); font-variant-numeric: tabular-nums }
+.stat span { font-size: 11px; color: var(--muted) }
+.good { color: var(--ok) } .mid { color: var(--warn) } .low { color: var(--bad) }
+.note { font-size: 14px; color: var(--ink) }
+.small { font-size: 12px; color: var(--muted) }
+.flag { color: var(--bad); font-weight: 600; font-size: 13px }
+.list { display: grid; gap: 4px }
+.row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); cursor: pointer; text-align: left; font: inherit; color: inherit }
+.row .n { font: 600 16px var(--mono) }
+.row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.row .r { font: 500 12px var(--mono); color: var(--muted); white-space: nowrap }
+.empty { color: var(--muted); padding: 12px 0 }
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
+@media (max-width: 460px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)) } .row { grid-template-columns: 56px minmax(0, 1fr) } .row .r { grid-column: 2 } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>States Partner Lookup</h1>
+    <p id="sub"></p>
+  </header>
+  <div class="search">
+    <input id="q" inputmode="numeric" autocomplete="off" placeholder="Partner team #" aria-label="Partner team number or name">
+  </div>
+  <div class="filters" id="filters" role="group" aria-label="Filter by archetype"></div>
+  <div id="card"></div>
+  <div class="list" id="list"></div>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+const A = DATA.archetypes;
+const ORDER = ['R_SHOOT_PARK', 'L_SHOOT_PARK', 'LEAVE_PARK', 'STILL', 'CROSSER'];
+let filter = null;
+const $ = id => document.getElementById(id);
+const pct = v => v == null ? '–' : Math.round(v * 100) + '%';
+const cls = v => v == null ? '' : v >= 0.8 ? 'good' : v >= 0.5 ? 'mid' : 'low';
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+$('sub').textContent = `${DATA.eventName} · ${DATA.teams.length} partners · scores to ${DATA.dataFetched}. For Ultraviolet (20245) / Infrared (19429).`;
+
+function renderFilters() {
+  const counts = {};
+  DATA.teams.forEach(t => counts[t.archetype] = (counts[t.archetype] || 0) + 1);
+  const hard = DATA.teams.filter(t => t.hardToPlan).length;
+  const btns = [['', 'All ' + DATA.teams.length]].concat(ORDER.filter(k => counts[k]).map(k => [k, A[k].label + ' ' + counts[k]]), [['HARD', 'Hard to plan ' + hard]]);
+  $('filters').innerHTML = btns.map(([k, l]) => `<button type="button" data-k="${k}" aria-pressed="${(filter || '') === k}">${esc(l)}</button>`).join('');
+}
+$('filters').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  filter = b.dataset.k || null; renderFilters(); renderList();
+});
+
+function card(t) {
+  const a = A[t.archetype];
+  const al = t.allianceAuto ? `${t.allianceAuto.worst} / ${t.allianceAuto.median} / ${t.allianceAuto.best}` : '–';
+  const side = t.side ? `${t.side} start (seen)` : 'start side not seen';
+  return `<div class="card">
+    <div class="top"><span class="num">${t.team}</span><span class="tname">${esc(t.name)}</span><span class="city">${esc(t.city || '')}</span></div>
+    <div class="top"><span class="chip a-${t.archetype}">${esc(a.label)}</span>
+      <span class="guess">${t.archetypeFrom === 'scouted' ? 'scouted: ' + esc(t.why) : 'guessed from scores: ' + esc(t.why)}</span></div>
+    ${t.hardToPlan ? '<div class="flag">Hard to plan around: check the queue answers carefully.</div>' : ''}
+    <div class="run"><span class="lab">Run</span><span class="auto">${esc(a.auto)}</span><span class="small">from ${esc(a.weStart)}</span>
+      <ul>${a.init.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="sec ask"><span class="lab">Ask in the queue</span><ul>${a.ask.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="stats">
+      <div class="stat"><b class="${cls(t.tipRate)}">${pct(t.tipRate)}</b><span>own AUTO TIP (est.)</span></div>
+      <div class="stat"><b class="${cls(t.leaveRecent)}">${pct(t.leaveRecent)}</b><span>LEAVE, last event</span></div>
+      <div class="stat"><b class="${cls(t.parkRecent)}">${pct(t.parkRecent)}</b><span>AUTO PARK, last event</span></div>
+      <div class="stat"><b>${t.lastPreloadS != null ? t.lastPreloadS + ' s' : '–'}</b><span>last preload (video)</span></div>
+    </div>
+    ${t.note ? `<div class="note">${esc(t.note)}</div>` : ''}
+    <div class="small">${side} · alliance AUTO worst / median / best: ${al} · season LEAVE ${pct(t.leave)}, PARK ${pct(t.park)} · ${t.matches} matches (${esc(t.events.join(', '))}) · auto OPR ${t.autoOpr ?? '–'}</div>
+    <div class="small"><b>Sim:</b> ${esc(a.sim)}</div>
+    <div class="small"><b>Watch:</b> ${esc(a.watch)}</div>
+  </div>`;
+}
+
+function matches() {
+  const q = $('q').value.trim().toLowerCase();
+  return DATA.teams.filter(t => {
+    if (filter === 'HARD' ? !t.hardToPlan : filter && t.archetype !== filter) return false;
+    if (!q) return true;
+    return String(t.team).startsWith(q) || (t.name || '').toLowerCase().includes(q);
+  });
+}
+
+function renderList() {
+  const m = matches();
+  const q = $('q').value.trim();
+  const exact = DATA.teams.find(t => String(t.team) === q);
+  const one = exact || (m.length === 1 && q ? m[0] : null);
+  $('card').innerHTML = one ? card(one) : (q && !m.length ? `<div class="empty">No team ${esc(q)} at this event. It may have registered after ${esc(DATA.dataFetched)}: plan as LEAVE / park only and ask all three questions.</div>` : '');
+  $('list').innerHTML = m.filter(t => t !== one).map(t => `<button type="button" class="row" data-t="${t.team}">
+    <span class="n">${t.team}</span><span class="nm">${esc(t.name)} <span class="chip a-${t.archetype}">${esc(A[t.archetype].auto)}</span></span>
+    <span class="r">TIP ${pct(t.tipRate)} · L ${pct(t.leaveRecent)} · P ${pct(t.parkRecent)}</span></button>`).join('');
+}
+$('list').addEventListener('click', e => {
+  const r = e.target.closest('.row'); if (!r) return;
+  $('q').value = r.dataset.t; renderList(); window.scrollTo({ top: 0 });
+});
+$('q').addEventListener('input', renderList);
+
+$('foot').innerHTML = `<div>Own AUTO TIP is a least-squares share of the alliance's AUTO TIPs (FTCScout scores TIPs per alliance); LEAVE and AUTO PARK are the team's own. "Guessed" teams have not been seen on video: a team that tips is listed as a right-start shooter because only the RIGHT CELL is up at the start. Confirm with the side question.</div>
+<div>Endgame row: PARK FIRST in quals unless the partner LEAVEs and PARKs every time and our shots are landing; TIPS FIRST only in playoffs.</div>
+<div>Built ${esc(DATA.built)} from TeamCode/autos/states-partners.json (tools/states-scout).</div>`;
+
+renderFilters(); renderList();
+</script>
