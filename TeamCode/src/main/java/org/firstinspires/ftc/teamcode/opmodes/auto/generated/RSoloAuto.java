@@ -59,11 +59,17 @@ public final class RSoloAuto {
         // Other poses the paths need (control points, unnamed endpoints).
         Pose backwardToLeftAutoHiveControl1 = p.of(29.2986, 127.3052, 0);
         Pose backwardToLeftAutoHiveSegment1Start = p.of(61.4, 120.45, 180);
-        Pose leftAutoHiveParkStart = p.of(61.4, 120.45, 273);
+        Pose leftAutoHiveParkControl1 = p.of(40, 95, 0);
+        Pose leftAutoHiveParkControl2 = p.of(30, 98.7, 0);
+        Pose leftAutoHiveParkSegment1Start = p.of(14.5, 98.7, 273);
         Pose toScoringFlowerStagingStart = p.of(61.4, 120.45, -91.9);
         Pose scoringFlowerStagingParkControl1 = p.of(40, 96, 0);
-        Pose toRightParkControl1 = p.of(43.661, 105.8984, 0);
-        Pose toRightPark_2Control1 = p.of(43.661, 105.8984, 0);
+        Pose toRightParkControl1 = p.of(40, 95, 0);
+        Pose toRightParkControl2 = p.of(30, 98.7, 0);
+        Pose toRightParkSegment1Start = p.of(14.5, 98.7, 268.9);
+        Pose toRightPark_2Control1 = p.of(40, 95, 0);
+        Pose toRightPark_2Control2 = p.of(30, 98.7, 0);
+        Pose toRightPark_2Segment1Start = p.of(14.5, 98.7, 268.9);
         Pose toRightAutoHive_2Control1 = p.of(58.7683, 101.5686, 0);
         Pose toRightAutoHive_2Control2 = p.of(65.2005, 71.9052, 0);
         Pose toRightAutoHive_2Control3 = p.of(56, 40, 0);
@@ -78,12 +84,12 @@ public final class RSoloAuto {
         Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.line(wallFlowerStaging, rightPark).linear(wallFlowerStaging, rightPark);
         Path backwardToLeftAutoHive = Paths.curve(wallFlowerStaging, backwardToLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.35, Interpolator.linear(backwardToLeftAutoHiveSegment1Start, leftAutoHive)).until(1, Interpolator.constant(leftAutoHive)));
-        Path leftAutoHivePark = Paths.line(leftAutoHiveParkStart, rightPark).linear(leftAutoHiveParkStart, rightPark);
+        Path leftAutoHivePark = Paths.curve(leftAutoHive, leftAutoHiveParkControl1, leftAutoHiveParkControl2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(leftAutoHiveParkSegment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
         Path toScoringFlowerStaging = Paths.line(toScoringFlowerStagingStart, scoringFlowerStaging).linear(toScoringFlowerStagingStart, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, rightPark).linear(scoringFlowerStaging, rightPark);
         Path toLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
-        Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, rightPark).linear(leftAutoHive, rightPark);
-        Path toRightParkPath = Paths.curve(leftAutoHive, toRightPark_2Control1, rightPark).linear(leftAutoHive, rightPark);
+        Path toRightPark = Paths.curve(leftAutoHive, toRightParkControl1, toRightParkControl2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightParkSegment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
+        Path toRightParkPath = Paths.curve(leftAutoHive, toRightPark_2Control1, toRightPark_2Control2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightPark_2Segment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
         Path toRightAutoHivePath = Paths.curve(leftAutoHive, toRightAutoHive_2Control1, toRightAutoHive_2Control2, toRightAutoHive_2Control3, rightAutoHive).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightAutoHive_2Segment1Start, toRightAutoHive_2Segment1End)).until(1, Interpolator.linear(toRightAutoHive_2Segment2Start, rightAutoHive)));
         Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
         Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);

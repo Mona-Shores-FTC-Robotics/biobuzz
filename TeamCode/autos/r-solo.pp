@@ -153,11 +153,48 @@
         "x": 14.5,
         "y": 98.7
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 40,
+          "y": 95
+        },
+        {
+          "x": 30,
+          "y": 98.7
+        }
+      ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 273,
-        "endDeg": 0
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 273,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -274,14 +311,46 @@
       },
       "controlPoints": [
         {
-          "x": 43.66104962939895,
-          "y": 105.89842778806698
+          "x": 40,
+          "y": 95
+        },
+        {
+          "x": 30,
+          "y": 98.7
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 268.9,
-        "endDeg": 0
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.9,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -315,14 +384,46 @@
       },
       "controlPoints": [
         {
-          "x": 43.66104962939895,
-          "y": 105.89842778806698
+          "x": 40,
+          "y": 95
+        },
+        {
+          "x": 30,
+          "y": 98.7
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 268.9,
-        "endDeg": 0
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.9,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       }
     },
     {
