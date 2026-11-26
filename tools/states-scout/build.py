@@ -67,6 +67,51 @@ ARCHETYPES = {
         'watch': 'Contact risk: it uses both ends of the field in AUTO.'},
 }
 
+# The States rule (mentor, 26 Nov 2026): R-Solo beside every partner, which starts LEFT, LEAVEs and is
+# parked or out of the left end by about 9 s. L-NoCross only beside a partner seen on video starting
+# RIGHT and tipping (verifiedRightTipper). Exceptions are a plan id in overrides.json.
+ASK_LEFT = 'Please start LEFT, LEAVE, and be parked or out of the left end by about 9 s. Can you?'
+PLANS = {
+    'R-SOLO': {
+        'auto': 'R-Solo', 'weStart': 'RIGHT_START',
+        'init': ['Partner starts LEFT and is parked or out of the left end by about 9 s',
+                 'R-Solo: nothing else to set',
+                 'Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land'],
+        'ask': [ASK_LEFT, ASK_LEAVE, ASK_PARK],
+        'sim': 'Beside a LEAVE-PARK partner 36 pts, 0 contacts (needs #759 on the robot). A partner still in the LOADING ZONE touches our RIGHT_PARK: ask it to sit in the corner past the tape.',
+        'why': 'Default: not seen on video starting RIGHT and tipping.'},
+    'L-NOCROSS': {
+        'auto': 'L-NoCross', 'weStart': 'LEFT_START',
+        'init': ['Wait: as drawn, "waiting for TIP 1 until 9 s"',
+                 'if no TIP 1: CROSS AND FIX IT only if they promise to drive off their start before 10 s, or stay on it until 16 s, when their preloads miss; otherwise WAIT FOR PARTNER FIX',
+                 'Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land'],
+        'ask': [ASK_CROSS, ASK_RESHOOT, ASK_PARK],
+        'sim': '40 pts when they hit, 28 when they miss. Our cross is in the right lane about 9-15.3 s; a partner leaving RIGHT_START at 10.3-16 s hits us.',
+        'why': 'Seen on video starting RIGHT and tipping.'},
+    'L-NOCROSS-WAIT': {
+        'auto': 'L-NoCross', 'weStart': 'LEFT_START',
+        'init': ['Wait: as drawn, "waiting for TIP 1 until 9 s"',
+                 'if no TIP 1: WAIT FOR PARTNER FIX (never cross: it sits on our right launch spot)',
+                 'Endgame: PARK FIRST'],
+        'ask': [ASK_SIDE, ASK_PARK],
+        'sim': 'Not simulated with this partner.',
+        'why': 'Exception: it waits on RIGHT_AUTO_HIVE 7-19 s, so no R- Auto beside it.'},
+    'R-NOCROSS': {
+        'auto': 'R-NoCross', 'weStart': 'RIGHT_START',
+        'init': ['Partner starts LEFT and shoots at the LEFT CELL after our TIP 1',
+                 'if no TIP 2: WAIT FOR PARTNER (default)',
+                 'Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land'],
+        'ask': ['Will you start LEFT and shoot at the LEFT CELL?', ASK_PARK],
+        'sim': '40 pts, no contact beside a left shooter; 3 of 3 on video, no contact.',
+        'why': 'Exception: a left shooter (seen on video beside our R-NoCross).'},
+}
+
+
+def plan_for(arch, o):
+    if o.get('plan'):
+        return o['plan']
+    return 'L-NOCROSS' if o.get('verifiedRightTipper') else 'R-SOLO'
+
 
 def guess(a):
     if a['matches'] == 0:
@@ -113,6 +158,9 @@ def main():
         teams.append({
             'team': int(t), 'name': a['name'], 'city': a['city'],
             'archetype': arch, 'archetypeFrom': 'scouted' if 'archetype' in o else 'guessed', 'why': why,
+            'plan': plan_for(arch, o), 'planFixed': bool(o.get('plan')),
+            'verifiedRightTipper': bool(o.get('verifiedRightTipper')),
+            'verifyAtMidland': not o.get('verifiedRightTipper') and not o.get('plan') and arch == 'RIGHT-SHOOT-PARK' and side == 'RIGHT',
             'side': o.get('side'), 'likelySide': side, 'sideConfidence': conf, 'shoots': o.get('shoots', shoots), 'lastShotS': o.get('lastPreloadS'), 'note': o.get('note'),
             'tipRate': round(hit, 2), 'leave': a['leave'], 'park': a['park'],
             'leaveRecent': a['leaveRecent'], 'parkRecent': a['parkRecent'], 'recentEvent': a['recentEvent'],
@@ -127,10 +175,12 @@ def main():
                 'likelySide/sideConfidence: seen on video = high; otherwise from the archetype (LEAVE-PARK: LEFT, medium; RIGHT-SHOOT-PARK: RIGHT, medium if tipRate 0.6+, else low). shoots: hits (own TIP rate 0.6+), misses (it tips, under 0.6) or none; lastShotS: its last preload, from video. Archetype names are the partner reality-check chat\'s. leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
         'event': an['event'], 'eventName': 'Michigan FiM Championship NW (Midland, 10-12 Dec 2026)',
         'built': time.strftime('%Y-%m-%d'), 'dataFetched': an['fetched'],
-        'archetypes': ARCHETYPES, 'teams': teams,
+        'rule': 'R-Solo beside every partner (it starts LEFT, LEAVEs, is parked or out of the left end by about 9 s); L-NoCross only beside a partner seen on video starting RIGHT and tipping. Mentor, 26 Nov 2026.',
+        'plans': PLANS, 'archetypes': ARCHETYPES, 'teams': teams,
     }
     json.dump(doc, open(OUT, 'w'), indent=1)
     from collections import Counter
+    print(Counter(x['plan'] for x in teams), 'verify:', [x['team'] for x in teams if x['verifyAtMidland']])
     print(Counter(x['archetype'] for x in teams), 'hard:', [x['team'] for x in teams if x['hardToPlan']])
 
 

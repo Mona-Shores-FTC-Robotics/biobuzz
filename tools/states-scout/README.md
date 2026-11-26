@@ -25,5 +25,12 @@ Then republish `out/states-partners.html` to the same artifact. Stdlib Python on
   only the RIGHT CELL is up at the start. The queue's side question confirms it.
 - **`overrides.json`** holds what we saw on video (the `scouting` branch's `scouting/2026/partners.json`):
   archetype, side, last-preload time and a one-line note. It always wins over the guess.
+- **The rule** (mentor, 26 Nov 2026): R-Solo beside every partner; L-NoCross only beside one seen on video
+  starting RIGHT and tipping (`verifiedRightTipper` in `overrides.json`, or marked on the page at Midland).
+  Exceptions are a `plan` in `overrides.json` (10255 R-NoCross, 15104 L-NoCross on WAIT FOR PARTNER FIX).
+  `PLANS` in `build.py` holds each plan's INIT settings and questions.
+- **Verify at Midland**: the page lists the teams that score like right-side tippers but are not on video.
+  A scout's "Mark seen" is a shared row in the page's store (`verified/<team>`); fold the marks into
+  `overrides.json` (`verifiedRightTipper: true`) when the catalog is next rebuilt.
 - **Recommendations** come from the latest sim-results runs of L-NoCross and R-NoCross beside each
   partner stand-in, cited in each archetype's `sim` line.

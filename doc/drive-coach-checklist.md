@@ -7,8 +7,11 @@ Controls page and the printed cheat sheet are the only place for those.
 
 ## In the queue, with the partner
 
-- [ ] **At States: look the partner up** on the States Partner Lookup page (`tools/states-scout/README.md`):
-      it gives our Auto, its INIT settings and the questions to ask for that partner.
+- [ ] **At States: R-Solo, unless the partner is a verified right-side tipper** (mentor, 26 Nov 2026). Ask the
+      partner to start LEFT, LEAVE, and be parked or out of the left end by about 9 s. Only a partner seen on
+      video starting RIGHT and tipping (our videos, or marked at Midland on the States Partner Lookup page,
+      `tools/states-scout/README.md`) gets L-NoCross; FTCScout scores and the partner's own word never count.
+      Look the partner up: the page gives our Auto, its INIT settings and the questions to ask.
 - [ ] **Ask the partner when their last preload leaves**, in seconds after the start. Take their
       slowest honest answer. It is the one number we ask a partner.
 - [ ] **Agree who parks where**: R- Autos end on `RIGHT_PARK`, L-NoCross on `LEFT_PARK`. If the
