@@ -1,13 +1,13 @@
 {
  "arm": {
-  "grams_petg": 71.21,
-  "time_mk3_class": "4h 38m 14s",
-  "time_fast_class": "3h 2m 30s"
+  "grams_petg": 74.1,
+  "time_mk3_class": "4h 53m 56s",
+  "time_fast_class": "3h 15m 51s"
  },
  "arm_hex_pivot": {
-  "grams_petg": 71.31,
-  "time_mk3_class": "4h 38m 49s",
-  "time_fast_class": "3h 2m 55s"
+  "grams_petg": 74.19,
+  "time_mk3_class": "4h 54m 14s",
+  "time_fast_class": "3h 16m 7s"
  },
  "foot_skid": {
   "grams_petg": 6.29,

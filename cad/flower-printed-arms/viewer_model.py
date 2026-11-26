@@ -9,6 +9,7 @@ Node names say what each part is and what moves:
 - `printed/...` the printed arms (turn with the stick);
 - `pivot/...`  the robot's parts on the pivot axis (the stick's servo, its block, the left stub shaft and its hub);
 - `corner/...` the corner wheels (SWYFT's STEP, two per side) and the placed servo and mount;
+- `camera/...` the Limelight 3A (its view is drawn by the viewer: 54.5 x 42 deg, pitched 45 deg up);
 - `robot/...`  the rest of the robot's front, thinned, for context.
 """
 import os
@@ -58,6 +59,9 @@ def main(out):
         leaf = node.split(" / ")[-1]
         v = m.vertices * 1000
         on_axis = np.hypot(v[:, 0] - PIVOT_XZ[0], v[:, 2] - PIVOT_XZ[1]).min() < 25
+        if "Limelight" in leaf:
+            add("camera/Limelight 3A", m)
+            continue
         if on_axis and any(leaf.startswith(p) for p in PIVOT_PARTS):
             add("pivot/" + leaf.rsplit(" <", 1)[0], m)
             continue

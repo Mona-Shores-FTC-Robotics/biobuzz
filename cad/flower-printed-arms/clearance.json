@@ -30,23 +30,23 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 4.5,
-      "in": 0.18,
+      "mm": 14.3,
+      "in": 0.56,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 25.5,
-      "in": 1.0,
+      "mm": 29.2,
+      "in": 1.15,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 21.2,
-      "in": 0.83,
+      "mm": 25.2,
+      "in": 0.99,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
-      "mm": 0.1,
-      "in": 0.0,
+      "mm": 0.2,
+      "in": 0.01,
       "at_deg": 159.0
      }
     },
@@ -102,22 +102,22 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 4.6,
-      "in": 0.18,
+      "mm": 14.3,
+      "in": 0.56,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 25.5,
-      "in": 1.0,
+      "mm": 29.2,
+      "in": 1.15,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 21.2,
-      "in": 0.83,
+      "mm": 25.2,
+      "in": 0.99,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
-      "mm": 9.1,
+      "mm": 9.2,
       "in": 0.36,
       "at_deg": 162.0
      }
@@ -147,6 +147,44 @@
    }
   }
  },
+ "slack": {
+  "corner parts 8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 7.0,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 7.0,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  },
+  "corner parts 0 mm forward, 8 mm up": {
+   "left": {
+    "mm": 6.3,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 6.4,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  },
+  "corner parts 8 mm forward, 8 mm up": {
+   "left": {
+    "mm": 4.3,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 4.4,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  }
+ },
  "stowed": {
   "front_x_in": 6.71,
   "top_z_in": 16.42,
@@ -160,13 +198,13 @@
   "lowest_z_in": -0.16
  },
  "hump": {
-  "height_mm": 42.0,
-  "leaves_line_u_mm": 58.0,
+  "height_mm": 53.5,
+  "leaves_line_u_mm": 54.0,
   "full_u_mm": [
-   130.0,
-   138.0
+   134.0,
+   134.0
   ],
-  "back_on_line_u_mm": 208.0,
+  "back_on_line_u_mm": 210.0,
   "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
  }
 }
