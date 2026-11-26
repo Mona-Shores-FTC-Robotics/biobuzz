@@ -76,6 +76,15 @@ header p { margin: 2px 0 0; color: var(--muted); font-size: 13px }
 .row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
 .row .r { font: 500 12px var(--mono); color: var(--muted); white-space: nowrap }
 .empty { color: var(--muted); padding: 12px 0 }
+.verify { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line) }
+.verify h2 { font: 700 22px var(--display); margin: 0 }
+.vrow { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line) }
+.vrow .n { font: 600 16px var(--mono) }
+.vrow .nm { min-width: 0; overflow-wrap: anywhere }
+.vbtn { font: 600 13px var(--body); border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 10px; cursor: pointer; white-space: nowrap }
+.vbtn[aria-pressed="true"] { background: var(--chip-p); color: var(--chip-p-ink); border-color: var(--chip-p-ink) }
+.vbtn:focus-visible { outline: 2px solid var(--honey); outline-offset: 2px }
+.rule { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px }
 footer { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
 @media (max-width: 460px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)) } .row { grid-template-columns: 56px minmax(0, 1fr) } .row .r { grid-column: 2 } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
@@ -86,12 +95,18 @@ footer { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
     <h1>States Partner Lookup</h1>
     <p id="sub"></p>
   </header>
+  <div class="rule" id="rule"></div>
   <div class="search">
     <input id="q" inputmode="numeric" autocomplete="off" placeholder="Partner team #" aria-label="Partner team number or name">
   </div>
   <div class="filters" id="filters" role="group" aria-label="Filter by archetype"></div>
   <div id="card"></div>
   <div class="list" id="list"></div>
+  <section class="verify" id="verify" aria-labelledby="vh">
+    <h2 id="vh">Verify at Midland</h2>
+    <p class="small" id="vnote"></p>
+    <div class="list" id="vlist"></div>
+  </section>
   <footer id="foot"></footer>
 </div>
 
@@ -99,12 +114,20 @@ footer { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
 const DATA = /*DATA*/null;
 const A = DATA.archetypes;
 const ORDER = ['RIGHT-SHOOT-PARK', 'LEFT-SHOOT-PARK', 'LEAVE-PARK', 'STILL', 'CROSSER'];
+const P = DATA.plans;
 let filter = null;
+let marks = {};      // team -> true, from the shared store (or this phone only)
+let store = null;    // db namespace, or null
+const LS = 'states-verified';
+try { marks = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch (e) { marks = {}; }
+const verified = t => t.verifiedRightTipper || !!marks[t.team];
+const planOf = t => t.planFixed ? t.plan : (verified(t) ? 'L-NOCROSS' : t.plan);
 const $ = id => document.getElementById(id);
 const pct = v => v == null ? '–' : Math.round(v * 100) + '%';
 const cls = v => v == null ? '' : v >= 0.8 ? 'good' : v >= 0.5 ? 'mid' : 'low';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+$('rule').textContent = 'Rule: ' + DATA.rule;
 $('sub').textContent = `${DATA.eventName} · ${DATA.teams.length} partners · scores to ${DATA.dataFetched}. For Ultraviolet (20245) / Infrared (19429).`;
 
 function renderFilters() {
@@ -121,6 +144,8 @@ $('filters').addEventListener('click', e => {
 
 function card(t) {
   const a = A[t.archetype];
+  const pl = P[planOf(t)];
+  const vtag = t.verifiedRightTipper ? 'seen on video' : marks[t.team] ? 'marked at Midland' : '';
   const al = t.allianceAuto ? `${t.allianceAuto.worst} / ${t.allianceAuto.median} / ${t.allianceAuto.best}` : '–';
   const side = t.likelySide ? `likely start ${t.likelySide} (${t.sideConfidence} confidence)` : 'start side unknown';
   return `<div class="card">
@@ -128,9 +153,9 @@ function card(t) {
     <div class="top"><span class="chip a-${t.archetype}">${esc(a.label)}</span><span class="guess">shoots: <b>${esc(t.shoots)}</b></span>
       <span class="guess">${t.archetypeFrom === 'scouted' ? 'scouted: ' + esc(t.why) : 'guessed from scores: ' + esc(t.why)}</span></div>
     ${t.hardToPlan ? '<div class="flag">Hard to plan around: check the queue answers carefully.</div>' : ''}
-    <div class="run"><span class="lab">Run</span><span class="auto">${esc(a.auto)}</span><span class="small">from ${esc(a.weStart)}</span>
-      <ul>${a.init.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
-    <div class="sec ask"><span class="lab">Ask in the queue</span><ul>${a.ask.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="run"><span class="lab">Run</span><span class="auto">${esc(pl.auto)}</span><span class="small">from ${esc(pl.weStart)} · ${esc(planOf(t) === 'L-NOCROSS' && vtag ? 'right-side tipper, ' + vtag : pl.why)}</span>
+      <ul>${pl.init.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div class="sec ask"><span class="lab">Ask in the queue</span><ul>${pl.ask.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
     <div class="stats">
       <div class="stat"><b class="${cls(t.tipRate)}">${pct(t.tipRate)}</b><span>own AUTO TIP (est.)</span></div>
       <div class="stat"><b class="${cls(t.leaveRecent)}">${pct(t.leaveRecent)}</b><span>LEAVE, last event</span></div>
@@ -139,8 +164,8 @@ function card(t) {
     </div>
     ${t.note ? `<div class="note">${esc(t.note)}</div>` : ''}
     <div class="small">${side} · alliance AUTO worst / median / best: ${al} · season LEAVE ${pct(t.leave)}, PARK ${pct(t.park)} · ${t.matches} matches (${esc(t.events.join(', '))}) · auto OPR ${t.autoOpr ?? '–'}</div>
-    <div class="small"><b>Sim:</b> ${esc(a.sim)}</div>
-    <div class="small"><b>Watch:</b> ${esc(a.watch)}</div>
+    <div class="small"><b>Sim:</b> ${esc(pl.sim)}</div>
+    <div class="small"><b>Archetype:</b> ${esc(a.label)}. ${esc(a.watch)}</div>
   </div>`;
 }
 
@@ -160,7 +185,7 @@ function renderList() {
   const one = exact || (m.length === 1 && q ? m[0] : null);
   $('card').innerHTML = one ? card(one) : (q && !m.length ? `<div class="empty">No team ${esc(q)} at this event. It may have registered after ${esc(DATA.dataFetched)}: plan as LEAVE / park only and ask all three questions.</div>` : '');
   $('list').innerHTML = m.filter(t => t !== one).map(t => `<button type="button" class="row" data-t="${t.team}">
-    <span class="n">${t.team}</span><span class="nm">${esc(t.name)} <span class="chip a-${t.archetype}">${esc(A[t.archetype].auto)}</span></span>
+    <span class="n">${t.team}</span><span class="nm">${esc(t.name)} <span class="chip a-${t.archetype}">${esc(P[planOf(t)].auto)}</span></span>
     <span class="r">TIP ${pct(t.tipRate)} · L ${pct(t.leaveRecent)} · P ${pct(t.parkRecent)}</span></button>`).join('');
 }
 $('list').addEventListener('click', e => {
@@ -169,9 +194,47 @@ $('list').addEventListener('click', e => {
 });
 $('q').addEventListener('input', renderList);
 
-$('foot').innerHTML = `<div>Own AUTO TIP is a least-squares share of the alliance's AUTO TIPs (FTCScout scores TIPs per alliance); LEAVE and AUTO PARK are the team's own. "Guessed" teams have not been seen on video: a team that tips is listed as a right-start shooter because only the RIGHT CELL is up at the start. Confirm with the side question.</div>
+$('foot').innerHTML = `<div>Own AUTO TIP is a least-squares share of the alliance's AUTO TIPs (FTCScout scores TIPs per alliance); LEAVE and AUTO PARK are the team's own. "Guessed" teams have not been seen on video. The Auto comes from the rule at the top: only a team seen starting RIGHT and tipping (on our video, or marked at Midland) gets L-NoCross; FTCScout scores and a team's own word never count.</div>
 <div>Endgame row: PARK FIRST in quals unless the partner LEAVEs and PARKs every time and our shots are landing; TIPS FIRST only in playoffs.</div>
 <div>Built ${esc(DATA.built)} from TeamCode/autos/states-partners.json (tools/states-scout).</div>`;
 
-renderFilters(); renderList();
+function renderVerify() {
+  const v = DATA.teams.filter(t => t.verifyAtMidland).sort((a, b) => b.tipRate - a.tipRate);
+  $('vnote').textContent = `Teams whose scores say "right-side tipper" but nobody has seen it on video. Watch them on the practice day and in early quals; tap Mark seen when you see one start RIGHT and tip with its preloads. It then gets L-NoCross. ` +
+    (store ? 'Marks are shared with everyone who opens this page.' : 'Marks are saved on this phone only (sign in to claude.ai to share them).');
+  $('vlist').innerHTML = v.map(t => `<div class="vrow"><span class="n">${t.team}</span>
+    <span class="nm">${esc(t.name)}<br><span class="small">TIP ${pct(t.tipRate)} est. · ${esc(t.shoots)} · ${esc(t.recentEvent || '')}</span></span>
+    <button type="button" class="vbtn" data-t="${t.team}" aria-pressed="${!!marks[t.team]}">${marks[t.team] ? 'Seen ✓' : 'Mark seen'}</button></div>`).join('');
+}
+$('vlist').addEventListener('click', async e => {
+  const b = e.target.closest('.vbtn'); if (!b) return;
+  const n = b.dataset.t, on = !marks[n];
+  if (on) marks[n] = true; else delete marks[n];
+  try { localStorage.setItem(LS, JSON.stringify(marks)); } catch (err) {}
+  renderVerify(); renderList();
+  if (!store) return;
+  try {
+    const ref = store.doc('verified/' + n);
+    if (on) await ref.set({ team: Number(n), seen: true, at: Date.now() }); else await ref.delete();
+  } catch (err) {
+    $('vnote').textContent = 'Could not save that mark to the shared list (' + (err && err.code || 'error') + '). It is kept on this phone.';
+  }
+});
+
+renderFilters(); renderList(); renderVerify();
+
+(async () => {
+  try {
+    store = window.claude && await window.claude.use('db');
+  } catch (e) { store = null; }
+  if (!store) return;
+  renderVerify();
+  store.collection('verified').onSnapshot(snap => {
+    const m = {};
+    snap.docs.forEach(d => { const x = d.data(); if (x && x.seen) m[d.id] = true; });
+    marks = m;
+    try { localStorage.setItem(LS, JSON.stringify(marks)); } catch (err) {}
+    renderVerify(); renderList();
+  }, () => { store = null; renderVerify(); });
+})();
 </script>
