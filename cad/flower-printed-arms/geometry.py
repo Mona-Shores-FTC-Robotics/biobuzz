@@ -36,22 +36,23 @@ ARM_T = 12.0                                   # across, in Y: the channel's ban
 # Each arm's band in Y (inner face, outer face). The right arm sits 0.45 in further out than the left in the CAD.
 ARM_Y = {"left": (137.4, 149.4), "right": (-148.2, -160.2)}
 
-# ---- the corner wheel, its servo and its mount: PLACEHOLDERS ---------------------------------------------------------
-# What is known (mentor, 26 Nov): a 3.5 in SWYFT Intake Wheel (vendor/ STEP: 88.74 mm across, 12.7 mm wide) on a
-# goBILDA Speed servo (continuous), the servo standing up flush to the chassis side, axle forward; today's straight arm
-# hits it between holes 5 and 7 (stations from the pivot). The position below is PLACED to reproduce exactly that
-# (the straight arm, down, meets these parts from hole 5.4 to 7.0) until the hole counts come.
+# ---- the corner wheel, its servo and its mount ------------------------------------------------------------------------
+# Mentor, 26 Nov: a 3.5 in SWYFT Intake Wheel (vendor/ STEP: 88.74 mm across, 12.7 mm wide), two side by side, on a
+# goBILDA Speed servo (continuous) standing up, axle forward; the servo flush against the chassis side wall, just ahead
+# of the front mecanum wheel. From the 31 Oct CAD: the side plate's inner face at |Y| 193.6 mm, ending at X 192 mm with
+# the mecanum module (|Y| 150..175, front at X 192). Not measured on the robot; the mount is a guess.
 CORNER = dict(
     wheel_d=88.74,           # SWYFT Intake Wheel 3.5 in, from its STEP (vendor/)
     wheel_w=2 * 0.5 * IN,    # two SWYFT wheels side by side, no spacer (mentor, 26 Nov): 2 x 12.7 mm
-    wheel_front_x=9.5 * IN,  # PLACEHOLDER
-    wheel_y=7.0 * IN,        # PLACEHOLDER: axle |Y|
-    wheel_z=2.4 * IN,        # PLACEHOLDER: axle height (the rim 0.65 in off the tile)
+    wall_y=193.6,            # the side plate's inner face, |Y| (31 Oct CAD): the servo's outer face against it
+    drive_front_x=192.0,     # the front mecanum module's front, X (31 Oct CAD)
+    servo_gap_x=1.0,         # the servo's back face this far ahead of it
+    wheel_z=2.4 * IN,        # PLACEHOLDER: axle height (the rim 0.65 in off the tile; "1-2 in off the ground")
     servo_len=38.0,          # goBILDA Speed servo body along its spline (X), without the spline
-    servo_w=20.0,            # across (Y), centred on the wheel's axle
+    servo_w=20.0,            # across (Y); the spline on the body's centre line
     servo_h=40.0,            # upright (Z): the spline 10 mm up from its bottom end
-    hub_gap=0.30 * IN,       # PLACEHOLDER: servo face to the wheel's back face (horn, hub)
-    mount_wall=4.0,          # PLACEHOLDER: the mount around the servo, each side
+    hub_gap=6.0,             # PLACEHOLDER: servo face to the wheels' back face (horn, hub)
+    mount_wall=4.0,          # PLACEHOLDER: the mount round the servo, inboard and front-back (none outboard: the wall)
 )
 
 CLEARANCE = 4.0              # the brief's "about half a hole" (goBILDA 8 mm grid)
@@ -63,19 +64,26 @@ def corner_boxes(side):
     """The corner's parts as simple solids: ('cyl', centre, axis, radius, half-length) or ('box', lo, hi)."""
     c = CORNER
     s = 1 if side == "left" else -1
-    wy = s * c["wheel_y"]
-    wx1 = c["wheel_front_x"]
-    wx0 = wx1 - c["wheel_w"]
+    y_out = c["wall_y"]
+    y_in = y_out - c["servo_w"]
+    wy = s * (y_out + y_in) / 2                       # the spline, so the wheels' axle
+    sx0 = c["drive_front_x"] + c["servo_gap_x"]
+    sx1 = sx0 + c["servo_len"]
+    wx0 = sx1 + c["hub_gap"]
+    wx1 = wx0 + c["wheel_w"]
     wheel = ("cyl", np.array([(wx0 + wx1) / 2, wy, c["wheel_z"]]), np.array([1.0, 0, 0]), c["wheel_d"] / 2,
              c["wheel_w"] / 2)
-    sx1 = wx0 - c["hub_gap"]
-    sx0 = sx1 - c["servo_len"]
-    # upright, on the wheel's axle: the spline 10 mm up from the body's bottom
-    ylo, yhi = wy - c["servo_w"] / 2, wy + c["servo_w"] / 2
+    ylo, yhi = sorted((s * y_in, s * y_out))
     zlo, zhi = c["wheel_z"] - 10.0, c["wheel_z"] + c["servo_h"] - 10.0
     servo = ("box", np.array([sx0, ylo, zlo]), np.array([sx1, yhi, zhi]))
     w = c["mount_wall"]
-    mount = ("box", np.array([sx0, ylo - w, zlo - w]), np.array([wx0 - 1.0, yhi + w, zhi + w]))
+    mlo = np.array([sx0, ylo - w, zlo - w])                 # no wall behind: the mecanum is there
+    mhi = np.array([wx0 - 1.0, yhi + w, zhi + w])
+    if s > 0:
+        mhi[1] = yhi                                   # nothing outboard of the wall
+    else:
+        mlo[1] = ylo
+    mount = ("box", mlo, mhi)
     return {"wheel": wheel, "servo": servo, "mount": mount}
 
 

@@ -8,17 +8,17 @@
      "wheel": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 156.0
+      "at_deg": 153.0
      },
      "servo": {
-      "mm": 21.6,
-      "in": 0.85,
+      "mm": 24.2,
+      "in": 0.95,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 14.9,
-      "in": 0.59,
-      "at_deg": 162.0
+      "mm": 20.2,
+      "in": 0.8,
+      "at_deg": 159.0
      },
      "rest of robot (31 Oct CAD)": {
       "mm": 0.1,
@@ -30,40 +30,40 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 8.2,
-      "in": 0.32,
+      "mm": 9.4,
+      "in": 0.37,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 31.8,
-      "in": 1.25,
+      "mm": 31.3,
+      "in": 1.23,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 25.2,
-      "in": 0.99,
+      "mm": 25.6,
+      "in": 1.01,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
-      "mm": 0.3,
-      "in": 0.01,
-      "at_deg": 159.0
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 162.0
      }
     },
     "foot (a) skid": {
      "wheel": {
-      "mm": 66.0,
-      "in": 2.6,
+      "mm": 47.2,
+      "in": 1.86,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 107.3,
-      "in": 4.22,
+      "mm": 89.2,
+      "in": 3.51,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 98.9,
-      "in": 3.89,
+      "mm": 82.0,
+      "in": 3.23,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
@@ -80,17 +80,17 @@
      "wheel": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 153.0
+      "at_deg": 150.0
      },
      "servo": {
-      "mm": 13.6,
+      "mm": 13.4,
       "in": 0.53,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 5.2,
-      "in": 0.2,
-      "at_deg": 162.0
+      "mm": 9.4,
+      "in": 0.37,
+      "at_deg": 159.0
      },
      "rest of robot (31 Oct CAD)": {
       "mm": 3.8,
@@ -102,40 +102,40 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 4.5,
-      "in": 0.18,
+      "mm": 4.8,
+      "in": 0.19,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 27.1,
-      "in": 1.07,
+      "mm": 24.0,
+      "in": 0.94,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 21.0,
-      "in": 0.83,
+      "mm": 18.3,
+      "in": 0.72,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
-      "mm": 9.2,
-      "in": 0.36,
+      "mm": 6.9,
+      "in": 0.27,
       "at_deg": 162.0
      }
     },
     "foot (a) skid": {
      "wheel": {
-      "mm": 64.7,
-      "in": 2.55,
+      "mm": 44.8,
+      "in": 1.76,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 104.7,
-      "in": 4.12,
+      "mm": 85.4,
+      "in": 3.36,
       "at_deg": 162.0
      },
      "mount": {
-      "mm": 96.6,
-      "in": 3.8,
+      "mm": 78.4,
+      "in": 3.09,
       "at_deg": 162.0
      },
      "rest of robot (31 Oct CAD)": {
@@ -160,13 +160,13 @@
   "lowest_z_in": -0.16
  },
  "hump": {
-  "height_mm": 24.5,
-  "leaves_line_u_mm": 60.0,
+  "height_mm": 38.0,
+  "leaves_line_u_mm": 68.0,
   "full_u_mm": [
-   116.0,
-   124.0
+   132.0,
+   140.0
   ],
-  "back_on_line_u_mm": 176.0,
+  "back_on_line_u_mm": 206.0,
   "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
  }
 }

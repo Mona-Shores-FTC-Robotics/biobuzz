@@ -33,11 +33,11 @@
   "worst_at_deg": 116.0
  },
  "printed": {
-  "mass_g": 402.0,
+  "mass_g": 407.0,
   "items": [
    {
     "what": "2 printed arms",
-    "g": 136.3
+    "g": 141.3
    },
    {
     "what": "2 skids",
@@ -56,13 +56,13 @@
     "g": 30.0
    }
   ],
-  "torque_kgcm_stowed_0deg": -3.54,
-  "torque_kgcm_pick_162deg": 5.56,
-  "torque_kgcm_worst": 7.93,
+  "torque_kgcm_stowed_0deg": -3.65,
+  "torque_kgcm_pick_162deg": 5.67,
+  "torque_kgcm_worst": 8.01,
   "worst_at_deg": 117.0
  },
  "margin_printed": {
-  "goBILDA Torque": "3.2x stall (1.1x a third of stall)",
+  "goBILDA Torque": "3.1x stall (1.0x a third of stall)",
   "goBILDA Speed": "1.2x stall (0.4x a third of stall)",
   "SWYFT Balance": "3.4x stall (1.1x a third of stall)",
   "SWYFT Torque": "4.2x stall (1.4x a third of stall)",
