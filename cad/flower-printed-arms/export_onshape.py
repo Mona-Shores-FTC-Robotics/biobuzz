@@ -15,7 +15,6 @@ import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import corner_bracket  # noqa: E402
 import parts  # noqa: E402
 from check import corner_solids, placement, to_cq_matrix  # noqa: E402
 from geometry import ARM_Y, SWING_DEG  # noqa: E402
@@ -31,9 +30,6 @@ def corner(side):
         label = {"wheel": "SWYFT wheels x2", "servo": "goBILDA Speed servo 2000-0025-0003",
                  "mount": "mount (guess)", "screw": "wheel screw and washer (guess)"}.get(name, name)
         a.add(s, name=label, color=cq.Color(*COLOURS.get(name, (0.5, 0.5, 0.5))))
-    br = corner_bracket.bracket_left()
-    a.add(br if side == "left" else br.mirror("XZ"), name="printed corner bracket (proposed)",
-          color=cq.Color(0.95, 0.75, 0.2))
     return a
 
 
