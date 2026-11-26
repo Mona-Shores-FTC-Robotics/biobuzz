@@ -122,7 +122,7 @@ $('filters').addEventListener('click', e => {
 function card(t) {
   const a = A[t.archetype];
   const al = t.allianceAuto ? `${t.allianceAuto.worst} / ${t.allianceAuto.median} / ${t.allianceAuto.best}` : '–';
-  const side = t.side ? `${t.side} start (seen)` : 'start side not seen';
+  const side = t.likelySide ? `likely start ${t.likelySide} (${t.sideConfidence} confidence)` : 'start side unknown';
   return `<div class="card">
     <div class="top"><span class="num">${t.team}</span><span class="tname">${esc(t.name)}</span><span class="city">${esc(t.city || '')}</span></div>
     <div class="top"><span class="chip a-${t.archetype}">${esc(a.label)}</span><span class="guess">shoots: <b>${esc(t.shoots)}</b></span>
