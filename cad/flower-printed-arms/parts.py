@@ -133,9 +133,40 @@ def hump():
     return _HUMP
 
 
+FILLET_R = MIN_RADIUS + 1.0      # the hump's corners: a ramp up, a flat top and a ramp down, every corner this round
+
+
+def _ramp(u, h, a, b, c, e):
+    """The centre line's offset v at u: 0 to a, a straight ramp up to h at b, h to c, a ramp down to 0 at e, every corner
+    rounded to FILLET_R (less only where the segments are too short, which _radius_ok then rejects)."""
+    u = np.asarray(u, float)
+    if h <= 0:
+        return np.zeros_like(u)
+    P = np.array([(u[0] - 50.0, 0.0), (a, 0.0), (b, h), (c, h), (e, 0.0), (u[-1] + 50.0, 0.0)])
+    P = P[np.r_[True, np.hypot(*np.diff(P, axis=0).T) > 1e-9]]          # b == c: one peak corner
+    out = [P[0]]
+    for i in range(1, len(P) - 1):
+        d1 = P[i] - P[i - 1]; l1 = np.hypot(*d1); d1 = d1 / l1
+        d2 = P[i + 1] - P[i]; l2 = np.hypot(*d2); d2 = d2 / l2
+        cr = d1[0] * d2[1] - d1[1] * d2[0]
+        th = math.atan2(abs(cr), float(d1 @ d2))
+        if th < 1e-6:
+            out.append(P[i]); continue
+        t = min(FILLET_R * math.tan(th / 2), 0.5 * l1 if i > 1 else l1, 0.5 * l2 if i < len(P) - 2 else l2)
+        r = t / math.tan(th / 2)
+        t1 = P[i] - d1 * t
+        n = math.copysign(1.0, cr) * np.array([-d1[1], d1[0]])
+        ctr = t1 + n * r
+        a0 = math.atan2(*(t1 - ctr)[::-1]); sweep = math.copysign(th, cr)
+        out.extend(ctr + r * np.c_[np.cos(a0 + np.linspace(0, sweep, 24)), np.sin(a0 + np.linspace(0, sweep, 24))])
+    out.append(P[-1])
+    q = np.array(out)
+    return np.interp(u, q[:, 0], q[:, 1])
+
+
 def spine(hm, step=2.0):
     u = np.arange(-END_PAST + ARM_W / 2, TIP_U + END_PAST - ARM_W / 2 + 1e-6, step)   # the round ends add the rest
-    return u, hm[0] * _bump(u, *hm[1:])
+    return u, _ramp(u, *hm)
 
 
 def _radius_ok(hm):
