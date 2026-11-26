@@ -55,7 +55,7 @@ TIP_LINE = [TIP_U - 16.0]
 # ---- the hump --------------------------------------------------------------------------------------------------------
 HUMP_FROM = 2 * PITCH            # u 48: the hump may leave the old line from hole station 3 ...
 HUMP_TO = TIP_U - PAD - 2.0      # u 216: ... and is back on it before the tip pad, so the tip end stays straight
-SIZING_SHIFTS = [(0.0, 0.0), (GRID, 0.0), (0.0, GRID), (GRID, GRID)]   # mm (X forward, Z up): one goBILDA hole of slack
+SIZING_SHIFTS = [(0.0, 0.0), (GRID, 0.0), (0.0, GRID), (GRID, GRID), (-GRID, 0.0), (-GRID, GRID)]   # mm (X forward, Z up): a goBILDA hole of slack each way
 SIZING_MARGIN = 1.0             # mm on top of CLEARANCE: the sizing samples the parts, check.py measures them exactly
 MIN_RADIUS = ARM_W / 2 + 6.0     # the centre line never bends tighter than this, so the inner edge stays smooth
 
