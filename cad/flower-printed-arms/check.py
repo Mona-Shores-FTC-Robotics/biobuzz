@@ -77,7 +77,7 @@ def corner_solids(side, real_wheel=False):
     for name, k in corner_boxes(side).items():
         if k[0] == "cyl":
             _, c, ax, r, h = k
-            if not real_wheel:                      # the wheels' outer cylinder: an envelope, and fast
+            if not real_wheel or name != "wheel":    # the wheels' outer cylinder (an envelope, and fast); the screw
                 out[name] = cq.Solid.makeCylinder(r, 2 * h, cq.Vector(*(c - ax * h)), cq.Vector(*ax))
                 continue
             if _WHEEL is None:

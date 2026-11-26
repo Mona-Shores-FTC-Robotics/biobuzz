@@ -54,6 +54,8 @@ CORNER = dict(
     servo_h=40.0,            # upright (Z): the spline 10 mm up from its bottom end
     hub_gap=6.0,             # PLACEHOLDER: servo face to the wheels' back face (horn, hub)
     mount_wall=4.0,          # PLACEHOLDER: the mount round the servo, inboard and front-back (none outboard: the wall)
+    screw_d=20.0,            # PLACEHOLDER: the screw and washer on the wheels' front face, on the axle (mentor, 26 Nov):
+    screw_len=8.0,           # a washer up to 20 mm across, the head and washer standing 8 mm proud
 )
 
 CLEARANCE = 4.0              # the brief's "about half a hole" (goBILDA 8 mm grid)
@@ -85,7 +87,9 @@ def corner_boxes(side):
     else:
         mhi[1] = yhi
     mount = ("box", mlo, mhi)
-    return {"wheel": wheel, "servo": servo, "mount": mount}
+    screw = ("cyl", np.array([wx1 + c["screw_len"] / 2, wy, c["wheel_z"]]), np.array([1.0, 0, 0]), c["screw_d"] / 2,
+             c["screw_len"] / 2)
+    return {"wheel": wheel, "servo": servo, "mount": mount, "screw": screw}
 
 
 def rot_y(theta_deg):

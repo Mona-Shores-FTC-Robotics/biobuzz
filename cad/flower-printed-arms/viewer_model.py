@@ -84,7 +84,9 @@ def main(out):
             a.invert()
         add(f"printed/printed arm, {side}", a)
         for name, s in corner_solids(side, real_wheel=True).items():
-            add(f"corner/{'SWYFT wheels' if name == 'wheel' else name + ' (placed, not measured)'}, {side}",
+            label = {"wheel": "SWYFT wheels", "screw": "wheel screw and washer (placed, not measured)"}.get(
+                name, name + " (placed, not measured)")
+            add(f"corner/{label}, {side}",
                 solid_mesh(s))
     scene.export(out)
     print(out, os.path.getsize(out) // 1024, "KB")
