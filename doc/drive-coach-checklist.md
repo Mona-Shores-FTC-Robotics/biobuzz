@@ -8,7 +8,10 @@ Controls page and the printed cheat sheet are the only place for those.
 ## In the queue, with the partner
 
 - [ ] **At States: R-Solo, unless the partner is a verified right-side tipper** (mentor, 26 Nov 2026). Ask the
-      partner to start LEFT, LEAVE, and be parked or out of the left end by about 9 s. Only a partner seen on
+      partner: "Start LEFT. Be off your start by 8 seconds. Don't stop along the scoring-table wall. Park at the
+      scoring-table end of the LOADING ZONE, in the corner." (In the simulator a partner leaving at 9 s is hit at
+      10.5 s, and one stopping a tile along that wall at 10.9 s.) If they must park mid-zone, note it and tell
+      the mentor: R-Solo-LowPark (#763, a draft) may run instead. Only a partner seen on
       video starting RIGHT and tipping (our videos, or marked at Midland on the States Partner Lookup page,
       `tools/states-scout/README.md`) gets L-NoCross; FTCScout scores and the partner's own word never count.
       Look the partner up: the page gives our Auto, its INIT settings and the questions to ask.
