@@ -77,9 +77,23 @@ def guess(a):
         return 'STILL', 'LEAVE in under half its last event\'s matches'
     if tip >= 1.0 and a['allianceTipsDist'].get('2', 0) + a['allianceTipsDist'].get('3', 0) >= a['matches'] / 3:
         return 'CROSSER', 'TIP share over 1 and 2+ TIPs in a third of its matches'
-    if tip < 0.25:
-        return 'LEAVE-PARK', 'TIP share under 0.25: launches nothing that tips'
+    if tip < 0.4:
+        return 'LEAVE-PARK', 'TIP share under 0.4: of 20 qualifier partners on our video none tipped, and low scorers ran LEAVE-PARK from the left'
     return 'RIGHT-SHOOT-PARK', 'tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)'
+
+
+def likely_side(arch, hit, o):
+    """(likely start side, confidence). Seen on video: high. Else from the archetype: in our 32 partner
+    runs every LEAVE-PARK started left, and a preload TIP needs the RIGHT CELL, which alone is up at the start."""
+    if o.get('side'):
+        return o['side'], 'high'
+    if arch == 'LEAVE-PARK':
+        return 'LEFT', 'medium'
+    if arch == 'RIGHT-SHOOT-PARK':
+        return 'RIGHT', 'medium' if hit >= 0.6 else 'low'
+    if arch == 'LEFT-SHOOT-PARK':
+        return 'LEFT', 'medium'
+    return None, 'none'
 
 
 def main():
@@ -94,11 +108,12 @@ def main():
         if 'archetype' in o:
             arch, why = o['archetype'], o.get('source', 'scouted')
         hit = max(0.0, min(1.0, a['tipShare']))
+        side, conf = likely_side(arch, hit, o)
         shoots = 'none' if arch in ('LEAVE-PARK', 'STILL') else ('hits' if hit >= 0.6 else 'misses')
         teams.append({
             'team': int(t), 'name': a['name'], 'city': a['city'],
             'archetype': arch, 'archetypeFrom': 'scouted' if 'archetype' in o else 'guessed', 'why': why,
-            'side': o.get('side'), 'shoots': o.get('shoots', shoots), 'lastShotS': o.get('lastPreloadS'), 'note': o.get('note'),
+            'side': o.get('side'), 'likelySide': side, 'sideConfidence': conf, 'shoots': o.get('shoots', shoots), 'lastShotS': o.get('lastPreloadS'), 'note': o.get('note'),
             'tipRate': round(hit, 2), 'leave': a['leave'], 'park': a['park'],
             'leaveRecent': a['leaveRecent'], 'parkRecent': a['parkRecent'], 'recentEvent': a['recentEvent'],
             'matches': a['matches'], 'events': a['events'],
@@ -109,7 +124,7 @@ def main():
     doc = {
         '_doc': 'Written by tools/states-scout/build.py; refresh with fetch.py --refetch, analyze.py, build.py. '
                 'tipRate is the team\'s own AUTO TIPs per match, a least-squares share of its alliances\' TIPs (FTCScout scores TIPs per alliance). '
-                'shoots: hits (own TIP rate 0.6+), misses (it tips, under 0.6) or none; lastShotS: its last preload, from video. Archetype names are the partner reality-check chat\'s. leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
+                'likelySide/sideConfidence: seen on video = high; otherwise from the archetype (LEAVE-PARK: LEFT, medium; RIGHT-SHOOT-PARK: RIGHT, medium if tipRate 0.6+, else low). shoots: hits (own TIP rate 0.6+), misses (it tips, under 0.6) or none; lastShotS: its last preload, from video. Archetype names are the partner reality-check chat\'s. leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
         'event': an['event'], 'eventName': 'Michigan FiM Championship NW (Midland, 10-12 Dec 2026)',
         'built': time.strftime('%Y-%m-%d'), 'dataFetched': an['fetched'],
         'archetypes': ARCHETYPES, 'teams': teams,
