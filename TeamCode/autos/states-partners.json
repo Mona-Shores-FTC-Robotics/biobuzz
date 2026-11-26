@@ -4,22 +4,23 @@
  "eventName": "Michigan FiM Championship NW (Midland, 10-12 Dec 2026)",
  "built": "2026-11-26",
  "dataFetched": "2026-11-26",
- "rule": "R-Solo beside every partner (it starts LEFT, LEAVEs, is parked or out of the left end by about 9 s); L-NoCross only beside a partner seen on video starting RIGHT and tipping. Mentor, 26 Nov 2026.",
+ "rule": "R-Solo beside every partner (it starts LEFT, is off its start by 8 s, never stops along the scoring-table wall, parks in the LOADING ZONE corner at the scoring-table end); L-NoCross only beside a partner seen on video starting RIGHT and tipping. Mentor, 26 Nov 2026.",
  "plans": {
   "R-SOLO": {
    "auto": "R-Solo",
    "weStart": "RIGHT_START",
    "init": [
-    "Partner starts LEFT and is parked or out of the left end by about 9 s",
+    "Partner starts LEFT, is off its start by 8 s, does not stop along the scoring-table wall, and parks in the corner at the scoring-table end of the LOADING ZONE",
+    "If they must park mid-zone: note it and tell the mentor (R-Solo-LowPark, #763, a draft, may run instead)",
     "R-Solo: nothing else to set",
     "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
    ],
    "ask": [
-    "Please start LEFT, LEAVE, and be parked or out of the left end by about 9 s. Can you?",
+    "Start LEFT. Be off your start by 8 seconds. Don't stop along the scoring-table wall. Park at the scoring-table end of the LOADING ZONE, in the corner.",
     "Does your Auto LEAVE and PARK every time?",
     "Where do you park, and by when?"
    ],
-   "sim": "Beside a LEAVE-PARK partner 36 pts, 0 contacts (needs #759 on the robot). A partner still in the LOADING ZONE touches our RIGHT_PARK: ask it to sit in the corner past the tape.",
+   "sim": "Beside a LEAVE-PARK partner 36 pts, 0 contacts (needs #759 on the robot). Why the ask: a partner leaving at 9 s is hit at 10.5 s; one stopping a tile along the scoring-table wall is hit at 10.9 s; one still in the LOADING ZONE touches our RIGHT_PARK.",
    "why": "Default: not seen on video starting RIGHT and tipping."
   },
   "L-NOCROSS": {

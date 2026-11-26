@@ -70,15 +70,16 @@ ARCHETYPES = {
 # The States rule (mentor, 26 Nov 2026): R-Solo beside every partner, which starts LEFT, LEAVEs and is
 # parked or out of the left end by about 9 s. L-NoCross only beside a partner seen on video starting
 # RIGHT and tipping (verifiedRightTipper). Exceptions are a plan id in overrides.json.
-ASK_LEFT = 'Please start LEFT, LEAVE, and be parked or out of the left end by about 9 s. Can you?'
+ASK_LEFT = "Start LEFT. Be off your start by 8 seconds. Don't stop along the scoring-table wall. Park at the scoring-table end of the LOADING ZONE, in the corner."
 PLANS = {
     'R-SOLO': {
         'auto': 'R-Solo', 'weStart': 'RIGHT_START',
-        'init': ['Partner starts LEFT and is parked or out of the left end by about 9 s',
+        'init': ['Partner starts LEFT, is off its start by 8 s, does not stop along the scoring-table wall, and parks in the corner at the scoring-table end of the LOADING ZONE',
+                 'If they must park mid-zone: note it and tell the mentor (R-Solo-LowPark, #763, a draft, may run instead)',
                  'R-Solo: nothing else to set',
                  'Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land'],
         'ask': [ASK_LEFT, ASK_LEAVE, ASK_PARK],
-        'sim': 'Beside a LEAVE-PARK partner 36 pts, 0 contacts (needs #759 on the robot). A partner still in the LOADING ZONE touches our RIGHT_PARK: ask it to sit in the corner past the tape.',
+        'sim': 'Beside a LEAVE-PARK partner 36 pts, 0 contacts (needs #759 on the robot). Why the ask: a partner leaving at 9 s is hit at 10.5 s; one stopping a tile along the scoring-table wall is hit at 10.9 s; one still in the LOADING ZONE touches our RIGHT_PARK.',
         'why': 'Default: not seen on video starting RIGHT and tipping.'},
     'L-NOCROSS': {
         'auto': 'L-NoCross', 'weStart': 'LEFT_START',
@@ -175,7 +176,7 @@ def main():
                 'likelySide/sideConfidence: seen on video = high; otherwise from the archetype (LEAVE-PARK: LEFT, medium; RIGHT-SHOOT-PARK: RIGHT, medium if tipRate 0.6+, else low). shoots: hits (own TIP rate 0.6+), misses (it tips, under 0.6) or none; lastShotS: its last preload, from video. Archetype names are the partner reality-check chat\'s. leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
         'event': an['event'], 'eventName': 'Michigan FiM Championship NW (Midland, 10-12 Dec 2026)',
         'built': time.strftime('%Y-%m-%d'), 'dataFetched': an['fetched'],
-        'rule': 'R-Solo beside every partner (it starts LEFT, LEAVEs, is parked or out of the left end by about 9 s); L-NoCross only beside a partner seen on video starting RIGHT and tipping. Mentor, 26 Nov 2026.',
+        'rule': 'R-Solo beside every partner (it starts LEFT, is off its start by 8 s, never stops along the scoring-table wall, parks in the LOADING ZONE corner at the scoring-table end); L-NoCross only beside a partner seen on video starting RIGHT and tipping. Mentor, 26 Nov 2026.',
         'plans': PLANS, 'archetypes': ARCHETYPES, 'teams': teams,
     }
     json.dump(doc, open(OUT, 'w'), indent=1)
