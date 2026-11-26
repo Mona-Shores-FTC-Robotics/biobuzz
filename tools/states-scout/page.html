@@ -50,9 +50,9 @@ header p { margin: 2px 0 0; color: var(--muted); font-size: 13px }
 .tname { font-weight: 600; font-size: 17px; min-width: 0 }
 .city { color: var(--muted); font-size: 13px }
 .chip { display: inline-block; font: 600 12px var(--body); letter-spacing: .02em; padding: 3px 9px; border-radius: 999px; white-space: nowrap }
-.a-R_SHOOT_PARK { background: var(--chip-r); color: var(--chip-r-ink) }
-.a-L_SHOOT_PARK { background: var(--chip-l); color: var(--chip-l-ink) }
-.a-LEAVE_PARK { background: var(--chip-p); color: var(--chip-p-ink) }
+.a-RIGHT-SHOOT-PARK { background: var(--chip-r); color: var(--chip-r-ink) }
+.a-LEFT-SHOOT-PARK { background: var(--chip-l); color: var(--chip-l-ink) }
+.a-LEAVE-PARK { background: var(--chip-p); color: var(--chip-p-ink) }
 .a-STILL { background: var(--chip-s); color: var(--chip-s-ink) }
 .a-CROSSER { background: var(--chip-x); color: var(--chip-x-ink) }
 .guess { font-size: 12px; color: var(--muted) }
@@ -98,7 +98,7 @@ footer { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
 <script>
 const DATA = /*DATA*/null;
 const A = DATA.archetypes;
-const ORDER = ['R_SHOOT_PARK', 'L_SHOOT_PARK', 'LEAVE_PARK', 'STILL', 'CROSSER'];
+const ORDER = ['RIGHT-SHOOT-PARK', 'LEFT-SHOOT-PARK', 'LEAVE-PARK', 'STILL', 'CROSSER'];
 let filter = null;
 const $ = id => document.getElementById(id);
 const pct = v => v == null ? '–' : Math.round(v * 100) + '%';
@@ -125,7 +125,7 @@ function card(t) {
   const side = t.side ? `${t.side} start (seen)` : 'start side not seen';
   return `<div class="card">
     <div class="top"><span class="num">${t.team}</span><span class="tname">${esc(t.name)}</span><span class="city">${esc(t.city || '')}</span></div>
-    <div class="top"><span class="chip a-${t.archetype}">${esc(a.label)}</span>
+    <div class="top"><span class="chip a-${t.archetype}">${esc(a.label)}</span><span class="guess">shoots: <b>${esc(t.shoots)}</b></span>
       <span class="guess">${t.archetypeFrom === 'scouted' ? 'scouted: ' + esc(t.why) : 'guessed from scores: ' + esc(t.why)}</span></div>
     ${t.hardToPlan ? '<div class="flag">Hard to plan around: check the queue answers carefully.</div>' : ''}
     <div class="run"><span class="lab">Run</span><span class="auto">${esc(a.auto)}</span><span class="small">from ${esc(a.weStart)}</span>
@@ -135,7 +135,7 @@ function card(t) {
       <div class="stat"><b class="${cls(t.tipRate)}">${pct(t.tipRate)}</b><span>own AUTO TIP (est.)</span></div>
       <div class="stat"><b class="${cls(t.leaveRecent)}">${pct(t.leaveRecent)}</b><span>LEAVE, last event</span></div>
       <div class="stat"><b class="${cls(t.parkRecent)}">${pct(t.parkRecent)}</b><span>AUTO PARK, last event</span></div>
-      <div class="stat"><b>${t.lastPreloadS != null ? t.lastPreloadS + ' s' : '–'}</b><span>last preload (video)</span></div>
+      <div class="stat"><b>${t.lastShotS != null ? '~' + t.lastShotS + ' s' : '–'}</b><span>last shot (video)</span></div>
     </div>
     ${t.note ? `<div class="note">${esc(t.note)}</div>` : ''}
     <div class="small">${side} · alliance AUTO worst / median / best: ${al} · season LEAVE ${pct(t.leave)}, PARK ${pct(t.park)} · ${t.matches} matches (${esc(t.events.join(', '))}) · auto OPR ${t.autoOpr ?? '–'}</div>

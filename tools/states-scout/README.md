@@ -17,8 +17,9 @@ Then republish `out/states-partners.html` to the same artifact. Stdlib Python on
   rate (`tipRate`) is a ridge least-squares share of its alliances' AUTO TIPs over every match at every
   event any States team played (our two robots come out at about 0.8, which matches our logs). No start
   side, no times.
-- **Archetypes** (`ARCHETYPES` in `build.py`): right-start shooter then park, left-start shooter then
-  park, LEAVE / park only, still or dead, crosser. Without video a team is *guessed* from its scores: LEAVE
+- **Archetypes** (`ARCHETYPES` in `build.py`, named as the partner reality-check work names them):
+  RIGHT-SHOOT-PARK, LEFT-SHOOT-PARK, LEAVE-PARK, STILL, CROSSER. Each team also gets `shoots` (hits:
+  own TIP rate 0.6 or more; misses: it tips, less often; none) and `lastShotS` where video gives it. Without video a team is *guessed* from its scores: LEAVE
   under half its last event's matches is still; a TIP share under 0.25 is LEAVE / park; a share over 1 with
   2+ TIPs in a third of its matches is a crosser; any other team that tips is a right-start shooter, since
   only the RIGHT CELL is up at the start. The queue's side question confirms it.

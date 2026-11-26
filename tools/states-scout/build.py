@@ -18,8 +18,8 @@ ASK_LEAVE = 'Does your Auto LEAVE and PARK every time?'
 # Our plan per archetype. Sim numbers: sim-results branch, latest run of each Auto's
 # sim-request (L-NoCross auto/l-no-cross 25 Nov, R-NoCross claude/fresh-sim-7 23 Nov), mean of 5 seeds.
 ARCHETYPES = {
-    'R_SHOOT_PARK': {
-        'label': 'Right-start shooter, then park',
+    'RIGHT-SHOOT-PARK': {
+        'label': 'RIGHT-SHOOT-PARK',
         'auto': 'L-NoCross', 'weStart': 'LEFT_START',
         'init': ['Wait: shoots right at the start -> leave "waiting for TIP 1 until 9 s"; later -> D-pad right to 6 s after their second',
                  'if no TIP 1: CROSS AND FIX IT (default) - WAIT FOR PARTNER FIX only if they re-shoot',
@@ -27,8 +27,8 @@ ARCHETYPES = {
         'ask': [ASK_SIDE, ASK_RESHOOT, ASK_PARK],
         'sim': 'On time 48 pts, 1.6 TIPs, parked 100%. Missing: CROSS AND FIX IT 32 pts vs WAIT FOR PARTNER FIX 16. Dead: 28 vs 8. No contact in any run.',
         'watch': 'CROSS AND FIX IT drives under the HIVE to RIGHT_AUTO_FIX_TIP: if they are still near the right launch spot after ~12 s, pick WAIT FOR PARTNER FIX.'},
-    'L_SHOOT_PARK': {
-        'label': 'Left-start shooter, then park',
+    'LEFT-SHOOT-PARK': {
+        'label': 'LEFT-SHOOT-PARK',
         'auto': 'R-NoCross', 'weStart': 'RIGHT_START',
         'init': ['Wait: nothing to set (our preloads make TIP 1; they shoot after it)',
                  'if no TIP 2: WAIT FOR PARTNER (default) - CROSS AND FIX IT only if they park out of the wall lane and are clear by 20 s',
@@ -36,8 +36,8 @@ ARCHETYPES = {
         'ask': [ASK_SIDE, ASK_PARK],
         'sim': 'On time 56 pts, 2.0 TIPs. Missing 36 pts, 1 TIP. With CROSS AND FIX IT beside a fast partner 56, no contact.',
         'watch': 'Their CELL is down until our TIP 1: they must wait for it, so ask "do you wait for the LEFT CELL to come up?"'},
-    'LEAVE_PARK': {
-        'label': 'LEAVE / park only',
+    'LEAVE-PARK': {
+        'label': 'LEAVE-PARK',
         'auto': 'R-NoCross', 'weStart': 'RIGHT_START',
         'init': ['Ask them to start LEFT. Wait: nothing to set',
                  'if no TIP 2: WAIT FOR PARTNER (default)',
@@ -46,7 +46,7 @@ ARCHETYPES = {
         'sim': 'Beside a still partner 28 pts, 1 TIP, no contact (R-NoCross, partner-still). If they must start right: L-NoCross, wait D-pad left to 0, CROSS AND FIX IT (28 pts beside a dead right partner).',
         'watch': 'We get one TIP alone; SWARM needs their LEAVE and PARK too.'},
     'STILL': {
-        'label': 'Still or dead',
+        'label': 'STILL',
         'auto': 'R-NoCross', 'weStart': 'RIGHT_START',
         'init': ['They sit on LEFT_START: R-NoCross, if no TIP 2: WAIT FOR PARTNER',
                  'If they can only sit on the right: L-NoCross, wait D-pad left to 0, if no TIP 1: CROSS AND FIX IT',
@@ -55,7 +55,7 @@ ARCHETYPES = {
         'sim': 'R-NoCross beside a dead left partner 28 pts, 1 TIP, no contact. L-NoCross beside a dead right partner, CROSS AND FIX IT: 28 pts, 1 TIP, 2.2 in clear of it.',
         'watch': 'Never run R-Clockwise/R-LeftUnderHive halves beside a dead LEFT_START robot (known overlap).'},
     'CROSSER': {
-        'label': 'Crosser / makes more than one TIP',
+        'label': 'CROSSER',
         'auto': 'L-NoCross or R-NoCross (the side they leave us)', 'weStart': 'their other side',
         'init': ['Never CROSS AND FIX IT: their route crosses ours',
                  'L-NoCross: if no TIP 1: WAIT FOR PARTNER FIX; R-NoCross: if no TIP 2: WAIT FOR PARTNER',
@@ -76,8 +76,8 @@ def guess(a):
     if tip >= 1.0 and a['allianceTipsDist'].get('2', 0) + a['allianceTipsDist'].get('3', 0) >= a['matches'] / 3:
         return 'CROSSER', 'TIP share over 1 and 2+ TIPs in a third of its matches'
     if tip < 0.25:
-        return 'LEAVE_PARK', 'TIP share under 0.25'
-    return 'R_SHOOT_PARK', 'tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)'
+        return 'LEAVE-PARK', 'TIP share under 0.25: launches nothing that tips'
+    return 'RIGHT-SHOOT-PARK', 'tips with its preloads; side not seen (only the RIGHT CELL is up at the start, so a preload TIP is usually from the right)'
 
 
 def main():
@@ -92,10 +92,11 @@ def main():
         if 'archetype' in o:
             arch, why = o['archetype'], o.get('source', 'scouted')
         hit = max(0.0, min(1.0, a['tipShare']))
+        shoots = 'none' if arch in ('LEAVE-PARK', 'STILL') else ('hits' if hit >= 0.6 else 'misses')
         teams.append({
             'team': int(t), 'name': a['name'], 'city': a['city'],
             'archetype': arch, 'archetypeFrom': 'scouted' if 'archetype' in o else 'guessed', 'why': why,
-            'side': o.get('side'), 'lastPreloadS': o.get('lastPreloadS'), 'note': o.get('note'),
+            'side': o.get('side'), 'shoots': o.get('shoots', shoots), 'lastShotS': o.get('lastPreloadS'), 'note': o.get('note'),
             'tipRate': round(hit, 2), 'leave': a['leave'], 'park': a['park'],
             'leaveRecent': a['leaveRecent'], 'parkRecent': a['parkRecent'], 'recentEvent': a['recentEvent'],
             'matches': a['matches'], 'events': a['events'],
@@ -106,7 +107,7 @@ def main():
     doc = {
         '_doc': 'Written by tools/states-scout/build.py; refresh with fetch.py --refetch, analyze.py, build.py. '
                 'tipRate is the team\'s own AUTO TIPs per match, a least-squares share of its alliances\' TIPs (FTCScout scores TIPs per alliance). '
-                'leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
+                'shoots: hits (own TIP rate 0.6+), misses (it tips, under 0.6) or none; lastShotS: its last preload, from video. Archetype names are the partner reality-check chat\'s. leave/park are its own, per robot, all season; *Recent are its last event. allianceAuto is its alliance\'s AUTO points (best/median/worst).',
         'event': an['event'], 'eventName': 'Michigan FiM Championship NW (Midland, 10-12 Dec 2026)',
         'built': time.strftime('%Y-%m-%d'), 'dataFetched': an['fetched'],
         'archetypes': ARCHETYPES, 'teams': teams,
