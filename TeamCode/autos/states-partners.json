@@ -7,21 +7,22 @@
  "archetypes": {
   "RIGHT-SHOOT-PARK": {
    "label": "RIGHT-SHOOT-PARK",
+   "standIn": "partner-r-launch-park (lastShotS 1-5; fails: misses)",
    "auto": "L-NoCross",
    "weStart": "LEFT_START",
    "init": [
-    "Wait: shoots right at the start -> leave \"waiting for TIP 1 until 9 s\"; later -> D-pad right to 6 s after their second",
-    "if no TIP 1: CROSS AND FIX IT if they leave their start before 10 s or stay on it until 16 s; WAIT FOR PARTNER FIX if they leave at 10-16 s, are not sure, or re-shoot",
+    "Wait: as drawn, \"waiting for TIP 1 until 9 s\"",
+    "if no TIP 1: CROSS AND FIX IT only if they promise to drive off their start before 10 s, or stay on it until 16 s, when their preloads miss; otherwise WAIT FOR PARTNER FIX",
     "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
    ],
    "ask": [
     "Which side do you start, and do you shoot your preloads right at the start?",
-    "If your preloads miss, do you shoot at that CELL again?",
     "If your preloads miss, do you drive off your start before 10 s, or stay on it until 16 s?",
+    "If your preloads miss, do you shoot at that CELL again?",
     "Where do you park, and by when?"
    ],
-   "sim": "On time 48 pts, 1.6 TIPs, parked 100%. Missing: CROSS AND FIX IT 32 pts vs WAIT FOR PARTNER FIX 16. Dead: 28 vs 8. No contact in any run.",
-   "watch": "CROSS AND FIX IT puts us in the right lane from about 9 to 15.3 s: a partner leaving RIGHT_START between about 10.3 and 16 s hits us (reality-check sims). Raising our partner wait moves that window later by the same amount.",
+   "sim": "40 pts when they hit, 28 when they miss (reality-check sims, 26 Nov 2026).",
+   "watch": "CROSS AND FIX IT puts us in the right lane from about 9 to 15.3 s: a partner leaving RIGHT_START between about 10.3 and 16 s hits us. Raising our partner wait moves that window later by the same amount.",
    "crossWindow": {
     "oursInRightLaneS": [
      9.0,
@@ -37,68 +38,72 @@
   },
   "LEFT-SHOOT-PARK": {
    "label": "LEFT-SHOOT-PARK",
+   "standIn": "partner-l-tip-park / partner-l-launch-park",
    "auto": "R-NoCross",
    "weStart": "RIGHT_START",
    "init": [
     "Wait: nothing to set (our preloads make TIP 1; they shoot after it)",
-    "if no TIP 2: WAIT FOR PARTNER (default) - CROSS AND FIX IT only if they park out of the wall lane and are clear by 20 s",
+    "if no TIP 2: WAIT FOR PARTNER (default)",
     "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
    ],
    "ask": [
     "Which side do you start, and do you shoot your preloads right at the start?",
+    "Do you wait for the LEFT CELL to come up before you shoot?",
     "Where do you park, and by when?"
    ],
-   "sim": "On time 56 pts, 2.0 TIPs. Missing 36 pts, 1 TIP. With CROSS AND FIX IT beside a fast partner 56, no contact.",
-   "watch": "Their CELL is down until our TIP 1: they must wait for it, so ask \"do you wait for the LEFT CELL to come up?\""
+   "sim": "40 pts, no contact.",
+   "watch": "Their CELL is down until our TIP 1, so their shot depends on ours."
   },
   "LEAVE-PARK": {
    "label": "LEAVE-PARK",
-   "auto": "R-NoCross",
+   "standIn": "partner-leave-park",
+   "auto": "R-Solo (with #759), else R-NoCross",
    "weStart": "RIGHT_START",
    "init": [
-    "Ask them to start LEFT. Wait: nothing to set",
-    "if no TIP 2: WAIT FOR PARTNER (default)",
+    "R-Solo: nothing to set",
+    "R-NoCross: if no TIP 2: CROSS AND FIX IT (36 pts, no contact beside a LEAVE-PARK partner)",
     "Endgame: PARK FIRST (their park is our SWARM)"
    ],
    "ask": [
-    "Can you start on the left?",
+    "Which side do you start, and do you shoot your preloads right at the start?",
     "Does your Auto LEAVE and PARK every time?",
     "Where do you park, and by when?"
    ],
-   "sim": "Beside a still partner 28 pts, 1 TIP, no contact (R-NoCross, partner-still). If they must start right: L-NoCross, wait D-pad left to 0, CROSS AND FIX IT (28 pts beside a dead right partner).",
-   "watch": "We get one TIP alone; SWARM needs their LEAVE and PARK too."
+   "sim": "R-Solo 36 pts, 0 contacts (with #759). R-NoCross on CROSS AND FIX IT 36 pts, no contact.",
+   "watch": "SWARM needs their LEAVE and PARK too."
   },
   "STILL": {
    "label": "STILL",
-   "auto": "R-NoCross",
+   "standIn": "partner-still (corner) / partner-zone-still (LOADING ZONE)",
+   "auto": "R-Solo or R-NoCross",
    "weStart": "RIGHT_START",
    "init": [
-    "They sit on LEFT_START: R-NoCross, if no TIP 2: WAIT FOR PARTNER",
-    "If they can only sit on the right: L-NoCross, wait D-pad left to 0, if no TIP 1: CROSS AND FIX IT",
+    "R-NoCross: if no TIP 2: CROSS AND FIX IT (28 pts, no contact beside a partner in the corner)",
     "Endgame: PARK FIRST"
    ],
    "ask": [
-    "Do you have an Auto at all? Will it LEAVE?",
-    "Which start do you want to sit on?"
+    "Do you have an Auto at all?",
+    "If you won't move, sit in the corner past the LOADING ZONE tape."
    ],
-   "sim": "R-NoCross beside a dead left partner 28 pts, 1 TIP, no contact. L-NoCross beside a dead right partner, CROSS AND FIX IT: 28 pts, 1 TIP, 2.2 in clear of it.",
-   "watch": "Never run R-Clockwise/R-LeftUnderHive halves beside a dead LEFT_START robot (known overlap)."
+   "sim": "In the corner: R-NoCross on CROSS AND FIX IT 28 pts, no contact. In the LOADING ZONE: 33 pts, contact at 26.5 s at our RIGHT_PARK.",
+   "watch": "A still partner in the LOADING ZONE touches our RIGHT_PARK: ask it to sit in the corner."
   },
   "CROSSER": {
    "label": "CROSSER",
-   "auto": "L-NoCross or R-NoCross (the side they leave us)",
-   "weStart": "their other side",
+   "standIn": null,
+   "auto": "L-NoCross on WAIT FOR PARTNER FIX, or R-NoCross",
+   "weStart": "the start it leaves free",
    "init": [
-    "Never CROSS AND FIX IT: their route crosses ours",
-    "L-NoCross: if no TIP 1: WAIT FOR PARTNER FIX; R-NoCross: if no TIP 2: WAIT FOR PARTNER",
+    "Take whichever start it leaves free",
+    "L-NoCross: if no TIP 1: WAIT FOR PARTNER FIX; R-NoCross: if no TIP 2: WAIT FOR PARTNER. Never CROSS AND FIX IT",
     "Endgame: PARK FIRST"
    ],
    "ask": [
     "Which side do you start, and do you shoot your preloads right at the start?",
-    "Draw us your path: where are you at 10 s and 20 s, and where do you park?"
+    "Where are you at 10 s and 20 s, and where do you park?"
    ],
-   "sim": "Not simulated as a stand-in yet: plan from their answer.",
-   "watch": "Contact risk: these teams use both ends of the field in AUTO."
+   "sim": "No stand-in: never seen as a partner. Its route needs video.",
+   "watch": "Contact risk: it uses both ends of the field in AUTO."
   }
  },
  "teams": [
