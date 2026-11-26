@@ -82,7 +82,7 @@
       "fails": "misses preloads"
     },
     {
-      "name": "partner dead on its right start, said 3 s",
+      "name": "partner dead on its right start, said 3 s (never seen: our own robot ran every match at Belding and Fruitport)",
       "partner": "PartnerRBrokenDownAuto",
       "lastShotS": 3
     },
@@ -96,7 +96,7 @@
       "fails": "misses"
     },
     {
-      "name": "contingency: R dead on its start",
+      "name": "contingency: R dead on its start (never seen: our own robot ran every match at Belding and Fruitport)",
       "partner": "PartnerRBrokenDownAuto"
     }
   ],

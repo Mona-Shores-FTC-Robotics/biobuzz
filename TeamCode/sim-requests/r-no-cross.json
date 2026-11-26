@@ -24,9 +24,10 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
-      "name": "on time, typical 50 in/s",
+      "name": "LEFT-SHOOT-PARK on time, typical 50 in/s (seen 3 of 32, all 10255)",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 50
@@ -41,11 +42,40 @@
       }
     },
     {
-      "name": "dead on its start",
+      "name": "LEAVE-PARK: leaves LEFT_START at 1 s, parks at the LOADING ZONE by 3 s (seen 11 of 32)",
+      "partner": "PartnerLeaveParkAuto"
+    },
+    {
+      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
+      "partner": "PartnerZoneStillAuto"
+    },
+    {
+      "name": "LEAVE-PARK, R on CROSS AND FIX IT",
+      "partner": "PartnerLeaveParkAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "STILL in the corner, R on CROSS AND FIX IT",
+      "partner": "PartnerStillAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "STILL in the LOADING ZONE, R on CROSS AND FIX IT",
+      "partner": "PartnerZoneStillAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "dead on its start (never seen: no partner sat on LEFT_START all AUTO in 32 runs at Belding and Fruitport)",
       "partner": "PartnerLBrokenDownAuto"
     },
     {
-      "name": "stays out of the way",
+      "name": "STILL in the corner by the LOADING ZONE (seen 4 of 32)",
       "partner": "PartnerStillAuto"
     },
     {

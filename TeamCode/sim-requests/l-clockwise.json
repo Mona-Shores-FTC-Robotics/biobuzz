@@ -204,7 +204,7 @@
       "fails": "misses"
     },
     {
-      "name": "contingency: R dead on its start",
+      "name": "contingency: R dead on its start (never seen: our own robot ran every match at Belding and Fruitport)",
       "partner": "PartnerRBrokenDownAuto",
       "picks": {
         "Pickup": "GARDEN"

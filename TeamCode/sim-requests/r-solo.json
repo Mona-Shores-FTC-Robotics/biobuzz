@@ -24,26 +24,47 @@
     5
   ],
   "alliance": "RED",
+  "calibration": "belding",
   "partners": [
     {
-      "name": "dead on its start",
-      "partner": "PartnerLBrokenDownAuto"
+      "name": "LEAVE-PARK: leaves LEFT_START at 1 s, parks at the LOADING ZONE by 3 s (seen 11 of 32)",
+      "partner": "PartnerLeaveParkAuto"
     },
     {
-      "name": "stays out of the way",
+      "name": "STILL in the corner by the LOADING ZONE (seen 4 of 32)",
       "partner": "PartnerStillAuto"
     },
     {
-      "name": "parks at 15 s",
+      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
+      "partner": "PartnerZoneStillAuto"
+    },
+    {
+      "name": "LEFT-SHOOT-PARK on time (seen 3 of 32, all 10255)",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "dead on its start (never seen: no partner sat on LEFT_START all AUTO in 32 runs at Belding and Fruitport)",
+      "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "parks at 15 s (never seen: leavers left at 0.5 to 2 s)",
       "partner": "PartnerPark1Auto"
     },
     {
-      "name": "contingency: our preloads miss, partner stays out of the way",
+      "name": "contingency: our preloads miss, partner LEAVE-PARK",
+      "partner": "PartnerLeaveParkAuto",
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "contingency: our preloads miss, partner STILL in the corner",
       "partner": "PartnerStillAuto",
       "oursFails": "misses preloads"
     },
     {
-      "name": "contingency: our preloads miss, partner dead on its start",
+      "name": "contingency: our preloads miss, partner dead on its start (never seen: no partner sat on LEFT_START all AUTO in 32 runs at Belding and Fruitport)",
       "partner": "PartnerLBrokenDownAuto",
       "oursFails": "misses preloads"
     },

@@ -204,7 +204,7 @@
       "fails": "misses"
     },
     {
-      "name": "contingency: L dead on its start",
+      "name": "contingency: L dead on its start (never seen: our own robot ran every match at Belding and Fruitport)",
       "partner": "PartnerLBrokenDownAuto",
       "picks": {
         "Pickup": "WALL_FLOWER"
