@@ -162,7 +162,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     public static final long RESET_HOLD_MS = 500;
 
     /** The hint while a reset is held, built once. */
-    private static final String KEEP_HOLDING = String.format(Locale.US,
+    static final String KEEP_HOLDING = String.format(Locale.US,
             "Keep holding (%.1f s) to reset…", RESET_HOLD_MS / 1000.0);
 
     /**
@@ -1007,15 +1007,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robot.launcher.launched());
         lightBar();
         if (arcBlocked) {
-            display.status("Fire", Display.Level.FAULT, turretMode == TurretMode.AIM
-                    ? "turn the robot: CELL behind the turret's firing arc (or LOCK and hold Circle)"
-                    : "turret outside its firing arc: wait for it to come round to the front");
+            display.line(arcBlockedLine(turretMode == TurretMode.AIM));
         } else if (outsideArc) {
-            display.status("Fire", Display.Level.WARN, "outside the turret's firing arc: shots may hit the robot");
+            display.line(outsideArcLine());
         }
         if (robot.colorSensor.wrongNectarMayBeIn()) {
             // The feed gate stays shut to every fire button (FeedGateSubsystem.shutWhile): say why, and the way out.
-            display.status("Fire", Display.Level.FAULT, "WRONG NECTAR may be in the lane: gate shut. EJECT to clear");
+            display.line(wrongNectarLine());
         }
 
         // The Match page is a glance (mentor, 7 Nov 2026): the operator and the coach read it from
@@ -1026,14 +1024,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         if (TeleOpConfig.practiceReadout) readout.show(display);
         // The turret mode decides what Circle does, so it is on the Match page in large type.
         if (!TurretSubsystem.lockedForward) {
-            display.line(Display.huge(turretMode == TurretMode.AIM ? "AIM: Circle fires" : "LOCKED: Circle turns, then fires",
-                    turretMode == TurretMode.AIM ? Display.Level.OK : Display.Level.WARN));
+            display.line(turretModeLine(turretMode == TurretMode.AIM));
         }
         display.line(launchTrimLine(launcherTrimTps));
-        display.line(launcherLine());
+        display.line(launcherLine(launcherOwner.spinning(), robot.launcher.atSpeed()));
         display.line(piecesLine(robot.colorSensor.lane().count(), robot.colorSensor.full()));
-        if (fullHold.holds()) display.line(Display.huge("FIRE: WAITING FOR 4", Display.Level.WARN));
-        if (cellHold.holds()) display.line(Display.huge("FIRE: OUR CELL IS DOWN", Display.Level.WARN));
+        if (fullHold.holds()) display.line(fullHoldLine());
+        if (cellHold.holds()) display.line(cellHoldLine());
         display.line(OurCell.line(ourCell, ourCellLastSeen, now / 1e9 - ourCellLastSeenS));
         display.line(loopLine(loopTimer.lastMs()));
         display.line(pinpointLine(robot.drive.localizerFault() == null, robot.drive.pinpointTrust(), robot.drive.pinpointFaults()));
@@ -1044,7 +1041,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             if (hint != null) display.line(hint);
         }
         String alert = matchAlert();
-        if (alert != null) display.line(Display.huge(alert, Display.Level.WARN));
+        if (alert != null) display.line(matchAlertLine(alert));
         if (headingReset.pending() || cameraReset.pending() || leftCornerReset.pending() || rightCornerReset.pending() || turretZero.pending()) {
             display.line(KEEP_HOLDING);
         }
@@ -1258,10 +1255,62 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /** The Match page's launcher line, huge: READY in green, SPIN in amber, IDLE plain. */
-    private String launcherLine() {
-        if (!launcherOwner.spinning()) return Display.huge("IDLE", (Display.Level) null);
-        return robot.launcher.atSpeed() ? Display.huge("READY", Display.Level.OK)
+    static String launcherLine(boolean spinning, boolean atSpeed) {
+        if (!spinning) return Display.huge("IDLE", (Display.Level) null);
+        return atSpeed ? Display.huge("READY", Display.Level.OK)
                 : Display.huge("SPIN", Display.Level.WARN);
+    }
+
+    /**
+     * The Match page's turret mode, huge, because it decides what the driver's Circle does: green
+     * AIM, amber LOCKED. Not written on a robot locked forward.
+     */
+    static String turretModeLine(boolean aim) {
+        return Display.huge(aim ? "AIM: Circle fires" : "LOCKED: Circle turns, then fires",
+                aim ? Display.Level.OK : Display.Level.WARN);
+    }
+
+    /** The Match page's line while the firing arc refuses the feed ({@code TeleOpConfig.enforceFiringArc}). */
+    static String arcBlockedLine(boolean aim) {
+        return Display.statusLine(Display.Level.FAULT, "Fire: " + (aim
+                ? "turn the robot: CELL behind the turret's firing arc (or LOCK and hold Circle)"
+                : "turret outside its firing arc: wait for it to come round to the front"));
+    }
+
+    /** The Match page's line outside the firing arc on a robot whose drivers make the call. */
+    static String outsideArcLine() {
+        return Display.statusLine(Display.Level.WARN, "Fire: outside the turret's firing arc: shots may hit the robot");
+    }
+
+    /** The Match page's line while wrong NECTAR may be in the lane and the gate is shut to every feed. */
+    static String wrongNectarLine() {
+        return Display.statusLine(Display.Level.FAULT, "Fire: WRONG NECTAR may be in the lane: gate shut. EJECT to clear");
+    }
+
+    /** The Match page's line while {@code TeleOpConfig.fullLoadGate} holds a fire for a full lane. */
+    static String fullHoldLine() {
+        return Display.huge("FIRE: WAITING FOR 4", Display.Level.WARN);
+    }
+
+    /** The Match page's line while {@code TeleOpConfig.holdFireAtDownCell} holds a fire at our CELL down. */
+    static String cellHoldLine() {
+        return Display.huge("FIRE: OUR CELL IS DOWN", Display.Level.WARN);
+    }
+
+    /** {@link #matchAlert}'s texts, most urgent first. */
+    static final String ALERT_FEED_STUCK = "FEED STUCK: UNJAM";
+    static final String ALERT_TURRET_DROPPED = "TURRET DROPPED: TOGGLE AIM";
+    static final String ALERT_NO_PINPOINT = "NO PINPOINT";
+    static final String ALERT_INTAKE_OFF = "INTAKE OFF";
+    static final String ALERT_ROBOT_CENTRIC = "ROBOT-CENTRIC";
+    static final String ALERT_SQUARE_REFUSED = "SQUARE REFUSED";
+    static final String ALERT_FLOWER_STICK_OUT = "FLOWER STICK OUT";
+    static final String[] MATCH_ALERTS = {ALERT_FEED_STUCK, ALERT_TURRET_DROPPED, ALERT_NO_PINPOINT,
+            ALERT_INTAKE_OFF, ALERT_ROBOT_CENTRIC, ALERT_SQUARE_REFUSED, ALERT_FLOWER_STICK_OUT};
+
+    /** {@link #matchAlert}'s line: huge and amber. */
+    static String matchAlertLine(String alert) {
+        return Display.huge(alert, Display.Level.WARN);
     }
 
     /**
@@ -1282,16 +1331,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private String matchAlert() {
         // The throat beam sees a ball held at the wheels, or none coming with the lane holding:
         // unjam (hold) backs it out. Only with the beam fitted (BeamBreakSubsystem).
-        if (robot.beams.feedStuck()) return "FEED STUCK: UNJAM";
+        if (robot.beams.feedStuck()) return ALERT_FEED_STUCK;
         // A dropped hold stays dropped until a new request (Fruitport, 21 Nov 2026: 19429's turret
         // dropped 0.7 s into one TeleOp and fired blind for the rest of it, the Robot page's note
         // unread). The AIM / LOCKED toggle asks again.
-        if (!TurretSubsystem.lockedForward && robot.turret.faultNote() != null) return "TURRET DROPPED: TOGGLE AIM";
-        if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return "NO PINPOINT";
-        if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return "INTAKE OFF";
-        if (robotCentric() || !robot.drive.isFieldCentric()) return "ROBOT-CENTRIC";
-        if (launchSpot.refused()) return "SQUARE REFUSED";
-        if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) return "FLOWER STICK OUT";
+        if (!TurretSubsystem.lockedForward && robot.turret.faultNote() != null) return ALERT_TURRET_DROPPED;
+        if (!robot.drive.hasHeading() && !robot.drive.pinpointLost()) return ALERT_NO_PINPOINT;
+        if (TeleOpConfig.intakeAlwaysOn && !intakeRunning()) return ALERT_INTAKE_OFF;
+        if (robotCentric() || !robot.drive.isFieldCentric()) return ALERT_ROBOT_CENTRIC;
+        if (launchSpot.refused()) return ALERT_SQUARE_REFUSED;
+        if (robot.flowerStick.extended() || robot.flowerStick.waitingToClear()) return ALERT_FLOWER_STICK_OUT;
         return null;
     }
 

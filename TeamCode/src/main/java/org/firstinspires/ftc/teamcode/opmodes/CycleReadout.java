@@ -223,7 +223,9 @@ public final class CycleReadout {
         lastPickUpS = s;
         lastPickUpPieces = pieces;
         lastPickUpFull = full;
-        nPickUpTimes = keep(pickUpTimes, nPickUpTimes, s);
+        // Only a full load's pick-up is a time to beat: a fired-short one (one ball, 0 s) would win
+        // best and pull the median down. It still shows, amber, as the last pick-up.
+        if (full) nPickUpTimes = keep(pickUpTimes, nPickUpTimes, s);
         pickUpLine = Display.huge(String.format(Locale.US, "PICK-UP %.1f s (%d in)", s, pieces),
                 full ? Display.Level.OK : Display.Level.WARN);
         statsLine = statsLine();

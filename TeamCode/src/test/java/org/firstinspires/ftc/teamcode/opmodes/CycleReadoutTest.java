@@ -156,6 +156,26 @@ public class CycleReadoutTest {
     }
 
     @Test
+    public void aFiredShortPickUpNeverSetsTheBest() {
+        Rig g = new Rig()
+                .in(2.0, 2.5, 3.0, 3.5).press(4.0).feed(4.3, 5.5, 4)   // full: pick-up 1.5 s
+                .in(8.0).press(8.5).feed(8.8, 9.2, 1);                  // one ball: pick-up 0 s, short
+        g.runTo(11.0);
+        assertEquals(0.0, g.r.lastPickUpS(), EPS);
+        assertFalse(g.r.lastPickUpFull());
+        assertEquals(1.5, g.r.bestPickUpS(), EPS);
+        assertEquals(1.5, g.r.medianPickUpS(), EPS);
+    }
+
+    @Test
+    public void aFiredShortPickUpAloneLeavesNoBest() {
+        Rig g = new Rig().in(2.0).press(3.0).feed(3.3, 3.7, 1);
+        g.runTo(5.0);
+        assertEquals(0.0, g.r.lastPickUpS(), EPS);
+        assertTrue(Double.isNaN(g.r.bestPickUpS()));
+    }
+
+    @Test
     public void anEmptyFireIsNoVolleyAndItsPressIsAnEarlyPress() {
         // Circle at an empty lane: the gate opens, nothing launches. Then the pickup, and a real volley.
         Rig g = new Rig().press(1.0).feed(1.3, 2.0, 0)
