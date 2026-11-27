@@ -1260,7 +1260,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   calibration, a robot with the roller FLOWER stick (19429, `BeldingCalibration.rollerStick`) fills its lane on
   every FLOWER pick and GARDEN gather that runs to its end, in place of the Belding draw and the touch model: the
   mentor's observation of 19 Nov, "4 POLLEN every time", still to confirm with volleys of 4 counted from the
-  launcher wheels' dips. 20245, with the passive stick, keeps both. **Measured:**
+  launcher wheels' dips. 20245, with the passive stick, keeps both. The corner wheels (both robots, 26 Nov
+  2026) are in it (`FieldSim.rake`, `doc/corner-wheels.md` §5): a POLLEN touching the front in the corner strip
+  beside the mouth is raked in, one at a time at 6.3 in/s, so the corner gather takes 4 (3 by touch, the corner
+  piece off the right wheel) and `GardenGatherAlongWall`, whose row lies outside the mouth, takes 4 off the left
+  wheel; where the wheel sits, its pace and "never lost" are placeholders. **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3 s, which covers the
   button gathers 19429 ran on 18 Nov with today's values, 2.26 to 2.50 s without their line-up; no Auto
@@ -1390,6 +1394,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     plans with, in place of master's `AutoRegistration` constants. A what-if that speeds a mechanism up sets
     its typical time to match, or the guard parks for a volley that would have fitted.
     `BIOBUZZ_SIM_GARDEN_S` sets the least a `GardenGather` takes.
+  - `BIOBUZZ_SIM_CORNER_WHEELS=off`: the real robot without its corner wheels, for a before-and-after.
   - Every STUDY line is followed by `by 30 s: TIP1 a/n TIP2 b/n TIP3 c/n`: the same TIPs counted only when
     complete by the end of AUTO's 30 s. The STUDY line itself also counts a TIP that completes in the
     transition (§10.5 B), which the endgame guard does not plan on.
