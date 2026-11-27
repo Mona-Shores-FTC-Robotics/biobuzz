@@ -68,13 +68,13 @@ accel ramp 2.74, FLOWER dwell 2.31, gate open → first ball 2.06.
 
 
 
-PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with `Endgame: PARK FIRST`; 20245's
+PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with the Endgame row (`TIPS FIRST` by default since 27 Nov 2026); 20245's
 TIPS FIRST line in `RobotDifferences` is gone, and R-Clockwise shows no Priority row (it follows Endgame). The
 guard's PARK FIRST budget is now a volley's last piece out plus the park, with no 1 s margin.
 
-- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: PARK FIRST`; D-pad down to it,
-      right once: `Endgame ◀▶: TIPS FIRST`, amber. PLAY, then the match log's `auto options` event says
-      `Endgame=TIPS FIRST (drawn PARK FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
+- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: TIPS FIRST` (the default since
+      27 Nov 2026); D-pad down to it, right once: `Endgame ◀▶: PARK FIRST`, amber. PLAY, then the match log's
+      `auto options` event says `Endgame=PARK FIRST (drawn TIPS FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
 - [ ] **R-NoCross on 20245, PARK FIRST, loaded, HIVE upright, partner stand-in TIPping early:** the GARDEN volley
       fires only if its last ball and the park fit by 30 s; else the log says `no time to park after it,
       parking now`. Then the same on TIPS FIRST: the volley goes, its last ball out by 30 s. **Good:** every

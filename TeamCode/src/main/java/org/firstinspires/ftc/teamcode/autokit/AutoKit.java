@@ -419,14 +419,14 @@ public final class AutoKit {
         return on ? card.get() : OFF_ROUTE;
     }
 
-    /** The drive team's {@link AutoOption#ENDGAME} is {@link AutoOption#TIPS_FIRST}. */
+    /** The drive team's {@link AutoOption#ENDGAME} is {@link AutoOption#TIPS_FIRST}, the default when unpicked. */
     private boolean tipsFirst() {
-        return picks.choice(AutoOption.ENDGAME) == AutoOption.TIPS_FIRST_INDEX;
+        return picks.choice(AutoOption.ENDGAME) != AutoOption.PARK_FIRST_INDEX;
     }
 
     /**
      * Whether a volley must leave time for the park after it: the drive team's {@link AutoOption#ENDGAME}
-     * row, {@link AutoOption#PARK_FIRST} unless {@link AutoOption#TIPS_FIRST} was picked. On TIPS FIRST
+     * row: only when {@link AutoOption#PARK_FIRST} was picked ({@link AutoOption#TIPS_FIRST} is the default). On TIPS FIRST
      * the guard asks only that the volley's last piece is out by 30 s, and the robot ends AUTO where it
      * shot.
      */

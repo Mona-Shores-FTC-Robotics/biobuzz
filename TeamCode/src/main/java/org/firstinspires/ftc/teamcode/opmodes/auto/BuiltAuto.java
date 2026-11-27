@@ -158,7 +158,7 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
-        // Every Auto's menu ends with the Endgame row (PARK FIRST / TIPS FIRST), which also drives a
+        // Every Auto's menu ends with the Endgame row (TIPS FIRST / PARK FIRST), which also drives a
         // drawn Priority route; that one is not a row of its own (AutoOption.withEndgame).
         this.options = new InitOptions(AutoOption.withEndgame(options));
         Alliance drawn = Alliance.valueOf(drawnFor);

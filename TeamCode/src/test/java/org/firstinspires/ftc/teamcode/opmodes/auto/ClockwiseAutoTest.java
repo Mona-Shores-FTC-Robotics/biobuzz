@@ -77,7 +77,10 @@ public class ClockwiseAutoTest {
                 .trigger("RightCellUp", () -> now >= secondTip + 0.7)
                 .trigger("Always", () -> true);
         return new AutoKit(drive, registry, () -> now).trace(trace::add).picks(new AutoKit.Picks() {
-            @Override public int choice(String option) { return choices.getOrDefault(option, -1); }
+            // Endgame on PARK FIRST unless a test picks TIPS FIRST, the robot's default.
+                    @Override public int choice(String option) {
+                        return choices.getOrDefault(option, AutoOption.ENDGAME.equals(option) ? AutoOption.PARK_FIRST_INDEX : -1);
+                    }
             @Override public double seconds(String option) { return Double.NaN; }
         });
     }
@@ -164,7 +167,7 @@ public class ClockwiseAutoTest {
         parked(98.7);
     }
 
-    /** Endgame PARK FIRST (the default: Priority's PARK leg), RIGHT never comes up (TIP 2 has not come): R looks from the left end, stays, and finishes TIP 2 there. */
+    /** Endgame PARK FIRST (picked; Priority's PARK leg), RIGHT never comes up (TIP 2 has not come): R looks from the left end, stays, and finishes TIP 2 there. */
     @Test public void rightStaysLeftAndFinishesTip2WhenRightIsNotUp() {
         secondTip = Double.POSITIVE_INFINITY;
         run(RClockwiseAuto.build(kit(), false));
@@ -200,7 +203,7 @@ public class ClockwiseAutoTest {
         parked(98.7);
     }
 
-    /** RIGHT is up, and the drive team's Endgame is PARK FIRST (the default), so Priority's park leg: R keeps its load, waits for L to pass and parks. */
+    /** RIGHT is up, and the drive team's Endgame is PARK FIRST, so Priority's park leg: R keeps its load, waits for L to pass and parks. */
     @Test public void rightParksWithItsLoadWhenThePriorityIsThePark() {
         run(RClockwiseAuto.build(kit(), false));
         assertEquals(2, count("LaunchAll"));
@@ -343,7 +346,7 @@ public class ClockwiseAutoTest {
         assertEquals(3, menu.length);
         assertEquals("Pickup", menu[1].name);
         assertEquals(AutoOption.ENDGAME, menu[2].name);
-        assertEquals("[PARK FIRST, TIPS FIRST]", menu[2].choices.toString());
+        assertEquals("[TIPS FIRST, PARK FIRST]", menu[2].choices.toString());
         assertEquals(AutoOption.ENDGAME, AutoOption.withEndgame(LClockwiseAuto.OPTIONS)[2].name);
         assertEquals(2, LClockwiseAuto.OPTIONS.length);
         assertEquals(AutoOption.Kind.MATCH_SECONDS, LClockwiseAuto.OPTIONS[0].kind);

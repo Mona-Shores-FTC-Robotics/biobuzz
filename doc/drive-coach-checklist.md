@@ -40,21 +40,23 @@ Controls page and the printed cheat sheet are the only place for those.
       FIX IT`. At 20 s R then drives the wall side to the left end, puts its four in the LEFT CELL
       if it is still up, and parks on `RIGHT_PARK`, beside a partner on `LEFT_PARK`. Ask the
       partner where it parks and when; one in that lane, or still there after 20 s, means stay safe.
-- [ ] **Every Auto: Endgame, PARK FIRST or TIPS FIRST?** The last row of the INIT menu reads
-      `Endgame: PARK FIRST`. That keeps AUTO PARK (5 points, and it decides the SWARM RP whenever a partner
-      misses its LEAVE or its end-of-match PARK) and fires a late volley only if the park still fits after
-      it. TIPS FIRST (D-pad down to the row, right once) fires a late volley whose last ball is out by 30 s
-      even if the park is lost: a TIP is 20 points. Choose:
-      - **Quals: PARK FIRST**, unless the partner says its Auto both LEAVEs and PARKs every time (then SWARM
-        is covered without ours) *and* our shots are landing today. A partner with no Auto, or one that
-        does not park in AUTO: PARK FIRST, always.
-      - **Playoffs (no ranking points): TIPS FIRST** when our shots are landing; the park is only 5 points.
+- [ ] **Every Auto: Endgame, TIPS FIRST or PARK FIRST?** The last row of the INIT menu reads
+      `Endgame: TIPS FIRST`, the default (mentor, 27 Nov 2026). That fires a late volley whose last ball is
+      out by 30 s even if the park is lost: a TIP is 20 points. PARK FIRST (D-pad down to the row, right
+      once) keeps AUTO PARK (5 points, and it decides the SWARM RP whenever a partner misses its LEAVE or
+      its end-of-match PARK) and fires a late volley only if the park still fits after it. Choose:
+      - **Quals: PARK FIRST** when the partner has no Auto, or its Auto does not both LEAVE and PARK every
+        time: then our park may decide SWARM. Otherwise leave TIPS FIRST.
+      - **Playoffs (no ranking points): TIPS FIRST**; the park is only 5 points.
+      - A fast left partner (its second volley in by about 14 s, as 10255's was at Fruitport) is where TIPS
+        FIRST pays: R-NoCross then goes back to the GARDEN for a third TIP (simulator, 27 Nov 2026).
       What is at stake in a qualification match (manual TU10 Tables 10-2, 10-3; Team Update 10, 19 Nov 2026:
       the State Championship's thresholds are the qualifiers'): win 3 RP, tie 1; SWARM 1 RP at 16 LEAVE + PARK
       points for the alliance (both LEAVEs and both end PARKs make exactly 16); POLLINATOR 1 and 2, 1 RP each,
       at 4 and 7 TIPs in the match. Playoffs award no RPs (§13.7).
-      In the simulator (22 Nov 2026) TIPS FIRST gained a TIP only beside a partner that shoots late, and
-      with real shot rates it lost the park in 20–40% of the runs where it mattered. R-Clockwise's Priority
+      In the simulator at Belding's shot rates (27 Nov 2026, 10 runs a case) the two picks scored the same
+      for R-Solo and the NoCross pair; beside R-ShootPreloadsPark TIPS FIRST was 1 point ahead and lost the
+      park in 2 of 10. Beside a fast L (TIP 2 by about 18 s) it scored 68–71 against 56. R-Clockwise's Priority
       follows this row: TIPS FIRST is its THREE_TIP leg.
 - [ ] No amber or red line on the Match page; the light shows our alliance.
 
