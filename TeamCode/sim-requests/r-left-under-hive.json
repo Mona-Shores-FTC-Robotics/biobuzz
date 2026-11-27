@@ -9,82 +9,44 @@
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20
+    5
   ],
   "partnerSeeds": [
     1,
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20
+    5
   ],
   "alliance": "RED",
   "calibration": "belding",
   "partners": [
     {
-      "name": "as drawn",
+      "name": "Smooth",
       "partner": "LLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "as drawn, L 20 percent slower",
-      "partner": "LLeftUnderHiveAuto",
-      "timing": {
-        "speed": 40
-      }
-    },
-    {
-      "name": "as drawn, L misses every shot",
-      "partner": "LLeftUnderHiveAuto",
-      "fails": "misses",
-      "timing": {
-        "speed": 50
-      }
-    },
-    {
-      "name": "partner dead on its left start (never seen)",
-      "partner": "PartnerLBrokenDownAuto"
-    },
-    {
-      "name": "contingency: nothing tips (both preloads miss, L misses every shot)",
+      "name": "R preloads miss",
       "partner": "LLeftUnderHiveAuto",
       "timing": {
         "speed": 50
       },
-      "oursFails": "misses preloads",
-      "fails": "misses"
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "L preloads miss",
+      "partner": "LLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads"
+    },
+    {
+      "name": "L dead on its start",
+      "partner": "PartnerLBrokenDownAuto"
     }
   ],
   "metadata": {
@@ -93,5 +55,6 @@
     "SavedAt": "2026-11-18T22:15:00+00:00",
     "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   },
-  "usual": true
+  "usual": true,
+  "scenario": "best"
 }
