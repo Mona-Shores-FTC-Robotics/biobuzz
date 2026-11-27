@@ -100,6 +100,20 @@ def ref_sensor():
         return trimesh.load(p)
 
 
+MODEL_T = 8.1                # the model's body thickness; its LED face is at y = MODEL_T
+
+
+def as_thick(ref, t):
+    """The model with its body stretched to thickness t (the datasheet's 9), the LED's ring and dome moved with the face."""
+    m = ref.copy()
+    v = m.vertices.copy()
+    body = v[:, 1] <= MODEL_T + 1e-6
+    v[body, 1] *= t / MODEL_T
+    v[~body, 1] += t - MODEL_T
+    m.vertices = v
+    return m
+
+
 def placed(mesh, rows, offset):
     m = mesh.copy()
     t = np.eye(4); t[:3, :3] = np.array(rows, dtype=float); t[:3, 3] = offset
@@ -107,14 +121,15 @@ def placed(mesh, rows, offset):
     return m
 
 
-def sensor_in_mount(ref):
-    """Seated in beam_mount: LED face down on the plate, LED on the beam axis, wire end toward +Y."""
-    return placed(ref, [[1, 0, 0], [0, 0, 1], [0, -1, 0]], [0, 5.0, parts.PLATE_T + 8.1])
+def sensor_in_mount(ref, t):
+    """Seated in beam_mount, a body t thick: LED face down on the plate, LED on the beam axis, wire end toward +Y."""
+    return placed(as_thick(ref, t), [[1, 0, 0], [0, 0, 1], [0, -1, 0]], [0, 5.0, parts.PLATE_T + t])
 
 
-def sensor_in_sled(ref):
-    """Seated in a floor sled: LED face up at the sled's top (z 0), LED on the beam axis, wire end toward +Y."""
-    return placed(ref, [[-1, 0, 0], [0, 0, 1], [0, 1, 0]], [0, 5.0, -8.1])
+def sensor_in_sled(ref, t):
+    """Seated in a floor sled, a body t thick: on the pocket's floor, LED face up, LED on the beam axis."""
+    bottom = -floor_sled.FACE_DEPTH - floor_sled.BODY_T
+    return placed(as_thick(ref, t), [[-1, 0, 0], [0, 0, 1], [0, 1, 0]], [0, 5.0, bottom])
 
 
 def section(ax, mesh, normal, origin, axes, colour="k"):
@@ -129,7 +144,8 @@ def draw_parts():
     yellow, grey, dark = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8), (0.2, 0.2, 0.2)
     show(fig.add_subplot(2, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
     ref = ref_sensor()
-    seated = sensor_in_mount(ref)
+    seated = sensor_in_mount(ref, parts.BODY_T)
+    seated81 = sensor_in_mount(ref, MODEL_T)
     show(fig.add_subplot(2, 3, 2), raster([(wall(), grey), (m, yellow), (seated, dark)], 35, -60),
          "On a goBILDA wall, sensor in, LED down\n(lip over the LED end, hooks over the wire end)")
     show(fig.add_subplot(2, 3, 3), raster([(ft, yellow)], 45, -70),
@@ -137,11 +153,13 @@ def draw_parts():
     y1 = parts.LED_TO_SCREW + parts.LED_FROM_END + parts.FIT
     ax = fig.add_subplot(2, 3, 4)
     section(ax, m, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2))
+    section(ax, seated81, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2), "tab:orange")
     section(ax, seated, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2), "tab:red")
     ax.set_aspect("equal"); ax.grid(alpha=0.3)
-    ax.set_title("Across the wire end (2 mm in): the arms, free of the plate,\nand their hooks over the sensor (red: the mentor's model)", fontsize=10)
+    ax.set_title("Across the wire end (2 mm in): the arms, free of the plate,\nand their hooks over a 9 mm body (red); the 8.1 mm model (orange)", fontsize=10)
     ax = fig.add_subplot(2, 3, 5)
     section(ax, m, [1, 0, 0], [0, 0, 0], (1, 2))
+    section(ax, seated81, [1, 0, 0], [0, 0, 0], (1, 2), "tab:orange")
     section(ax, seated, [1, 0, 0], [0, 0, 0], (1, 2), "tab:red")
     ax.set_aspect("equal"); ax.grid(alpha=0.3)
     ax.set_title("Along the middle: the 3 mm lip over the LED end; the LED's ring\nin its counterbore, the dome in the window: the sensor sits flat", fontsize=10)
@@ -186,13 +204,15 @@ def draw_sled_fit():
     """sensor_fit_sleds.png: the mentor's model seated in each floor sled, cut along the beam axis, with the
     channel's floor; the LED's dome against the lane floor's top face."""
     ref = ref_sensor()
-    seated = sensor_in_sled(ref)
     f = floor_sled
-    fig = plt.figure(figsize=(16, 4.2))
+    seated = sensor_in_sled(ref, f.BODY_T)
+    seated81 = sensor_in_sled(ref, MODEL_T)
+    fig = plt.figure(figsize=(16, 4.6))
     for i, name in enumerate(("floor_sled", "floor_sled_screwed")):
         m = trimesh.load(os.path.join(HERE, f"{name}.stl"))
         ax = fig.add_subplot(1, 2, i + 1)
         section(ax, m, [1, 0, 0], [0, 0, 0], (1, 2))
+        section(ax, seated81, [1, 0, 0], [0, 0, 0], (1, 2), "tab:orange")
         section(ax, seated, [1, 0, 0], [0, 0, 0], (1, 2), "tab:red")
         lo, hi = m.bounds[0][1] - 3, m.bounds[1][1] + 3
         ax.add_patch(plt.Rectangle((lo, 0), -7 - lo, f.FLOOR_T, color="0.7"))           # the floor, cut by its 14 mm hole
@@ -201,8 +221,10 @@ def draw_sled_fit():
         ax.axhline(-f.POCKET_H, color="0.5", lw=0.8, ls=":")
         top = seated.bounds[1][2]
         ax.set_aspect("equal"); ax.grid(alpha=0.3)
-        ax.set_title(f"{name}, cut along the beam axis, sensor (red) seated:\n"
-                     f"the LED dome's top is {top - f.FLOOR_T:+.1f} mm from the lane floor's top (blue dashes)", fontsize=10)
+        top81 = seated81.bounds[1][2]
+        ax.set_title(f"{name}, cut along the beam: dome top {top - f.FLOOR_T:+.1f} mm (9 mm body, red),\n"
+                     f"{top81 - f.FLOOR_T:+.1f} mm (8.1 model, orange) from the lane floor's top (blue); "
+                     f"{f.HANG:.1f} mm below the channel (dots)", fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(HERE, "sensor_fit_sleds.png"), dpi=90)
 

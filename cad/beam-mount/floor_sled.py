@@ -7,8 +7,14 @@ Where it goes (the new transfer, mentor's Onshape export of 23 Nov 2026): the 11
 is the lane floor under the ball's last spot, behind the gate. That channel lies open side down, so its inside is
 a pocket 27.0 mm wide and 9.5 mm tall under the floor the ball rolls on. The sled fills that pocket and holds the
 emitter LED up, looking through the channel's 14 mm hole at the ball's spot; the receiver looks down from the top
-plate (beam_mount, parts.py). Nothing sticks out below the channel's edges, and **nothing is on the floor the ball
-rolls on**: the sled holds by the channel's side walls.
+plate (beam_mount, parts.py). **Nothing is on the floor the ball rolls on**: the sled holds by the channel's side
+walls.
+
+The LED stands proud of the body: its dome's top is 4.8 mm above the face (the mentor's model). So the body sits
+FACE_DEPTH (2.6 mm) under the floor's underside, keeping the dome 0.3 mm under the lane floor's top face where the
+waiting ball rests, and with the datasheet's 9 mm body the sled is 12.6 mm tall: it hangs HANG (3.1 mm) below the
+channel's bottom edges (mentor's choice of fix pending, 27 Nov 2026; README "The LED's dome"). The body is pressed
+down onto the pocket's floor between vertical crush ribs; the channel's floor above stops it rising.
 
 How it holds: the channel's side walls have 4 mm holes every 8 mm along it, 4.0 mm above their bottom edges, one
 level with each 14 mm hole. The sled has four pins, two on each side, each on a flexible arm (a strip of the sled
@@ -37,7 +43,7 @@ it, so the screw bites 5.5 mm and never reaches the sensor pocket, the wire slot
 the sled, as the snap sled's pins do. The two on the wheel side at the gate end sit under the purple wheels: a
 screwdriver reaches them only if the wheels leave room. Both screws are 33 mm along the channel from the beam's hole,
 39 mm and 28 mm from where the balls cross: no ball rolls over them, and they are reached from the top. Tightening
-them pulls the sled, and the emitter on its crush ribs, flat against the floor.
+them pulls the sled flat against the floor.
 
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
 channel, Y along it (+Y away from the gate, where the wires leave), Z up (into the lane). The open side (the one you
@@ -54,7 +60,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # ---- the sensor (Adafruit 2168; not yet measured with calipers, see README) ----
 BODY_L = 20.0
 BODY_W = 10.0
-BODY_T = 8.1                 # the mentor's model (ref/ir_break_beam_5mm.step); the datasheet says 9: calipers settle it
+BODY_T = 9.0                 # the QT50CM datasheet (mentor, 27 Nov 2026); the model measures 8.1, see the README
+DOME_H = 4.8                 # the LED's dome top above the body's face (the model): it must stay under the lane floor
+DOME_CLEAR = 0.3             # ...this far under the floor's top face, where the waiting ball rests
 LED_FROM_END = 5.0           # LED centre from the nearer end; the wires leave the other end
 FIT = 0.3                    # clearance per side around the body
 # ---- the channel (goBILDA 11-hole Mini U-Channel, measured off the CAD) ----
@@ -92,12 +100,16 @@ SCREW_L = 8.0                # the screw it is drawn for (M3 x 8 button head)
 FLOOR_T = 2.5                # the channel's floor, which the screw passes through first
 BOSS_WALL = 2.5              # at least this much solid plastic round each pilot, on every side, for the thread
 END_TAIL = 3.0               # sled beyond each pilot hole's edge, along the channel
-RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
-RIB_W = 1.0
+RIB_CRUSH = 0.25             # vertical crush ribs on the pocket's sides reach this far into the body
+RIB_BASE = 1.2
+RIB_YS = (-2.5, 5.0, 13.0)   # along the pocket, from the LED: clear of the body's side grooves (9 to 11)
+SLED_FLOOR = 1.0             # the sled's floor under the body
 WIRE_W = 6.0                 # wire slot out of the wire end
 END_MARGIN = 2.0             # sled beyond the LED end of the body
 
-H = POCKET_H - DROP
+FACE_DEPTH = DOME_H + DOME_CLEAR - FLOOR_T    # the body's LED face this far below the floor's underside (the sled's top)
+H = FACE_DEPTH + BODY_T + SLED_FLOOR         # the sled's height: deeper than the channel, so it hangs below it
+HANG = H - POCKET_H                          # below the channel's bottom edges
 W = POCKET_W - 2 * SIDE_FIT
 
 
@@ -120,19 +132,32 @@ def pin(side, square_under):
     return rod.intersect(wedge)
 
 
+def pocket(part, by0, by1, yend):
+    """The body's pocket, open at the top: the body is pressed down onto the pocket's floor between vertical crush
+    ribs, LED face FACE_DEPTH under the sled's top, so its dome stays under the lane floor. A wire slot runs out to
+    yend at the full depth."""
+    bx = BODY_W / 2 + FIT
+    z0 = -FACE_DEPTH - BODY_T
+    part = part.cut(box(-bx, bx, by0, by1, z0, 0.1))
+    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, yend + 0.1, z0, 0.1))
+    for side in (1, -1):
+        for ry in RIB_YS:
+            tip = side * (BODY_W / 2 - RIB_CRUSH)
+            pts = [(side * (bx + 0.1), ry - RIB_BASE / 2), (tip, ry), (side * (bx + 0.1), ry + RIB_BASE / 2)]
+            part = part.union(cq.Workplane("XY").workplane(offset=z0).polyline(pts).close().extrude(-z0))
+    assert all(not (8.4 < ry < 11.6) for ry in RIB_YS), "a crush rib lands in the body's side groove"
+    assert H - FACE_DEPTH - BODY_T >= 0.8, "too little sled floor under the body"
+    return part
+
+
 def floor_sled():
-    floor = H - BODY_T
-    assert floor >= 0.8, f"the sensor is {BODY_T} mm thick: only {floor:.1f} mm of floor is left under it"
     by0 = -LED_FROM_END - FIT                 # the pocket for the body, LED end
     by1 = BODY_L - LED_FROM_END + FIT         # ...wire end
     y0 = by0 - END_MARGIN
     y1 = PIN_YS[1] + ARM_TIP
     part = box(-W / 2, W / 2, y0, y1, -H, 0)
     bx = BODY_W / 2 + FIT
-    part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))                     # the body, LED up against the floor
-    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, y1 + 0.1, -BODY_T, 0.1))   # the wires out the end
-    for ry in (by0 + 3.0, by1 - 3.0):
-        part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
+    part = pocket(part, by0, by1, y1)
     # the arms: a slot behind each, open at the sled's end; the front pair free at the LED end, the back pair at the
     # far end, each growing from the sled ARM_LEN from its pin
     arms = ((PIN_YS[0], y0 - 0.1, PIN_YS[0] + ARM_LEN), (PIN_YS[1], PIN_YS[1] - ARM_LEN, y1 + 0.1))
@@ -164,17 +189,11 @@ def floor_sled():
 def floor_sled_screwed():
     """Option B: no pins; four screw places, the floor holes 9.4 mm either side of the centre, 33.4 mm each way.
     Each is a blind 2.5 mm pilot hole from the top face, which an M3 x 8 self-taps into through the floor: no nuts."""
-    floor = H - BODY_T
-    assert floor >= 0.8, f"the sensor is {BODY_T} mm thick: only {floor:.1f} mm of floor is left under it"
     by0 = -LED_FROM_END - FIT
     by1 = BODY_L - LED_FROM_END + FIT
     yend = SCREW_Y + PILOT_D / 2 + END_TAIL
     part = box(-W / 2, W / 2, -yend, yend, -H, 0)
-    bx = BODY_W / 2 + FIT
-    part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))
-    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, yend + 0.1, -BODY_T, 0.1))
-    for ry in (by0 + 3.0, by1 - 3.0):
-        part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
+    part = pocket(part, by0, by1, yend)
     for sx, sy in ((-SCREW_X, SCREW_Y), (-SCREW_X, -SCREW_Y), (SCREW_X, SCREW_Y), (SCREW_X, -SCREW_Y)):
         part = part.cut(cq.Workplane("XY").workplane(offset=-PILOT_DEPTH).center(sx, sy)
                         .circle(PILOT_D / 2).extrude(PILOT_DEPTH + 0.1))

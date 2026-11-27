@@ -14,11 +14,11 @@ export of 23 Nov 2026):
 
 | File | What it is | Print |
 |---|---|---|
-| `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
-| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 75.3 x 9.3 mm, four pilot holes for floor screws (use 2 to 4), no pins, no nuts. Prints like the sled | 1 per robot, to try |
-| `beam_mount.stl` / `.3mf` | 35.7 x 33.2 x 15.2 mm. Plate down, as exported | 1 per robot |
-| `beam_fit_test.stl` / `.3mf` | 42.9 x 10.0 x 10.1 mm: three short receiver pockets, crush ribs 0.15 / 0.25 / 0.35 mm (1, 2, 3 notches). Press the body in wire end first, against the stop. Print it first | 1, once |
-| `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
+| `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 12.6 mm (pins included); hangs 3.1 mm below the channel (option (a), below). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
+| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 75.3 x 12.6 mm, hangs 3.1 mm below the channel too; four pilot holes for floor screws (use 2 to 4), no pins, no nuts. Prints like the sled | 1 per robot, to try |
+| `beam_mount.stl` / `.3mf` | 35.7 x 33.2 x 16.1 mm. Plate down, as exported | 1 per robot |
+| `beam_fit_test.stl` / `.3mf` | 42.9 x 10.0 x 11.0 mm: three short receiver pockets, crush ribs 0.15 / 0.25 / 0.35 mm (1, 2, 3 notches). Press the body in wire end first, against the stop. Print it first | 1, once |
+| `*.step` | The same parts as solids: import these into Onshape, not the STLs. **STL and STEP are the files to hand on**; the `.3mf`s are the same meshes for slicers that want them | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
 | `render.py` | Draws `parts.png` (the receiver mount), `floor_sled_screwed.png` and `sensor_fit_sleds.png`, the sensor model seated in each | `+ trimesh manifold3d matplotlib` |
 | `ref/ir_break_beam_5mm.step` | The mentor's model of the sensor (emitter and receiver): the fit reference | |
@@ -26,7 +26,8 @@ export of 23 Nov 2026):
 **Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit and its snap arms crack), 0.2 mm
 layers, 4 walls, 40 % gyroid. No supports, no brim. Orientation, as exported:
 
-- **Both sleds upside down**, the top face (the sensor pocket's open side) on the bed. The screwed sled's pilot holes
+- **Both sleds upside down**, the top face (the sensor pocket's open side) on the bed. The pocket is 2.6 mm deeper
+  than the body, so the LED's dome stays under the lane floor. The screwed sled's pilot holes
   open on the bed: if the first layer squashes them shut, run a 3/32 in (2.4 mm) drill through by hand.
 - **`beam_mount` plate down.** The receiver's 3 mm lip prints as a bridge between the side walls; each snap arm stands
   on the bed on its own, joined at one end, so it bends along its layers, never across them. Its hooks overhang 1 mm.
@@ -53,10 +54,25 @@ The sled's pins stick out 1 mm from its sides and print clean.
 
 ## Fitting the emitter (the floor sled)
 
-> **Open question (27 Nov 2026), both sleds:** the mentor's model shows the LED's dome standing 4.8 mm above the
-> body's face. With the face flush with the sled's top, against the floor's underside, the dome comes up through
-> the floor's 14 mm hole and stands **2.3 mm above the lane floor**, under the waiting ball
-> (`sensor_fit_sleds.png`). The sleds are unchanged until that is decided; do not fit one in the lane as drawn.
+### The LED's dome, and why the sleds hang below the channel
+
+The mentor's model shows the LED's dome standing **4.8 mm** above the body's face. With the face flush against the
+floor's underside, as the first sleds held it, the dome came up through the 14 mm hole and stood 2.3 mm above the
+lane floor, under the waiting ball. Two fixes (27 Nov 2026; the mentor has not picked yet):
+
+- **(a) Built and drawn: the sled hangs below the channel.** The body sits 2.6 mm (`FACE_DEPTH`) under the floor's
+  underside, on the pocket's floor between crush ribs, so the dome's top is 0.3 mm under the lane floor's top
+  (1.2 mm with an 8.1 mm body). With the 9 mm body the sled is 12.6 mm tall and **hangs 3.1 mm below the channel's
+  bottom edges** (`HANG`): check that nothing under the channel is within that (`doc/robot-todo.md`). Both sleds,
+  the snap and the screwed, are built this way; everything else about them is as before. **Recommended**: it keeps
+  the beam where the README's reasons put it (straight up through the ball's spot, the receiver looking down at the
+  dark channel), changes one number, and is already drawn and checked.
+- **(b) Not drawn: an emitter at the side, the beam across the lane.** Emitter and receiver on the lane's two side
+  walls, the beam horizontal through the waiting ball, nothing in the floor. It loses what the vertical beam was
+  chosen for: a receiver looking across the lane sees the venue lights through the far side's openings (halogen and
+  sunlight read as a clear beam), it needs a clear line across at ball height past the gate and the wheel stack, and
+  both mounts are new parts against the transfer's side plates, whose CAD is not in the repo (the 22 MB export). A
+  session can draw it from that export if (a) does not fit.
 
 ![The sensor seated in each sled, cut along the beam](sensor_fit_sleds.png)
 
@@ -65,18 +81,19 @@ The sled's pins stick out 1 mm from its sides and print clean.
 ![The wires leave away from the gate](floor_sled_wires.png)
 
 The floor there is the 11-hole goBILDA Mini U-Channel, lying open side down. Its inside is 27.0 mm wide and 9.5 mm
-tall, and the sled is 26.6 wide and 9.3 tall: **nothing sticks out below the channel's edges, and nothing is on the
-floor the balls roll on.** It holds by the channel's side walls: their 4 mm holes, every 8 mm, one level with each
+tall, and the sled is 26.6 wide and 12.6 tall: it fills the inside and **hangs 3.1 mm below the channel's edges**
+(above), and **nothing is on the floor the balls roll on.** It holds by the channel's side walls: their 4 mm holes, every 8 mm, one level with each
 14 mm hole. Four pins, two in each wall 32 mm apart, so it cannot rock, slide or drop.
 
 1. Push the emitter into the sled's pocket, LED end against the closed end, wires along the middle slot to the far
-   end. Its top face sits flush with the sled's top.
+   end, and press it down onto the pocket's floor between the crush ribs. Its face sits 2.6 mm under the sled's top
+   (1.0 mm of sled under it); the dome stays below the sled's top.
 2. From below, put the sled up into the channel under the 14 mm hole nearest the ball's last spot, its long end (the
    wire end) away from the gate and the purple wheels, so the wires leave toward that end of the channel. Push it straight up: each pin sits on a springy arm (a strip of the sled joined at one end only), the
    channel's edges bend the arms in, and at the side-wall holes they spring back and the pins click in. The LED then
    sits on the 14 mm hole's centre: the holes place it, nothing to adjust.
-3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Nothing hangs
-   below.
+3. **Wires** run inside the channel to its open end, with a zip tie through a side-wall hole there. Only the sled's
+   own 3.1 mm hangs below.
 4. **To take it out:** push the open side's two pins (the side facing the purple wheels, with nothing beside it
    there) in through
    their holes with two small screwdrivers, and pull the sled down. The other side's pins are ramped both ways and
@@ -102,13 +119,13 @@ sleds and keep the one that holds better.
    deep). Four places, one per corner: use any two, one at each end, or all four. Turn them in slowly; they cut
    their thread. The two on the wheel side at the gate end sit under the purple wheels, so use them only if a
    screwdriver gets there.
-4. **Where the screw ends:** through the 2.5 mm floor it bites 5.5 mm into the sled, inside a 7 mm pilot with 2.3 mm
+4. **Where the screw ends:** through the 2.5 mm floor it bites 5.5 mm into the sled, inside a 7 mm pilot with 5.6 mm
    of sled still under it, so nothing comes out of the bottom. Each pilot has at least 2.5 mm of solid plastic on
    every side: to the sled's side, to the wire slot, to its end, and 15 mm or more to the sensor pocket. Only the
    head is in the lane: the balls cross the channel at the beam, 28 mm and more away, and a NECTAR's surface is
-   10 mm or more above these heads, a POLLEN's 4.5 mm or more. Use M3 x 8: an M3 x 10 still ends inside (1.8 mm
-   short of the bottom), an M3 x 12 would come through.
-5. Snug, not tight: it pulls the sled, and the emitter on its crush ribs, flat against the floor. A thread that
+   10 mm or more above these heads, a POLLEN's 4.5 mm or more. Use M3 x 8; an M3 x 10 or 12 also ends inside the
+   sled, cutting past the pilot's end.
+5. Snug, not tight: it pulls the sled flat against the floor. A thread that
    strips: see `doc/robot-todo.md`.
 
 **Screws for option B:** 2 to 4 M3 x 8 button head. No nuts.
@@ -150,14 +167,18 @@ let it work loose. Now:
 ## The sensor: Adafruit 2168 (5 mm LEDs), as bought
 
 The fit reference is the mentor's 3D model, **`ref/ir_break_beam_5mm.step`** (27 Nov 2026: one emitter and one
-receiver, the same housing). `render.py` draws it seated in every part. Measured from it:
+receiver, the same housing). `render.py` draws it seated in every part, stretched to 9 mm (red) and as measured,
+8.1 (orange). Measured from it:
 
-- **Body:** 20 x 10 x **8.1** mm, its four short edges rounded r 1. The QT50CM
-  [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf) (C2917, the part bought) says 9 thick, and
-  Adafruit's page 8; the files use the model's 8.1, and the floor sled fitting fine on the robot agrees with it
-  (at 9 its top would have stood 1 mm proud). **Calipers settle it before printing** (`doc/robot-todo.md`): a body of
-  9 is `BODY_T = 9.0` in both `floor_sled.py` and `parts.py`, then run them again; the sleds' floor under the body
-  would then be 0.3 mm, and `floor_sled.py` refuses to build below 0.8, so the sleds need a rethink at 9.
+- **Body:** 20 x 10, its four short edges rounded r 1. **Built to 9 mm thick**, the QT50CM
+  [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf) (C2917, the part bought): the mentor's
+  choice, 27 Nov 2026. The model measures **8.1**, and Adafruit's page says 8. An 8.1 body still fits everything:
+  - in the **receiver mount**, the crush ribs grip its sides as hard (its width is the same), but it has **0.9 mm of
+    play** under the lip and the hooks; a strip of 1 mm foam tape on its back, under the lip and the hooks, takes it
+    up;
+  - in a **sled**, it sits on the pocket's floor between the crush ribs, 0.9 mm lower: its dome is 1.2 mm under the
+    lane floor's top instead of 0.3. Nothing else changes.
+  If calipers show another thickness, change `BODY_T` in both `parts.py` and `floor_sled.py` and run them again.
 - **LED:** on a big face, 5 mm from one end, standing proud of it: a d8 ring 0.5 mm high, then the d5 dome, its top
   **4.8 mm above the face**. The receiver mount's plate is counterbored for the ring and its window takes the dome,
   so the body's face sits flat on the plate (the first two versions held it 0.5 mm off on the ring).

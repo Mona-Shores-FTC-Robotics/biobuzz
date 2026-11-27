@@ -36,11 +36,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ---- the sensor: the mentor's 3D model, ref/ir_break_beam_5mm.step (27 Nov 2026), measured: a 20 x 10 x 8.1 body,
 # and on its LED face a d8 ring 0.5 high round the LED, then the d5 dome, 4.8 above the face; a d3 screw hole,
-# countersunk on the LED face, 10 mm from the LED; each 5 mm from its end. (The QT50CM datasheet says 9 thick and
-# Adafruit's page 8: calipers settle it, see the README.)
+# countersunk on the LED face, 10 mm from the LED; each 5 mm from its end. The QT50CM datasheet says 9 thick, and
+# the team builds to it (mentor, 27 Nov 2026); an 8.1 body has 0.9 mm of play under the lip and hooks (README).
 BODY_L = 20.0
 BODY_W = 10.0
-BODY_T = 8.1                 # the model. The walls, lip and hooks follow it
+BODY_T = 9.0                 # the datasheet (the model measures 8.1). The walls, lip and hooks follow it
 RING_D = 8.0                 # the raised ring round the LED, on the LED face...
 RING_H = 0.5                 # ...this high: the plate is counterbored for it, so the body's face sits flat
 DOME_D = 5.0                 # the LED dome
