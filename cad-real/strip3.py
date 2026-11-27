@@ -3,7 +3,7 @@ intake front, the FLOWER stick's kept parts (servo, hub, tip shaft, mountain) wi
 servos, frames and wheels as their own named parts, and the old aluminium arms as a group to hide. In the STEP's own frame.
 Left out: the launcher, the transfer, game pieces, fasteners, belts, sprockets, motors, the battery, the mecanum wheels'
 insides (each wheel is a plain cylinder)."""
-import sys, re, pickle, numpy as np, cadquery as cq
+import sys, re, os, pickle, numpy as np, cadquery as cq
 from OCP.Bnd import Bnd_Box
 from OCP.BRepBndLib import BRepBndLib
 from OCP.STEPCAFControl import STEPCAFControl_Reader, STEPCAFControl_Writer
@@ -41,7 +41,10 @@ wheels = {}
 def classify(path, lo, hi):
     n = " / ".join(path); leaf = path[-1] if path else "?"
     m = re.search(r"Wheel Assembly <\d>", n)
-    if m: return "wheel:" + m.group(0)
+    if m:
+        if os.environ.get("REAL_MECANUM") and lo[0] > 0 and not re.search(r"(?i) text|screw|\bnut\b|washer|_9\d{4}A\d{3}|e-clip|shim|roller core|roller axle|1600-0307|1309-0016|3411-0014|Spacer", leaf):
+            return "mecanum wheels, front (from the robot CAD)"
+        return "wheel:" + m.group(0)
     if DROP.search(n): return None
     if OLD.search(leaf) and hi[0] > 11.0 * 25.4 or (leaf.startswith("Part 1") and lo[0] > 11.5 * 25.4 and hi[2] < 1.3 * 25.4):
         return "old stick, for reference (hide)"
@@ -78,11 +81,16 @@ def walk(label, loc, p):
         from OCP.gp import gp_Pnt
         shape = BRepPrimAPI_MakeBox(gp_Pnt(x0, y0, z0), gp_Pnt(x1, y1, z1)).Shape()
         add(g, re.sub(r" <\d+>", "", p[-1]) + " (its outer box)", shape); return
+    if os.environ.get("REAL_MECANUM") and g == "chassis" and q.max(0)[0] < 100.0:
+        from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
+        from OCP.gp import gp_Pnt
+        add("chassis, away from the front corners (outer boxes)", re.sub(r" <\d+>", "", p[-1]) + " (box)", BRepPrimAPI_MakeBox(gp_Pnt(x0, y0, z0), gp_Pnt(x1, y1, z1)).Shape()); return
     add(g, re.sub(r" <\d+>", "", p[-1]), shape)
 free = TDF_LabelSequence(); st.GetFreeShapes(free)
 for i in range(1, free.Length() + 1): walk(free.Value(i), TopLoc_Location(), [])
 # the mecanum wheels: plain cylinders on their axles
 for k, (lo, hi) in sorted(wheels.items()):
+    if os.environ.get("REAL_MECANUM") and (lo[0] + hi[0]) / 2 > 0: continue
     ctr = (lo + hi) / 2; rad = (hi[2] - lo[2]) / 2; w = 38.0
     cy = ctr[1] - np.sign(ctr[1]) * (hi[1] - lo[1]) / 2 + np.sign(ctr[1]) * 0   # the module's outer face
     s = cq.Solid.makeCylinder(rad, w, cq.Vector(ctr[0], (hi[1] if ctr[1] > 0 else lo[1]) - (w if ctr[1] > 0 else 0), rad), cq.Vector(0, 1, 0))
