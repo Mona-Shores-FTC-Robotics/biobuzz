@@ -120,7 +120,7 @@ L-NoCross). R-NoCross's check after the GARDEN gather ("RIGHT CELL back up?") wa
 (mentor, 21 Nov 2026; was 22), so on the Endgame row's TIPS FIRST a late GARDEN volley
 still goes, its last piece out by 28.5 s, without the park. The guard never cuts an Auto's last
 wait, so 26 s is also the latest that, with the CELL never up, still parks by 28.9 s (park 2.9 s,
-the guard's 1.0 s margin). On PARK FIRST, the default, the volley is refused as it starts if its last
+the guard's 1.0 s margin). On PARK FIRST (TIPS FIRST is the default), the volley is refused as it starts if its last
 piece out and the park would not fit by 30 s, and the robot parks. See `doc/robot-todo.md` for the robot checks.
 
 Inside the Visualizer, the same list is **View → Team Autos: the latest from biobuzz, together…**

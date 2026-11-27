@@ -48,7 +48,7 @@ public class AutoKitTest {
                 .trigger("HiveTipped", () -> tipped)
                 .trigger("CameraBlind", () -> blind)
                 .trigger("IntakeFull", () -> full);
-        kit = new AutoKit(drive, registry, () -> now).trace(trace::add);
+        kit = new AutoKit(drive, registry, () -> now).trace(trace::add).picks(PARK_FIRST);
     }
 
     private Command record(String name) {
@@ -866,14 +866,22 @@ public class AutoKitTest {
         assertTrue("nothing drives", drive.followed.isEmpty());
     }
 
-    /** {@link #volleyKit} on PARK FIRST (the Endgame row's default), its LaunchAll 4.0 s long, as on the robot. */
+    /** {@link #volleyKit} on PARK FIRST (picked; TIPS FIRST is the default), its LaunchAll 4.0 s long, as on the robot. */
     private AutoKit parkKeepingKit(AutoRegistry registry) {
         return new AutoKit(drive, registry
                 .volley("LaunchAll", 4.0, 4.0, () -> lasting("LaunchAll", 4.0)), () -> now)
-                .trace(trace::add);
+                .trace(trace::add).picks(PARK_FIRST);
     }
 
-    /** The drive team's Endgame row on TIPS FIRST, and nothing else picked. */
+    /** The drive team's Endgame row on PARK FIRST, and nothing else picked. */
+    static final AutoKit.Picks PARK_FIRST = new AutoKit.Picks() {
+        @Override public int choice(String option) {
+            return AutoOption.ENDGAME.equals(option) ? AutoOption.PARK_FIRST_INDEX : -1;
+        }
+        @Override public double seconds(String option) { return Double.NaN; }
+    };
+
+    /** The drive team's Endgame row on TIPS FIRST (the default), and nothing else picked. */
     static final AutoKit.Picks TIPS_FIRST = new AutoKit.Picks() {
         @Override public int choice(String option) {
             return AutoOption.ENDGAME.equals(option) ? AutoOption.TIPS_FIRST_INDEX : -1;
@@ -994,7 +1002,7 @@ public class AutoKitTest {
     }
 
     /**
-     * On PARK FIRST, the default, a Priority route drives its second leg, and the park's rule stands: the
+     * On PARK FIRST (picked), a Priority route drives its second leg, and the park's rule stands: the
      * late trip is not begun. A pick of "Priority" itself (an old menu's) changes nothing: the Endgame row decides.
      */
     @Test
@@ -1002,7 +1010,10 @@ public class AutoKitTest {
         AutoKit kit = parkKeepingKit(new AutoRegistry()
                 .grab("GardenGather", 5.0, () -> lasting("GardenGather", 4.5)));
         kit.picks(new AutoKit.Picks() {
-            @Override public int choice(String option) { return AutoOption.PRIORITY.equals(option) ? 0 : -1; }
+            @Override public int choice(String option) {
+                if (AutoOption.ENDGAME.equals(option)) return AutoOption.PARK_FIRST_INDEX;
+                return AutoOption.PRIORITY.equals(option) ? 0 : -1;
+            }
             @Override public double seconds(String option) { return Double.NaN; }
         });
         Path toGarden = line(0, 10), gardenPark = line(10, 20), back = line(10, 0), park = line(0, 40);
@@ -1085,7 +1096,7 @@ public class AutoKitTest {
     /** A kit on PARK FIRST whose LaunchAll card is 4.0 s, its last piece out 2.5 s in. */
     private AutoKit lastPieceKit() {
         return new AutoKit(drive, new AutoRegistry()
-                .volley("LaunchAll", 4.0, 2.5, () -> lasting("LaunchAll", 4.0)), () -> now).trace(trace::add);
+                .volley("LaunchAll", 4.0, 2.5, () -> lasting("LaunchAll", 4.0)), () -> now).trace(trace::add).picks(PARK_FIRST);
     }
 
     /**

@@ -1109,9 +1109,9 @@ calls. There are three kinds of card and one branching block:
   when a card, the cards after it up to that volley and the volley's last piece all fit before 30 s,
   and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points toward the
   POLLINATOR RPs, the AUTO PARK 5, and both robots' LEAVE and end-of-match PARK already make the
-  SWARM RP's 16 (mentor, 4 Nov 2026). On the Endgame row's PARK FIRST, the default on every Auto
-  (`AutoOption.ENDGAME`, mentor, 22 Nov 2026), the volley's last piece and then the park must fit by
-  30 s too; TIPS FIRST is the drive team's per-match choice of the 4 Nov rule. A launch that is feeding is never
+  SWARM RP's 16 (mentor, 4 Nov 2026). On the Endgame row's PARK FIRST (`AutoOption.ENDGAME`, on every Auto, mentor, 22 Nov 2026), the
+  volley's last piece and then the park must fit by 30 s too. TIPS FIRST, the 4 Nov rule, is the default
+  (mentor, 27 Nov 2026); PARK FIRST is the drive team's pick when our park decides SWARM. A launch that is feeding is never
   cut. → `TeamCode/autos/README.md` § "Parking when time runs short"
 
 **Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
@@ -1322,7 +1322,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - `BIOBUZZ_AUTO_ENDGAME="TIPS FIRST"` runs the endgame guard as the Belding build did (master at 7ed351f: a
     volley before the park), for replaying the Autos that ran there: the Endgame row picked for every Auto that
     has no pick of its own (a request's `"picks": {"Endgame": "TIPS FIRST"}` does the same per entry).
-    Without it the guard is PARK FIRST, the default. (It was `BIOBUZZ_AUTO_BELDING_GUARD=1` until 22 Nov 2026.)
+    Without it the guard is TIPS FIRST anyway, the default since 27 Nov 2026; a request picks `"Endgame": "PARK FIRST"`
+    to see the park-keeping guard. (It was `BIOBUZZ_AUTO_BELDING_GUARD=1` until 22 Nov 2026.)
 
   With both, 60 seeds each, with each robot's own loads:
 
