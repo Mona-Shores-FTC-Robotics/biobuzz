@@ -7,12 +7,7 @@
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
+    5
   ],
   "partnerSeeds": [
     1,
@@ -25,39 +20,45 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "RIGHT-SHOOT-PARK, last shot at 2 s (seen 7 of 32)",
+      "name": "R dead on RIGHT_START, L waits",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8,
+      "picks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "R dead on RIGHT_START, L crosses",
+      "partner": "PartnerRBrokenDownAuto",
+      "lastShotS": 8
+    },
+    {
+      "name": "Hits, last shot 2 s",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 2
     },
     {
-      "name": "RIGHT-SHOOT-PARK, last shot at 5 s (seen 7 of 32)",
+      "name": "Hits, last shot 5 s",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 5
     },
     {
-      "name": "last shot at 8 s (later than any seen)",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 8
-    },
-    {
-      "name": "last shot at 12 s (later than any seen)",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 12
-    },
-    {
-      "name": "misses, said 8 s",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 8,
-      "fails": "misses"
-    },
-    {
-      "name": "RIGHT-SHOOT-PARK misses, said 5 s (seen 2 of 32)",
+      "name": "Misses (said 5 s), L crosses",
       "partner": "PartnerRLaunchParkAuto",
       "lastShotS": 5,
       "fails": "misses"
     },
     {
-      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 10.3 s (like 8513, Fruitport M-1)",
+      "name": "Misses (said 5 s), L waits",
+      "partner": "PartnerRLaunchParkAuto",
+      "lastShotS": 5,
+      "fails": "misses",
+      "picks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "Misses, leaves its start at 10.3 s, L crosses",
       "partner": "PartnerRLaunchParkAuto",
       "fails": "misses",
       "timing": {
@@ -65,84 +66,11 @@
       }
     },
     {
-      "name": "RIGHT-SHOOT-PARK misses, stays on its start, leaves at 12.3 s",
+      "name": "Misses, leaves its start at 12.3 s, L crosses",
       "partner": "PartnerRLaunchParkAuto",
       "fails": "misses",
       "timing": {
         "startDelayS": 9
-      }
-    },
-    {
-      "name": "dead on its start (never seen), said 8 s",
-      "partner": "PartnerRBrokenDownAuto",
-      "lastShotS": 8
-    },
-    {
-      "name": "dead on its start (never seen), said 8 s, WAIT FOR PARTNER FIX",
-      "partner": "PartnerRBrokenDownAuto",
-      "lastShotS": 8,
-      "picks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "misses, said 8 s, WAIT FOR PARTNER FIX",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 8,
-      "fails": "misses",
-      "picks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "late: starts 4 s late, wait left as drawn",
-      "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 4
-      }
-    },
-    {
-      "name": "late: starts 6 s late, wait left as drawn",
-      "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 6
-      }
-    },
-    {
-      "name": "last shot at 12 s (later than any seen), Endgame TIPS FIRST",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 12,
-      "picks": {
-        "Endgame": "TIPS FIRST"
-      }
-    },
-    {
-      "name": "misses, said 8 s, Endgame TIPS FIRST",
-      "partner": "PartnerRLaunchParkAuto",
-      "lastShotS": 8,
-      "fails": "misses",
-      "picks": {
-        "Endgame": "TIPS FIRST"
-      }
-    },
-    {
-      "name": "late: starts 4 s late, wait left as drawn, Endgame TIPS FIRST",
-      "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 4
-      },
-      "picks": {
-        "Endgame": "TIPS FIRST"
-      }
-    },
-    {
-      "name": "late: starts 6 s late, wait left as drawn, Endgame TIPS FIRST",
-      "partner": "PartnerRLaunchParkAuto",
-      "timing": {
-        "startDelayS": 6
-      },
-      "picks": {
-        "Endgame": "TIPS FIRST"
       }
     }
   ],
@@ -151,5 +79,6 @@
     "SavedBy": "dustinhans",
     "SavedAt": "2026-11-25T14:41:03.550Z"
   },
-  "usual": true
+  "usual": true,
+  "scenario": "best"
 }

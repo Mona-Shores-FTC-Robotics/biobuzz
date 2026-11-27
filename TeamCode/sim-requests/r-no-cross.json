@@ -22,11 +22,14 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "Beside L-NoCross (our pair)",
-      "partner": "LNoCrossAuto"
+      "name": "Everything goes smoothly",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
     },
     {
-      "name": "Our preloads miss, L on WAIT FOR PARTNER FIX",
+      "name": "R's preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads",
       "partnerPicks": {
@@ -34,27 +37,34 @@
       }
     },
     {
-      "name": "L's preloads miss, we WAIT FOR PARTNER",
+      "name": "L's preloads miss, R crosses after L parks",
       "partner": "LNoCrossAuto",
-      "fails": "misses preloads"
-    },
-    {
-      "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
-      "partner": "PartnerLBrokenDownAuto"
-    },
-    {
-      "name": "L-ShootPreloadsPark hits",
-      "partner": "PartnerLLaunchParkAuto",
-      "lastShotS": 3
-    },
-    {
-      "name": "L-ShootPreloadsPark misses, we CROSS AND FIX IT",
-      "partner": "PartnerLLaunchParkAuto",
-      "lastShotS": 3,
-      "fails": "misses",
+      "fails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
       "picks": {
         "if no TIP 2": "CROSS AND FIX IT"
       }
+    },
+    {
+      "name": "L's preloads miss, R waits",
+      "partner": "LNoCrossAuto",
+      "fails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "L dead on LEFT_START, R crosses",
+      "partner": "PartnerLBrokenDownAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
+      "name": "L dead on LEFT_START, R waits",
+      "partner": "PartnerLBrokenDownAuto"
     }
   ],
   "metadata": {
