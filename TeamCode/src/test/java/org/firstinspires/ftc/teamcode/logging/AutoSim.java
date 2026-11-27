@@ -1452,8 +1452,8 @@ public final class AutoSim {
             final String waitOption = matchSecondsOption(autoClass);
             final double waitUntil = partnerWaitUntilS;
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add)
-                    // The Endgame row as the request picks it ("picks": {"Endgame": "TIPS FIRST"}), else
-                    // PARK FIRST, as on the robot: a volley never takes the park's time.
+                    // The Endgame row as the request picks it ("picks": {"Endgame": "PARK FIRST"}), else
+                    // TIPS FIRST, the robot's default: a volley whose last piece is out by 30 s may take the park's time.
                     .picks(new AutoKit.Picks() {
                 @Override public int choice(String option) { return pickedChoice(autoClass, picks, option); }
                 @Override public double seconds(String option) {

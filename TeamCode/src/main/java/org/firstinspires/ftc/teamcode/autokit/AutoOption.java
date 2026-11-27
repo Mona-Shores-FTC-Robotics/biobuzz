@@ -22,16 +22,19 @@ public final class AutoOption {
     /**
      * The one choice between the park and one more TIP, the same row on every Auto's INIT menu
      * ({@link #withEndgame}: added by the kit, never drawn), set by the drive team per match after
-     * talking to the partner (mentor, 22 Nov 2026). {@link #PARK_FIRST}, the default: the endgame
-     * guard goes for a volley only when the park still fits after it. {@link #TIPS_FIRST}: a volley
-     * whose last piece is out by 30 s comes first, and the park may be lost.
+     * talking to the partner (mentor, 22 Nov 2026). {@link #TIPS_FIRST}, the default (mentor, 27 Nov
+     * 2026): a volley whose last piece is out by 30 s comes first, and the park may be lost.
+     * {@link #PARK_FIRST}: the endgame guard goes for a volley only when the park still fits after it,
+     * for a qualifier where our AUTO PARK decides SWARM.
      */
     public static final String ENDGAME = "Endgame";
     /** {@link #ENDGAME}'s choices, in order: the default first. */
-    public static final String PARK_FIRST = "PARK FIRST";
     public static final String TIPS_FIRST = "TIPS FIRST";
-    /** {@link #TIPS_FIRST}'s index among {@link #ENDGAME}'s choices. */
-    public static final int TIPS_FIRST_INDEX = 1;
+    public static final String PARK_FIRST = "PARK FIRST";
+    /** {@link #TIPS_FIRST}'s index among {@link #ENDGAME}'s choices: the first, the default. */
+    public static final int TIPS_FIRST_INDEX = 0;
+    /** {@link #PARK_FIRST}'s index among {@link #ENDGAME}'s choices. */
+    public static final int PARK_FIRST_INDEX = 1;
 
     /**
      * The reserved name of a drawn route choice between a third TIP and the park (R-Clockwise's), the
@@ -134,9 +137,9 @@ public final class AutoOption {
         return new AutoOption(name, Kind.TIME, Collections.<String>emptyList(), drawnSeconds);
     }
 
-    /** {@link #ENDGAME}: PARK FIRST (the default) or TIPS FIRST. */
+    /** {@link #ENDGAME}: TIPS FIRST (the default) or PARK FIRST. */
     public static AutoOption endgame() {
-        return choice(ENDGAME, PARK_FIRST, TIPS_FIRST);
+        return choice(ENDGAME, TIPS_FIRST, PARK_FIRST);
     }
 
     /**

@@ -180,6 +180,22 @@ public final class LocalizationTuning {
      */
     public static boolean stillFixes = true;
 
+    /**
+     * Holds a stationary fix that comes in while the feed gate is open, and applies it once the
+     * volley is over (mentor, 27 Nov 2026). Fruitport Q-42 (20245): a fix moved the pose 2.5 in
+     * 0.4 s into R-Solo's first LEFT volley with the robot still; Pedro's hold drove the robot 2 in
+     * after it while the first ball left, and the turret's aim moved with the pose. Still beats
+     * exact during a volley. A held fix is dropped, not applied, if the robot moved or turned since
+     * its frames ({@link #heldFixMaxMoveIn}, {@link #heldFixMaxTurnDeg}): the next stop takes a fresh one.
+     */
+    public static boolean holdFixesWhileFeeding = true;
+
+    /** A held fix is dropped if the pose moved more than this between its frames and the volley's end, inches. */
+    public static double heldFixMaxMoveIn = 0.5;
+
+    /** A held fix is dropped if the heading turned more than this between its frames and the volley's end, degrees. */
+    public static double heldFixMaxTurnDeg = 2.0;
+
     /** Gated camera frames averaged, still, before one stationary fix. */
     public static int stillFixFrames = 5;
 

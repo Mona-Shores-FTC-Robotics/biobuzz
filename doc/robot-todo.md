@@ -68,13 +68,13 @@ accel ramp 2.74, FLOWER dwell 2.31, gate open → first ball 2.06.
 
 
 
-PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with `Endgame: PARK FIRST`; 20245's
+PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with the Endgame row (`TIPS FIRST` by default since 27 Nov 2026); 20245's
 TIPS FIRST line in `RobotDifferences` is gone, and R-Clockwise shows no Priority row (it follows Endgame). The
 guard's PARK FIRST budget is now a volley's last piece out plus the park, with no 1 s margin.
 
-- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: PARK FIRST`; D-pad down to it,
-      right once: `Endgame ◀▶: TIPS FIRST`, amber. PLAY, then the match log's `auto options` event says
-      `Endgame=TIPS FIRST (drawn PARK FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
+- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: TIPS FIRST` (the default since
+      27 Nov 2026); D-pad down to it, right once: `Endgame ◀▶: PARK FIRST`, amber. PLAY, then the match log's
+      `auto options` event says `Endgame=PARK FIRST (drawn TIPS FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
 - [ ] **R-NoCross on 20245, PARK FIRST, loaded, HIVE upright, partner stand-in TIPping early:** the GARDEN volley
       fires only if its last ball and the park fit by 30 s; else the log says `no time to park after it,
       parking now`. Then the same on TIPS FIRST: the volley goes, its last ball out by 30 s. **Good:** every
@@ -249,6 +249,20 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
       point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
       **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
+
+## No still fix moves the pose during a volley (27 Nov 2026, either robot, R-Solo, HIVE upright, phone on the robot)
+
+PR: still fixes held while the feed gate is open (`LocalizationTuning.holdFixesWhileFeeding`, `VolleyFixHold`).
+Fruitport Q-42 (20245): a camera still fix moved the pose 2.5 in during R-Solo's first LEFT volley, Pedro's
+hold dragged the robot 2 in after it, and the first ball left while it moved.
+
+- [ ] **R-Solo, three runs:** film the robot at `LEFT_AUTO_HIVE` through its first LEFT volley. **Good:** the
+      robot does not move while the gate is open, and the match log has `still fix N held through the volley,
+      applied as it ended` at most once per volley, after the last ball. **Stop:** the robot still moves during
+      the volley → check the log for a fix applied while `/FeedGate/Feeding` is 1, push the logs, tell a mentor.
+- [ ] **Basic Drive, a Square launch spot:** drive to one, fire, and watch the same: no nudge mid-volley. A
+      `dropped` line after a volley the driver drove during is expected (the fix no longer matches where the
+      robot is).
 
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 
