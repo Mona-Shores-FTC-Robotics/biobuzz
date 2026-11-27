@@ -3,8 +3,8 @@
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
 (mentor): it holds L-Assist, which runs from the Utility menu as **Drive: L-Assist**, L-LeftUnderHive-StrangeGarden
-(**Drive: L-LeftUnderHive-StrangeGarden**, beside the normal R-LeftUnderHive, below), and the RightUnderHive
-pair, parked until a super FLOWER pick exists (no OpMode).
+(**Drive: L-LeftUnderHive-StrangeGarden**, beside the normal R-LeftUnderHive, below). The RightUnderHive pair left
+this folder for the Autonomous menu on 27 Nov 2026 (its notes, below, stay here).
 
 **Removed on 19 Nov 2026**, with their generated classes, sim requests, the nudge test's code
 (`NudgeContactDrive`, `NudgeTestRun`) and the stand-ins only they used. All are in Git history at
@@ -139,6 +139,10 @@ SCORING FLOWER 4 at LEFT for TIP 2. Simulated beside a RoboDux stand-in, with bo
 (1.85 by 30 s), 0 contacts, and both robots parked in 20 of 20 runs.
 
 ## The RightUnderHive pair: R-RightUnderHive and L-RightUnderHive
+
+**No longer a draft (27 Nov 2026):** the pair is in `TeamCode/autos/` and on the Autonomous menu as R-RightUnderHive
+and L-RightUnderHive, redrawn for three TIPs with a fallback for each missed load ([the Auto README](../README.md)). The
+notes below are from the draft as it was on 20 Nov 2026.
 
 **Parked until a super FLOWER pick exists** (mentor, 19 Nov 2026): back in `drafts/` and off both Driver Station
 menus, with no OpMode. To beat the other pairs it needs a FLOWER pick that loads more at once; it is also one less
