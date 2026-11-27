@@ -1,15 +1,18 @@
 {
  "arm": {
-  "grams_petg": 74.35,
-  "time_mk3_class": "4h 54m 29s",
-  "time_fast_class": "3h 16m 1s"
+  "bed_rotation_deg": 30,
+  "grams_petg": 78.3,
+  "time_mk3_class": "5h 2m 2s",
+  "time_fast_class": "3h 18m 29s"
  },
  "arm_hex_pivot": {
-  "grams_petg": 74.41,
-  "time_mk3_class": "4h 54m 44s",
-  "time_fast_class": "3h 16m 10s"
+  "bed_rotation_deg": 30,
+  "grams_petg": 78.39,
+  "time_mk3_class": "5h 2m 17s",
+  "time_fast_class": "3h 18m 44s"
  },
  "foot_skid": {
+  "bed_rotation_deg": 0,
   "grams_petg": 6.29,
   "time_mk3_class": "37m 39s",
   "time_fast_class": "31m 28s"
