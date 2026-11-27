@@ -314,7 +314,7 @@
       {
         "id": "c-ltip-wait",
         "kind": "firstOf",
-        "label": "Wait for its CELL up",
+        "label": "Wait for its CELL up, or 9 s",
         "rows": [
           {
             "when": [
@@ -323,7 +323,7 @@
             "cards": []
           },
           {
-            "afterMs": 12000,
+            "afterMs": 9000,
             "cards": []
           }
         ]

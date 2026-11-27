@@ -60,9 +60,9 @@ public final class PartnerLShootParkAuto {
                 kit.guarded("Auto", toPartnerPark, 2,
                         kit.command("SpinUp"),
                         kit.path("to PARTNER_LAUNCH", toPartnerLaunch, 1),
-                        kit.firstOf("Wait for its CELL up",
+                        kit.firstOf("Wait for its CELL up, or 9 s",
                                 kit.when("CellUp"),
-                                kit.afterMs(12000)),
+                                kit.afterMs(9000)),
                         kit.command("LaunchAll", 15),
                         kit.path("to PARTNER_PARK", toPartnerPark, 2)));
     }
