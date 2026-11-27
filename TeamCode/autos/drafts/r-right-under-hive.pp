@@ -179,106 +179,9 @@
       }
     },
     {
-      "id": "r-ru-back",
-      "color": "#4e79a7",
-      "name": "GARDEN back to RIGHT_AUTO_HIVE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 20.9
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 96.1
-      }
-    },
-    {
-      "id": "r-ru-right-park",
-      "color": "#4e79a7",
-      "name": "RIGHT_AUTO_HIVE to RIGHT_PARK_WALL",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 92.5
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 40
-        },
-        {
-          "x": 16,
-          "y": 62
-        },
-        {
-          "x": 14,
-          "y": 72
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 96.1,
-        "endDeg": 270,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 96.1,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 20.9
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 96.10000000000002
-      }
-    },
-    {
-      "id": "r-ru-up-fix",
-      "color": "#4e79a7",
-      "name": "fix: up the corridor under the HIVE to R_HIVE_EXIT",
+      "id": "ruh2-garden-to-fix",
+      "color": "#59a14f",
+      "name": "GARDEN up the corridor under the HIVE to R_HIVE_EXIT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -289,78 +192,34 @@
         "x": 60.5,
         "y": 100
       },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 96.1,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "r-ru-fix",
-      "color": "#4e79a7",
-      "name": "R_HIVE_EXIT round to R_LEFT_FIX",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.5,
-        "y": 114
-      },
       "controlPoints": [
         {
-          "x": 55,
-          "y": 103
+          "x": 30,
+          "y": 12
         },
         {
-          "x": 60,
-          "y": 106
+          "x": 61,
+          "y": 14
         },
         {
-          "x": 62,
-          "y": 110
+          "x": 61,
+          "y": 40
+        },
+        {
+          "x": 61,
+          "y": 70
         }
       ],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.1,
-              "endProgress": 0.45,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 268.4
-              }
-            },
-            {
-              "startProgress": 0.45,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 268.4
-              }
-            }
-          ]
-        }
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
       }
     },
     {
-      "id": "r-ru-exit-park-2",
+      "id": "ruh2-exit-park",
       "color": "#4e79a7",
-      "name": "R_HIVE_EXIT to RIGHT_PARK_WALL (instead of the fix)",
+      "name": "R_HIVE_EXIT to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -435,7 +294,160 @@
       }
     },
     {
-      "id": "link-4",
+      "id": "ruh2-link-x",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 60.5,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "ruh2-exit-to-fix",
+      "color": "#4e79a7",
+      "name": "R_HIVE_EXIT round to R_LEFT_FIX",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.5,
+        "y": 114
+      },
+      "controlPoints": [
+        {
+          "x": 55,
+          "y": 103
+        },
+        {
+          "x": 60,
+          "y": 106
+        },
+        {
+          "x": 62,
+          "y": 110
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.1,
+              "endProgress": 0.45,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 268.4
+              }
+            },
+            {
+              "startProgress": 0.45,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 268.4
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-fix-park-0",
+      "color": "#4e79a7",
+      "name": "LEFT not up: R_LEFT_FIX to RIGHT_PARK_WALL",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 32,
+          "y": 121
+        },
+        {
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 268.4,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.4,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-link-a",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -446,7 +458,141 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.60000000000002
+        "degrees": 268.4
+      }
+    },
+    {
+      "id": "ruh2-fix-to-sf",
+      "color": "#f28e2b",
+      "name": "R_LEFT_FIX to SCORING_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.4,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "ruh2-sf-park",
+      "color": "#f28e2b",
+      "name": "SCORING_FLOWER_STAGING park",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 38,
+          "y": 121
+        },
+        {
+          "x": 32.5,
+          "y": 106
+        },
+        {
+          "x": 32.5,
+          "y": 86
+        },
+        {
+          "x": 32.5,
+          "y": 76
+        },
+        {
+          "x": 32.5,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 90,
+        "endDeg": -90,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": -90
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-link-b",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "ruh2-sf-to-fix",
+      "color": "#f28e2b",
+      "name": "SCORING_FLOWER_STAGING to R_LEFT_FIX",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.5,
+        "y": 114
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 268.4
       }
     },
     {
@@ -527,7 +673,7 @@
       }
     },
     {
-      "id": "link-5",
+      "id": "ruh2-link-c",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -538,7 +684,7 @@
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": -91.60000000000002
+        "degrees": 268.4
       }
     },
     {
@@ -606,6 +752,188 @@
             },
             {
               "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-link-y",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 60.5,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "ruh2-exit-to-rah",
+      "color": "#59a14f",
+      "name": "LEFT not up: R_HIVE_EXIT down the corridor to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [
+        {
+          "x": 61,
+          "y": 70
+        },
+        {
+          "x": 61,
+          "y": 40
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 96.1
+      }
+    },
+    {
+      "id": "ruh2-rah-park",
+      "color": "#4e79a7",
+      "name": "RIGHT_AUTO_HIVE to RIGHT_PARK_WALL",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 16,
+          "y": 62
+        },
+        {
+          "x": 14,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 96.1,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 96.1,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-link-z",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 96.1
+      }
+    },
+    {
+      "id": "ruh2-rah-park-2",
+      "color": "#4e79a7",
+      "name": "RIGHT down too: RIGHT_AUTO_HIVE to RIGHT_PARK_WALL",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 16,
+          "y": 62
+        },
+        {
+          "x": 14,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 96.1,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 96.1,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "constant",
               "reversed": false,
@@ -808,31 +1136,43 @@
     },
     {
       "kind": "path",
-      "lineId": "r-ru-back"
+      "lineId": "ruh2-garden-to-fix"
     },
     {
       "kind": "path",
-      "lineId": "r-ru-right-park"
+      "lineId": "ruh2-exit-park"
     },
     {
       "kind": "path",
-      "lineId": "link-3"
+      "lineId": "ruh2-link-x"
     },
     {
       "kind": "path",
-      "lineId": "r-ru-up-fix"
+      "lineId": "ruh2-exit-to-fix"
     },
     {
       "kind": "path",
-      "lineId": "r-ru-fix"
+      "lineId": "ruh2-fix-park-0"
     },
     {
       "kind": "path",
-      "lineId": "r-ru-exit-park-2"
+      "lineId": "ruh2-link-a"
     },
     {
       "kind": "path",
-      "lineId": "link-4"
+      "lineId": "ruh2-fix-to-sf"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-sf-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-link-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-sf-to-fix"
     },
     {
       "kind": "path",
@@ -840,11 +1180,31 @@
     },
     {
       "kind": "path",
-      "lineId": "link-5"
+      "lineId": "ruh2-link-c"
     },
     {
       "kind": "path",
       "lineId": "r-ru-fix-skip-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-link-y"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-exit-to-rah"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-rah-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-link-z"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-rah-park-2"
     }
   ],
   "fieldPoints": [],
@@ -920,11 +1280,6 @@
         7.7,
         90
       ],
-      "R_HIVE_EXIT": [
-        60.5,
-        100,
-        90
-      ],
       "R_LEFT_FIX": [
         61.5,
         114,
@@ -934,20 +1289,35 @@
         14.5,
         92.5,
         270
+      ],
+      "SCORING_FLOWER_STAGING": [
+        47.2,
+        119.3,
+        90
+      ],
+      "R_HIVE_EXIT": [
+        60.5,
+        100,
+        90
       ]
     },
     "pathEnds": {
       "r-ru-open": "RIGHT_AUTO_HIVE",
-      "r-ru-garden": "GARDEN_STAGING",
-      "r-ru-back": "RIGHT_AUTO_HIVE",
-      "r-ru-up-fix": "R_HIVE_EXIT",
-      "r-ru-exit-park-2": "RIGHT_PARK_WALL",
       "r-ru-wait-park": "RIGHT_PARK_WALL",
+      "r-ru-garden": "GARDEN_STAGING",
       "r-ru-garden-park": "RIGHT_PARK_WALL",
-      "r-ru-fix": "R_LEFT_FIX",
+      "ruh2-garden-to-fix": "R_HIVE_EXIT",
+      "ruh2-fix-park-0": "RIGHT_PARK_WALL",
+      "ruh2-fix-to-sf": "SCORING_FLOWER_STAGING",
+      "ruh2-sf-park": "RIGHT_PARK_WALL",
+      "ruh2-sf-to-fix": "R_LEFT_FIX",
       "r-ru-fix-park": "RIGHT_PARK_WALL",
       "r-ru-fix-skip-park": "RIGHT_PARK_WALL",
-      "r-ru-right-park": "RIGHT_PARK_WALL"
+      "ruh2-exit-to-fix": "R_LEFT_FIX",
+      "ruh2-exit-park": "RIGHT_PARK_WALL",
+      "ruh2-exit-to-rah": "RIGHT_AUTO_HIVE",
+      "ruh2-rah-park": "RIGHT_PARK_WALL",
+      "ruh2-rah-park-2": "RIGHT_PARK_WALL"
     },
     "cards": [
       {
@@ -980,67 +1350,29 @@
         "timeoutS": 5.5
       },
       {
-        "id": "c-r-back",
+        "id": "c-ruh2-to-exit",
         "kind": "path",
-        "lineId": "r-ru-back",
+        "lineId": "ruh2-garden-to-fix",
         "park": false
       },
       {
-        "id": "c-r-wait",
+        "id": "c-ruh2-exit-check",
         "kind": "firstOf",
-        "label": "RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT",
+        "label": "LEFT up? (the partner has shot and gone)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": [
               {
-                "id": "c-r-right",
-                "kind": "action",
-                "name": "LaunchAll",
-                "timeoutS": 1
-              },
-              {
-                "id": "c-r-hold",
-                "kind": "firstOf",
-                "label": "Hold at RIGHT_AUTO_HIVE, out of L's way, until the park needs the time",
-                "rows": [
-                  {
-                    "afterMs": 29000,
-                    "matchClock": true,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "c-r-park",
+                "id": "c-ruh2-to-fix",
                 "kind": "path",
-                "lineId": "r-ru-right-park",
-                "park": true
-              }
-            ]
-          },
-          {
-            "afterMs": 18000,
-            "matchClock": true,
-            "adjustable": true,
-            "tip": 2,
-            "cards": [
-              {
-                "id": "c-r-up-fix",
-                "kind": "path",
-                "lineId": "r-ru-up-fix",
+                "lineId": "ruh2-exit-to-fix",
                 "park": false
               },
               {
-                "id": "c-r-fix",
-                "kind": "path",
-                "lineId": "r-ru-fix",
-                "park": false
-              },
-              {
-                "id": "c-r-left-check",
+                "id": "c-ruh2-left-up",
                 "kind": "firstOf",
                 "label": "LEFT up?",
                 "rows": [
@@ -1050,15 +1382,109 @@
                     ],
                     "cards": [
                       {
-                        "id": "c-r-left",
+                        "id": "c-ruh2-fire1",
                         "kind": "action",
-                        "name": "LaunchAll",
-                        "timeoutS": 1
+                        "name": "LaunchAll"
                       },
                       {
-                        "id": "c-r-fix-park",
+                        "id": "c-ruh2-to-sf",
                         "kind": "path",
-                        "lineId": "r-ru-fix-park",
+                        "lineId": "ruh2-fix-to-sf",
+                        "park": false
+                      },
+                      {
+                        "id": "c-ruh2-pick",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c-ruh2-back",
+                        "kind": "path",
+                        "lineId": "ruh2-sf-to-fix",
+                        "park": false
+                      },
+                      {
+                        "id": "c-ruh2-left-up2",
+                        "kind": "firstOf",
+                        "label": "LEFT still up?",
+                        "rows": [
+                          {
+                            "when": [
+                              "LeftCellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-ruh2-fire2",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "c-ruh2-park",
+                                "kind": "path",
+                                "lineId": "r-ru-fix-park",
+                                "park": true
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 750,
+                            "cards": [
+                              {
+                                "id": "c-ruh2-park-2",
+                                "kind": "path",
+                                "lineId": "r-ru-fix-skip-park",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "afterMs": 750,
+                    "cards": [
+                      {
+                        "id": "c-ruh2-park-0",
+                        "kind": "path",
+                        "lineId": "ruh2-fix-park-0",
+                        "park": true
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "afterMs": 750,
+            "cards": [
+              {
+                "id": "c-ruh2-down",
+                "kind": "path",
+                "lineId": "ruh2-exit-to-rah",
+                "park": false
+              },
+              {
+                "id": "c-ruh2-right-up",
+                "kind": "firstOf",
+                "label": "RIGHT up? (our preloads missed)",
+                "rows": [
+                  {
+                    "when": [
+                      "RightCellUp"
+                    ],
+                    "cards": [
+                      {
+                        "id": "c-ruh2-fire-r",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-ruh2-rah-park",
+                        "kind": "path",
+                        "lineId": "ruh2-rah-park",
                         "park": true
                       }
                     ]
@@ -1067,9 +1493,9 @@
                     "afterMs": 750,
                     "cards": [
                       {
-                        "id": "c-r-fix-skip-park",
+                        "id": "c-ruh2-rah-park-2",
                         "kind": "path",
-                        "lineId": "r-ru-fix-skip-park",
+                        "lineId": "ruh2-rah-park-2",
                         "park": true
                       }
                     ]
@@ -1078,29 +1504,34 @@
               }
             ]
           }
-        ],
-        "alongside": "SpinUp"
+        ]
       }
     ],
     "startAt": "RIGHT_START",
     "linkPaths": [
       "link-1",
       "link-2",
-      "link-3",
-      "link-4",
-      "link-5"
+      "ruh2-link-a",
+      "ruh2-link-b",
+      "ruh2-link-c",
+      "ruh2-link-x",
+      "ruh2-link-y",
+      "ruh2-link-z"
     ],
     "parkFrom": {
       "c-r-open": "r-ru-wait-park",
       "c-r-garden": "r-ru-garden-park",
-      "c-r-back": "r-ru-wait-park",
-      "c-r-up-fix": "r-ru-exit-park-2",
-      "c-r-fix": "r-ru-exit-park-2"
+      "c-ruh2-to-exit": "ruh2-exit-park",
+      "c-ruh2-to-fix": "ruh2-fix-park-0",
+      "c-ruh2-to-sf": "ruh2-sf-park",
+      "c-ruh2-back": "r-ru-fix-park",
+      "c-ruh2-down": "ruh2-rah-park"
     },
     "teamSpots": [
       "GARDEN_STAGING",
       "RIGHT_AUTO_HIVE",
-      "RIGHT_START"
+      "RIGHT_START",
+      "SCORING_FLOWER_STAGING"
     ],
     "exportName": "R-RightUnderHive"
   }
