@@ -29,12 +29,27 @@
       }
     },
     {
+      "name": "Everything goes smoothly, R on CROSS AND FIX IT",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
+    },
+    {
       "name": "R's preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads",
       "partnerPicks": {
         "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
+    },
+    {
+      "name": "Beside L-NoCross, our preloads miss",
+      "partner": "LNoCrossAuto",
+      "oursFails": "misses preloads"
     },
     {
       "name": "L's preloads miss, we CROSS AND FIX IT",
