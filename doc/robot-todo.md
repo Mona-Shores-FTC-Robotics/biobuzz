@@ -111,10 +111,22 @@ line; the `RobotDifferences` lines come with the switch item further down this g
       push in → `ARM_T` 1.4 to 1.2 in `floor_sled.py`; pins pop out with a pull → `PIN_OUT` 1.0 to 1.2; rattles →
       a strip of thin foam tape on the sled's top. Then the emitter in: its body flush with the sled's top (if not,
       it is thicker than 8 mm, above).
-- [ ] **Fit the receiver:** over the emitter's hole, held at both ends (lip, then its screw). **Good:** the body lies
-      flat on the mount, no gap at the LED end; Check: Hardware reads HIGH (clear) with the lane empty and LOW with
-      a ball on the spot. **Stop:** clear with a ball there → slide the mount in its slots (±3 mm); still clear →
-      the plate's hole is too far off the floor's, note by how much.
+- [ ] **Receiver fit test first (`beam_fit_test`, 1.5 cm3):** press the receiver into each of its three pockets
+      (one, two, three notches: ribs gripping 0.15, 0.25, 0.35 mm a side). **Good:** the two-notch pocket takes it
+      with a thumb and it does not fall out held upside down and shaken. **Stop:** another pocket is the one →
+      `RIB_CRUSH` in `parts.py` to its value, run it, print `beam_mount`.
+- [ ] **Fit the receiver (`beam_mount`, no screw):** LED end under the 3 mm lip, wire end pressed down until both
+      arms click over it. **Good:** the body lies flat, no gap at either end; held upside down and tapped hard it
+      stays; spreading the two arms lets it out; the arms do not crack or stay bent after 5 in-and-outs; Check:
+      Hardware reads HIGH (clear) with the lane empty and LOW with a ball on the spot. **Stop:** too stiff to click
+      → `ARM_T` 1.4 to 1.2 in `parts.py`; loose under the hooks → `HOOK` 1.0 to 1.3; an arm cracks → note where
+      (root or hook); clear with a ball there → slide the mount in its slots (±3 mm); still clear → the plate's hole
+      is too far off the floor's, note by how much. The M2 x 12 and nut are a backup only, if the clips ever let go.
+- [ ] **Screwed sled (`floor_sled_screwed`, if it is the one tried):** M3 x 8 button heads from the lane through
+      the floor's 4 mm holes, self-tapping into the sled's 2.5 mm pilots (no nuts). **Good:** each bites and pulls
+      the sled flat against the floor without stripping; out and in again 3 times it still holds; nothing shows
+      below the channel. **Stop:** too tight to start → run a 3/32 in drill through the pilot; strips → print with
+      6 walls instead of 4, or a tighter 2.3 mm pilot (`PILOT_D` in `floor_sled.py`).
 - [ ] **Nothing else breaks it:** Basic Drive, intake and feeder wheels on, gate opened and shut 10 times, lane
       empty. **Good:** never LOW. Then 4 balls in: LOW from the first ball's arrival until the volley's last ball
       leaves, HIGH within 0.1 s after it (Robot page, phone slow-motion). **Stop:** HIGH between two balls of one

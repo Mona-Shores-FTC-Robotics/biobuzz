@@ -15,14 +15,23 @@ export of 23 Nov 2026):
 | File | What it is | Print |
 |---|---|---|
 | `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
-| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 81.2 x 9.3 mm, four floor-screw places (use 2 to 4), no pins. Prints like the sled | 1 per robot, to try |
-| `beam_mount.stl` / `.3mf` | 32.7 x 30.7 x 14.3 mm. Plate down, as exported | 1 per robot |
+| `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 75.3 x 9.3 mm, four pilot holes for floor screws (use 2 to 4), no pins, no nuts. Prints like the sled | 1 per robot, to try |
+| `beam_mount.stl` / `.3mf` | 35.7 x 33.2 x 15.1 mm. Plate down, as exported | 1 per robot |
+| `beam_fit_test.stl` / `.3mf` | 42.9 x 8.0 x 10.0 mm: three short receiver pockets, crush ribs 0.15 / 0.25 / 0.35 mm (1, 2, 3 notches). Print it first | 1, once |
 | `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
-| `render.py` | Draws `parts.png` (the receiver mount on a goBILDA wall) | `+ trimesh manifold3d matplotlib` |
+| `render.py` | Draws `parts.png` (the receiver mount) and `floor_sled_screwed.png` | `+ trimesh manifold3d matplotlib` |
 
-**Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit), 0.2 mm layers, 4 walls, 40 %
-gyroid. No supports. The sled's pins stick out 1 mm from its sides and the receiver's lip overhangs 1.5 mm; both print clean.
+**Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit and its snap arms crack), 0.2 mm
+layers, 4 walls, 40 % gyroid. No supports, no brim. Orientation, as exported:
+
+- **Both sleds upside down**, the top face (the sensor pocket's open side) on the bed. The screwed sled's pilot holes
+  open on the bed: if the first layer squashes them shut, run a 3/32 in (2.4 mm) drill through by hand.
+- **`beam_mount` plate down.** The receiver's 3 mm lip prints as a bridge between the side walls; each snap arm stands
+  on the bed on its own, joined at one end, so it bends along its layers, never across them. Its hooks overhang 1 mm.
+- **`beam_fit_test` plate down.**
+
+The sled's pins stick out 1 mm from its sides and print clean.
 
 ## Where the beam crosses, and why there
 
@@ -71,35 +80,63 @@ floor the balls roll on.** It holds by the channel's side walls: their 4 mm hole
 
 ### Option B: the screwed sled (`floor_sled_screwed`)
 
-![Installing option B](floor_sled_screwed_install.png)
+![Option B and a section through one screw](floor_sled_screwed.png)
 
-The same pocket, no pins: 81 mm long, reaching 40 mm each way along the channel from the beam's hole. Print both and
-keep the one that holds better.
+The same pocket, no pins, **no nuts** (head mentor, 27 Nov 2026: nothing hidden to drop or lose): 75 mm long, reaching
+38 mm each way along the channel from the beam's hole. The screws cut their own threads in the plastic. Print both
+sleds and keep the one that holds better.
 
-1. Emitter in as for the snap sled. Slide an M3 nut into each tunnel you will use (one in each corner, opening at
-   the sled's ends) until it sits under its slot.
-2. Put the sled up into the channel, LED under the beam's 14 mm hole, wire end away from the gate.
+1. Emitter in as for the snap sled.
+2. Put the sled up into the channel, LED under the beam's 14 mm hole, wire end away from the gate. The pilot holes
+   line up with the floor's 4 mm holes, and they place the sled: the LED lands on the hole's centre.
 3. From the top, **M3 x 8 button heads** down through the floor's 4 mm holes 9.4 mm either side of the centre line,
-   33 mm along the channel each way from the beam's hole, into the nuts. Four places, one per corner: use any two,
-   one at each end, or all four. The two on the wheel side at the gate end sit under the purple wheels, so use them
-   only if a screwdriver gets there. The balls cross the channel at the beam: a NECTAR's surface is 10 mm or more
-   above these heads, a POLLEN's 4.5 mm or more. An M3 x 8 ends inside the sled; a 10 would poke out of the bottom.
-4. Slide the sled to centre the LED in the hole (the slots allow 3 mm either way), then tighten: it pulls the sled,
-   and the emitter on its crush ribs, flat against the floor.
+   33 mm along the channel each way from the beam's hole, into the sled's **2.5 mm pilot holes** (blind, 7 mm
+   deep). Four places, one per corner: use any two, one at each end, or all four. Turn them in slowly; they cut
+   their thread. The two on the wheel side at the gate end sit under the purple wheels, so use them only if a
+   screwdriver gets there.
+4. **Where the screw ends:** through the 2.5 mm floor it bites 5.5 mm into the sled, inside a 7 mm pilot with 2.3 mm
+   of sled still under it, so nothing comes out of the bottom. Each pilot has at least 2.5 mm of solid plastic on
+   every side: to the sled's side, to the wire slot, to its end, and 15 mm or more to the sensor pocket. Only the
+   head is in the lane: the balls cross the channel at the beam, 28 mm and more away, and a NECTAR's surface is
+   10 mm or more above these heads, a POLLEN's 4.5 mm or more. Use M3 x 8: an M3 x 10 still ends inside (1.8 mm
+   short of the bottom), an M3 x 12 would come through.
+5. Snug, not tight: it pulls the sled, and the emitter on its crush ribs, flat against the floor. A thread that
+   strips: see `doc/robot-todo.md`.
+
+**Screws for option B:** 2 to 4 M3 x 8 button head. No nuts.
 
 ## Fitting the receiver (`beam_mount`, on the top plate)
 
-1. Find the top plate's 14 mm hole straight over the emitter's hole (a square laid on the floor hole, or a laser
+![The receiver mount](parts.png)
+
+The sensor is captured with no screw: the robot showed the first holder (a 1.5 mm lip and the body's own M2 screw)
+let it work loose. Now:
+
+- a **3 mm lip** over the LED end (printed as a bridge between the side walls);
+- **side walls the body's full height**, each with two **crush ribs** that grip its sides (how hard is `RIB_CRUSH`,
+  picked with `beam_fit_test`);
+- two **snap arms**, one in each side wall at the wire end, each a strip of wall joined only at its LED end, with a
+  hook 1 mm over the body's top edge (the floor sled's springy-arm idea);
+- an **end wall** behind the wire end, so the body cannot slide out from under the lip, with a 6 mm slot to the
+  plate for the wires.
+
+1. **Print `beam_fit_test` first** and press the receiver into its three pockets; keep the rib size that grips it
+   (see `doc/robot-todo.md`), set `RIB_CRUSH`, then print `beam_mount`.
+2. Find the top plate's 14 mm hole straight over the emitter's hole (a square laid on the floor hole, or a laser
    level). Within about 5 mm is enough: the emitter's cone is wide, and the slots take up the rest.
-2. Put the receiver into the cradle, **LED down**: slide its LED end under the lip on the end wall, then lay the wire
-   end down. Fix it with an **M2 x 12** through the body's 2.4 mm hole into an M2 nut in the small hex pocket underneath.
-   **It is held at both ends, so it sits flat.** The first version held only the screw end, and on the robot its LED
-   end stood proud.
-3. Put a plain M4 nut in each of the two big tracks on top. Bolt the mount down onto the top plate with two **M4 x 8
+3. Put the receiver in, **LED down**: slide its LED end under the lip, against the end wall, then press the wire end
+   down between the arms until both click over its top edge. The wires leave through the end wall's slot. Pushed
+   against the end wall, the LED sits over the window.
+4. **To take it out:** spread the two arms outward with two thumbnails and lift the wire end.
+5. **Backup only, if it ever works loose:** an **M2 x 12** through the body's 2.4 mm hole into an M2 nut in the small
+   hex pocket underneath. Not needed otherwise.
+6. Put a plain M4 nut in each of the two big tracks on top. Bolt the mount down onto the top plate with two **M4 x 8
    button heads** from underneath (the lane side), through the 4.5 mm holes 16 mm apart beside the beam hole. For a
    plate thicker than 2.5 mm use (plate + 5.5 mm), rounded up. The mount turns 180°, so the screws can go either side.
-4. Slide it within its slots (±3 mm) until Check: Hardware reads the beam clear with nothing in it and broken with a
+7. Slide it within its slots (±3 mm) until Check: Hardware reads the beam clear with nothing in it and broken with a
    hand in it, then tighten.
+
+**Screws for the receiver:** 2 M4 x 8 button head and 2 M4 nuts. Backup only: 1 M2 x 12 and 1 M2 nut.
 
 ## The sensor: Adafruit 2168 (5 mm LEDs), as bought
 
@@ -108,11 +145,11 @@ From Adafruit's [product page](https://www.adafruit.com/product/2168) and its di
 
 - **Body:** 20 x 10 x 8 mm (Adafruit's page; the generic QT50CM [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf)
   says 9). The sled's floor under the body is 9.3 − thickness: 1.3 mm at 8, and `floor_sled.py` refuses to build
-  below 0.8. The receiver's lip sits 0.1 mm over the thickness set. If a body proves 9 mm, change `BODY_T` in both
+  below 0.8. The receiver's walls, lip and hooks follow the thickness set (lip and hooks 0.1 mm over it). If a body proves 9 mm, change `BODY_T` in both
   files and run them again.
 - **LED:** on a big face, 5 mm from one end.
 - **Mounting hole:** 2.4 mm (an M2), on the same face, 10 mm from the LED, 5 mm from the other end (the receiver
-  mount uses it; the sleds do not).
+  mount's backup screw only; the sleds do not use it).
 - **Leads:** 250 mm. Emitter red 3.3–5 V, black ground; receiver red, black, and the signal (open collector: the
   hub's digital input pulls it up).
 
@@ -125,6 +162,10 @@ Set `BODY_T`, `BODY_W`, `LED_FROM_END` (and `LED_TO_SCREW` in `parts.py`), then:
 ```
 python3 cad/beam-mount/floor_sled.py && python3 cad/beam-mount/parts.py && (cd cad/beam-mount && python3 render.py)
 ```
+
+`render.py` draws `parts.png` and `floor_sled_screwed.png`. `floor_sled_steps.png` and `floor_sled_wires.png` (the
+snap sled, unchanged) were drawn by a session from the same files; they are not redrawn by this command. Each script refuses to write a part that is not one valid solid, and
+`floor_sled.py` asserts the screw's bite and the plastic round each pilot hole.
 
 `lane_floor_placement.png` and `lane_floor_prints.png` were drawn from the transfer's STEP, which is not in the repo
 (22 MB). To draw them again, export it from Onshape and ask a session to.

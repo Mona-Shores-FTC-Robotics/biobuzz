@@ -1,7 +1,8 @@
-"""Draws parts.png: the mount alone, the mount with a sensor on a goBILDA wall, and its footprint on the hole pattern.
+"""Draws parts.png (the receiver mount: as it prints, with a sensor on a goBILDA wall, a section through its snap arms,
+its footprint on the hole pattern, and the fit test) and floor_sled_screwed.png (option B and a section through a screw).
 
     pip install cadquery trimesh manifold3d matplotlib
-    python3 cad/beam-mount/parts.py && python3 cad/beam-mount/render.py      # draws the STL parts.py wrote
+    python3 cad/beam-mount/parts.py && python3 cad/beam-mount/floor_sled.py && (cd cad/beam-mount && python3 render.py)
 """
 import os
 
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import trimesh
 
+import floor_sled
 import parts
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -84,24 +86,40 @@ def wall():
 
 
 def sensor():
-    """The sensor as a plain block on the plate, LED end over the window, plus its LED dome and screw head."""
+    """The sensor as a plain block on the plate, LED end against the end wall, over the window."""
     y0 = -parts.LED_FROM_END
-    body = slab(-parts.BODY_W / 2, parts.BODY_W / 2, y0, y0 + parts.BODY_L, parts.PLATE_T, parts.PLATE_T + 9)
-    head = cyl(0, parts.LED_TO_SCREW, parts.PLATE_T + 9, parts.PLATE_T + 11.5, 5.5)
-    return body, head
+    return slab(-parts.BODY_W / 2, parts.BODY_W / 2, y0, y0 + parts.BODY_L, parts.PLATE_T, parts.PLATE_T + parts.BODY_T)
 
 
-def main():
+def section(ax, mesh, normal, origin, axes, colour="k"):
+    for s in trimesh.intersections.mesh_plane(mesh, plane_normal=normal, plane_origin=origin):
+        ax.plot(s[:, axes[0]], s[:, axes[1]], colour, lw=1)
+
+
+def draw_parts():
     m = trimesh.load(os.path.join(HERE, "beam_mount.stl"))
-    fig = plt.figure(figsize=(15, 5.5))
-    yellow, grey = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8)
-    show(fig.add_subplot(1, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
-    body, head = sensor()
-    show(fig.add_subplot(1, 3, 2), raster([(wall(), grey), (m, yellow), (body, (0.2, 0.2, 0.2)), (head, (0.85, 0.85, 0.9))], 35, -60),
-         "On a goBILDA wall: sensor in, its screw on top\n(the lane is on the far side of the wall)")
-    ax = fig.add_subplot(1, 3, 3)
-    for s in trimesh.intersections.mesh_plane(m, plane_normal=[0, 0, 1], plane_origin=[0, 0, 0.5]):
-        ax.plot(s[:, 0], s[:, 1], "k", lw=1)
+    ft = trimesh.load(os.path.join(HERE, "beam_fit_test.stl"))
+    fig = plt.figure(figsize=(15, 10.5))
+    yellow, grey, dark = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8), (0.2, 0.2, 0.2)
+    show(fig.add_subplot(2, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
+    show(fig.add_subplot(2, 3, 2), raster([(wall(), grey), (m, yellow), (sensor(), dark)], 35, -60),
+         "On a goBILDA wall, sensor in, LED down\n(lip over the LED end, hooks over the wire end)")
+    show(fig.add_subplot(2, 3, 3), raster([(ft, yellow)], 45, -70),
+         "beam_fit_test.stl: ribs 0.15 / 0.25 / 0.35 mm\n(1, 2, 3 notches)")
+    y1 = parts.LED_TO_SCREW + parts.LED_FROM_END + parts.FIT
+    ax = fig.add_subplot(2, 3, 4)
+    section(ax, m, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2))
+    bw, bt = parts.BODY_W / 2, parts.BODY_T
+    ax.add_patch(plt.Rectangle((-bw, parts.PLATE_T), 2 * bw, bt, color=dark, alpha=0.35))
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title("Across the wire end (2 mm in): the arms, free of the plate,\nand their hooks over the body (grey)", fontsize=10)
+    ax = fig.add_subplot(2, 3, 5)
+    section(ax, m, [1, 0, 0], [0, 0, 0], (1, 2))
+    ax.add_patch(plt.Rectangle((-parts.LED_FROM_END, parts.PLATE_T), parts.BODY_L, bt, color=dark, alpha=0.35))
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title("Along the middle: the 3 mm lip over the LED end,\nthe window, the backup M2 nut, the wire-end wall", fontsize=10)
+    ax = fig.add_subplot(2, 3, 6)
+    section(ax, m, [0, 0, 1], [0, 0, 0.5], (0, 1))
     for cx in (0.0, -24.0):
         ax.add_patch(plt.Circle((cx, 0), 7.0, fill=False, color="tab:blue"))
         for dx in (-8, 8):
@@ -109,9 +127,37 @@ def main():
                 ax.add_patch(plt.Circle((cx + dx, dy), 2.25, fill=False, color="tab:blue"))
     ax.plot(0, 0, "r+", ms=14)
     ax.set_aspect("equal"); ax.grid(alpha=0.3)
-    ax.set_title("Underside (black) over goBILDA's holes (blue)\n+ = beam; hex = the sensor screw's nut", fontsize=10)
+    ax.set_title("Underside (black) over goBILDA's holes (blue)\n+ = beam; the arms' slots go right through", fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(HERE, "parts.png"), dpi=90)
+
+
+def draw_screwed():
+    m = trimesh.load(os.path.join(HERE, "floor_sled_screwed.stl"))
+    f = floor_sled
+    fig = plt.figure(figsize=(15, 5.5))
+    show(fig.add_subplot(1, 2, 1), raster([(m, (0.07, 0.5, 0.56))], 35, -60),
+         "floor_sled_screwed.stl, top face up (it prints this face down):\nfour blind 2.5 mm pilot holes, no nuts")
+    ax = fig.add_subplot(1, 2, 2)
+    section(ax, m, [0, 1, 0], [0, f.SCREW_Y, 0], (0, 2))
+    w2 = f.POCKET_W / 2
+    ax.add_patch(plt.Rectangle((-w2 - f.WALL_T, 0), 2 * w2 + 2 * f.WALL_T, f.FLOOR_T, color="0.7"))      # the floor
+    for side in (-1, 1):
+        ax.add_patch(plt.Rectangle((side * w2 - (f.WALL_T if side < 0 else 0), -f.POCKET_H), f.WALL_T, f.POCKET_H, color="0.7"))
+        x = side * f.SCREW_X
+        ax.add_patch(plt.Rectangle((x - 1.5, f.FLOOR_T - f.SCREW_L), 3.0, f.SCREW_L, color="tab:orange", alpha=0.8))
+        ax.add_patch(plt.Rectangle((x - 2.85, f.FLOOR_T), 5.7, 1.65, color="tab:orange"))                 # button head
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title(f"Across the channel at a screw ({f.SCREW_Y} mm from the beam): an M3 x 8 (orange) through the\n"
+                 f"2.5 mm floor bites {f.SCREW_L - f.FLOOR_T:.1f} mm into a {f.PILOT_DEPTH:.0f} mm pilot; "
+                 f"{f.H - f.PILOT_DEPTH:.1f} mm of sled under it", fontsize=10)
+    plt.tight_layout()
+    plt.savefig(os.path.join(HERE, "floor_sled_screwed.png"), dpi=90)
+
+
+def main():
+    draw_parts()
+    draw_screwed()
 
 
 if __name__ == "__main__":
