@@ -1,0 +1,114 @@
+[
+ {
+  "robot": "19429",
+  "step": "To first piece",
+  "order": 1,
+  "seconds": 5.69,
+  "samples": 16,
+  "phase": "collect"
+ },
+ {
+  "robot": "19429",
+  "step": "Fill up",
+  "order": 2,
+  "seconds": 2.82,
+  "samples": 16,
+  "phase": "collect"
+ },
+ {
+  "robot": "19429",
+  "step": "Hold full, drive back",
+  "order": 3,
+  "seconds": 2.94,
+  "samples": 16,
+  "phase": "collect"
+ },
+ {
+  "robot": "19429",
+  "step": "Drive to spot",
+  "order": 4,
+  "seconds": 0.0,
+  "samples": 16,
+  "phase": "launch"
+ },
+ {
+  "robot": "19429",
+  "step": "Settle check",
+  "order": 5,
+  "seconds": 0.0,
+  "samples": 16,
+  "phase": "launch"
+ },
+ {
+  "robot": "19429",
+  "step": "Gate to first piece",
+  "order": 6,
+  "seconds": 1.39,
+  "samples": 16,
+  "phase": "launch"
+ },
+ {
+  "robot": "19429",
+  "step": "Rest of volley",
+  "order": 7,
+  "seconds": 1.08,
+  "samples": 16,
+  "phase": "launch"
+ },
+ {
+  "robot": "20245",
+  "step": "To first piece",
+  "order": 1,
+  "seconds": 4.22,
+  "samples": 35,
+  "phase": "collect"
+ },
+ {
+  "robot": "20245",
+  "step": "Fill up",
+  "order": 2,
+  "seconds": 3.84,
+  "samples": 35,
+  "phase": "collect"
+ },
+ {
+  "robot": "20245",
+  "step": "Hold full, drive back",
+  "order": 3,
+  "seconds": 1.96,
+  "samples": 35,
+  "phase": "collect"
+ },
+ {
+  "robot": "20245",
+  "step": "Drive to spot",
+  "order": 4,
+  "seconds": 0.71,
+  "samples": 6,
+  "phase": "launch"
+ },
+ {
+  "robot": "20245",
+  "step": "Settle check",
+  "order": 5,
+  "seconds": 0.0,
+  "samples": 6,
+  "phase": "launch"
+ },
+ {
+  "robot": "20245",
+  "step": "Gate to first piece",
+  "order": 6,
+  "seconds": 0.81,
+  "samples": 6,
+  "phase": "launch"
+ },
+ {
+  "robot": "20245",
+  "step": "Rest of volley",
+  "order": 7,
+  "seconds": 1.3,
+  "samples": 35,
+  "phase": "launch"
+ }
+]

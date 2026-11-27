@@ -68,13 +68,13 @@ accel ramp 2.74, FLOWER dwell 2.31, gate open → first ball 2.06.
 
 
 
-PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with `Endgame: PARK FIRST`; 20245's
+PR: the Endgame row (`AutoOption.ENDGAME`). Every Auto's INIT menu ends with the Endgame row (`TIPS FIRST` by default since 27 Nov 2026); 20245's
 TIPS FIRST line in `RobotDifferences` is gone, and R-Clockwise shows no Priority row (it follows Endgame). The
 guard's PARK FIRST budget is now a volley's last piece out plus the park, with no 1 s margin.
 
-- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: PARK FIRST`; D-pad down to it,
-      right once: `Endgame ◀▶: TIPS FIRST`, amber. PLAY, then the match log's `auto options` event says
-      `Endgame=TIPS FIRST (drawn PARK FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
+- [ ] **INIT only, any Auto, each robot:** the menu's last row reads `Endgame: TIPS FIRST` (the default since
+      27 Nov 2026); D-pad down to it, right once: `Endgame ◀▶: PARK FIRST`, amber. PLAY, then the match log's
+      `auto options` event says `Endgame=PARK FIRST (drawn TIPS FIRST)`. **Stop:** no Endgame row, or R-Clockwise still shows Priority.
 - [ ] **R-NoCross on 20245, PARK FIRST, loaded, HIVE upright, partner stand-in TIPping early:** the GARDEN volley
       fires only if its last ball and the park fit by 30 s; else the log says `no time to park after it,
       parking now`. Then the same on TIPS FIRST: the volley goes, its last ball out by 30 s. **Good:** every
@@ -241,6 +241,29 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
+## R-RightUnderHive with L-RightUnderHive, first drives (27 Nov 2026, both robots, a full field, HIVE upright, phones filming both robots and the CELLs)
+
+On the Autonomous menu since 27 Nov 2026 and never driven ([the Auto README](../TeamCode/autos/README.md)). Push the logs
+after each run.
+
+- [ ] Every shot in, both robots: three TIPs; R backward up and down the corridor, nothing over the centre line
+      (x 70.75), R's turret swinging onto its CELL after passing under the HIVE (the simulator gives the first ball
+      1.1 s after R arrives). **Stop:** R's frame touches the centre line or the HIVE → move the corridor path in the
+      Visualizer and re-export
+- [ ] The camera at each check spot reads its CELL in time: L's "RIGHT still up?" after crossing to `RIGHT_AUTO_OFFSET`
+      has 0.75 s for the camera to settle in the simulator
+- [ ] R's `IntakeFull` right after the GARDEN gather: it picks R's route, and a false "not full" costs TIP 3. Note how
+      many POLLEN the gather took (the simulator's corner wheels give 4)
+- [ ] `R_LEFT_CATCH` (61.4, 122.9) beside L on `LEFT_AUTO_OFFSET`: about 1.5 in apart in the simulator's geometry,
+      and 1.1 in from the centre line. **Stop:** any contact → move `R_LEFT_CATCH` in the Visualizer
+- [ ] Each robot's preloads held back (preloads out of the lane), one run each: L crosses with its preloads and fixes
+      TIP 1 (no TIP 1 by 9.5 s), or R waits at `R_LEFT_CATCH` for LEFT; both still park
+- [ ] Time the tight legs against the simulator: L's outer lane (3.4 s), R's park from the left end round the HIVE's
+      foot (4.8 s), L parked by 28.9 s after its crossing; and the four waits' limits (9.5, 21.5, 22.3 and 24.2 s)
+      against the real TIP lags
+- [ ] A dead L on `LEFT_START` (a box there): R touches it at `R_LEFT_CATCH` at about 11.6 s in every simulated run,
+      the known `LEFT_START` limit; check by hand that nothing else touches it
+
 ## R-Solo-WallPark beside R-Solo (24 Nov 2026, either robot, Utility menu, a partner robot or a box at the high end)
 
 - [ ] **Drive: R-Solo-WallPark from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on
@@ -249,6 +272,20 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
       point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
       **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
+
+## No still fix moves the pose during a volley (27 Nov 2026, either robot, R-Solo, HIVE upright, phone on the robot)
+
+PR: still fixes held while the feed gate is open (`LocalizationTuning.holdFixesWhileFeeding`, `VolleyFixHold`).
+Fruitport Q-42 (20245): a camera still fix moved the pose 2.5 in during R-Solo's first LEFT volley, Pedro's
+hold dragged the robot 2 in after it, and the first ball left while it moved.
+
+- [ ] **R-Solo, three runs:** film the robot at `LEFT_AUTO_HIVE` through its first LEFT volley. **Good:** the
+      robot does not move while the gate is open, and the match log has `still fix N held through the volley,
+      applied as it ended` at most once per volley, after the last ball. **Stop:** the robot still moves during
+      the volley → check the log for a fix applied while `/FeedGate/Feeding` is 1, push the logs, tell a mentor.
+- [ ] **Basic Drive, a Square launch spot:** drive to one, fire, and watch the same: no nudge mid-volley. A
+      `dropped` line after a volley the driver drove during is expected (the fix no longer matches where the
+      robot is).
 
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 
@@ -284,9 +321,14 @@ tripod over the GARDEN corner, filming from above. `doc/corner-wheels.md` has th
       Write each gather's time and count on the PR.
 - [ ] **Tripod clips of four GARDEN layouts,** stick up, the TeleOp gather facing the audience wall, 3 runs each:
       the staged **row** against the audience wall, a ball pinned in the **corner**, the 4 **packed** together,
-      and **scattered** within a robot width of the corner. Count each. The simulator does not model the wheels
-      yet (a TODO in `AutoSim`); the Visualizer's GARDEN page predicts row 3/4, packed 1/4 and scattered 0/4,
-      unverified, so these counts are what it gets calibrated from.
+      and **scattered** within a robot width of the corner. Count each. The simulator's wheels (`FieldSim.rake`,
+      `doc/corner-wheels.md` §5) take 4 of the staged row on placeholders; the Visualizer's GARDEN page predicts
+      row 3/4, packed 1/4 and scattered 0/4, unverified, so these counts are what both get calibrated from.
+- [ ] **Time the rake, both ways in, for the simulator's placeholders** (same clips, plus 3 of an Auto's
+      `GardenGatherAlongWall`): from the first POLLEN touching a wheel to the last one taken, and how many of the 4
+      came in. The simulator has the corner gather's corner piece in after about 0.35 s and the along-the-wall
+      row's 4 after about 1.3 s (6.3 in/s, one piece at a time). **Otherwise:** write the times and counts on the
+      PR; `RobotDesign.cornerWheelRakeInPerS` and the model's "never lost" get set from them.
 - [ ] **LoopTimeBaseline** on each robot, against the last number before the wheels, both in the PR (CLAUDE.md,
       Loop time).
 - [ ] **Open: R503's servo count on 19429.** With both corner wheels it has 9 servos (the indicator light not

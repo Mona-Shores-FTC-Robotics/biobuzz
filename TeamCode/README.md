@@ -1109,9 +1109,9 @@ calls. There are three kinds of card and one branching block:
   when a card, the cards after it up to that volley and the volley's last piece all fit before 30 s,
   and then neither parks nor cuts until the next card: an AUTO TIP is worth 20 points toward the
   POLLINATOR RPs, the AUTO PARK 5, and both robots' LEAVE and end-of-match PARK already make the
-  SWARM RP's 16 (mentor, 4 Nov 2026). On the Endgame row's PARK FIRST, the default on every Auto
-  (`AutoOption.ENDGAME`, mentor, 22 Nov 2026), the volley's last piece and then the park must fit by
-  30 s too; TIPS FIRST is the drive team's per-match choice of the 4 Nov rule. A launch that is feeding is never
+  SWARM RP's 16 (mentor, 4 Nov 2026). On the Endgame row's PARK FIRST (`AutoOption.ENDGAME`, on every Auto, mentor, 22 Nov 2026), the
+  volley's last piece and then the park must fit by 30 s too. TIPS FIRST, the 4 Nov rule, is the default
+  (mentor, 27 Nov 2026); PARK FIRST is the drive team's pick when our park decides SWARM. A launch that is feeding is never
   cut. → `TeamCode/autos/README.md` § "Parking when time runs short"
 
 **Where a path ends, and what settles after it.** A path card is done when `AutoDrive.pathDone()`
@@ -1260,7 +1260,11 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   calibration, a robot with the roller FLOWER stick (19429, `BeldingCalibration.rollerStick`) fills its lane on
   every FLOWER pick and GARDEN gather that runs to its end, in place of the Belding draw and the touch model: the
   mentor's observation of 19 Nov, "4 POLLEN every time", still to confirm with volleys of 4 counted from the
-  launcher wheels' dips. 20245, with the passive stick, keeps both. **Measured:**
+  launcher wheels' dips. 20245, with the passive stick, keeps both. The corner wheels (both robots, 26 Nov
+  2026) are in it (`FieldSim.rake`, `doc/corner-wheels.md` §5): a POLLEN touching the front in the corner strip
+  beside the mouth is raked in, one at a time at 6.3 in/s, so the corner gather takes 4 (3 by touch, the corner
+  piece off the right wheel) and `GardenGatherAlongWall`, whose row lies outside the mouth, takes 4 off the left
+  wheel; where the wheel sits, its pace and "never lost" are placeholders. **Measured:**
   the GARDEN's size and its pieces (manual), the gather pose (20245's frame, 30 Oct). **Placeholder:** the
   whole gather takes no less than `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3 s, which covers the
   button gathers 19429 ran on 18 Nov with today's values, 2.26 to 2.50 s without their line-up; no Auto
@@ -1322,7 +1326,8 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   - `BIOBUZZ_AUTO_ENDGAME="TIPS FIRST"` runs the endgame guard as the Belding build did (master at 7ed351f: a
     volley before the park), for replaying the Autos that ran there: the Endgame row picked for every Auto that
     has no pick of its own (a request's `"picks": {"Endgame": "TIPS FIRST"}` does the same per entry).
-    Without it the guard is PARK FIRST, the default. (It was `BIOBUZZ_AUTO_BELDING_GUARD=1` until 22 Nov 2026.)
+    Without it the guard is TIPS FIRST anyway, the default since 27 Nov 2026; a request picks `"Endgame": "PARK FIRST"`
+    to see the park-keeping guard. (It was `BIOBUZZ_AUTO_BELDING_GUARD=1` until 22 Nov 2026.)
 
   With both, 60 seeds each, with each robot's own loads:
 
@@ -1389,6 +1394,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     plans with, in place of master's `AutoRegistration` constants. A what-if that speeds a mechanism up sets
     its typical time to match, or the guard parks for a volley that would have fitted.
     `BIOBUZZ_SIM_GARDEN_S` sets the least a `GardenGather` takes.
+  - `BIOBUZZ_SIM_CORNER_WHEELS=off`: the real robot without its corner wheels, for a before-and-after.
   - Every STUDY line is followed by `by 30 s: TIP1 a/n TIP2 b/n TIP3 c/n`: the same TIPs counted only when
     complete by the end of AUTO's 30 s. The STUDY line itself also counts a TIP that completes in the
     transition (§10.5 B), which the endgame guard does not plan on.

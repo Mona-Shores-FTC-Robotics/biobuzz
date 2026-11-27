@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelRules;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
@@ -65,6 +66,19 @@ final class RobotDesign {
      * the 3 in either way (the robot stops just short of the FLOWER's tube).
      */
     boolean intakeOnContact = false;
+    /**
+     * The corner wheels ({@code doc/corner-wheels.md}, master's {@code CornerWheelSubsystem}): a wheel at each front
+     * corner, beside the intake mouth, that rakes a piece touching it inward to the mouth
+     * ({@link FieldSim#CORNER_WHEEL_IN}). {@link #real()} has them when master's {@code CornerWheelSubsystem.fitted}
+     * is on.
+     */
+    boolean cornerWheels = false;
+    /**
+     * How fast a corner wheel moves a piece pressed against it toward the mouth, in/s. 6.3 is from the mentor's
+     * clip of 26 Nov 2026 ({@code doc/corner-wheels.md}); <b>a placeholder</b> until a match log or a timed gather
+     * measures it.
+     */
+    double cornerWheelRakeInPerS = 6.3;
     /**
      * Where a launched piece leaves the robot: this far forward of the robot's centre (negative:
      * behind it) and this high. A piece doesn't collide with the robot that launched it until it
@@ -436,6 +450,9 @@ final class RobotDesign {
         // (doc/corner-wheels.md, "Intake opening"; the roller itself is 7.6 in). It was 0.9 of the frame (14.6 in).
         d.intakeWidthIn = 9.7;
         d.intakeOnContact = true;
+        // The corner wheels, on both robots while master's switch is on (CornerWheelSubsystem.fitted).
+        // BIOBUZZ_SIM_CORNER_WHEELS=off runs without them, for a before-and-after.
+        d.cornerWheels = CornerWheelRules.fitted() && !"off".equals(System.getenv("BIOBUZZ_SIM_CORNER_WHEELS"));
         d.extractorSeatIn = FlowerPicker.push.contactStandoffIn - d.frameIn / 2;
         // The feed's rhythm, measured (23 Nov 2026) from every Auto LaunchAll in the Belding and Fruitport match
         // logs, both robots, by the shot counter: the first ball a median 0.85 s after the gate opens (64 volleys,
@@ -560,6 +577,8 @@ final class RobotDesign {
         d.intakeWidthIn = intakeWidthIn;
         d.intakeHeightIn = intakeHeightIn;
         d.intakeOnContact = intakeOnContact;
+        d.cornerWheels = cornerWheels;
+        d.cornerWheelRakeInPerS = cornerWheelRakeInPerS;
         d.exitForwardIn = exitForwardIn;
         d.exitHeightIn = exitHeightIn;
         d.bodyHeightIn = bodyHeightIn;

@@ -30,7 +30,7 @@ then the pages and the PDF:
 | `out/<event>/review.html`, `review.pdf` | Print page and the one-long-page PDF (needs node + playwright) |
 | `out/<event>/report.txt` | Which log is which match, and any dataset that could not be built and why |
 | `data/<name>/` | With `--save-as <name>`: the datasets kept in the repo for `compare.py` |
-| `compare.json`, `compare.html` | Two events side by side, per robot, with the change; numbers only |
+| `compare.json`, `compare.html` | Two events side by side, per robot: before → after, better / worse / same, the story (see "Comparing two events") |
 
 Stdlib Python only (3.9+). FTCScout is fetched once and saved; if the network blocks
 `api.ftcscout.org`, save its responses (the error names each file and URL) and pass `--offline`.
@@ -143,6 +143,7 @@ Match logs read with `tools/pull-logs/read_logs.py`. Times are medians unless th
 | `flower_picks` | FLOWER picks | Issue #507 phases and press outcomes. Auto pieces per pick reconciled (see below) |
 | `matches`, `robots`, `shot_recovery`, `energy`, `mechanisms` | Battery | Battery sampled once a second |
 | `nectar`, `feed_nectar`, `feed_volleys` | (kept, not drawn on the final page) | |
+| `unjam`, `drive_slip` | (compare page only) | `review_lib/feeder.py`: feeder reverse time, gate openings that launched nothing with a piece at the lane sensor, and odometry speed per wheel speed (drivetrain grip) |
 
 **Auto pieces per FLOWER pick** (3.2 UV / 2.0 IR): per pick, the larger of the entrance colour
 sensor's arrivals (including "arrived with the lane counted full") and the next volley's launches
@@ -151,12 +152,29 @@ less what was left in the lane, capped by the lane's space. All 4 preloads launc
 one. `/Lane/Full` is not used: it can read full while the stick holds a piece under the sensor.
 
 
-## Comparing with Belding
+## Comparing two events
 
-Compare a new event against `data/belding-rebuilt/`, not `data/belding/`. It is Belding run through
+```
+python3 tools/event-review/compare.py tools/event-review/data/belding-rebuilt tools/event-review/data/fruitport --out out/compare
+```
+
+Writes `compare.html` (one self-contained page, d3 and logos inlined: publish this) and `compare.json`
+(one row per number and robot: a, b, change, verdict). Belding vs Fruitport:
+https://claude.ai/artifact/H3SX3mR1krpHimXiCTNMY8
+
+Compare a new event against `data/belding-rebuilt/`, not `data/belding/`: it is Belding run through
 this same pipeline, so both events use the same definitions (it differs from the published Belding
-page only in the floor-pickup timings and the hand-read `square_issues` fields listed above):
+page only in the floor-pickup timings and the hand-read `square_issues` fields listed above). Save
+each event with `review.py --save-as <name>` so the next comparison can be rerun.
 
-```
-python3 tools/event-review/compare.py tools/event-review/data/belding-rebuilt tools/event-review/data/<event> --out out/<event>
-```
+- **Verdicts.** Every number in `compare.py`'s `METRICS` has a direction (higher better, lower better,
+  or neither) and a noise band; a change inside the band is "same". Each robot is compared with itself.
+- **The pair config**, `events/compare-<A code>-<B code>.json` (found from each folder's `event.json`):
+  `not_comparable` {metric key: why} for a number whose controls or counting changed (shown, never
+  judged), `notes` {metric key: a line under it}, `changes` (what changed on the robots between the
+  events) and `title`. Belding → Fruitport's marks the manual-fire numbers: the operator's FIRE became
+  the driver's Circle (#623).
+- **The story cards** are computed (`insights()`), each only when its data says so: the field's
+  average, the transfer staying the same, each robot's biggest gains, world-rank jumps, the launcher's
+  spin-up wait, a robot that reversed its feeder far more than the other, own NECTAR never launched,
+  a match where the drivetrain lost grip, new piece records.

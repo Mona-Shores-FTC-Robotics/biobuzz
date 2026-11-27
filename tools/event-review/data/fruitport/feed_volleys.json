@@ -1,0 +1,1210 @@
+[
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.747,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.863,
+  "lane": 1,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.766,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 1.213,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.743,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.79,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.849,
+  "lane": 4,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.871,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.985,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.163,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.763,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 1.186,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.822,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.762,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.755,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.781,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.811,
+  "lane": 1,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.609,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.863,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.727,
+  "lane": 1,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.743,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.794,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.769,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.203,
+  "lane": 1,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 2.012,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.789,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.712,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.565,
+  "lane": 3,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.802,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 1.12,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.709,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.68,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 1.963,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.238,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.257,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.732,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.747,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.085,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.232,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.234,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.723,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.746,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.725,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.727,
+  "lane": 1,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.797,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.821,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.756,
+  "lane": 0,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.704,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.819,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 2.366,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 1.983,
+  "lane": 4,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "Auto",
+  "first_s": 0.782,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.878,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.751,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.702,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.761,
+  "lane": 0,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.726,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.81,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "19429",
+  "phase": "TeleOp",
+  "first_s": 0.741,
+  "lane": 1,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.746,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.858,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.837,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "behind"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.795,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "behind"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.837,
+  "lane": 1,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.85,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.801,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.765,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.257,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.857,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.038,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.16,
+  "lane": 0,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.818,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.871,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.859,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.854,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.792,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.917,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.827,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.034,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.816,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.959,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.924,
+  "lane": 0,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 1.235,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 1.412,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.853,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.836,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.896,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.827,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.887,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.918,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "behind"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.956,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.856,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.876,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.289,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.542,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.767,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.828,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.824,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.82,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.796,
+  "lane": 0,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.868,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.444,
+  "lane": 0,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.863,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.178,
+  "lane": 1,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.815,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.933,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.788,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 1.285,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.292,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.881,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.807,
+  "lane": 4,
+  "shots": 5,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.88,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.808,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.82,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.808,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.847,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.815,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.815,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.774,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.784,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.376,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.782,
+  "lane": 1,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.832,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.838,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.835,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.812,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.819,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.826,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.071,
+  "lane": 2,
+  "shots": 1,
+  "nectar": "front"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.98,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 0.796,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.755,
+  "lane": 4,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.764,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.225,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.792,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.792,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 1.253,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.897,
+  "lane": 2,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.826,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.835,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.803,
+  "lane": 1,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "Auto",
+  "first_s": 1.282,
+  "lane": 4,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.84,
+  "lane": 0,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.78,
+  "lane": 3,
+  "shots": 4,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.815,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.839,
+  "lane": 2,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.78,
+  "lane": 3,
+  "shots": 1,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.878,
+  "lane": 4,
+  "shots": 5,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.815,
+  "lane": 3,
+  "shots": 2,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.788,
+  "lane": 3,
+  "shots": 3,
+  "nectar": "none"
+ },
+ {
+  "robot": "20245",
+  "phase": "TeleOp",
+  "first_s": 0.872,
+  "lane": 2,
+  "shots": 2,
+  "nectar": "none"
+ }
+]

@@ -12,6 +12,7 @@ import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
+import org.firstinspires.ftc.teamcode.autokit.AutoOption;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RNoCrossAuto;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -87,7 +88,10 @@ public class RNoCrossAutoTest {
         };
         AutoKit kit = new AutoKit(drive, registry, () -> now).trace(trace::add)
                 .picks(new AutoKit.Picks() {
-                    @Override public int choice(String option) { return choices.getOrDefault(option, -1); }
+                    // Endgame on PARK FIRST unless a test picks TIPS FIRST, the robot's default.
+                    @Override public int choice(String option) {
+                        return choices.getOrDefault(option, AutoOption.ENDGAME.equals(option) ? AutoOption.PARK_FIRST_INDEX : -1);
+                    }
                     @Override public double seconds(String option) { return Double.NaN; }
                 });
         Command auto = RNoCrossAuto.build(kit, false);

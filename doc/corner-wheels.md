@@ -288,8 +288,25 @@ Otherwise each servo gets 0, one write per loop.
 bench shows they differ.
 
 **The GARDEN gather** (`GardenGather`, the TeleOp's button and both Auto cards) keeps the stick up and relies on the
-wheels; `GardenGather.stick.useStick` on brings back the old stick-down gather. The simulator does not model the
-wheels yet: its GARDEN gather takes POLLEN by the mouth's touch alone (a TODO in `AutoSim`, with the clip's numbers).
+wheels; `GardenGather.stick.useStick` on brings back the old stick-down gather.
+
+**The simulator** (test code: `FieldSim.rake`, `RobotDesign.cornerWheels`) has the wheels on the real robot while
+`CornerWheelSubsystem.fitted` is on, and asks `CornerWheelSubsystem.stopFor` itself whether they spin. What it
+models, every part a placeholder until a match log or a timed gather measures it:
+
+- **Where a wheel sits:** on the frame's front face, from the mouth's edge (4.85 in from the centre line) 3.5 in
+  outward, so it covers the corner strip and stands 0.35 in past the frame's side. The built wheel's place is not
+  measured; the clip's "1.2 in ahead of the wheel faces" is not modelled, since the simulator's front is one plane.
+- **What it does:** a POLLEN touching the front in that strip stays on the wheel and goes with the robot (the walls
+  and the other pieces don't move it, and it doesn't slow the robot). The wheel rakes one piece at a time inward at
+  6.3 in/s (the clip) and hands it to the mouth; the others wait on the wheel. A piece on a wheel is never lost.
+- **When it stops** (master's rules), every piece on it is let go where it is.
+
+With that, both ways in take 4 of the staged row: facing the audience wall the mouth takes 3 by touch and the right
+wheel brings in the corner piece (about 0.35 s); along the audience wall the whole row runs down the left corner
+strip and comes off the left wheel in about 1.3 s, inside the gather's drive in and dwell. Before (27 Nov 2026)
+the simulator's flat front drove the along-the-wall row into the side wall and took 1. `BIOBUZZ_SIM_CORNER_WHEELS=off`
+runs without them. `CornerWheelSimTest` checks both ways in, the pace and the stop rules.
 
 **Still to do:**
 

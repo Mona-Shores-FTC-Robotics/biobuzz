@@ -145,6 +145,10 @@ public class Robot {
         // last loop's gate: one loop late at either edge, against about 0.7 s from the gate
         // opening to a piece reaching the wheels (log of 4 Nov 2026).
         launcher.countShotsWhile(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING);
+        // No camera still fix moves the pose under a volley: Pedro's hold would chase it and the
+        // turret's aim would move with it (Fruitport Q-42). The drive updates before the gate, so
+        // this is last loop's gate, one loop late at either edge.
+        drive.holdStillFixesWhile(() -> feedGate.state() == FeedGateSubsystem.State.FEEDING);
         // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
         turret = new TurretSubsystem(hardwareMap);
         indicator = new IndicatorSubsystem(hardwareMap);

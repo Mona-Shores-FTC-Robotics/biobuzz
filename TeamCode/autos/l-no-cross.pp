@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-18T20:40:16.456Z",
+  "timestamp": "2026-11-25T14:41:00.441Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -433,8 +433,8 @@
           "y": 73
         },
         {
-          "x": 60,
-          "y": 102
+          "x": 62.725521669341894,
+          "y": 112.90208667736758
         }
       ],
       "heading": {
@@ -1154,9 +1154,9 @@
         "Tip"
       ],
       "typicalS": {
-        "LaunchAll": 4.5,
+        "LaunchAll": 2.5,
         "PickFlower": 4,
-        "GardenGather": 5,
+        "GardenGather": 3,
         "LaunchOne": 0.5,
         "SpinUp": 0.1
       }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.subsystems.CornerWheelRules;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.LaunchSpeedTable;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
@@ -375,6 +376,13 @@ final class FieldSim {
         double[] shotFrom, shotAim;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
+        /**
+         * The robot whose corner wheel holds it ({@link FieldSim#rake}), or null: on its left wheel
+         * ({@link #rakeSide} +1) or its right (-1), its centre {@link #rakeAsideIn} from the robot's centre line.
+         */
+        Bot rakedBy;
+        int rakeSide;
+        double rakeAsideIn;
         /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
         Bot capturedBy;
         double capturedAt = Double.NaN;
@@ -593,6 +601,19 @@ final class FieldSim {
          * miss. Its caller sets it for the drive in and the dwell.
          */
         boolean gardenGather;
+        /**
+         * The pieces each corner wheel holds ({@link RobotDesign#cornerWheels}), in the order they touched it: 0 its
+         * right wheel, 1 its left. A wheel rakes the first; the rest wait on it.
+         */
+        @SuppressWarnings("unchecked")
+        private final List<Piece>[] onWheel = new List[] {new ArrayList<Piece>(), new ArrayList<Piece>()};
+        /** How many pieces its corner wheels have handed to the intake so far. */
+        int rakedIn;
+
+        /** How many pieces its corner wheels hold now. */
+        int onWheels() {
+            return onWheel[0].size() + onWheel[1].size();
+        }
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -1410,7 +1431,7 @@ final class FieldSim {
 
             for (Rocker r : rockers) stepRocker(r, h);
             for (Piece p : pieces) {
-                if (p.where != Where.FIELD) continue;
+                if (p.where != Where.FIELD || p.rakedBy != null) continue;
                 p.vz -= GRAVITY_IN_PER_S2 * h;
                 if (air && p.z > p.kind.radius + 0.5) applyAir(p, h);
                 p.x += p.vx * h;
@@ -1421,6 +1442,7 @@ final class FieldSim {
             collidePieces();
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
+                if (p.rakedBy != null && rake(p, h)) continue;
                 Bot taker = null;
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
@@ -1447,6 +1469,16 @@ final class FieldSim {
                     capture(taker, p);
                     continue;
                 }
+                for (int b = 0; b < nb && p.rakedBy == null; b++) {
+                    Bot bot = bots.get(b);
+                    int side = bot.present ? cornerWheelTouch(bot, p, sub[b][0], sub[b][1], sub[b][2]) : 0;
+                    if (side == 0) continue;
+                    p.rakedBy = bot;
+                    p.rakeSide = side;
+                    bot.onWheel[side > 0 ? 1 : 0].add(p);
+                    events.add("corner wheel: robot " + (b + 1) + "'s " + (side > 0 ? "left" : "right") + " rakes a " + name(p.kind));
+                }
+                if (p.rakedBy != null && rake(p, 0)) continue;
                 boolean contact = false;
                 for (Rocker r : rockers) {
                     if (collideRocker(p, r)) {
@@ -1670,10 +1702,10 @@ final class FieldSim {
     private void collidePieces() {
         for (int i = 0; i < pieces.size(); i++) {
             Piece a = pieces.get(i);
-            if (a.where != Where.FIELD) continue;
+            if (a.where != Where.FIELD || a.rakedBy != null) continue;  // a piece on a corner wheel: FieldSim#rake
             for (int j = i + 1; j < pieces.size(); j++) {
                 Piece b = pieces.get(j);
-                if (b.where != Where.FIELD) continue;
+                if (b.where != Where.FIELD || b.rakedBy != null) continue;
                 double reach = a.kind.radius + b.kind.radius;
                 double dx = b.x - a.x;
                 if (dx > reach || dx < -reach) continue;
@@ -2142,6 +2174,104 @@ final class FieldSim {
      */
     private static boolean gardenGathered(Bot bot, Piece p) {
         return bot.gardenGather && p.flower < 0 && p.kind == Kind.POLLEN && gardenRow(p.x, p.y);
+    }
+
+    /**
+     * A corner wheel's width across the robot, in: the 3.5 in SWYFT Intake Wheel master's robots carry
+     * ({@code doc/corner-wheels.md}). <b>Where it sits is assumed</b>, the built wheel's place not being measured:
+     * on the frame's front face, from the intake mouth's edge outward, so it covers the corner strip between the
+     * mouth and the frame's side (3.15 in on the real robot) and stands 0.35 in past the side.
+     */
+    static final double CORNER_WHEEL_IN = 3.5;
+    /** How far inside the mouth's edge a raked piece's centre is when the wheel has handed it over, in. */
+    static final double CORNER_WHEEL_INTO_MOUTH_IN = 0.05;
+
+    /**
+     * Whether a robot's corner wheels rake now: it has them, and master's own rules say so
+     * ({@code CornerWheelSubsystem.stopFor}, through {@link CornerWheelRules}): the intake taking in, fewer than 4
+     * held, the FLOWER stick up. The simulator has no wrong NECTAR in a lane, so that rule never stops them here.
+     */
+    static boolean cornerWheelsRaking(Bot bot) {
+        return bot.design.cornerWheels && !bot.design.intakeAtBack
+                && CornerWheelRules.raking(bot.intaking, full(bot), bot.stored.size(), false, bot.extractorDown > 0);
+    }
+
+    /**
+     * Which of a robot's raking corner wheels a loose piece on the tiles touches: +1 its left, -1 its right, 0
+     * neither. The wheel's face is the frame's front (the mouth's own contact test, moved to the corner strip):
+     * the piece against the front face, its centre between the mouth's edge and {@link #CORNER_WHEEL_IN} beyond it.
+     * Only a piece lying on the tiles that the intake may take (NECTAR only on a robot that launches it).
+     */
+    private int cornerWheelTouch(Bot bot, Piece p, double bx, double by, double bh) {
+        RobotDesign design = bot.design;
+        if (p.flower >= 0 || p.launchedBy == bot || p.cell != null || !cornerWheelsRaking(bot)) return 0;
+        if (p.kind != Kind.POLLEN && !design.launchesNectar) return 0;
+        // On the tiles: a piece still falling from a CELL is the frame's to meet (G409), not a wheel's.
+        if (p.z > p.kind.radius + 0.5 || !p.touchedTile) return 0;
+        double c = Math.cos(bh), s = Math.sin(bh);
+        double lx = (p.x - bx) * c + (p.y - by) * s;
+        double ly = -(p.x - bx) * s + (p.y - by) * c;
+        double front = design.frameIn / 2;
+        if (!(lx > front - 2 && lx < front + p.kind.radius + INTAKE_CONTACT_SLACK_IN)) return 0;
+        double aside = Math.abs(ly) - design.intakeWidthIn / 2;
+        if (aside < 0 || aside > CORNER_WHEEL_IN) return 0;
+        p.rakeAsideIn = Math.abs(ly);
+        return ly > 0 ? 1 : -1;
+    }
+
+    /**
+     * One step of a piece on a corner wheel ({@link Piece#rakedBy}); false once the wheel has let go of it, and the
+     * piece is loose on the tiles again. <b>The model, and what it assumes</b> (placeholders until a match log or
+     * a timed gather measures them; {@code doc/corner-wheels.md}):
+     *
+     * <ul>
+     *   <li>A piece that touches a raking wheel stays on it, against the frame's front, and goes with the robot:
+     *       it is not pushed ahead, and neither the walls nor the other pieces move it. On the robot the row is
+     *       pinned between the wheel and the wall while the wheel works through it; the robot here is not slowed by
+     *       it (the gather's times are master's, {@code AutoSim#gardenGather}).</li>
+     *   <li>A wheel rakes one piece at a time, the first that touched it, inward at
+     *       {@link RobotDesign#cornerWheelRakeInPerS} until its centre is inside the mouth's edge; the rest wait
+     *       on the wheel, drawn where they touched it.</li>
+     *   <li>At the mouth the intake takes it: at once in a GARDEN gather ({@link Bot#gardenGather}, as the row's
+     *       other pieces), else at the intake's pace ({@link RobotDesign#intakeIntervalS}). No grab miss: the wheel
+     *       holds it on the roller.</li>
+     *   <li>The wheels stopping (master's rules, {@link #cornerWheelsRaking}: intake off, 4 held, stick down)
+     *       lets every piece go where it is.</li>
+     * </ul>
+     */
+    private boolean rake(Piece p, double h) {
+        Bot bot = p.rakedBy;
+        RobotDesign design = bot.design;
+        List<Piece> queue = bot.onWheel[p.rakeSide > 0 ? 1 : 0];
+        int b = bots.indexOf(bot);
+        double c = Math.cos(sub[b][2]), s = Math.sin(sub[b][2]);
+        double handOver = design.intakeWidthIn / 2 - CORNER_WHEEL_INTO_MOUTH_IN;
+        boolean first = queue.get(0) == p;
+        boolean letGo = !cornerWheelsRaking(bot) || (first && p.rakeAsideIn <= handOver && !hasRoom(bot, p.kind));
+        if (!letGo && first) p.rakeAsideIn = Math.max(handOver, p.rakeAsideIn - design.cornerWheelRakeInPerS * h);
+        double r = p.kind.radius;
+        double lx = design.frameIn / 2 + r, ly = p.rakeSide * p.rakeAsideIn;
+        p.x = Math.max(r, Math.min(FIELD_SIZE_IN - r, sub[b][0] + lx * c - ly * s));
+        p.y = Math.max(r, Math.min(FIELD_SIZE_IN - r, sub[b][1] + lx * s + ly * c));
+        p.z = r;
+        p.vx = bot.vx;
+        p.vy = bot.vy;
+        p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        if (letGo) {
+            queue.remove(p);
+            p.rakedBy = null;
+            events.add("corner wheel: robot " + (b + 1) + " lets a " + name(p.kind) + " go");
+            return false;
+        }
+        if (first && p.rakeAsideIn <= handOver
+                && (bot.gardenGather || time - bot.lastCaptureAt >= design.intakeIntervalS)) {
+            queue.remove(0);
+            p.rakedBy = null;
+            bot.rakedIn++;
+            capture(bot, p);
+        }
+        return true;
     }
 
     /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */
