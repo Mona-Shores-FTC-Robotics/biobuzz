@@ -49,7 +49,8 @@ import java.util.regex.Pattern;
  * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
  * {@code "pushable": true} lets our robot push a partner that is not driving ({@link AutoSim#pushable}: a partner with no
  * Auto that we move off the wall and into the LOADING ZONE); without it, touching one is a collision.
- * With {@code "calibration": "belding"}, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
+ * {@code "calibration": "fruitport"} is the Fruitport Qualifier's calibration ({@link FruitportCalibration}) in
+ * place of Belding's. With either calibration, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
  * each robot's launched pieces that stay in, from any range, in place of Belding's rows
  * ({@link BeldingCalibration#ourInRate}): 0.92 is our robots' from the AUTO launch spots (mentor, 19 Nov 2026), and
  * {@code "tipDwellS"} (seconds or [least, most]) the dwell before every TIP, for a slow-swing case. A fail, ours
@@ -86,14 +87,23 @@ public class SimRunTest {
         File dir = new File(folder);
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("designs", new ArrayList<>(AutoStudyTest.designs().keySet()));
-        // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration).
+        // "calibration": "belding" in the request: the Belding Qualifier's shots, dwell and HIVEs (BeldingCalibration);
+        // "fruitport": the Fruitport Qualifier's in their place, Belding's where Fruitport has none (FruitportCalibration).
         boolean beldingBefore = BeldingCalibration.on;
+        boolean fruitportBefore = FruitportCalibration.on;
         boolean throatBefore = BeamBreakSubsystem.throatFitted;
         boolean approachBefore = LaunchCards.launchOnApproach;
         double tipPointBefore = HiveCalibration.tipPointInBand;
         try {
             Map<String, Object> request = request(dir);
-            if ("belding".equals(request.get("calibration"))) BeldingCalibration.on = true;
+            Object calibration = request.get("calibration");
+            if ("belding".equals(calibration)) {
+                BeldingCalibration.on = true;
+            } else if ("fruitport".equals(calibration)) {
+                FruitportCalibration.use();
+            } else if (calibration != null) {
+                throw new IllegalArgumentException("calibration is \"belding\", \"fruitport\" or absent: " + calibration);
+            }
             // "scenario": "best": the calibration's HIVEs, with every load four POLLEN, every shot in and every volley
             // ending at its fourth shot (BeldingCalibration.bestCase).
             Object scenario = request.get("scenario");
@@ -118,7 +128,7 @@ public class SimRunTest {
             }
             if (BeldingCalibration.on) {
                 BeldingCalibration.apply();
-                out.put("calibration", "belding");
+                out.put("calibration", FruitportCalibration.on ? "fruitport" : "belding");
                 // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
                 BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
                 BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
@@ -136,6 +146,7 @@ public class SimRunTest {
             BeldingCalibration.ourInRate = Double.NaN;
             BeldingCalibration.dwellOverride = null;
             BeldingCalibration.partnerInRate = Double.NaN;
+            if (!fruitportBefore) FruitportCalibration.restore();
             BeldingCalibration.on = beldingBefore;
             BeamBreakSubsystem.throatFitted = throatBefore;
             LaunchCards.launchOnApproach = approachBefore;

@@ -1556,6 +1556,13 @@ public final class AutoSim {
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
             trackTurret();
+            // A LaunchAll with nothing to fire still opens its gate and feeds, where the calibration says so
+            // (BeldingCalibration.shortVolleysRunTheFeed): the robot has no way to know it is empty.
+            if (firing && feedingAll && body.stored.isEmpty() && shortVolleyRunsFeed() && launcherReady()
+                    && Double.isNaN(activeFeedAt) && drive.speedNow <= SimDrive.FIRE_SPEED_IN_PER_S) {
+                gateOpenAt = now;
+                activeFeedAt = now;
+            }
             if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             // LaunchAll and LaunchOne fire as the robot's LaunchCards do: at our CELL at the robot's end of the
             // field (TurretAim.nearEndCell, TurretAimer), up or not, and from any range, once spun up and still;
@@ -2392,6 +2399,7 @@ public final class AutoSim {
          * {@code firstBallWithinS} after the gate with no ball at all.
          */
         private boolean emptyStepOver() {
+            if (shortVolleyRunsFeed() && feedingAll) return false;  // the set feed time ends it, as on the robot
             if (!BeamBreakSubsystem.throatFitted || Double.isNaN(activeFeedAt)) return true;
             if (shotsFired == shotsAtStep) return now - activeFeedAt >= BeamBreakSubsystem.firstBallWithinS;
             return now - lastShotFiredAt >= BeamBreakSubsystem.quietS;
@@ -2442,13 +2450,29 @@ public final class AutoSim {
 
         private final LaunchApproach launchApproach = new LaunchApproach();
 
+        /** Whether the fire step under way is a LaunchAll (not a LaunchOne). */
+        private boolean feedingAll;
+
+        /**
+         * Whether a LaunchAll that holds fewer than four, or nothing, runs its whole set feed instead of ending at its
+         * last ball: the robot without a throat beam ({@link BeldingCalibration#shortVolleysRunTheFeed}, measured at
+         * Fruitport). Never with the beam fitted, which sees the lane run dry, and never in the best case.
+         */
+        private boolean shortVolleyRunsFeed() {
+            return BeldingCalibration.on && BeldingCalibration.shortVolleysRunTheFeed && !BeldingCalibration.bestCase
+                    && !BeamBreakSubsystem.throatFitted;
+        }
+
         /** What a launch card does as it starts, or the approach as it opens the gate on the way in. */
         private void beginLaunch(int count) {
+            feedingAll = count == Integer.MAX_VALUE;
             wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
             if (count == Integer.MAX_VALUE) volleysStarted++;
             // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
-            boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE
-                    && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted;
+            // An event that measured how often the counter missed a ball draws it a volley (BeldingCalibration.wholeFeedChance).
+            if (feedLuck == null) feedLuck = new java.util.Random((seed + 7) * 0xD1B54A32D192ED03L + index);
+            boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE
+                    && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted && BeldingCalibration.wholeFeed(feedLuck);
             shotsAtStep = shotsFired;
             spinUp();
             fireStepBegins();
@@ -2473,7 +2497,7 @@ public final class AutoSim {
                         beginLaunch(count);
                     })
                     .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE && emptyStepOver()) || shotsFired >= shotTarget
-                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
+                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt) && !(shortVolleyRunsFeed() && feedingAll))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> {
                         firing = false;
@@ -2577,6 +2601,8 @@ public final class AutoSim {
          */
         /** Its own stream, so the calibration's short picks leave every other draw as it was. */
         private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
+        /** Its own stream too: which volleys the shot counter misses a ball of ({@link BeldingCalibration#wholeFeedChance}). */
+        private java.util.Random feedLuck;
 
         /**
          * The robot's empty-FLOWER end ({@code DwellWatch}): MASTER's dwell ends {@code FlowerPicker.dwell.dwellEmptyMs}
@@ -2697,7 +2723,7 @@ public final class AutoSim {
                                 gone.x = -1000;
                                 lost++;
                             }
-                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (Belding calibration)");
+                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (the calibration's draw)");
                         }
                         intakeEnabled = intakeBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
