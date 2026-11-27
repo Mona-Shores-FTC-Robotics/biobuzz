@@ -1,6 +1,6 @@
 """Clearance check for the printed FLOWER arm through the stick's whole 0..162 deg swing, 1 deg steps.
 
-    python3 cad/flower-printed-arms/check.py     # prints the table and writes clearance.json
+    REAL_CAD_POINTS=<points.npy> python3 cad/flower-printed-arms/check.py   # writes clearance.json
 
 - **Against the corner parts** (geometry.corner_boxes: wheels, servo, goBILDA servo frame):
   exact solid-to-solid distances (OpenCascade), each arm against its own corner, for today's straight channel and the
@@ -122,6 +122,9 @@ REAL_CAD_POINTS = os.environ.get("REAL_CAD_POINTS")   # an .npy of the 26 Nov ST
                                                       # stick's moving parts left out; else the 31 Oct glb
 
 
+ROBOT_LABEL = "rest of robot (26 Nov STEP)" if REAL_CAD_POINTS else "rest of robot (31 Oct CAD)"
+
+
 def robot_points(n=1_500_000):
     """Surface samples of the robot near the arms' bands and the stick's sweep, mm."""
     if REAL_CAD_POINTS:
@@ -197,7 +200,7 @@ def main():
                     dd, _ = tree.query(q, distance_upper_bound=60)
                     if dd.min() < rob[0]:
                         rob = (float(dd.min()), float(th))
-                res[pname] = {**{k: _row(v) for k, v in worst.items()}, "rest of robot (31 Oct CAD)": _row(rob)}
+                res[pname] = {**{k: _row(v) for k, v in worst.items()}, ROBOT_LABEL: _row(rob)}
             rs[label] = res
         report["sides"][side] = rs
     # slack: the corner parts shifted forward and up (parts.SIZING_SHIFTS), the printed arm only

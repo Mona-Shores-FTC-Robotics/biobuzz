@@ -1,6 +1,6 @@
 {
  "units": "mm and in",
- "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and goBILDA 1802 servo frame on the intake channel's front flange holes; wheel height from the mentor's photo, hub gap and screw PLACEHOLDERS (geometry.CORNER) until measured",
+ "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; goBILDA's Speed servo in its 1802 servo frame, the frame's edge on the intake channel's front hole column (mentor, 26 Nov); hub gap and wheel screw PLACEHOLDERS",
  "sides": {
   "left": {
    "straight (today)": {
@@ -30,7 +30,7 @@
       "in": 0.0,
       "at_deg": 147.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 0.2,
       "in": 0.01,
       "at_deg": 156.0
@@ -64,7 +64,7 @@
       "in": 0.2,
       "at_deg": 162.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 0.2,
       "in": 0.01,
       "at_deg": 153.0
@@ -96,7 +96,7 @@
       "in": 2.5,
       "at_deg": 159.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 59.2,
       "in": 2.33,
       "at_deg": 45.0
@@ -132,7 +132,7 @@
       "in": 0.01,
       "at_deg": 153.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 5.0,
       "in": 0.2,
       "at_deg": 162.0
@@ -166,7 +166,7 @@
       "in": 0.22,
       "at_deg": 162.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 5.0,
       "in": 0.2,
       "at_deg": 162.0
@@ -198,7 +198,7 @@
       "in": 2.5,
       "at_deg": 159.0
      },
-     "rest of robot (31 Oct CAD)": {
+     "rest of robot (26 Nov STEP)": {
       "mm": 1000000000.0,
       "in": 39370078.74,
       "at_deg": null
