@@ -34,12 +34,17 @@ import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# ---- the sensor: Adafruit's dimensioned drawing (cdn-shop.adafruit.com/product-files/2167/2167diagram.jpg, the same
-# housing as the 2168 the team bought): 20 x 10, the LED and a 2.4 mm mounting hole on the same big face, 10 mm
-# apart, each 5 mm from its end. Adafruit's page gives 20 x 10 x 8; the generic QT50CM datasheet says 9.
+# ---- the sensor: the mentor's 3D model, ref/ir_break_beam_5mm.step (27 Nov 2026), measured: a 20 x 10 x 8.1 body,
+# and on its LED face a d8 ring 0.5 high round the LED, then the d5 dome, 4.8 above the face; a d3 screw hole,
+# countersunk on the LED face, 10 mm from the LED; each 5 mm from its end. (The QT50CM datasheet says 9 thick and
+# Adafruit's page 8: calipers settle it, see the README.)
 BODY_L = 20.0
 BODY_W = 10.0
-BODY_T = 8.0                 # Adafruit says 8, the datasheet 9: measure it. The walls, lip and hooks follow it
+BODY_T = 8.1                 # the model. The walls, lip and hooks follow it
+RING_D = 8.0                 # the raised ring round the LED, on the LED face...
+RING_H = 0.5                 # ...this high: the plate is counterbored for it, so the body's face sits flat
+DOME_D = 5.0                 # the LED dome
+DOME_H = 4.8                 # its top above the body's face (ring included)
 LED_FROM_END = 5.0           # LED centre from the nearer end
 LED_TO_SCREW = 10.0          # LED centre to the body's screw hole
 FIT = 0.15                   # clearance per side between the walls and the body; the crush ribs take it up
@@ -57,7 +62,9 @@ NUT_T = 3.4                  # pocket depth: a plain 3.2 mm M4 nut, flush or jus
 SLIDE = 3.0                  # the screw slots allow this much either way along X
 # ---- the print ----
 PLATE_T = 5.0                # with a 2.5 mm goBILDA wall, an M4 x 8 button head reaches through the nut
-APERTURE = 6.0               # the beam's window through the plate: a 5 mm LED dome fits, and it shades sunlight
+APERTURE = 6.0               # the beam's window through the plate: the 5 mm dome passes, and it shades sunlight
+RING_CLEAR = 0.3             # the counterbore for the LED's ring: this much bigger a side...
+RING_DEPTH = 0.7             # ...and this deep (the ring is 0.5)
 WALL = 2.0                   # side walls and end walls
 # ---- holding the sensor (no screw needed) ----
 LIP = 3.0                    # the LED end's lip, this far over the body's top: a bridge between the side walls
@@ -78,7 +85,9 @@ WIRE_SLOT = 6.0              # ...with a slot this wide, down to the plate, for 
 MARGIN = 2.0                 # plate beyond the walls and the nut pockets
 # ---- the fit test ----
 FIT_TEST_CRUSH = (0.15, 0.25, 0.35)
-FIT_TEST_LEN = 8.0           # each test pocket is this long, open at both ends
+FIT_TEST_LEN = 8.0           # each test pocket is this long, a stop at one end: the body's wire end goes in against it
+FIT_TEST_RIBS = (2.0, 7.0)   # ribs this far from the stop, either side of the body's side grooves (4 to 6 mm from that end)
+GROOVE_FROM_END = (4.0, 6.0) # the body's side grooves, 0.5 deep, measured from the end away from the LED
 FIT_TEST_PLATE = 2.0
 
 
@@ -136,6 +145,7 @@ def beam_mount():
     part = part.union(box(-xo, xo, y0 - WALL, y0, PLATE_T, lip_z + LIP_T))                # LED end wall
     part = part.union(box(-sx, sx, y0, y0 + LIP, lip_z, lip_z + LIP_T))                   # the lip, bridged
     cuts = [z_hole(0, 0, -1, PLATE_T + 1, APERTURE),
+            z_hole(0, 0, PLATE_T - RING_DEPTH, PLATE_T + 1, RING_D + 2 * RING_CLEAR),
             z_hole(0, LED_TO_SCREW, -1, PLATE_T + 1, S_CLEAR),
             hex_pocket(0, LED_TO_SCREW, -1, S_NUT_T, S_NUT_AF)]
     for side in (1, -1):
@@ -153,7 +163,12 @@ def beam_mount():
     for side in (1, -1):                                                      # the arms, standing on the bed
         arm = box(min(side * sx, side * (sx + ARM_T)), max(side * sx, side * (sx + ARM_T)), arm0, ye, 0, lip_z)
         part = part.union(arm.union(hook(side, sx, y1 - HOOK_LEN, y1, lip_z)))
+    assert APERTURE > DOME_D + 0.5 and RING_DEPTH > RING_H, "the LED's ring or dome holds the body off the plate"
+    assert DOME_H - RING_H < PLATE_T, "the LED's dome comes out of the plate's underside"
+    assert -LED_FROM_END - FIT + 0.5 < -(RING_D / 2 + RING_CLEAR) and RING_D / 2 + RING_CLEAR < BODY_W / 2 - 0.5, \
+        "the ring's counterbore runs into a wall"
     assert arm0 > max(RIB_YS) + RIB_BASE, "a crush rib sits on an arm"
+    assert max(RIB_YS) + RIB_BASE < BODY_L - LED_FROM_END - GROOVE_FROM_END[1], "a crush rib lands in a side groove"
     assert arm0 > y0 + LIP + 1.0, "the arms reach the lip"
     assert ARM_GAP > HOOK + 0.3, "the arms cannot bend out past their hooks"
     assert SCREW_X + SLIDE + NUT_AF / 0.866 / 2 < -xo - 0.5, "a nut track runs into the gap behind an arm"
@@ -168,15 +183,19 @@ def beam_fit_test():
     part = None
     for i, crush in enumerate(FIT_TEST_CRUSH):
         cx = (i - 1) * pitch
-        cell = box(cx - sx - WALL, cx + sx + WALL, 0, FIT_TEST_LEN, 0, FIT_TEST_PLATE)
+        cell = box(cx - sx - WALL, cx + sx + WALL, -WALL, FIT_TEST_LEN, 0, FIT_TEST_PLATE)
+        cell = cell.union(box(cx - sx - WALL, cx + sx + WALL, -WALL, 0, FIT_TEST_PLATE, FIT_TEST_PLATE + 3.0))   # stop
         for side in (1, -1):
             xa, xb = cx + side * sx, cx + side * (sx + WALL)
             cell = cell.union(box(min(xa, xb), max(xa, xb), 0, FIT_TEST_LEN, FIT_TEST_PLATE, FIT_TEST_PLATE + BODY_T))
-            cell = cell.union(rib(cx + side * sx, side, FIT_TEST_LEN / 2, FIT_TEST_PLATE, FIT_TEST_PLATE + BODY_T, crush))
+            for ry in FIT_TEST_RIBS:
+                cell = cell.union(rib(cx + side * sx, side, ry, FIT_TEST_PLATE, FIT_TEST_PLATE + BODY_T, crush))
         for n in range(i + 1):                                     # the notches: 1, 2 or 3, on the wall's top
             nx = cx + sx + WALL / 2
             cell = cell.cut(box(nx - 0.5, nx + 0.5, 1.0 + 1.6 * n, 1.8 + 1.6 * n, FIT_TEST_PLATE + BODY_T - 0.6, 99))
         part = cell if part is None else part.union(cell)
+    for ry in FIT_TEST_RIBS:
+        assert not (GROOVE_FROM_END[0] - RIB_BASE / 2 - 0.3 < ry < GROOVE_FROM_END[1] + RIB_BASE / 2 + 0.3), "a test rib lands in a side groove"
     return part
 
 

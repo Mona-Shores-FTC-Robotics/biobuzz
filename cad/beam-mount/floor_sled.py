@@ -54,7 +54,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # ---- the sensor (Adafruit 2168; not yet measured with calipers, see README) ----
 BODY_L = 20.0
 BODY_W = 10.0
-BODY_T = 8.0                 # Adafruit says 8, the QT50CM datasheet 9: measure it. The sled's floor is what is left
+BODY_T = 8.1                 # the mentor's model (ref/ir_break_beam_5mm.step); the datasheet says 9: calipers settle it
 LED_FROM_END = 5.0           # LED centre from the nearer end; the wires leave the other end
 FIT = 0.3                    # clearance per side around the body
 # ---- the channel (goBILDA 11-hole Mini U-Channel, measured off the CAD) ----

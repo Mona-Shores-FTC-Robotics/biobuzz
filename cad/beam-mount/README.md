@@ -16,11 +16,12 @@ export of 23 Nov 2026):
 |---|---|---|
 | `floor_sled.stl` / `.3mf` | 28.6 x 43.3 x 9.3 mm (pins included). Upside down: its top face (the one with the sensor pocket) on the bed | 1 per robot |
 | `floor_sled_screwed.stl` / `.3mf` | Option B: 26.6 x 75.3 x 9.3 mm, four pilot holes for floor screws (use 2 to 4), no pins, no nuts. Prints like the sled | 1 per robot, to try |
-| `beam_mount.stl` / `.3mf` | 35.7 x 33.2 x 15.1 mm. Plate down, as exported | 1 per robot |
-| `beam_fit_test.stl` / `.3mf` | 42.9 x 8.0 x 10.0 mm: three short receiver pockets, crush ribs 0.15 / 0.25 / 0.35 mm (1, 2, 3 notches). Print it first | 1, once |
+| `beam_mount.stl` / `.3mf` | 35.7 x 33.2 x 15.2 mm. Plate down, as exported | 1 per robot |
+| `beam_fit_test.stl` / `.3mf` | 42.9 x 10.0 x 10.1 mm: three short receiver pockets, crush ribs 0.15 / 0.25 / 0.35 mm (1, 2, 3 notches). Press the body in wire end first, against the stop. Print it first | 1, once |
 | `*.step` | The same parts as solids: import these into Onshape, not the STLs | |
 | `floor_sled.py`, `parts.py` | Make them. Every size is a constant at the top | `pip install cadquery` |
-| `render.py` | Draws `parts.png` (the receiver mount) and `floor_sled_screwed.png` | `+ trimesh manifold3d matplotlib` |
+| `render.py` | Draws `parts.png` (the receiver mount), `floor_sled_screwed.png` and `sensor_fit_sleds.png`, the sensor model seated in each | `+ trimesh manifold3d matplotlib` |
+| `ref/ir_break_beam_5mm.step` | The mentor's model of the sensor (emitter and receiver): the fit reference | |
 
 **Print:** PETG (PLA is fine indoors, but it creeps under the screws in a hot pit and its snap arms crack), 0.2 mm
 layers, 4 walls, 40 % gyroid. No supports, no brim. Orientation, as exported:
@@ -51,6 +52,13 @@ The sled's pins stick out 1 mm from its sides and print clean.
   version, rated to 50 cm (the 2167 is the 3 mm one, 25 cm, in the same housing).
 
 ## Fitting the emitter (the floor sled)
+
+> **Open question (27 Nov 2026), both sleds:** the mentor's model shows the LED's dome standing 4.8 mm above the
+> body's face. With the face flush with the sled's top, against the floor's underside, the dome comes up through
+> the floor's 14 mm hole and stands **2.3 mm above the lane floor**, under the waiting ball
+> (`sensor_fit_sleds.png`). The sleds are unchanged until that is decided; do not fit one in the lane as drawn.
+
+![The sensor seated in each sled, cut along the beam](sensor_fit_sleds.png)
 
 ![How the sled clicks in](floor_sled_steps.png)
 
@@ -113,6 +121,7 @@ The sensor is captured with no screw: the robot showed the first holder (a 1.5 m
 let it work loose. Now:
 
 - a **3 mm lip** over the LED end (printed as a bridge between the side walls);
+- a **counterbore for the LED's ring** round the window, so the body's face sits flat on the plate;
 - **side walls the body's full height**, each with two **crush ribs** that grip its sides (how hard is `RIB_CRUSH`,
   picked with `beam_fit_test`);
 - two **snap arms**, one in each side wall at the wire end, each a strip of wall joined only at its LED end, with a
@@ -140,20 +149,28 @@ let it work loose. Now:
 
 ## The sensor: Adafruit 2168 (5 mm LEDs), as bought
 
-From Adafruit's [product page](https://www.adafruit.com/product/2168) and its dimensioned
-[drawing](https://cdn-shop.adafruit.com/product-files/2167/2167diagram.jpg) (the 2167's, the same housing):
+The fit reference is the mentor's 3D model, **`ref/ir_break_beam_5mm.step`** (27 Nov 2026: one emitter and one
+receiver, the same housing). `render.py` draws it seated in every part. Measured from it:
 
-- **Body:** 20 x 10 x 8 mm (Adafruit's page; the generic QT50CM [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf)
-  says 9). The sled's floor under the body is 9.3 − thickness: 1.3 mm at 8, and `floor_sled.py` refuses to build
-  below 0.8. The receiver's walls, lip and hooks follow the thickness set (lip and hooks 0.1 mm over it). If a body proves 9 mm, change `BODY_T` in both
-  files and run them again.
-- **LED:** on a big face, 5 mm from one end.
-- **Mounting hole:** 2.4 mm (an M2), on the same face, 10 mm from the LED, 5 mm from the other end (the receiver
-  mount's backup screw only; the sleds do not use it).
-- **Leads:** 250 mm. Emitter red 3.3–5 V, black ground; receiver red, black, and the signal (open collector: the
-  hub's digital input pulls it up).
-
-No 3D model is published (Adafruit's CAD library skips the 2167 and 2168).
+- **Body:** 20 x 10 x **8.1** mm, its four short edges rounded r 1. The QT50CM
+  [datasheet](https://cdn-shop.adafruit.com/product-files/2168/C2917.pdf) (C2917, the part bought) says 9 thick, and
+  Adafruit's page 8; the files use the model's 8.1, and the floor sled fitting fine on the robot agrees with it
+  (at 9 its top would have stood 1 mm proud). **Calipers settle it before printing** (`doc/robot-todo.md`): a body of
+  9 is `BODY_T = 9.0` in both `floor_sled.py` and `parts.py`, then run them again; the sleds' floor under the body
+  would then be 0.3 mm, and `floor_sled.py` refuses to build below 0.8, so the sleds need a rethink at 9.
+- **LED:** on a big face, 5 mm from one end, standing proud of it: a d8 ring 0.5 mm high, then the d5 dome, its top
+  **4.8 mm above the face**. The receiver mount's plate is counterbored for the ring and its window takes the dome,
+  so the body's face sits flat on the plate (the first two versions held it 0.5 mm off on the ring).
+- **Mounting hole:** d3, countersunk on the LED face, 10 mm from the LED, 5 mm from the other end (the receiver
+  mount's backup M2 screw only; the sleds do not use it).
+- **Side grooves:** one down each long side, 2 mm wide and 0.5 deep, 4 to 6 mm from the end away from the LED, open
+  at the LED face and stopping 2 mm short of the back. No crush rib lands in them. A 2 x 0.5 mm notch runs down the
+  middle of the LED end too.
+- **Electrical** (datasheet): 3.0–5.5 V, 10 mA, range 50 cm, receiving angle under 10°, response 2 ms. Emitter: red
+  +5 V, black ground. Receiver: red +5 V, black ground, **yellow the output**, an NPN open collector (the datasheet
+  shows 5.1 kΩ to 5 V; the hub's digital input pulls it up).
+- **Leads:** 15 cm; the team extends them, so the wire routing does not depend on their length. The receiver's
+  end wall has a 6 mm slot to the plate and nothing beyond it, so an extension's connector sits just past it.
 
 ## After measuring
 
@@ -163,7 +180,7 @@ Set `BODY_T`, `BODY_W`, `LED_FROM_END` (and `LED_TO_SCREW` in `parts.py`), then:
 python3 cad/beam-mount/floor_sled.py && python3 cad/beam-mount/parts.py && (cd cad/beam-mount && python3 render.py)
 ```
 
-`render.py` draws `parts.png` and `floor_sled_screwed.png`. `floor_sled_steps.png` and `floor_sled_wires.png` (the
+`render.py` draws `parts.png`, `floor_sled_screwed.png` and `sensor_fit_sleds.png`. `floor_sled_steps.png` and `floor_sled_wires.png` (the
 snap sled, unchanged) were drawn by a session from the same files; they are not redrawn by this command. Each script refuses to write a part that is not one valid solid, and
 `floor_sled.py` asserts the screw's bite and the plastic round each pilot hole.
 
