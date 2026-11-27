@@ -10,14 +10,14 @@ Controls page and the printed cheat sheet are the only place for those.
 - [ ] **At States: R-Solo, unless the partner is a verified right-side tipper** (mentor, 26 Nov 2026). Ask the
       partner: "Start LEFT. Be off your start by 8 seconds. Don't stop along the scoring-table wall. Park at the
       scoring-table end of the LOADING ZONE, in the corner." (In the simulator a partner leaving at 9 s is hit at
-      10.5 s, and one stopping a tile along that wall at 10.9 s.) If they must park mid-zone, note it and tell
-      the mentor: R-Solo-LowPark (#763, a draft) may run instead. Only a partner seen on
+      10.5 s, and one stopping a tile along that wall at 10.9 s.) R-Solo parks low in the zone, up the alliance
+      wall (`RIGHT_PARK_WALL`), so a partner in the zone's upper half is clear; one that must sit lower: tell the mentor. Only a partner seen on
       video starting RIGHT and tipping (our videos, or marked at Midland on the States Partner Lookup page,
       `tools/states-scout/README.md`) gets L-NoCross; FTCScout scores and the partner's own word never count.
       Look the partner up: the page gives our Auto, its INIT settings and the questions to ask.
 - [ ] **Ask the partner when their last preload leaves**, in seconds after the start. Take their
       slowest honest answer. It is the one number we ask a partner.
-- [ ] **Agree who parks where**: R- Autos end on `RIGHT_PARK`, L-NoCross on `LEFT_PARK`. If the
+- [ ] **Agree who parks where**: R-Solo ends low in the LOADING ZONE on `RIGHT_PARK_WALL`, the other R- Autos on `RIGHT_PARK`, L-NoCross on `LEFT_PARK`. If the
       partner's Auto parks on ours, ask them to take the other.
 - [ ] **Plan on 8 POLLEN weights to TIP a CELL, not 7.** Belding's Field 1 tipped at about 7 and
       Field 2 at about 8.

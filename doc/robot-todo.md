@@ -241,22 +241,24 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
-## R-Solo-WallPark beside R-Solo (24 Nov 2026, either robot, Utility menu, a partner robot or a box at the high end)
+## R-Solo's wall park (27 Nov 2026, either robot, Autonomous menu, R-Solo, an 18 in box)
 
-- [ ] **Drive: R-Solo-WallPark from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on
-      PARTNER_PARK (9.8, 117.4: against the alliance wall, the LOADING ZONE's high end), then R-Solo three runs the
-      same way. **Good:** WallPark's park is done (robot still) by 30 s on the robot's PLAY clock, it ends square
-      to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
-      point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
-      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
-- [ ] **Then the case it exists for: the box mid-zone**, at (8.2, 110): back to the alliance wall, its frame from
-      y 102 to 118 (a still partner sitting in the LOADING ZONE, 3 of 32 at Belding and Fruitport). Three runs each.
-      **Good:** WallPark never touches the box, and R-Solo does (the simulator: 0 of 5 against 5 of 5). Measure,
-      with the robot parked, how far its frame is inside the LOADING ZONE tape along the alliance wall (the
-      simulator: about 5.9 in) and in from the wall (about 4.5 in); a referee must see it in.
-      **Pass both** → mark R-Solo-LowPark (#763, R-Solo with this park, plus #759's park path) ready and merge it.
-      **Fail** → merge #759 alone and keep the queue ask "park in the corner at the scoring-table end of the
-      LOADING ZONE". [PR #763]
+R-Solo now parks on its own `RIGHT_PARK_WALL` (14.5, 92.5, 270), entering the LOADING ZONE from below, up the
+alliance wall (#763, mentor, 27 Nov 2026; the old R-Solo-WallPark draft, now R-Solo itself).
+
+- [ ] **R-Solo from RIGHT_START, three runs, with the box on PARTNER_PARK** (9.8, 117.4: against the alliance wall,
+      the LOADING ZONE's high end, where a partner that leaves its start parks). **Good:** the park is done (robot
+      still) by 30 s on the robot's PLAY clock, it ends square to the wall at (14.5, 92.5), and nothing touches the
+      box at any point (simulator: park done about 24 s). **Stop:** any contact, or the park still moving at 30 s
+      → bring the logs and the video.
+- [ ] **Three more with the box mid-zone**, at (8.2, 110): back to the alliance wall, its frame from y 102 to 118
+      (a still partner sitting in the LOADING ZONE, 3 of 32 at Belding and Fruitport). **Good:** no contact
+      (simulator: 0 of 5; the old `RIGHT_PARK` touched it 5 of 5).
+- [ ] **Measure, robot parked:** how far its frame is inside the LOADING ZONE tape along the alliance wall
+      (simulator: about 5.9 in) and in from the wall (about 4.5 in). A referee must see it in.
+      **Fail** (contact, or not clearly in) → bring back the `RIGHT_PARK` park legs from the
+      `auto/r-solo-partner-fix` branch (#759) through the fast lane, and ask the partner to park in the corner at
+      the scoring-table end of the LOADING ZONE. [PR #763]
 
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 

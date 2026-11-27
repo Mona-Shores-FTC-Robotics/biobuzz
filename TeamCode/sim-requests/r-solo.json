@@ -27,11 +27,7 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "LEAVE-PARK (seen 11 of 32)",
-      "partner": "PartnerLeaveParkAuto"
-    },
-    {
-      "name": "STILL in the corner (seen 4 of 32)",
+      "name": "STILL in the corner, out of our way (seen 4 of 32)",
       "partner": "PartnerStillAuto"
     },
     {
@@ -39,47 +35,16 @@
       "partner": "PartnerZoneStillAuto"
     },
     {
-      "name": "LEFT-SHOOT-PARK on time (seen 3 of 32)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 50
-      }
-    },
-    {
-      "name": "dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto"
-    },
-    {
-      "name": "parks at 15 s (never seen)",
-      "partner": "PartnerPark1Auto"
-    },
-    {
-      "name": "contingency: our preloads miss, partner LEAVE-PARK",
-      "partner": "PartnerLeaveParkAuto",
-      "oursFails": "misses preloads"
-    },
-    {
       "name": "contingency: our preloads miss, partner STILL in the corner",
       "partner": "PartnerStillAuto",
       "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto",
-      "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner misses every shot",
-      "partner": "PartnerLTipParkAuto",
-      "oursFails": "misses preloads",
-      "fails": "misses"
     }
   ],
   "metadata": {
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans; the drive to RIGHT_AUTO_HIVE turns clear of the centre line",
     "SavedAt": "2026-11-18T21:08:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "R-Solo is for a partner that sits still, out of our way (mentor, 27 Nov 2026); parks on its own RIGHT_PARK_WALL (#763)"
   },
   "usual": true
 }

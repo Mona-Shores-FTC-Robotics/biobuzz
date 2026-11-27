@@ -11,7 +11,7 @@
    "weStart": "RIGHT_START",
    "init": [
     "Partner starts LEFT, is off its start by 8 s, does not stop along the scoring-table wall, and parks in the corner at the scoring-table end of the LOADING ZONE",
-    "If they must park mid-zone: note it and tell the mentor (R-Solo-LowPark, #763, a draft, may run instead)",
+    "R-Solo parks low in the LOADING ZONE, up the alliance wall, so a partner may park in its upper half (centre at y 112 or above); one that must sit lower: tell the mentor",
     "R-Solo: nothing else to set",
     "Endgame: PARK FIRST (quals); TIPS FIRST in playoffs only if our shots land"
    ],
