@@ -130,7 +130,7 @@ partner is **the park**, not `LEFT_AUTO_HIVE`.
 | `partner-l-launch-park` | LEFT-SHOOT-PARK, one volley | keep (10255 in M-3) |
 | `partner-l-broken-down`, `partner-r-broken-down` | dead on a start | keep, labelled "never seen" |
 | `partner-park-1` | sits on `LEFT_START` until 15 s, then parks | **retire**: never seen. Leavers moved at 0.5–2 s, and `partner-leave-park` replaces it |
-| `partner-park-2` | sits at (38.3, 133.8) until 15 s, parks low | **retire**: never seen (used only by the `r-solo-wall-park` draft) |
+| `partner-park-2` | sits at (38.3, 133.8) until 15 s, parks low | **retire**: never seen (used only by the `r-solo-wall-park` draft, removed 27 Nov 2026) |
 | `partner-l-stage-park` | lays its 4 along the wall, then parks | **retire**: never seen (an ask from `three-tips.md` that no partner took) |
 | `partner-push-start` | motionless and angled, for the nudge drafts | **retire**: the nudge drafts were removed 19 Nov 2026 |
 
