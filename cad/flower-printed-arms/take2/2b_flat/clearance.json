@@ -1,0 +1,312 @@
+{
+ "units": "mm and in",
+ "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; servo and goBILDA 1802 servo frame on the intake channel's front flange holes; wheel height from the mentor's photo, hub gap and screw PLACEHOLDERS (geometry.CORNER) until measured",
+ "sides": {
+  "left": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 5.5,
+      "in": 0.22,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 30.0,
+      "in": 1.18,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 159.0
+     },
+     "tabs": {
+      "mm": 2.0,
+      "in": 0.08,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 1.7,
+      "in": 0.07,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 10.4,
+      "in": 0.41,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 0.2,
+      "in": 0.01,
+      "at_deg": 156.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 5.5,
+      "in": 0.22,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 30.3,
+      "in": 1.19,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 10.1,
+      "in": 0.4,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 8.8,
+      "in": 0.35,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 6.0,
+      "in": 0.24,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 10.7,
+      "in": 0.42,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 0.2,
+      "in": 0.01,
+      "at_deg": 159.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 33.8,
+      "in": 1.33,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 54.8,
+      "in": 2.16,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 62.4,
+      "in": 2.46,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 57.7,
+      "in": 2.27,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 51.5,
+      "in": 2.03,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 85.4,
+      "in": 3.36,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 59.2,
+      "in": 2.33,
+      "at_deg": 45.0
+     }
+    }
+   }
+  },
+  "right": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 8.6,
+      "in": 0.34,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 33.3,
+      "in": 1.31,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 7.3,
+      "in": 0.29,
+      "at_deg": 159.0
+     },
+     "tabs": {
+      "mm": 7.6,
+      "in": 0.3,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 3.9,
+      "in": 0.15,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 25.7,
+      "in": 1.01,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 5.0,
+      "in": 0.2,
+      "at_deg": 162.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 8.6,
+      "in": 0.34,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 33.7,
+      "in": 1.33,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 12.5,
+      "in": 0.49,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 11.4,
+      "in": 0.45,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 7.0,
+      "in": 0.28,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 25.9,
+      "in": 1.02,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 5.0,
+      "in": 0.2,
+      "at_deg": 162.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 34.9,
+      "in": 1.37,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 56.0,
+      "in": 2.2,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 62.5,
+      "in": 2.46,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 57.8,
+      "in": 2.27,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 51.5,
+      "in": 2.03,
+      "at_deg": 162.0
+     },
+     "mount_side": {
+      "mm": 87.6,
+      "in": 3.45,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 1000000000.0,
+      "in": 39370078.74,
+      "at_deg": null
+     }
+    }
+   }
+  }
+ },
+ "slack": {
+  "corner parts 0 mm forward, 8 mm up": {
+   "left": {
+    "mm": 0.4,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 4.2,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  },
+  "corner parts -8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 11.6,
+    "at_deg": 162.0,
+    "nearest": "mount_side"
+   },
+   "right": {
+    "mm": 14.2,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   }
+  },
+  "corner parts -8 mm forward, 8 mm up": {
+   "left": {
+    "mm": 5.6,
+    "at_deg": 162.0,
+    "nearest": "servo"
+   },
+   "right": {
+    "mm": 9.2,
+    "at_deg": 162.0,
+    "nearest": "servo"
+   }
+  },
+  "corner parts 8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 0.0,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 3.2,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   }
+  }
+ },
+ "stowed": {
+  "front_x_in": 6.38,
+  "top_z_in": 16.74,
+  "lowest_z_in": 6.95,
+  "cube_front_x_in": 10.43,
+  "cube_top_z_in": 18.0
+ },
+ "down": {
+  "front_x_in": 13.04,
+  "top_z_in": 8.21,
+  "lowest_z_in": 0.13
+ },
+ "hump": {
+  "height_mm": 24.0,
+  "leaves_line_u_mm": 102.0,
+  "full_u_mm": [
+   118.0,
+   150.0
+  ],
+  "back_on_line_u_mm": 182.0,
+  "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
+ }
+}
