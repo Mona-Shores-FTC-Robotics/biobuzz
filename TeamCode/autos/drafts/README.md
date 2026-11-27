@@ -2,7 +2,8 @@
 
 Planning Autos have a `.pp` here and its generated class, with no competition OpMode. The Visualizer lists
 them under "Drafts", and Save to GitHub saves back here. Since 19 Nov 2026 this folder is kept small
-(mentor): it holds the RightUnderHive pair, parked until a super FLOWER pick exists (no OpMode).
+(mentor): it holds no drafts now, only the notes below. The RightUnderHive pair left this folder for the Autonomous
+menu on 27 Nov 2026 (its notes, below, stay here).
 
 **Removed on 27 Nov 2026** (mentor: no longer needed), with their generated classes, Utility trials and sim
 requests, all in Git history at `8bcae0b`: L-Assist (**Drive: L-Assist**), L-LeftUnderHive-StrangeGarden
@@ -65,6 +66,10 @@ R not parking in the GARDEN best case is the Priority row going for its third TI
 the best case). Every other case and contingency matches master. No centre-line crossing or HIVE hit in any case.
 
 ## The RightUnderHive pair: R-RightUnderHive and L-RightUnderHive
+
+**No longer a draft (27 Nov 2026):** the pair is in `TeamCode/autos/` and on the Autonomous menu as R-RightUnderHive
+and L-RightUnderHive, redrawn for three TIPs with a fallback for each missed load ([the Auto README](../README.md)). The
+notes below are from the draft as it was on 20 Nov 2026.
 
 **Parked until a super FLOWER pick exists** (mentor, 19 Nov 2026): back in `drafts/` and off both Driver Station
 menus, with no OpMode. To beat the other pairs it needs a FLOWER pick that loads more at once; it is also one less
