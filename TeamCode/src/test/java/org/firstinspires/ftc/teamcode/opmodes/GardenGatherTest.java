@@ -210,7 +210,7 @@ public class GardenGatherTest {
     }
 
     /**
-     * An Auto's GardenGatherAlongWall card, from L-LeftUnderHive-StrangeGarden's WALL_GARDEN_STAGING (28, 9, 180°):
+     * An Auto's GardenGatherAlongWall card, from WALL_GARDEN_STAGING (28, 9, 180°):
      * red's GARDEN the other way in, along the audience wall facing the side wall, the wall on the robot's left
      * (9.5, 8.5, 180°). The push's line is the gather pose's, 0.5 in from where the drive ended, so the card
      * pushes at once with no first leg (GrabRoutine: under 1 in is "already there"). The stick comes down on the

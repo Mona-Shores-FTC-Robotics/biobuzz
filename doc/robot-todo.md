@@ -241,14 +241,14 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
-## R-Solo-WallPark beside R-Solo (24 Nov 2026, either robot, Utility menu, a partner robot or a box at the high end)
+## R-Solo's wall park beside a partner at the high end (24 Nov 2026, either robot, a partner robot or a box at the high end)
 
-- [ ] **Drive: R-Solo-WallPark from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on
-      PARTNER_PARK (9.8, 117.4: against the alliance wall, the LOADING ZONE's high end), then R-Solo three runs the
-      same way. **Good:** WallPark's park is done (robot still) by 30 s on the robot's PLAY clock, it ends square
-      to the wall at (14.5, 92.5) with a corner in the LOADING ZONE, and nothing touches the partner or box at any
-      point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
-      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
+- [ ] **R-Solo from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on PARTNER_PARK (9.8, 117.4:
+      against the alliance wall, the LOADING ZONE's high end). **Good:** the park on `RIGHT_PARK_WALL` is done (robot
+      still) by 30 s on the robot's PLAY clock, it ends square to the wall at (14.5, 92.5) with a corner in the LOADING
+      ZONE, and nothing touches the partner or box at any point (sim: last ball 23.1 s, park done 24.7 s).
+      **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742; the wall park
+      was the Utility trial R-Solo-WallPark until 27 Nov 2026]
 
 ## No still fix moves the pose during a volley (27 Nov 2026, either robot, R-Solo, HIVE upright, phone on the robot)
 
@@ -292,8 +292,7 @@ tripod over the GARDEN corner, filming from above. `doc/corner-wheels.md` has th
       the line-up starts far back now that no stick needs room → try `lineUp.lineUpBackIn` 6.
       **Stop:** a ball wedged between a wheel and a drive wheel, or the robot climbing a ball → bring the clip.
 - [ ] **Each Auto that gathers, stick up, once per robot it runs on:** L-Clockwise and R-Clockwise (Pickup
-      GARDEN), L-LeftUnderHive, R-NoCross, and **Drive: L-LeftUnderHive-StrangeGarden** (Utility,
-      its `GardenGatherAlongWall`). **Good:** no "stick down on the drive in" line, the gather's log line has no stick
+      GARDEN), L-LeftUnderHive and R-NoCross. **Good:** no "stick down on the drive in" line, the gather's log line has no stick
       wait, and its time is within `AutoRegistration.GARDEN_GATHER_TYPICAL_S` (3.0 s; along the wall 2.0 s).
       Write each gather's time and count on the PR.
 - [ ] **Tripod clips of four GARDEN layouts,** stick up, the TeleOp gather facing the audience wall, 3 runs each:
@@ -1253,23 +1252,6 @@ Use the work order above to select checks; the detailed mechanism checks below a
       GARDEN from about 24 in out, the log says `stick down on the drive in`, and the gather starts
       with `PREP 0.2 s` or less. **Stop:** the faster turn swings the robot off its line or toward
       the wall → the old drawing, and the 0.7 s stays.
-- [ ] **Drive: L-LeftUnderHive-StrangeGarden, the GARDEN along the audience wall (20 Nov 2026; never run):**
-      the Utility draft ([its notes](../TeamCode/autos/drafts/README.md#l-leftunderhive-strangegarden-the-garden-the-other-way-in-20-nov-2026-never-run)),
-      first alone (HIVE upright, LEFT up so it takes the preloads route: tip it by hand before 10 s),
-      GARDEN loaded with its 4 POLLEN, phone filming the corner from above, spotter at the HIVE's
-      bottom end; then beside the normal R-LeftUnderHive. Three runs. **Good:** the turn to face the red-side wall
-      happens below the HIVE, clear of its foot bar and the centre line; the log says `GARDEN gather
-      along the wall: stick down on the drive in, N in to go` (N near 24), then `over to the wall …
-      (already there), then pushing in`, the drive in ends `stalled … pushing` in the corner, and
-      `Last GARDEN gather along the wall` is under 2.0 s with the lane full (4) every run; the robot
-      backs out along the wall without scraping it as it turns toward `RIGHT_AUTO_HIVE`, and the stick
-      (up 250 ms after the hand-over) drags no POLLEN out. Write down the leg's time, the path card
-      `under the HIVE, onto the audience wall` to `RIGHT_AUTO_HIVE`, beside L-LeftUnderHive's from the
-      same session (simulator: 8.6 s against 9.0). **Stop:** the stick lands on the wall → Panels
-      `GardenGather.autoStick.approachLowerWithinIn` 12; it pushes the row ahead instead of taking it →
-      `GardenGather.alongWall.pushPower` 0.6; it misses the corner piece → `alongWall.intoCornerDeg` 10;
-      the exit drives off the wall line before it is clear of the corner → note the pose at the hand-over
-      (`alongWall.handOverBackIn` 6 backs further before the path takes over).
 - [ ] **A volley before the park,** from any Auto run whose trace shows `going for it, not
       parking` (pull its log). **Good:** that volley's last ball left before 30 s on the match clock
       (the launcher's shot count), and the robot ended AUTO at the launch spot, touching no wall
