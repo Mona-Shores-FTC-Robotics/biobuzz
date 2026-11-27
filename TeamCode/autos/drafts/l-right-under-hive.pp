@@ -1,419 +1,12 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-19T21:26:56.456Z",
+  "timestamp": "2026-11-25T14:41:00.441Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
     "locked": false,
     "headingDeg": 270
   },
-  "lines": [
-    {
-      "id": "l-ru-open",
-      "color": "#4e79a7",
-      "name": "to LEFT_AUTO_HIVE",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.4,
-        "y": 120.45
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 268.9
-      }
-    },
-    {
-      "id": "l-ru-hive-park",
-      "color": "#4e79a7",
-      "name": "LEFT_AUTO_HIVE, outer lane to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 50,
-          "y": 112
-        },
-        {
-          "x": 36,
-          "y": 102
-        },
-        {
-          "x": 28,
-          "y": 95
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.6,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 268.9,
-                "endDeg": 360
-              }
-            },
-            {
-              "startProgress": 0.6,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "link-1",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.4,
-        "y": 120.45
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.9
-      }
-    },
-    {
-      "id": "l-ru-sf",
-      "color": "#4e79a7",
-      "name": "to SCORING_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "l-ru-sf-park",
-      "color": "#4e79a7",
-      "name": "SCORING FLOWER to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 112.6
-        },
-        {
-          "x": 31.8,
-          "y": 94.1
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-2",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.2,
-        "y": 119.3
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "l-ru-sf-offset",
-      "color": "#4e79a7",
-      "name": "SCORING FLOWER to LEFT_AUTO_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 298.7
-      }
-    },
-    {
-      "id": "l-ru-offset-park",
-      "color": "#4e79a7",
-      "name": "LEFT_AUTO_OFFSET to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 104
-        },
-        {
-          "x": 34,
-          "y": 95
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -61.299999999999955
-      }
-    },
-    {
-      "id": "l-ru-offset-park-2",
-      "color": "#4e79a7",
-      "name": "late: LEFT_AUTO_OFFSET to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 104
-        },
-        {
-          "x": 34,
-          "y": 95
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 360
-      }
-    },
-    {
-      "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -61.299999999999955
-      }
-    },
-    {
-      "id": "l-ru-lane",
-      "color": "#4e79a7",
-      "name": "outer lane to WALL_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [
-        {
-          "x": 32,
-          "y": 110
-        },
-        {
-          "x": 30,
-          "y": 96
-        },
-        {
-          "x": 26,
-          "y": 60
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 180
-      }
-    },
-    {
-      "id": "l-ru-wall-park",
-      "color": "#4e79a7",
-      "name": "WALL_FLOWER_STAGING to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 75
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-5",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.4,
-        "y": 120.45
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.9
-      }
-    },
-    {
-      "id": "l-ru-lane-late",
-      "color": "#4e79a7",
-      "name": "no TIP 1, outer lane to WALL_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [
-        {
-          "x": 50,
-          "y": 112
-        },
-        {
-          "x": 34,
-          "y": 104
-        },
-        {
-          "x": 28,
-          "y": 96
-        },
-        {
-          "x": 26,
-          "y": 60
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 180
-      }
-    },
-    {
-      "id": "l-ru-wall-park-late",
-      "color": "#4e79a7",
-      "name": "no TIP 1, WALL_FLOWER_STAGING to RIGHT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 98.7
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 75
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 0
-      }
-    }
-  ],
   "shapes": [
     {
       "id": "biobuzz-red-hive",
@@ -576,72 +169,6 @@
       "fillColor": "#ff6b6b"
     }
   ],
-  "sequence": [
-    {
-      "kind": "path",
-      "lineId": "l-ru-open"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-hive-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-1"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-sf"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-sf-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-sf-offset"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-offset-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-3"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-offset-park-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-lane"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-wall-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-lane-late"
-    },
-    {
-      "kind": "path",
-      "lineId": "l-ru-wall-park-late"
-    }
-  ],
   "fieldPoints": [],
   "robot": {
     "forwardVelocity": 75,
@@ -667,6 +194,366 @@
     ]
   },
   "activePaths": [],
+  "lines": [
+    {
+      "id": "lr-to-offset",
+      "color": "#59a14f",
+      "name": "LEFT_START straight to LEFT_AUTO_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [
+        {
+          "x": 56,
+          "y": 124
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 298.7
+      }
+    },
+    {
+      "id": "lr-offset-park",
+      "color": "#9c755f",
+      "name": "LEFT_AUTO_OFFSET to LEFT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 121
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "lr-link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 298.7
+      }
+    },
+    {
+      "id": "lr-offset-park-2",
+      "color": "#9c755f",
+      "name": "LEFT never up: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 121
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "lr-link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 298.7
+      }
+    },
+    {
+      "id": "lr-to-wf",
+      "color": "#59a14f",
+      "name": "LEFT_AUTO_OFFSET down the outer lane to WALL_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [
+        {
+          "x": 32,
+          "y": 105
+        },
+        {
+          "x": 30,
+          "y": 80
+        },
+        {
+          "x": 27,
+          "y": 62
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 180
+      }
+    },
+    {
+      "id": "lr-wf-park",
+      "color": "#9c755f",
+      "name": "WALL_FLOWER_STAGING to LEFT_PARK (guard)",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 75
+        },
+        {
+          "x": 30,
+          "y": 105
+        },
+        {
+          "x": 22,
+          "y": 115
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "lr-link-3",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 180
+      }
+    },
+    {
+      "id": "lr-to-roff",
+      "color": "#59a14f",
+      "name": "WALL_FLOWER_STAGING to RIGHT_AUTO_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 30
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 61
+      }
+    },
+    {
+      "id": "lr-park",
+      "color": "#9c755f",
+      "name": "RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 40
+        },
+        {
+          "x": 28,
+          "y": 80
+        },
+        {
+          "x": 28,
+          "y": 105
+        },
+        {
+          "x": 20,
+          "y": 115
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "lr-link-4",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "lr-park-2",
+      "color": "#9c755f",
+      "name": "RIGHT not up: RIGHT_AUTO_OFFSET to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 40
+        },
+        {
+          "x": 28,
+          "y": 80
+        },
+        {
+          "x": 28,
+          "y": 105
+        },
+        {
+          "x": 20,
+          "y": 115
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 0
+      }
+    }
+  ],
+  "sequence": [
+    {
+      "kind": "path",
+      "lineId": "lr-to-offset"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-offset-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-link-1"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-offset-park-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-link-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-to-wf"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-wf-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-link-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-to-roff"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-link-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "lr-park-2"
+    }
+  ],
   "auto": {
     "version": 1,
     "drawnFor": "RED",
@@ -700,66 +587,58 @@
       }
     },
     "points": {
-      "LEFT_AUTO_HIVE": [
-        61.4,
-        120.45,
-        268.9
+      "LEFT_START": [
+        62.3,
+        133.8,
+        270
       ],
       "LEFT_AUTO_OFFSET": [
         40.7,
         121.1,
         298.7
       ],
-      "LEFT_START": [
-        62.3,
-        133.8,
-        270
-      ],
-      "RIGHT_PARK": [
-        14.5,
-        98.7,
-        0
-      ],
-      "SCORING_FLOWER_STAGING": [
-        47.2,
-        119.3,
-        90
-      ],
       "WALL_FLOWER_STAGING": [
         23.1,
         47.2,
         180
+      ],
+      "RIGHT_AUTO_OFFSET": [
+        32.1,
+        16.4,
+        61.0
+      ],
+      "LEFT_PARK": [
+        14.5,
+        117.4,
+        0
       ]
     },
     "pathEnds": {
-      "l-ru-open": "LEFT_AUTO_HIVE",
-      "l-ru-sf": "SCORING_FLOWER_STAGING",
-      "l-ru-sf-offset": "LEFT_AUTO_OFFSET",
-      "l-ru-lane": "WALL_FLOWER_STAGING",
-      "l-ru-lane-late": "WALL_FLOWER_STAGING",
-      "l-ru-wall-park": "RIGHT_PARK",
-      "l-ru-wall-park-late": "RIGHT_PARK",
-      "l-ru-hive-park": "RIGHT_PARK",
-      "l-ru-offset-park": "RIGHT_PARK",
-      "l-ru-offset-park-2": "RIGHT_PARK",
-      "l-ru-sf-park": "RIGHT_PARK"
+      "lr-to-offset": "LEFT_AUTO_OFFSET",
+      "lr-offset-park": "LEFT_PARK",
+      "lr-offset-park-2": "LEFT_PARK",
+      "lr-to-wf": "WALL_FLOWER_STAGING",
+      "lr-wf-park": "LEFT_PARK",
+      "lr-to-roff": "RIGHT_AUTO_OFFSET",
+      "lr-park": "LEFT_PARK",
+      "lr-park-2": "LEFT_PARK"
     },
     "cards": [
       {
-        "id": "c-l-spin",
+        "id": "c-lr-spin",
         "kind": "action",
         "name": "SpinUp"
       },
       {
-        "id": "c-l-open",
+        "id": "c-lr-to-offset",
         "kind": "path",
-        "lineId": "l-ru-open",
+        "lineId": "lr-to-offset",
         "park": false
       },
       {
-        "id": "c-l-wait",
+        "id": "c-lr-left-up",
         "kind": "firstOf",
-        "label": "Wait for TIP 1 until 20 s",
+        "label": "LEFT up? (TIP 1 came)",
         "rows": [
           {
             "when": [
@@ -767,139 +646,60 @@
             ],
             "cards": [
               {
-                "id": "c-l-pre",
+                "id": "c-lr-fire1",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "c-l-late",
+                "id": "c-lr-to-wf",
+                "kind": "path",
+                "lineId": "lr-to-wf",
+                "park": false
+              },
+              {
+                "id": "c-lr-pick",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-lr-to-roff",
+                "kind": "path",
+                "lineId": "lr-to-roff",
+                "park": false
+              },
+              {
+                "id": "c-lr-right-up",
                 "kind": "firstOf",
-                "label": "TIP 1 after 14 s (R fixed it): park now, out of R's way",
+                "label": "RIGHT up? (TIP 2 came)",
                 "rows": [
                   {
-                    "afterMs": 14000,
-                    "matchClock": true,
+                    "when": [
+                      "CellUp"
+                    ],
                     "cards": [
                       {
-                        "id": "c-l-late-park",
+                        "id": "c-lr-fire2",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c-lr-park",
                         "kind": "path",
-                        "lineId": "l-ru-hive-park",
+                        "lineId": "lr-park",
                         "park": true
                       }
                     ]
                   },
                   {
-                    "when": [
-                      "Always"
-                    ],
+                    "afterMs": 25000,
+                    "matchClock": true,
                     "cards": [
                       {
-                        "id": "c-l-sf",
+                        "id": "c-lr-park-2",
                         "kind": "path",
-                        "lineId": "l-ru-sf",
-                        "park": false
-                      },
-                      {
-                        "id": "c-l-pick",
-                        "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 8
-                      },
-                      {
-                        "id": "c-l-sf-offset",
-                        "kind": "path",
-                        "lineId": "l-ru-sf-offset",
-                        "park": false
-                      },
-                      {
-                        "id": "c-l-wall-gate",
-                        "kind": "firstOf",
-                        "label": "WALL FLOWER only before 22 s, otherwise park",
-                        "rows": [
-                          {
-                            "afterMs": 22000,
-                            "matchClock": true,
-                            "cards": [
-                              {
-                                "id": "c-l-check-late",
-                                "kind": "firstOf",
-                                "label": "LEFT still up?",
-                                "rows": [
-                                  {
-                                    "when": [
-                                      "CellUp"
-                                    ],
-                                    "cards": [
-                                      {
-                                        "id": "c-l-second-late",
-                                        "kind": "action",
-                                        "name": "LaunchAll"
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "afterMs": 750,
-                                    "cards": []
-                                  }
-                                ]
-                              },
-                              {
-                                "id": "c-l-gate-park",
-                                "kind": "path",
-                                "lineId": "l-ru-offset-park-2",
-                                "park": true
-                              }
-                            ]
-                          },
-                          {
-                            "when": [
-                              "Always"
-                            ],
-                            "cards": [
-                              {
-                                "id": "c-l-check",
-                                "kind": "firstOf",
-                                "label": "LEFT still up?",
-                                "rows": [
-                                  {
-                                    "when": [
-                                      "CellUp"
-                                    ],
-                                    "cards": [
-                                      {
-                                        "id": "c-l-second",
-                                        "kind": "action",
-                                        "name": "LaunchAll"
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "afterMs": 750,
-                                    "cards": []
-                                  }
-                                ]
-                              },
-                              {
-                                "id": "c-l-lane",
-                                "kind": "path",
-                                "lineId": "l-ru-lane",
-                                "park": false
-                              },
-                              {
-                                "id": "c-l-wall",
-                                "kind": "action",
-                                "name": "PickFlower",
-                                "timeoutS": 8
-                              },
-                              {
-                                "id": "c-l-park",
-                                "kind": "path",
-                                "lineId": "l-ru-wall-park",
-                                "park": true
-                              }
-                            ]
-                          }
-                        ]
+                        "lineId": "lr-park-2",
+                        "park": true
                       }
                     ]
                   }
@@ -908,56 +708,37 @@
             ]
           },
           {
-            "afterMs": 20000,
+            "afterMs": 12000,
             "matchClock": true,
-            "adjustable": true,
-            "tip": 1,
             "cards": [
               {
-                "id": "c-l-lane-late",
+                "id": "c-lr-park-0",
                 "kind": "path",
-                "lineId": "l-ru-lane-late",
-                "park": false
-              },
-              {
-                "id": "c-l-wall-late",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 8
-              },
-              {
-                "id": "c-l-park-late",
-                "kind": "path",
-                "lineId": "l-ru-wall-park-late",
+                "lineId": "lr-offset-park-2",
                 "park": true
               }
             ]
           }
-        ],
-        "alongside": "SpinUp"
+        ]
       }
     ],
+    "parkFrom": {
+      "c-lr-to-offset": "lr-offset-park",
+      "c-lr-to-wf": "lr-wf-park",
+      "c-lr-to-roff": "lr-park"
+    },
     "startAt": "LEFT_START",
     "linkPaths": [
-      "link-1",
-      "link-2",
-      "link-3",
-      "link-4",
-      "link-5"
+      "lr-link-1",
+      "lr-link-2",
+      "lr-link-3",
+      "lr-link-4"
     ],
-    "parkFrom": {
-      "c-l-open": "l-ru-hive-park",
-      "c-l-sf": "l-ru-sf-park",
-      "c-l-sf-offset": "l-ru-offset-park",
-      "c-l-lane": "l-ru-wall-park",
-      "c-l-lane-late": "l-ru-wall-park-late"
-    },
     "teamSpots": [
-      "LEFT_AUTO_HIVE",
       "LEFT_AUTO_OFFSET",
+      "LEFT_PARK",
       "LEFT_START",
-      "RIGHT_PARK",
-      "SCORING_FLOWER_STAGING",
+      "RIGHT_AUTO_OFFSET",
       "WALL_FLOWER_STAGING"
     ],
     "exportName": "L-RightUnderHive"
