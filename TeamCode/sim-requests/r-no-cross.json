@@ -26,44 +26,14 @@
       "partner": "LNoCrossAuto"
     },
     {
-      "name": "Partner shoots preloads, picks, shoots again (typical speed)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 50
-      }
+      "name": "L's preloads miss, we WAIT FOR PARTNER",
+      "partner": "LNoCrossAuto",
+      "fails": "misses preloads"
     },
     {
-      "name": "Same partner, fast",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 80,
-        "launchS": 0.25,
-        "pickS": 1.5
-      }
-    },
-    {
-      "name": "Partner Parks Left",
-      "partner": "PartnerLeaveParkAuto"
-    },
-    {
-      "name": "Partner Still",
-      "partner": "PartnerStillAuto"
-    },
-    {
-      "name": "Partner misses its preloads",
-      "partner": "PartnerLTipParkAuto",
-      "fails": "misses",
-      "timing": {
-        "speed": 50
-      }
-    },
-    {
-      "name": "Partner misses its preloads, we CROSS AND FIX IT",
-      "partner": "PartnerLTipParkAuto",
-      "fails": "misses",
-      "timing": {
-        "speed": 50
-      },
+      "name": "L's preloads miss, we CROSS AND FIX IT",
+      "partner": "LNoCrossAuto",
+      "fails": "misses preloads",
       "picks": {
         "if no TIP 2": "CROSS AND FIX IT"
       }
@@ -72,6 +42,14 @@
       "name": "Beside L-NoCross, our preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads"
+    },
+    {
+      "name": "Partner Parks Left",
+      "partner": "PartnerLeaveParkAuto"
+    },
+    {
+      "name": "Partner Still",
+      "partner": "PartnerStillAuto"
     }
   ],
   "metadata": {
