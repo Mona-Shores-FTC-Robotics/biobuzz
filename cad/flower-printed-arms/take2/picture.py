@@ -9,6 +9,7 @@ sys.path.insert(0, HERE); sys.path.insert(0, os.path.dirname(HERE))
 import geometry as G, layouts as L, trimesh   # noqa: E402
 from geometry import IN
 P = np.load(sys.argv[1]); name = sys.argv[2]
+if name == "2c_straight": G.ARM_Y["left"] = L.LEFT_ARM_2C
 boxes = G.corner_boxes if name == "take1" else L.LAYOUTS[name][0]
 stl = os.path.join(os.path.dirname(HERE), "arm.stl") if name == "take1" else os.path.join(HERE, name, "arm.stl")
 import json, parts   # noqa: E402
@@ -38,7 +39,7 @@ for side in ("left", "right"):
                 ax[1].add_patch(Rectangle((c[1] - r, c[2] - h), 2 * r, 2 * h, fc=col[k], alpha=.5, ec="k"))
 for th, ls in ((0, "--"), (162, "-")):
     q = G.arm_to_robot(outline[:, 0], outline[:, 1], 0, th) / IN
-    ax[0].plot(q[:, 0], q[:, 2], "g" + ls, lw=2, label=f"printed arm, {'stowed' if th == 0 else 'down'} ({hm[0]:.0f} mm hump)")
+    ax[0].plot(q[:, 0], q[:, 2], "g" + ls, lw=2, label=f"arm, {'stowed' if th == 0 else 'down'} " + (f"({hm[0]:.0f} mm hump)" if hm[0] else "(straight)"))
 for side in ("left", "right"):
     lo, hi = G.ARM_Y[side]; ax[1].axvspan(min(lo, hi) / IN, max(lo, hi) / IN, color="g", alpha=.15)
 ax[1].add_patch(Circle((4.6, 1.4), 1.4, fc="gold", ec="k", alpha=.6)); ax[1].text(4.6, 1.4, "POLLEN", ha="center", fontsize=7)
