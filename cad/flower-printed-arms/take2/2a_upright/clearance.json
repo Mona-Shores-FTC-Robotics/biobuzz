@@ -8,32 +8,32 @@
      "wheel": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 141.0
+      "at_deg": 138.0
      },
      "servo": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 153.0
+      "at_deg": 150.0
      },
      "tabs": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 150.0
+      "at_deg": 147.0
      },
      "frame": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 153.0
+      "at_deg": 147.0
      },
      "mount_side": {
       "mm": 10.4,
       "in": 0.41,
-      "at_deg": 153.0
+      "at_deg": 147.0
      },
      "screw": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 150.0
+      "at_deg": 147.0
      },
      "rest of robot (26 Nov STEP)": {
       "mm": 0.2,
@@ -45,70 +45,70 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 10.0,
-      "in": 0.39,
+      "mm": 9.5,
+      "in": 0.37,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 24.8,
-      "in": 0.98,
+      "mm": 24.7,
+      "in": 0.97,
       "at_deg": 162.0
      },
      "tabs": {
-      "mm": 21.7,
-      "in": 0.85,
+      "mm": 23.6,
+      "in": 0.93,
       "at_deg": 162.0
      },
      "frame": {
-      "mm": 16.7,
-      "in": 0.66,
+      "mm": 18.4,
+      "in": 0.72,
       "at_deg": 162.0
      },
      "mount_side": {
-      "mm": 17.3,
-      "in": 0.68,
+      "mm": 17.7,
+      "in": 0.7,
       "at_deg": 162.0
      },
      "screw": {
-      "mm": 5.6,
-      "in": 0.22,
+      "mm": 5.3,
+      "in": 0.21,
       "at_deg": 162.0
      },
      "rest of robot (26 Nov STEP)": {
       "mm": 0.2,
       "in": 0.01,
-      "at_deg": 129.0
+      "at_deg": 132.0
      }
     },
     "foot (a) skid": {
      "wheel": {
-      "mm": 35.7,
-      "in": 1.41,
+      "mm": 38.8,
+      "in": 1.53,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 79.1,
-      "in": 3.12,
+      "mm": 83.6,
+      "in": 3.29,
       "at_deg": 162.0
      },
      "tabs": {
-      "mm": 75.5,
-      "in": 2.97,
+      "mm": 79.6,
+      "in": 3.13,
       "at_deg": 162.0
      },
      "frame": {
-      "mm": 85.4,
-      "in": 3.36,
+      "mm": 88.8,
+      "in": 3.5,
       "at_deg": 162.0
      },
      "mount_side": {
-      "mm": 85.5,
-      "in": 3.37,
+      "mm": 88.9,
+      "in": 3.5,
       "at_deg": 162.0
      },
      "screw": {
-      "mm": 49.0,
-      "in": 1.93,
+      "mm": 54.4,
+      "in": 2.14,
       "at_deg": 159.0
      },
      "rest of robot (26 Nov STEP)": {
@@ -125,32 +125,32 @@
      "wheel": {
       "mm": 0.0,
       "in": 0.0,
-      "at_deg": 141.0
+      "at_deg": 138.0
      },
      "servo": {
       "mm": 7.3,
       "in": 0.29,
-      "at_deg": 153.0
+      "at_deg": 150.0
      },
      "tabs": {
       "mm": 7.3,
       "in": 0.29,
-      "at_deg": 150.0
+      "at_deg": 147.0
      },
      "frame": {
       "mm": 3.3,
       "in": 0.13,
-      "at_deg": 153.0
+      "at_deg": 147.0
      },
      "mount_side": {
       "mm": 25.7,
       "in": 1.01,
-      "at_deg": 153.0
+      "at_deg": 147.0
      },
      "screw": {
       "mm": 7.5,
       "in": 0.3,
-      "at_deg": 153.0
+      "at_deg": 150.0
      },
      "rest of robot (26 Nov STEP)": {
       "mm": 5.0,
@@ -162,32 +162,32 @@
    "printed": {
     "arm": {
      "wheel": {
-      "mm": 11.7,
-      "in": 0.46,
+      "mm": 9.5,
+      "in": 0.37,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 25.9,
-      "in": 1.02,
+      "mm": 25.7,
+      "in": 1.01,
       "at_deg": 162.0
      },
      "tabs": {
-      "mm": 22.9,
-      "in": 0.9,
+      "mm": 24.7,
+      "in": 0.97,
       "at_deg": 162.0
      },
      "frame": {
-      "mm": 17.0,
-      "in": 0.67,
+      "mm": 18.7,
+      "in": 0.74,
       "at_deg": 162.0
      },
      "mount_side": {
-      "mm": 29.2,
-      "in": 1.15,
+      "mm": 29.4,
+      "in": 1.16,
       "at_deg": 162.0
      },
      "screw": {
-      "mm": 10.1,
+      "mm": 10.2,
       "in": 0.4,
       "at_deg": 162.0
      },
@@ -199,33 +199,33 @@
     },
     "foot (a) skid": {
      "wheel": {
-      "mm": 36.1,
-      "in": 1.42,
+      "mm": 39.4,
+      "in": 1.55,
       "at_deg": 162.0
      },
      "servo": {
-      "mm": 79.2,
-      "in": 3.12,
+      "mm": 83.7,
+      "in": 3.29,
       "at_deg": 162.0
      },
      "tabs": {
-      "mm": 75.6,
-      "in": 2.97,
+      "mm": 79.6,
+      "in": 3.14,
       "at_deg": 162.0
      },
      "frame": {
-      "mm": 85.4,
-      "in": 3.36,
+      "mm": 88.8,
+      "in": 3.5,
       "at_deg": 162.0
      },
      "mount_side": {
-      "mm": 87.8,
-      "in": 3.46,
+      "mm": 91.1,
+      "in": 3.59,
       "at_deg": 162.0
      },
      "screw": {
-      "mm": 50.2,
-      "in": 1.97,
+      "mm": 55.5,
+      "in": 2.18,
       "at_deg": 159.0
      },
      "rest of robot (26 Nov STEP)": {
@@ -240,36 +240,36 @@
  "slack": {
   "corner parts 0 mm forward, 8 mm up": {
    "left": {
-    "mm": 4.4,
+    "mm": 4.8,
     "at_deg": 162.0,
     "nearest": "wheel"
    },
    "right": {
-    "mm": 6.7,
+    "mm": 7.1,
     "at_deg": 162.0,
     "nearest": "wheel"
    }
   },
   "corner parts -8 mm forward, 0 mm up": {
    "left": {
-    "mm": 13.6,
+    "mm": 13.1,
     "at_deg": 162.0,
     "nearest": "screw"
    },
    "right": {
-    "mm": 15.4,
+    "mm": 16.4,
     "at_deg": 162.0,
-    "nearest": "frame"
+    "nearest": "screw"
    }
   },
   "corner parts -8 mm forward, 8 mm up": {
    "left": {
-    "mm": 7.2,
+    "mm": 8.6,
     "at_deg": 162.0,
     "nearest": "frame"
    },
    "right": {
-    "mm": 7.9,
+    "mm": 9.2,
     "at_deg": 162.0,
     "nearest": "frame"
    }
@@ -281,7 +281,7 @@
     "nearest": "screw"
    },
    "right": {
-    "mm": 3.7,
+    "mm": 1.5,
     "at_deg": 162.0,
     "nearest": "wheel"
    }
@@ -300,13 +300,13 @@
   "lowest_z_in": 0.13
  },
  "hump": {
-  "height_mm": 64.0,
-  "leaves_line_u_mm": 58.0,
+  "height_mm": 70.0,
+  "leaves_line_u_mm": 48.0,
   "full_u_mm": [
-   98.0,
-   154.0
+   88.0,
+   152.0
   ],
-  "back_on_line_u_mm": 206.0,
+  "back_on_line_u_mm": 202.0,
   "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
  }
 }
