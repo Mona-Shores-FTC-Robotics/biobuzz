@@ -61,7 +61,7 @@ def mount_2a(side="left"):
     body = body.cut(cq.Workplane("XY").box(20.0, 21.0, 41.0).translate((float(f[1][0] + 3), float(wy + s * 1.0), float(zc))))
     for dz in (-24.75, 24.75):
         for dy in (-5.0, 5.0):
-            body = body.cut(cq.Workplane("YZ").circle(1.6).extrude(20).translate((float(f[1][0] - 7), float(wy + dy), float(zc + dz))))
+            body = body.cut(cq.Workplane("YZ").circle(1.7).extrude(20).translate((float(f[1][0] - 7), float(wy + dy), float(zc + dz))))
     rows = [z for z in HOLES_Z if zc - 27 < z < zc + 27][:3]
     for x in COLUMNS_X:
         for z in rows:
@@ -105,7 +105,7 @@ def mount_2b(side="left"):
     body = body.cut(cq.Workplane("XY").box(41.0, 21.0, 20.0).translate((wx - 10.0, float(wy + s * 1.0), float(f[1][2] + 3))))
     for dx in (-24.75, 24.75):
         for dy in (-5.0, 5.0):
-            body = body.cut(cq.Workplane("XY").circle(1.6).extrude(20).translate((wx - 10.0 + dx, float(wy + dy), float(f[1][2] - 5))))
+            body = body.cut(cq.Workplane("XY").circle(1.7).extrude(20).translate((wx - 10.0 + dx, float(wy + dy), float(f[1][2] - 5))))
     for x in COLUMNS_X:
         for z in (80.7, 88.7, 96.7):
             body = body.cut(cq.Workplane("XZ").circle(2.2).extrude(-30.0 * s).translate((x, float(s * (WALL - 10)), z)))

@@ -1,0 +1,45 @@
+FLOWER stick printed arms: what to print (27 Nov 2026)
+=======================================================
+Two versions. Same pivot, same tip, same stick angles; only the hump and the corner differ.
+STL to print, STEP to look at or edit in Onshape (same parts).
+
+Print settings for everything: PETG, 0.4 mm nozzle, 0.2 mm layers, 4 walls (6 if you want the arms stiffer),
+40 % gyroid infill, no supports. Times are PrusaSlicer's for a Prusa MK3/MK4-class printer.
+
+TAKE 1: keep today's corner (goBILDA servo frame + 2 upright SWYFT 3.5 in wheels)
+----------------------------------------------------------------------------------
+  take1/take1_arm.stl            PRINT 2 (same part both sides). Lay it flat as the file is (on its side),
+                                 turn it 30 deg to fit a 250 x 210 bed. 78 g, about 5 h 2 m each.
+  take1/foot_skid_optional.stl   optional spare, PRINT 2. 6 g, 38 m. Only if you want to try a skid in
+                                 place of the tip roller.
+  Hump 67 mm (2.6 in). Closest it gets to the corner parts through the swing: 5.0 mm (the wheel screw).
+
+TAKE 2b: one flat 2.5 in wheel per corner, at the POLLEN's middle, on a printed mount
+--------------------------------------------------------------------------------------
+  take2b/2b_arm.stl                   PRINT 2 (same part both sides). Flat as the file is, turned 30 deg.
+                                      70 g, about 4 h 37 m each.
+  take2b/2b_corner_mount_left.stl     PRINT 1. Shelf down on the bed, as the file is. 10 g, about 57 m.
+  take2b/2b_corner_mount_right.stl    PRINT 1. Its mirror. Same settings.
+  Hump 28 mm (1.1 in). Closest through the swing: 6.1 mm (the wheel).
+
+  Per corner, also needed:
+  - one 2.5 in intake wheel with a 1/2 in hex bore, about 12.7 mm (1/2 in) thick, lying flat
+  - the servo-to-1/2 in hex hub you use on today's corner wheels, and a screw and washer under the wheel
+  - today's goBILDA Speed servo (moved from the take 1 corner), standing upright, spline DOWN
+  - 6 x M4 x 12 mm screws + 6 M4 nylock nuts: the mount's upright leg to the grey 5-hole intake channel,
+    through the channel's two front hole columns (the circled one and the one behind it), nuts inside
+  - 4 x M4 x 10 mm screws: the servo's ears to the mount's shelf (they thread into the 3.4 mm printed holes)
+  - the corner wheel turns the other way round now (it pushes POLLEN sideways into the intake): check its
+    direction on the bench before a match
+
+BOTH TAKES, at the arms' ends
+------------------------------
+  - Pivot: the 14 mm hole takes today's 8 x 14 mm bearing (left) and the goBILDA servo hub pattern (right).
+  - Tip: the hole is keyed to the 8 mm REX shaft, so the shaft and the mountain can't turn. A REX shaft
+    collar replaces the 8T sprocket (the stick is passive now).
+  - Print ONE arm first: check the pivot bearing and the tip shaft fit, lean on the tip by hand, swing the
+    stick slowly by hand past the corner. Then print the second.
+
+Pictures: take1/take1_corner.png, take2b/2b_corner.png (side and front, arm down and stowed),
+take2b/2b_mount_view.png (the mount in 3D with the servo and wheel).
+Source: branch claude/flower-printed-arms (PR #766, take 1) and claude/flower-arms-take2 (take 2b).
