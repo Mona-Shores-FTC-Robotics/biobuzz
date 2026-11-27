@@ -32,7 +32,7 @@
     {
       "id": "r-ru-wait-park",
       "color": "#4e79a7",
-      "name": "RIGHT_AUTO_HIVE, corridor, to LEFT_PARK (guard)",
+      "name": "RIGHT_AUTO_HIVE to RIGHT_PARK_WALL (guard)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -41,106 +41,49 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 61,
-          "y": 30
+          "x": 30,
+          "y": 40
         },
         {
-          "x": 61,
-          "y": 30
+          "x": 16,
+          "y": 62
         },
         {
-          "x": 61,
-          "y": 30
-        },
-        {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 57,
-          "y": 112
-        },
-        {
-          "x": 42,
-          "y": 119
-        },
-        {
-          "x": 26,
-          "y": 119
+          "x": 14,
+          "y": 72
         }
       ],
       "heading": {
         "type": "piecewise",
+        "startDeg": 96.1,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.05,
+              "endProgress": 0.5,
               "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 96.1,
-                "endDeg": 90
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.05,
-              "endProgress": 0.68,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.68,
-              "endProgress": 0.85,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.85,
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
-                "degrees": 0
+                "degrees": 270
               }
             }
           ]
@@ -186,7 +129,7 @@
     {
       "id": "r-ru-garden-park",
       "color": "#4e79a7",
-      "name": "GARDEN, corridor, to LEFT_PARK (guard)",
+      "name": "GARDEN to RIGHT_PARK_WALL (guard)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -195,118 +138,29 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
           "x": 30,
-          "y": 12
-        },
-        {
-          "x": 61,
-          "y": 12
-        },
-        {
-          "x": 61,
           "y": 30
         },
         {
-          "x": 61,
-          "y": 30
+          "x": 30,
+          "y": 46
         },
         {
-          "x": 61,
-          "y": 30
+          "x": 16,
+          "y": 62
         },
         {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 55
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 80
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 61,
-          "y": 100
-        },
-        {
-          "x": 57,
-          "y": 108
-        },
-        {
-          "x": 40,
-          "y": 110
-        },
-        {
-          "x": 26,
-          "y": 112
+          "x": 14,
+          "y": 72
         }
       ],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.08,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 450
-              }
-            },
-            {
-              "startProgress": 0.08,
-              "endProgress": 0.74,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.74,
-              "endProgress": 0.95,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.95,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
-        }
+        "type": "constant",
+        "degrees": 270
       }
     },
     {
@@ -346,30 +200,9 @@
       }
     },
     {
-      "id": "r-ru-up",
+      "id": "r-ru-right-park",
       "color": "#4e79a7",
-      "name": "up the corridor under the HIVE to R_HIVE_EXIT",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 60.5,
-        "y": 100
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 96.1,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "r-ru-exit-park",
-      "color": "#4e79a7",
-      "name": "R_HIVE_EXIT west above the HIVE to LEFT_PARK",
+      "name": "RIGHT_AUTO_HIVE to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -378,53 +211,49 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 52,
-          "y": 101
+          "x": 30,
+          "y": 40
         },
         {
-          "x": 38,
-          "y": 101
+          "x": 16,
+          "y": 62
         },
         {
-          "x": 28,
-          "y": 101
-        },
-        {
-          "x": 22,
-          "y": 106
+          "x": 14,
+          "y": 72
         }
       ],
       "heading": {
         "type": "piecewise",
+        "startDeg": 96.1,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 0.95,
+              "endProgress": 0.5,
               "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 90,
-                "endDeg": 0
+                "startDeg": 96.1,
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.95,
+              "startProgress": 0.5,
               "endProgress": 1,
               "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
-                "degrees": 0
+                "degrees": 270
               }
             }
           ]
@@ -531,7 +360,7 @@
     {
       "id": "r-ru-exit-park-2",
       "color": "#4e79a7",
-      "name": "R_HIVE_EXIT west above the HIVE to LEFT_PARK (instead of the fix)",
+      "name": "R_HIVE_EXIT to RIGHT_PARK_WALL (instead of the fix)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -540,53 +369,65 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 52,
-          "y": 101
+          "x": 50,
+          "y": 108
         },
         {
-          "x": 38,
-          "y": 101
+          "x": 33,
+          "y": 104
         },
         {
-          "x": 28,
-          "y": 101
+          "x": 33,
+          "y": 86
         },
         {
-          "x": 22,
-          "y": 106
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
         "type": "piecewise",
+        "startDeg": 90,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 0.95,
+              "endProgress": 0.4,
               "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
                 "startDeg": 90,
-                "endDeg": 0
+                "endDeg": 270
               }
             },
             {
-              "startProgress": 0.95,
+              "startProgress": 0.4,
               "endProgress": 1,
               "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
               "parameters": {
-                "degrees": 0
+                "degrees": 270
               }
             }
           ]
@@ -611,7 +452,7 @@
     {
       "id": "r-ru-fix-park",
       "color": "#4e79a7",
-      "name": "R_LEFT_FIX to LEFT_PARK",
+      "name": "R_LEFT_FIX to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -620,18 +461,69 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 44,
-          "y": 113
+          "x": 32,
+          "y": 121
+        },
+        {
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 268.4,
-        "endDeg": 360
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.4,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -652,7 +544,7 @@
     {
       "id": "r-ru-fix-skip-park",
       "color": "#4e79a7",
-      "name": "LEFT down, R_LEFT_FIX to LEFT_PARK",
+      "name": "LEFT down, R_LEFT_FIX to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -661,18 +553,69 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 44,
-          "y": 113
+          "x": 32,
+          "y": 121
+        },
+        {
+          "x": 33,
+          "y": 104
+        },
+        {
+          "x": 33,
+          "y": 86
+        },
+        {
+          "x": 33,
+          "y": 76
+        },
+        {
+          "x": 33,
+          "y": 72
+        },
+        {
+          "x": 14.5,
+          "y": 70
+        },
+        {
+          "x": 14.5,
+          "y": 80
         }
       ],
       "heading": {
-        "type": "linear",
+        "type": "piecewise",
         "startDeg": 268.4,
-        "endDeg": 360
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 268.4,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     }
   ],
@@ -869,11 +812,7 @@
     },
     {
       "kind": "path",
-      "lineId": "r-ru-up"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-ru-exit-park"
+      "lineId": "r-ru-right-park"
     },
     {
       "kind": "path",
@@ -971,11 +910,6 @@
         22.1,
         270
       ],
-      "LEFT_PARK": [
-        14.5,
-        117.4,
-        0
-      ],
       "RIGHT_AUTO_HIVE": [
         59.2,
         20.9,
@@ -995,21 +929,25 @@
         61.5,
         114,
         268.4
+      ],
+      "RIGHT_PARK_WALL": [
+        14.5,
+        92.5,
+        270
       ]
     },
     "pathEnds": {
       "r-ru-open": "RIGHT_AUTO_HIVE",
       "r-ru-garden": "GARDEN_STAGING",
       "r-ru-back": "RIGHT_AUTO_HIVE",
-      "r-ru-up": "R_HIVE_EXIT",
       "r-ru-up-fix": "R_HIVE_EXIT",
-      "r-ru-exit-park": "LEFT_PARK",
-      "r-ru-exit-park-2": "LEFT_PARK",
-      "r-ru-wait-park": "LEFT_PARK",
-      "r-ru-garden-park": "LEFT_PARK",
+      "r-ru-exit-park-2": "RIGHT_PARK_WALL",
+      "r-ru-wait-park": "RIGHT_PARK_WALL",
+      "r-ru-garden-park": "RIGHT_PARK_WALL",
       "r-ru-fix": "R_LEFT_FIX",
-      "r-ru-fix-park": "LEFT_PARK",
-      "r-ru-fix-skip-park": "LEFT_PARK"
+      "r-ru-fix-park": "RIGHT_PARK_WALL",
+      "r-ru-fix-skip-park": "RIGHT_PARK_WALL",
+      "r-ru-right-park": "RIGHT_PARK_WALL"
     },
     "cards": [
       {
@@ -1076,15 +1014,9 @@
                 ]
               },
               {
-                "id": "c-r-up",
-                "kind": "path",
-                "lineId": "r-ru-up",
-                "park": false
-              },
-              {
                 "id": "c-r-park",
                 "kind": "path",
-                "lineId": "r-ru-exit-park",
+                "lineId": "r-ru-right-park",
                 "park": true
               }
             ]
@@ -1162,13 +1094,11 @@
       "c-r-open": "r-ru-wait-park",
       "c-r-garden": "r-ru-garden-park",
       "c-r-back": "r-ru-wait-park",
-      "c-r-up": "r-ru-exit-park",
-      "c-r-up-fix": "r-ru-exit-park",
+      "c-r-up-fix": "r-ru-exit-park-2",
       "c-r-fix": "r-ru-exit-park-2"
     },
     "teamSpots": [
       "GARDEN_STAGING",
-      "LEFT_PARK",
       "RIGHT_AUTO_HIVE",
       "RIGHT_START"
     ],

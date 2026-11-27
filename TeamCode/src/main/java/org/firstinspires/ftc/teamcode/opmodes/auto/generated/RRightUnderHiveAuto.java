@@ -50,114 +50,94 @@ public final class RRightUnderHiveAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose gardenStaging = p.of(11.5, 22.1, 270);
-        Pose leftPark = p.of(14.5, 117.4, 0);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose rHiveExit = p.of(60.5, 100, 90);
         Pose rLeftFix = p.of(61.5, 114, 268.4);
+        Pose rightParkWall = p.of(14.5, 92.5, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose rightAutoHiveCorridorToLeftParkGuardControl1 = p.of(61, 30, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl2 = p.of(61, 30, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl3 = p.of(61, 30, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl4 = p.of(61, 55, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl5 = p.of(61, 55, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl6 = p.of(61, 55, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl7 = p.of(61, 80, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl8 = p.of(61, 80, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl9 = p.of(61, 80, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl10 = p.of(61, 100, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl11 = p.of(61, 100, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl12 = p.of(61, 100, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl13 = p.of(57, 112, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl14 = p.of(42, 119, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardControl15 = p.of(26, 119, 0);
-        Pose rightAutoHiveCorridorToLeftParkGuardSegment1Start = p.of(14.5, 117.4, 96.1);
-        Pose rightAutoHiveCorridorToLeftParkGuardSegment1End = p.of(14.5, 117.4, 90);
-        Pose rightAutoHiveCorridorToLeftParkGuardSegment2Heading = p.of(14.5, 117.4, 90);
-        Pose rightAutoHiveCorridorToLeftParkGuardSegment3Start = p.of(14.5, 117.4, 90);
-        Pose gardenCorridorToLeftParkGuardControl1 = p.of(30, 12, 0);
-        Pose gardenCorridorToLeftParkGuardControl2 = p.of(61, 12, 0);
-        Pose gardenCorridorToLeftParkGuardControl3 = p.of(61, 30, 0);
-        Pose gardenCorridorToLeftParkGuardControl4 = p.of(61, 30, 0);
-        Pose gardenCorridorToLeftParkGuardControl5 = p.of(61, 30, 0);
-        Pose gardenCorridorToLeftParkGuardControl6 = p.of(61, 55, 0);
-        Pose gardenCorridorToLeftParkGuardControl7 = p.of(61, 55, 0);
-        Pose gardenCorridorToLeftParkGuardControl8 = p.of(61, 55, 0);
-        Pose gardenCorridorToLeftParkGuardControl9 = p.of(61, 80, 0);
-        Pose gardenCorridorToLeftParkGuardControl10 = p.of(61, 80, 0);
-        Pose gardenCorridorToLeftParkGuardControl11 = p.of(61, 80, 0);
-        Pose gardenCorridorToLeftParkGuardControl12 = p.of(61, 100, 0);
-        Pose gardenCorridorToLeftParkGuardControl13 = p.of(61, 100, 0);
-        Pose gardenCorridorToLeftParkGuardControl14 = p.of(61, 100, 0);
-        Pose gardenCorridorToLeftParkGuardControl15 = p.of(57, 108, 0);
-        Pose gardenCorridorToLeftParkGuardControl16 = p.of(40, 110, 0);
-        Pose gardenCorridorToLeftParkGuardControl17 = p.of(26, 112, 0);
-        Pose gardenCorridorToLeftParkGuardSegment1Start = p.of(14.5, 117.4, 270);
-        Pose gardenCorridorToLeftParkGuardSegment1End = p.of(14.5, 117.4, 450);
-        Pose gardenCorridorToLeftParkGuardSegment2Heading = p.of(14.5, 117.4, 90);
-        Pose gardenCorridorToLeftParkGuardSegment3Start = p.of(14.5, 117.4, 90);
-        Pose rHiveExitWestAboveTheHiveToLeftParkControl1 = p.of(52, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkControl2 = p.of(38, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkControl3 = p.of(28, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkControl4 = p.of(22, 106, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkSegment1Heading = p.of(14.5, 117.4, 90);
-        Pose rHiveExitWestAboveTheHiveToLeftParkSegment2Start = p.of(14.5, 117.4, 90);
+        Pose rightAutoHiveToRightParkWallGuardControl1 = p.of(30, 40, 0);
+        Pose rightAutoHiveToRightParkWallGuardControl2 = p.of(16, 62, 0);
+        Pose rightAutoHiveToRightParkWallGuardControl3 = p.of(14, 72, 0);
+        Pose rightAutoHiveToRightParkWallGuardSegment1Start = p.of(14.5, 92.5, 96.1);
+        Pose gardenToRightParkWallGuardControl1 = p.of(30, 30, 0);
+        Pose gardenToRightParkWallGuardControl2 = p.of(30, 46, 0);
+        Pose gardenToRightParkWallGuardControl3 = p.of(16, 62, 0);
+        Pose gardenToRightParkWallGuardControl4 = p.of(14, 72, 0);
+        Pose rightAutoHiveToRightParkWallControl1 = p.of(30, 40, 0);
+        Pose rightAutoHiveToRightParkWallControl2 = p.of(16, 62, 0);
+        Pose rightAutoHiveToRightParkWallControl3 = p.of(14, 72, 0);
+        Pose rightAutoHiveToRightParkWallSegment1Start = p.of(14.5, 92.5, 96.1);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl1 = p.of(50, 108, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl2 = p.of(33, 104, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl3 = p.of(33, 86, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl4 = p.of(33, 76, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl5 = p.of(33, 72, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl6 = p.of(14.5, 70, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixControl7 = p.of(14.5, 80, 0);
+        Pose rHiveExitToRightParkWallInsteadOfTheFixSegment1Start = p.of(14.5, 92.5, 90);
         Pose rHiveExitRoundToRLeftFixControl1 = p.of(55, 103, 0);
         Pose rHiveExitRoundToRLeftFixControl2 = p.of(60, 106, 0);
         Pose rHiveExitRoundToRLeftFixControl3 = p.of(62, 110, 0);
         Pose rHiveExitRoundToRLeftFixSegment1Heading = p.of(61.5, 114, 90);
         Pose rHiveExitRoundToRLeftFixSegment2Start = p.of(61.5, 114, 90);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl1 = p.of(52, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl2 = p.of(38, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl3 = p.of(28, 101, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl4 = p.of(22, 106, 0);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment1Heading = p.of(14.5, 117.4, 90);
-        Pose rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment2Start = p.of(14.5, 117.4, 90);
-        Pose rLeftFixToLeftParkControl1 = p.of(44, 113, 0);
-        Pose leftDownRLeftFixToLeftParkControl1 = p.of(44, 113, 0);
+        Pose rLeftFixToRightParkWallControl1 = p.of(32, 121, 0);
+        Pose rLeftFixToRightParkWallControl2 = p.of(33, 104, 0);
+        Pose rLeftFixToRightParkWallControl3 = p.of(33, 86, 0);
+        Pose rLeftFixToRightParkWallControl4 = p.of(33, 76, 0);
+        Pose rLeftFixToRightParkWallControl5 = p.of(33, 72, 0);
+        Pose rLeftFixToRightParkWallControl6 = p.of(14.5, 70, 0);
+        Pose rLeftFixToRightParkWallControl7 = p.of(14.5, 80, 0);
+        Pose rLeftFixToRightParkWallSegment1Start = p.of(14.5, 92.5, 268.4);
+        Pose leftDownRLeftFixToRightParkWallControl1 = p.of(32, 121, 0);
+        Pose leftDownRLeftFixToRightParkWallControl2 = p.of(33, 104, 0);
+        Pose leftDownRLeftFixToRightParkWallControl3 = p.of(33, 86, 0);
+        Pose leftDownRLeftFixToRightParkWallControl4 = p.of(33, 76, 0);
+        Pose leftDownRLeftFixToRightParkWallControl5 = p.of(33, 72, 0);
+        Pose leftDownRLeftFixToRightParkWallControl6 = p.of(14.5, 70, 0);
+        Pose leftDownRLeftFixToRightParkWallControl7 = p.of(14.5, 80, 0);
+        Pose leftDownRLeftFixToRightParkWallSegment1Start = p.of(14.5, 92.5, 268.4);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
-        Path rightAutoHiveCorridorToLeftParkGuard = Paths.curve(rightAutoHive, rightAutoHiveCorridorToLeftParkGuardControl1, rightAutoHiveCorridorToLeftParkGuardControl2, rightAutoHiveCorridorToLeftParkGuardControl3, rightAutoHiveCorridorToLeftParkGuardControl4, rightAutoHiveCorridorToLeftParkGuardControl5, rightAutoHiveCorridorToLeftParkGuardControl6, rightAutoHiveCorridorToLeftParkGuardControl7, rightAutoHiveCorridorToLeftParkGuardControl8, rightAutoHiveCorridorToLeftParkGuardControl9, rightAutoHiveCorridorToLeftParkGuardControl10, rightAutoHiveCorridorToLeftParkGuardControl11, rightAutoHiveCorridorToLeftParkGuardControl12, rightAutoHiveCorridorToLeftParkGuardControl13, rightAutoHiveCorridorToLeftParkGuardControl14, rightAutoHiveCorridorToLeftParkGuardControl15, leftPark).heading(Interpolator.piecewise().until(0.05, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment1Start, rightAutoHiveCorridorToLeftParkGuardSegment1End)).until(0.68, Interpolator.constant(rightAutoHiveCorridorToLeftParkGuardSegment2Heading)).until(0.85, Interpolator.linear(rightAutoHiveCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path rightAutoHiveToRightParkWallGuard = Paths.curve(rightAutoHive, rightAutoHiveToRightParkWallGuardControl1, rightAutoHiveToRightParkWallGuardControl2, rightAutoHiveToRightParkWallGuardControl3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(rightAutoHiveToRightParkWallGuardSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path toGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
-        Path gardenCorridorToLeftParkGuard = Paths.curve(gardenStaging, gardenCorridorToLeftParkGuardControl1, gardenCorridorToLeftParkGuardControl2, gardenCorridorToLeftParkGuardControl3, gardenCorridorToLeftParkGuardControl4, gardenCorridorToLeftParkGuardControl5, gardenCorridorToLeftParkGuardControl6, gardenCorridorToLeftParkGuardControl7, gardenCorridorToLeftParkGuardControl8, gardenCorridorToLeftParkGuardControl9, gardenCorridorToLeftParkGuardControl10, gardenCorridorToLeftParkGuardControl11, gardenCorridorToLeftParkGuardControl12, gardenCorridorToLeftParkGuardControl13, gardenCorridorToLeftParkGuardControl14, gardenCorridorToLeftParkGuardControl15, gardenCorridorToLeftParkGuardControl16, gardenCorridorToLeftParkGuardControl17, leftPark).heading(Interpolator.piecewise().until(0.08, Interpolator.linear(gardenCorridorToLeftParkGuardSegment1Start, gardenCorridorToLeftParkGuardSegment1End)).until(0.74, Interpolator.constant(gardenCorridorToLeftParkGuardSegment2Heading)).until(0.95, Interpolator.linear(gardenCorridorToLeftParkGuardSegment3Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path gardenToRightParkWallGuard = Paths.curve(gardenStaging, gardenToRightParkWallGuardControl1, gardenToRightParkWallGuardControl2, gardenToRightParkWallGuardControl3, gardenToRightParkWallGuardControl4, rightParkWall).constant(rightParkWall);
         Path gardenBackToRightAutoHive = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
-        Path upTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
-        Path rHiveExitWestAboveTheHiveToLeftPark = Paths.curve(rHiveExit, rHiveExitWestAboveTheHiveToLeftParkControl1, rHiveExitWestAboveTheHiveToLeftParkControl2, rHiveExitWestAboveTheHiveToLeftParkControl3, rHiveExitWestAboveTheHiveToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(rHiveExitWestAboveTheHiveToLeftParkSegment1Heading)).until(0.95, Interpolator.linear(rHiveExitWestAboveTheHiveToLeftParkSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path rightAutoHiveToRightParkWall = Paths.curve(rightAutoHive, rightAutoHiveToRightParkWallControl1, rightAutoHiveToRightParkWallControl2, rightAutoHiveToRightParkWallControl3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(rightAutoHiveToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path fixUpTheCorridorUnderTheHiveToRHiveExit = Paths.line(rightAutoHive, rHiveExit).linear(rightAutoHive, rHiveExit);
+        Path rHiveExitToRightParkWallInsteadOfTheFix = Paths.curve(rHiveExit, rHiveExitToRightParkWallInsteadOfTheFixControl1, rHiveExitToRightParkWallInsteadOfTheFixControl2, rHiveExitToRightParkWallInsteadOfTheFixControl3, rHiveExitToRightParkWallInsteadOfTheFixControl4, rHiveExitToRightParkWallInsteadOfTheFixControl5, rHiveExitToRightParkWallInsteadOfTheFixControl6, rHiveExitToRightParkWallInsteadOfTheFixControl7, rightParkWall).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(rHiveExitToRightParkWallInsteadOfTheFixSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path rHiveExitRoundToRLeftFix = Paths.curve(rHiveExit, rHiveExitRoundToRLeftFixControl1, rHiveExitRoundToRLeftFixControl2, rHiveExitRoundToRLeftFixControl3, rLeftFix).heading(Interpolator.piecewise().until(0.1, Interpolator.constant(rHiveExitRoundToRLeftFixSegment1Heading)).until(0.45, Interpolator.linear(rHiveExitRoundToRLeftFixSegment2Start, rLeftFix)).until(1, Interpolator.constant(rLeftFix)));
-        Path rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix = Paths.curve(rLeftFix, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl1, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl2, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl3, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment1Heading)).until(0.95, Interpolator.linear(rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFixSegment2Start, leftPark)).until(1, Interpolator.constant(leftPark)));
-        Path rLeftFixToLeftPark = Paths.curve(rLeftFix, rLeftFixToLeftParkControl1, leftPark).linear(rLeftFix, leftPark);
-        Path leftDownRLeftFixToLeftPark = Paths.curve(rLeftFix, leftDownRLeftFixToLeftParkControl1, leftPark).linear(rLeftFix, leftPark);
+        Path rLeftFixToRightParkWall = Paths.curve(rLeftFix, rLeftFixToRightParkWallControl1, rLeftFixToRightParkWallControl2, rLeftFixToRightParkWallControl3, rLeftFixToRightParkWallControl4, rLeftFixToRightParkWallControl5, rLeftFixToRightParkWallControl6, rLeftFixToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(rLeftFixToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
+        Path leftDownRLeftFixToRightParkWall = Paths.curve(rLeftFix, leftDownRLeftFixToRightParkWallControl1, leftDownRLeftFixToRightParkWallControl2, leftDownRLeftFixToRightParkWallControl3, leftDownRLeftFixToRightParkWallControl4, leftDownRLeftFixToRightParkWallControl5, leftDownRLeftFixToRightParkWallControl6, leftDownRLeftFixToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(leftDownRLeftFixToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
 
         return kit.sequence(
-                kit.guarded("Auto", rightAutoHiveCorridorToLeftParkGuard, 3.7,
+                kit.guarded("Auto", rightAutoHiveToRightParkWallGuard, 2.9,
                         kit.command("SpinUp"),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHiveCorridorToLeftParkGuard, 3.7),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHiveToRightParkWallGuard, 2.9),
                         kit.command("LaunchAll", 1),
-                        kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenCorridorToLeftParkGuard, 4.8),
+                        kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenToRightParkWallGuard, 2.6),
                         kit.command("GardenGather", 5.5),
-                        kit.path("GARDEN back to RIGHT_AUTO_HIVE", gardenBackToRightAutoHive, 2, rightAutoHiveCorridorToLeftParkGuard, 3.7),
+                        kit.path("GARDEN back to RIGHT_AUTO_HIVE", gardenBackToRightAutoHive, 2, rightAutoHiveToRightParkWallGuard, 2.9),
                         kit.firstOf("RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT", kit.command("SpinUp"),
                                 kit.when("RightCellUp").then(
-                                        kit.guarded("If RightCellUp", rHiveExitWestAboveTheHiveToLeftPark, 2.1,
+                                        kit.guarded("If RightCellUp", rightAutoHiveToRightParkWall, 2.9,
                                                 kit.command("LaunchAll", 1),
                                                 kit.firstOf("Hold at RIGHT_AUTO_HIVE, out of L's way, until the park needs the time",
                                                         kit.atMatchSeconds(29)),
-                                                kit.path("up the corridor under the HIVE to R_HIVE_EXIT", upTheCorridorUnderTheHiveToRHiveExit, 2.6, rHiveExitWestAboveTheHiveToLeftPark, 2.1),
-                                                kit.path("R_HIVE_EXIT west above the HIVE to LEFT_PARK", rHiveExitWestAboveTheHiveToLeftPark, 2.1))),
+                                                kit.path("RIGHT_AUTO_HIVE to RIGHT_PARK_WALL", rightAutoHiveToRightParkWall, 2.9))),
                                 kit.atMatchSeconds(kit.seconds("RIGHT up (TIP 2, or no TIP 1) before 18 s, otherwise fix LEFT", 18)).then(
-                                        kit.guarded("Timed out", leftDownRLeftFixToLeftPark, 2,
-                                                kit.path("fix: up the corridor under the HIVE to R_HIVE_EXIT", fixUpTheCorridorUnderTheHiveToRHiveExit, 2.6, rHiveExitWestAboveTheHiveToLeftPark, 2.1),
-                                                kit.path("R_HIVE_EXIT round to R_LEFT_FIX", rHiveExitRoundToRLeftFix, 1.8, rHiveExitWestAboveTheHiveToLeftParkInsteadOfTheFix, 2.2),
+                                        kit.guarded("Timed out", leftDownRLeftFixToRightParkWall, 2.7,
+                                                kit.path("fix: up the corridor under the HIVE to R_HIVE_EXIT", fixUpTheCorridorUnderTheHiveToRHiveExit, 2.6, rHiveExitToRightParkWallInsteadOfTheFix, 2.7),
+                                                kit.path("R_HIVE_EXIT round to R_LEFT_FIX", rHiveExitRoundToRLeftFix, 1.8, rHiveExitToRightParkWallInsteadOfTheFix, 2.7),
                                                 kit.firstOf("LEFT up?",
                                                         kit.when("LeftCellUp").then(
-                                                                kit.guarded("If LeftCellUp", rLeftFixToLeftPark, 2,
+                                                                kit.guarded("If LeftCellUp", rLeftFixToRightParkWall, 2.7,
                                                                         kit.command("LaunchAll", 1),
-                                                                        kit.path("R_LEFT_FIX to LEFT_PARK", rLeftFixToLeftPark, 2))),
+                                                                        kit.path("R_LEFT_FIX to RIGHT_PARK_WALL", rLeftFixToRightParkWall, 2.7))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", leftDownRLeftFixToLeftPark, 2,
-                                                                        kit.path("LEFT down, R_LEFT_FIX to LEFT_PARK", leftDownRLeftFixToLeftPark, 2)))))))));
+                                                                kit.guarded("Timed out", leftDownRLeftFixToRightParkWall, 2.7,
+                                                                        kit.path("LEFT down, R_LEFT_FIX to RIGHT_PARK_WALL", leftDownRLeftFixToRightParkWall, 2.7)))))))));
     }
 }
