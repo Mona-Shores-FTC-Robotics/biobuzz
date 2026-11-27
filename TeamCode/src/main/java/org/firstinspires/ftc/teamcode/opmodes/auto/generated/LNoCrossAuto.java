@@ -21,7 +21,7 @@ public final class LNoCrossAuto {
     public static final String SOURCE = "l-no-cross.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-18|3:40PM";
+    public static final String SAVED = "11-25|9:41AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -73,7 +73,7 @@ public final class LNoCrossAuto {
         Pose rightAutoFixTipParkUnderTheHiveSegment2Start = p.of(14.5, 117.4, 90);
         Pose underTheHiveToScoringFlowerStagingControl1 = p.of(58.7, 40, 0);
         Pose underTheHiveToScoringFlowerStagingControl2 = p.of(66, 73, 0);
-        Pose underTheHiveToScoringFlowerStagingControl3 = p.of(60, 102, 0);
+        Pose underTheHiveToScoringFlowerStagingControl3 = p.of(62.7255, 112.9021, 0);
         Pose toLeftAutoHive_3Control1 = p.of(58.7, 27, 0);
         Pose toLeftAutoHive_3Control2 = p.of(68.2657, 72.9873, 0);
         Pose toLeftAutoHive_3Control3 = p.of(52, 94, 0);
