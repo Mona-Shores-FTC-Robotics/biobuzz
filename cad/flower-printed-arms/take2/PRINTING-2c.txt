@@ -1,0 +1,30 @@
+TAKE 2c: a flat wheel with the servo BESIDE the arm, so the FLOWER stick's arms stay straight (27 Nov 2026)
+==========================================================================================================
+Checked against the 26 Nov robot STEP through the stick's whole 0-162 deg swing, with a straight arm:
+mount shelf 5.6 mm, servo 7.3 mm, servo ears 7.6 mm, flat wheel 8.6 mm. With the corner one goBILDA hole off in
+any direction (up, back or forward) it still clears by 3.2 mm or more. Stowed: inside the 18 in cube.
+
+PRINT (PETG, 0.4 mm nozzle, 0.2 mm layers, 4 walls, 40 % gyroid, no supports; times for a Prusa MK3/MK4-class)
+  2c_corner_mount_left.stl     PRINT 1. Shelf down on the bed, as the file is. 10 g, about 55 m.
+  2c_corner_mount_right.stl    PRINT 1. Its mirror. Same settings.
+  2c_straight_arm_optional.stl OPTIONAL, PRINT 2. Only if you want printed arms (keyed tip, so the shaft and the
+                               mountain can't turn). Today's aluminium channels work as they are. Lay it flat as
+                               the file is, turned 30 deg to fit a 250 x 210 bed. 66 g, about 4 h 26 m each.
+
+THE ONE CHANGE TO THE STICK
+  Move the LEFT arm 15 mm (0.6 in) further out, so it sits like the right arm (|Y| 6.60 to 7.08 in from the
+  middle). In the robot CAD it sits 15 mm further in, right over where the left servo goes. A 15 mm spacer at its
+  pivot and a 15 mm spacer (or shaft collar) at its tip on the REX shaft; the shaft is long enough.
+
+PER CORNER
+  - the printed mount: its upright leg flat on the outside of the grey 5-hole intake channel, 6 x M4 x 12 mm
+    screws + 6 M4 nylock nuts through the channel's two front hole columns (the circled one and the one behind
+    it), nuts inside the channel
+  - today's goBILDA Speed servo, standing on the mount's shelf, spline DOWN, its body through the shelf's window,
+    its ears held by 4 x M4 x 10 mm screws (they thread into the 3.4 mm printed holes)
+  - one 2.5 in intake wheel with a 1/2 in hex bore, about 1/2 in thick, lying flat under the shelf, on your usual
+    servo-to-1/2 in hex hub, with a screw and washer under it. Its middle is at the POLLEN's middle (1.4 in up).
+  - the wheel now pushes POLLEN sideways into the intake: check its spin direction on the bench
+
+Pictures: 2c_mount_view.png (the mount in 3D; the right-hand view is from the front), 2c_corner.png (side and front).
+Source: branch claude/flower-arms-take2, folder cad/flower-printed-arms/take2/2c_straight/.
