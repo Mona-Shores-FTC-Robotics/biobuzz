@@ -112,3 +112,28 @@ def mount_2b(side="left"):
     return body
 
 LAYOUTS = {"2a_upright": (boxes_2a, mount_2a), "2b_flat": (boxes_2b, mount_2b)}
+
+# ---- 2c: 2b with the servo beside the arm, and a straight arm ----
+# The servo, its hub and the mount stay between the intake channel and the arm's band; only the flat wheel (Z 29 to 42)
+# passes under the arm, below where it comes down. It needs the LEFT arm 15.3 mm further out, at the right arm's
+# |Y| 167.5 to 179.7 (the 26 Nov STEP has it at 152.2 to 164.4, right over the servo): a 15 mm spacer at its pivot and
+# its tip, the same arm.
+LEFT_ARM_2C = (167.53, 179.73)
+
+def boxes_2c(side):
+    b = boxes_2b(side); s = 1 if side == "left" else -1
+    lo, hi = b["frame"][1].copy(), b["frame"][2].copy()
+    edge = s * (B["wy"] + G.CORNER["servo_out"] + 2.0)          # the shelf stops 2 mm past the servo's outer face
+    if s > 0: hi[1] = edge
+    else: lo[1] = edge
+    b["frame"] = ("box", lo, hi)
+    return b
+
+def mount_2c(side="left"):
+    """2b's mount with its shelf trimmed to 2 mm past the servo's outer face, so it stays out of the arm's band."""
+    s = 1 if side == "left" else -1
+    m = mount_2b(side)
+    cut_lo = s * (B["wy"] + G.CORNER["servo_out"] + 2.0)
+    return m.cut(cq.Workplane("XY").box(200, 60, 200).translate((220.0, float(cut_lo + s * 30.0), 80.0)))
+
+LAYOUTS["2c_straight"] = (boxes_2c, mount_2c)

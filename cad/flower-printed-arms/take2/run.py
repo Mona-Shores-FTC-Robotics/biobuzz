@@ -13,6 +13,9 @@ boxes, mount = L.LAYOUTS[name]
 OUT = os.path.join(HERE, name); os.makedirs(OUT, exist_ok=True)
 G.corner_boxes = boxes; check.corner_boxes = boxes          # every module reads the corner from here
 parts.HERE = OUT; check.HERE = OUT
+if name == "2c_straight":
+    G.ARM_Y["left"] = L.LEFT_ARM_2C                          # the left arm out to the right arm's spacing
+    parts._HUMP = (0.0, parts.HUMP_FROM, parts.HUMP_FROM + 1, parts.HUMP_FROM + 2, parts.HUMP_FROM + 3)   # straight
 parts.SIZING_MARGIN = {"2b_flat": 5.0}.get(name, parts.SIZING_MARGIN)   # the flat wheel's top face is sampled coarser than check.py measures it
 h, a, b, c, e = parts.hump()
 print(f"{name}: hump {h:.1f} mm; leaves the line at u {a:.0f}, full {b:.0f} to {c:.0f}, back at {e:.0f}", flush=True)
