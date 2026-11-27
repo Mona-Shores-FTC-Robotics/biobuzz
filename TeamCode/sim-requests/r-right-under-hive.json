@@ -60,12 +60,12 @@
       "oursFails": "misses volley 3"
     },
     {
-      "name": "R 20 percent slower",
+      "name": "R 20% slow",
       "partner": "LRightUnderHiveAuto",
       "ourSpeed": 40
     },
     {
-      "name": "L 20 percent slower",
+      "name": "L 20% slow",
       "partner": "LRightUnderHiveAuto",
       "timing": {
         "speed": 40
