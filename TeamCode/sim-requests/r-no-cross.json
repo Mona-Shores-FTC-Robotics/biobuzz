@@ -9,12 +9,7 @@
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
+    5
   ],
   "partnerSeeds": [
     1,
@@ -27,14 +22,35 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "LEFT-SHOOT-PARK on time, typical 50 in/s (seen 3 of 32)",
+      "name": "Beside L-NoCross (our pair)",
+      "partner": "LNoCrossAuto"
+    },
+    {
+      "name": "Partner shoots preloads, picks, shoots again (typical speed)",
       "partner": "PartnerLTipParkAuto",
       "timing": {
         "speed": 50
       }
     },
     {
-      "name": "misses",
+      "name": "Same partner, fast",
+      "partner": "PartnerLTipParkAuto",
+      "timing": {
+        "speed": 80,
+        "launchS": 0.25,
+        "pickS": 1.5
+      }
+    },
+    {
+      "name": "Partner Parks Left",
+      "partner": "PartnerLeaveParkAuto"
+    },
+    {
+      "name": "Partner Still",
+      "partner": "PartnerStillAuto"
+    },
+    {
+      "name": "Partner misses its preloads",
       "partner": "PartnerLTipParkAuto",
       "fails": "misses",
       "timing": {
@@ -42,133 +58,28 @@
       }
     },
     {
-      "name": "LEAVE-PARK (seen 11 of 32)",
-      "partner": "PartnerLeaveParkAuto"
-    },
-    {
-      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
-      "partner": "PartnerZoneStillAuto"
-    },
-    {
-      "name": "LEAVE-PARK, R on CROSS AND FIX IT",
-      "partner": "PartnerLeaveParkAuto",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "STILL in the corner, R on CROSS AND FIX IT",
-      "partner": "PartnerStillAuto",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "STILL in the LOADING ZONE, R on CROSS AND FIX IT",
-      "partner": "PartnerZoneStillAuto",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto"
-    },
-    {
-      "name": "STILL in the corner (seen 4 of 32)",
-      "partner": "PartnerStillAuto"
-    },
-    {
-      "name": "fast partner: TIP 2 quickly (speed 80, 0.25 s a shot, 1.5 s pick)",
+      "name": "Partner misses its preloads, we CROSS AND FIX IT",
       "partner": "PartnerLTipParkAuto",
+      "fails": "misses",
       "timing": {
-        "speed": 80,
-        "launchS": 0.25,
-        "pickS": 1.5
+        "speed": 50
+      },
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
       }
     },
     {
-      "name": "very fast partner (speed 100, 0.15 s a shot, 1.0 s pick)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 100,
-        "launchS": 0.15,
-        "pickS": 1.0
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross",
-      "partner": "LNoCrossAuto"
-    },
-    {
-      "name": "pair: beside L-NoCross, our preloads miss",
+      "name": "Beside L-NoCross, our preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads"
-    },
-    {
-      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX",
-      "partner": "LNoCrossAuto",
-      "partnerPicks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross on WAIT FOR PARTNER FIX, our preloads miss",
-      "partner": "LNoCrossAuto",
-      "oursFails": "misses preloads",
-      "partnerPicks": {
-        "if no TIP 1": "WAIT FOR PARTNER FIX"
-      }
-    },
-    {
-      "name": "pair: beside L-NoCross, R on CROSS AND FIX IT",
-      "partner": "LNoCrossAuto",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "fast partner, R on CROSS AND FIX IT",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 80,
-        "launchS": 0.25,
-        "pickS": 1.5
-      },
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "fast partner: TIP 2 quickly (speed 80, 0.25 s a shot, 1.5 s pick), Endgame TIPS FIRST",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 80,
-        "launchS": 0.25,
-        "pickS": 1.5
-      },
-      "picks": {
-        "Endgame": "TIPS FIRST"
-      }
-    },
-    {
-      "name": "very fast partner (speed 100, 0.15 s a shot, 1.0 s pick), Endgame TIPS FIRST",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 100,
-        "launchS": 0.15,
-        "pickS": 1.0
-      },
-      "picks": {
-        "Endgame": "TIPS FIRST"
-      }
     }
   ],
   "metadata": {
     "AutoSource": "r-no-cross.pp",
     "SavedBy": "dustinhans; LEFT_AUTO_HIVE 0.5 in off the centre line",
     "SavedAt": "2026-11-18T19:45:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "27 Nov 2026: pared to one row per partner kind, best case (mentor)"
   },
-  "usual": true
+  "usual": true,
+  "scenario": "best"
 }
