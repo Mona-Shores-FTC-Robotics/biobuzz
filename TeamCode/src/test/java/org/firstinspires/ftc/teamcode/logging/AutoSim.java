@@ -2724,12 +2724,18 @@ public final class AutoSim {
          * ({@link BeldingCalibration#rollerStick}, the mentor's 19 Nov observation); 20245, with the passive stick,
          * keeps the touch model.
          *
-         * <p><b>The corner wheels are a placeholder here.</b> Master's gather keeps the FLOWER stick up and lets the corner
-         * wheels rake ({@code CornerWheelSubsystem}, both robots, mentor, 26 Nov 2026), and the simulator still takes a
-         * GARDEN's POLLEN by the mouth's touch alone, with no wheel. TODO: model the wheels from the mentor's clip
-         * (26 Nov 2026, unverified): the intake grabs a ball about 1.2 in ahead of the wheel faces, and a wheel moves a
-         * ball pressed against it inward at about 6.3 in/s. The Visualizer's GARDEN page predicts, unverified, a
-         * corner row 3 of 4, a packed GARDEN 1 of 4 and a scattered one 0 of 4.
+         * <p><b>The corner wheels</b> ({@code CornerWheelSubsystem}, both robots, mentor, 26 Nov 2026; master's gather
+         * keeps the FLOWER stick up and lets them rake). The simulator's are {@link FieldSim#rake}: a POLLEN that
+         * touches the frame's front in the corner strip beside the mouth stays on that wheel, which rakes one piece at
+         * a time inward at {@link RobotDesign#cornerWheelRakeInPerS} and hands it to the mouth, while master's own
+         * rules say the wheels spin ({@link FieldSim#cornerWheelsRaking}). So the corner gather's mouth takes 3 by
+         * touch and the right wheel brings in the corner piece (4), and the along-the-wall gather, whose row runs
+         * down the left corner strip, outside the mouth, takes all 4 off the left wheel in about 1.3 s, inside its
+         * drive in and dwell. Without them (27 Nov 2026) the frame's flat front drove the along-the-wall row into the
+         * side wall, two POLLEN shot out along it and one stayed pinned in the corner: 1 taken. <b>Placeholders until a
+         * match log or a timed gather measures them</b> ({@code doc/corner-wheels.md}): the rake speed (6.3 in/s, the
+         * mentor's clip), where the wheel sits, one piece at a time, and that a piece on a wheel is never lost. The
+         * gather line says how many of its pieces came off the wheels.
          *
          * <p>With {@code GardenGather.stick.useStick} on, the FLOWER stick goes down as master's does ({@link GardenApproach}, then the card's own prep): on the drive
          * in once its turn is over, or by the card, which stands until it has been on its way down {@code stickDownMs};
@@ -2792,6 +2798,7 @@ public final class AutoSim {
             final double[] speedBefore = new double[1];
             final double[] decelBefore = new double[1];
             final int[] heldBefore = new int[1];
+            final int[] rakedBefore = new int[1];
             // The drive in's stall: the least distance to the in pose so far, and when it last got that much closer.
             final double[] closest = new double[1];
             final double[] progressAt = new double[1];
@@ -2814,6 +2821,7 @@ public final class AutoSim {
                         intakeBefore[0] = intakeEnabled;
                         speedBefore[0] = drive.maxSpeed;
                         heldBefore[0] = body.stored.size();
+                        rakedBefore[0] = body.rakedIn;
                         if (garden != null && alongWall) garden = GardenFieldPoints.alongAudienceWall(garden);
                         gardenStickUpAt = Double.NaN;
                         decelBefore[0] = drive.decel;
@@ -2898,9 +2906,9 @@ public final class AutoSim {
                             for (FieldSim.Piece q : sim.pieces) {
                                 if (q.where == FieldSim.Where.FIELD && FieldSim.garden(q.x, q.y) != null) left++;
                             }
-                            pending.add(String.format(Locale.ROOT, (alongWall ? "GardenGatherAlongWall" : "GardenGather") + ": took %d in %.1f s (routine: in %.2f, dwell %.2f, back %.2f), holds %d; %d left in the GARDENs",
+                            pending.add(String.format(Locale.ROOT, (alongWall ? "GardenGatherAlongWall" : "GardenGather") + ": took %d in %.1f s (routine: in %.2f, dwell %.2f, back %.2f), %d off the corner wheels, holds %d; %d left in the GARDENs",
                                     body.stored.size() - heldBefore[0], now - startedAt[0], phaseS[0], phaseS[1], phaseS[2],
-                                    body.stored.size(), left));
+                                    body.rakedIn - rakedBefore[0], body.stored.size(), left));
                         }
                     })
                     .setDone(() -> phase[0] == 0 || (phase[0] == 4

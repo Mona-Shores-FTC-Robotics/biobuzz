@@ -298,9 +298,14 @@ tripod over the GARDEN corner, filming from above. `doc/corner-wheels.md` has th
       Write each gather's time and count on the PR.
 - [ ] **Tripod clips of four GARDEN layouts,** stick up, the TeleOp gather facing the audience wall, 3 runs each:
       the staged **row** against the audience wall, a ball pinned in the **corner**, the 4 **packed** together,
-      and **scattered** within a robot width of the corner. Count each. The simulator does not model the wheels
-      yet (a TODO in `AutoSim`); the Visualizer's GARDEN page predicts row 3/4, packed 1/4 and scattered 0/4,
-      unverified, so these counts are what it gets calibrated from.
+      and **scattered** within a robot width of the corner. Count each. The simulator's wheels (`FieldSim.rake`,
+      `doc/corner-wheels.md` §5) take 4 of the staged row on placeholders; the Visualizer's GARDEN page predicts
+      row 3/4, packed 1/4 and scattered 0/4, unverified, so these counts are what both get calibrated from.
+- [ ] **Time the rake, both ways in, for the simulator's placeholders** (same clips, plus 3 of an Auto's
+      `GardenGatherAlongWall`): from the first POLLEN touching a wheel to the last one taken, and how many of the 4
+      came in. The simulator has the corner gather's corner piece in after about 0.35 s and the along-the-wall
+      row's 4 after about 1.3 s (6.3 in/s, one piece at a time). **Otherwise:** write the times and counts on the
+      PR; `RobotDesign.cornerWheelRakeInPerS` and the model's "never lost" get set from them.
 - [ ] **LoopTimeBaseline** on each robot, against the last number before the wheels, both in the PR (CLAUDE.md,
       Loop time).
 - [ ] **Open: R503's servo count on 19429.** With both corner wheels it has 9 servos (the indicator light not
