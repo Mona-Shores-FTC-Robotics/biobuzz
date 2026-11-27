@@ -2,8 +2,8 @@
 folder above) is unchanged: goBILDA's servo frame on the intake channel's hole column, upright wheels 1.98 in up.
 
 - **2a, upright, clear of the mecanum:** the same two 3.5 in SWYFT wheels, axle forward, but the servo's back face in
-  line with the front mecanum's front (X 192.1, nothing under it) and the wheels' bottom 1.5 in off the tile, nearer
-  the POLLEN's middle. The servo's flat side against the mount's 6 mm side plate on the intake channel.
+  line with the front mecanum's front (X 192.1, nothing under it) and the wheels' bottom 1.81 in off the tile (take 1:
+  1.98), a little nearer the POLLEN's middle. The servo's flat side against the mount's 6 mm side plate on the intake channel.
 - **2b, flat:** one 2.5 in intake wheel lying flat (axle up), its middle at the POLLEN's middle (1.4 in), so it pushes
   each POLLEN sideways into the intake mouth; the servo upright above it, spline down, its body forward, on a 6 mm
   plate under its ears that hangs off the channel. The wheel's front at 10.36 in, inside the 18 in starting cube
@@ -28,7 +28,8 @@ MECANUM_FRONT = 192.1
 BALL = 2.8 * IN
 
 # ---- 2a ----
-A = dict(servo_back_x=MECANUM_FRONT, wheel_bottom=1.5 * IN, wheel_d=88.74, wheel_w=25.4, hub_gap=6.0)
+A = dict(servo_back_x=MECANUM_FRONT, wheel_bottom=1.5 * IN + 8.0, wheel_d=88.74, wheel_w=25.4, hub_gap=6.0)   # 1.81 in: 1.5 in
+# was one hole too low (mentor, 27 Nov: "it does need to be mounted up one hole"); take 1 rides at 1.98
 A["wheel_z"] = A["wheel_bottom"] + A["wheel_d"] / 2
 A["wy"] = WALL + PLATE + G.CORNER["servo_in"]            # the servo's flat side on the mount's side plate
 
