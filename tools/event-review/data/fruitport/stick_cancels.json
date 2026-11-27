@@ -1,0 +1,34 @@
+[
+ {
+  "robot": "20245",
+  "cancels": 1,
+  "moving_at_press": 0,
+  "cancel_delay": 0.81,
+  "centred_median": 1.06,
+  "centred_025": 0,
+  "held_median": 0.65,
+  "held_1s": 0,
+  "repress_3s": 1,
+  "stick_mag": 0,
+  "moving_of": "0 of 1",
+  "centred_of": "0 of 1",
+  "held_of": "0 of 1",
+  "repress_of": "1 of 1"
+ },
+ {
+  "robot": "19429",
+  "cancels": 1,
+  "moving_at_press": 1,
+  "cancel_delay": 0.6,
+  "centred_median": null,
+  "centred_025": 0,
+  "held_median": 0.35,
+  "held_1s": 0,
+  "repress_3s": 1,
+  "stick_mag": 1.0,
+  "moving_of": "1 of 1",
+  "centred_of": "0 of 1",
+  "held_of": "0 of 1",
+  "repress_of": "1 of 1"
+ }
+]

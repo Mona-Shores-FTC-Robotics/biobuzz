@@ -1,0 +1,362 @@
+[
+ {
+  "team": "5290",
+  "ours": false,
+  "opr_total": 30.3,
+  "opr_auto": 9.7,
+  "opr_teleop": 20.6,
+  "opr_auto_hive": 3.3,
+  "opr_teleop_hive": 13.0,
+  "opr_tips": 0.6
+ },
+ {
+  "team": "5383",
+  "ours": false,
+  "opr_total": 29.9,
+  "opr_auto": 9.4,
+  "opr_teleop": 20.5,
+  "opr_auto_hive": 2.6,
+  "opr_teleop_hive": 15.1,
+  "opr_tips": 0.72
+ },
+ {
+  "team": "5384",
+  "ours": false,
+  "opr_total": 41.9,
+  "opr_auto": 11.1,
+  "opr_teleop": 30.7,
+  "opr_auto_hive": 5.4,
+  "opr_teleop_hive": 25.1,
+  "opr_tips": 1.48
+ },
+ {
+  "team": "6482",
+  "ours": false,
+  "opr_total": 50.6,
+  "opr_auto": 10.5,
+  "opr_teleop": 40.1,
+  "opr_auto_hive": 6.6,
+  "opr_teleop_hive": 33.9,
+  "opr_tips": 2.1
+ },
+ {
+  "team": "8513",
+  "ours": false,
+  "opr_total": 45.9,
+  "opr_auto": 10.1,
+  "opr_teleop": 35.8,
+  "opr_auto_hive": 3.8,
+  "opr_teleop_hive": 31.8,
+  "opr_tips": 1.45
+ },
+ {
+  "team": "8733",
+  "ours": false,
+  "opr_total": 15.9,
+  "opr_auto": 3.3,
+  "opr_teleop": 12.6,
+  "opr_auto_hive": -1.7,
+  "opr_teleop_hive": 6.4,
+  "opr_tips": -0.07
+ },
+ {
+  "team": "8932",
+  "ours": false,
+  "opr_total": 12.1,
+  "opr_auto": 3.6,
+  "opr_teleop": 8.5,
+  "opr_auto_hive": -0.9,
+  "opr_teleop_hive": 4.0,
+  "opr_tips": -0.01
+ },
+ {
+  "team": "10031",
+  "ours": false,
+  "opr_total": 34.0,
+  "opr_auto": 10.0,
+  "opr_teleop": 24.0,
+  "opr_auto_hive": 2.3,
+  "opr_teleop_hive": 17.2,
+  "opr_tips": 0.99
+ },
+ {
+  "team": "10255",
+  "ours": false,
+  "opr_total": 131.6,
+  "opr_auto": 28.6,
+  "opr_teleop": 103.0,
+  "opr_auto_hive": 18.7,
+  "opr_teleop_hive": 100.6,
+  "opr_tips": 5.77
+ },
+ {
+  "team": "11228",
+  "ours": false,
+  "opr_total": 83.6,
+  "opr_auto": 22.8,
+  "opr_teleop": 60.8,
+  "opr_auto_hive": 13.5,
+  "opr_teleop_hive": 52.0,
+  "opr_tips": 3.06
+ },
+ {
+  "team": "11266",
+  "ours": false,
+  "opr_total": 10.5,
+  "opr_auto": 5.6,
+  "opr_teleop": 4.9,
+  "opr_auto_hive": 0.5,
+  "opr_teleop_hive": -1.6,
+  "opr_tips": -0.12
+ },
+ {
+  "team": "11531",
+  "ours": false,
+  "opr_total": 50.8,
+  "opr_auto": 16.2,
+  "opr_teleop": 34.6,
+  "opr_auto_hive": 10.3,
+  "opr_teleop_hive": 28.3,
+  "opr_tips": 1.72
+ },
+ {
+  "team": "11846",
+  "ours": false,
+  "opr_total": 50.6,
+  "opr_auto": 14.5,
+  "opr_teleop": 36.1,
+  "opr_auto_hive": 8.7,
+  "opr_teleop_hive": 32.6,
+  "opr_tips": 1.97
+ },
+ {
+  "team": "11855",
+  "ours": false,
+  "opr_total": 16.6,
+  "opr_auto": 0.4,
+  "opr_teleop": 16.2,
+  "opr_auto_hive": 0.9,
+  "opr_teleop_hive": 10.0,
+  "opr_tips": 0.59
+ },
+ {
+  "team": "11940",
+  "ours": false,
+  "opr_total": 41.9,
+  "opr_auto": 10.2,
+  "opr_teleop": 31.7,
+  "opr_auto_hive": 4.7,
+  "opr_teleop_hive": 28.6,
+  "opr_tips": 1.79
+ },
+ {
+  "team": "13702",
+  "ours": false,
+  "opr_total": 68.5,
+  "opr_auto": 18.0,
+  "opr_teleop": 50.5,
+  "opr_auto_hive": 8.1,
+  "opr_teleop_hive": 43.1,
+  "opr_tips": 2.39
+ },
+ {
+  "team": "13885",
+  "ours": false,
+  "opr_total": 31.5,
+  "opr_auto": 22.4,
+  "opr_teleop": 9.1,
+  "opr_auto_hive": 19.3,
+  "opr_teleop_hive": 6.4,
+  "opr_tips": 1.17
+ },
+ {
+  "team": "14933",
+  "ours": false,
+  "opr_total": 9.3,
+  "opr_auto": 1.6,
+  "opr_teleop": 7.7,
+  "opr_auto_hive": -0.0,
+  "opr_teleop_hive": 2.7,
+  "opr_tips": 0.22
+ },
+ {
+  "team": "15510",
+  "ours": false,
+  "opr_total": 13.9,
+  "opr_auto": 0.8,
+  "opr_teleop": 13.2,
+  "opr_auto_hive": 0.4,
+  "opr_teleop_hive": 11.9,
+  "opr_tips": 0.54
+ },
+ {
+  "team": "16204",
+  "ours": false,
+  "opr_total": 29.4,
+  "opr_auto": 11.0,
+  "opr_teleop": 18.4,
+  "opr_auto_hive": 6.6,
+  "opr_teleop_hive": 12.1,
+  "opr_tips": 0.95
+ },
+ {
+  "team": "16220",
+  "ours": false,
+  "opr_total": 26.7,
+  "opr_auto": 15.0,
+  "opr_teleop": 11.6,
+  "opr_auto_hive": 6.7,
+  "opr_teleop_hive": 5.8,
+  "opr_tips": 0.46
+ },
+ {
+  "team": "16646",
+  "ours": false,
+  "opr_total": 28.2,
+  "opr_auto": 10.0,
+  "opr_teleop": 18.2,
+  "opr_auto_hive": 5.0,
+  "opr_teleop_hive": 14.6,
+  "opr_tips": 0.92
+ },
+ {
+  "team": "18092",
+  "ours": false,
+  "opr_total": 31.6,
+  "opr_auto": 9.1,
+  "opr_teleop": 22.5,
+  "opr_auto_hive": 1.8,
+  "opr_teleop_hive": 16.5,
+  "opr_tips": 0.87
+ },
+ {
+  "team": "19429",
+  "ours": true,
+  "opr_total": 65.8,
+  "opr_auto": 25.0,
+  "opr_teleop": 40.9,
+  "opr_auto_hive": 18.1,
+  "opr_teleop_hive": 35.5,
+  "opr_tips": 2.6
+ },
+ {
+  "team": "20245",
+  "ours": true,
+  "opr_total": 81.7,
+  "opr_auto": 24.5,
+  "opr_teleop": 57.2,
+  "opr_auto_hive": 18.7,
+  "opr_teleop_hive": 54.1,
+  "opr_tips": 3.43
+ },
+ {
+  "team": "20862",
+  "ours": false,
+  "opr_total": 11.0,
+  "opr_auto": 8.2,
+  "opr_teleop": 2.8,
+  "opr_auto_hive": 6.4,
+  "opr_teleop_hive": -0.7,
+  "opr_tips": -0.03
+ },
+ {
+  "team": "20863",
+  "ours": false,
+  "opr_total": 5.6,
+  "opr_auto": 0.7,
+  "opr_teleop": 4.9,
+  "opr_auto_hive": -0.7,
+  "opr_teleop_hive": 0.6,
+  "opr_tips": -0.06
+ },
+ {
+  "team": "22091",
+  "ours": false,
+  "opr_total": 35.3,
+  "opr_auto": 22.9,
+  "opr_teleop": 12.4,
+  "opr_auto_hive": 16.5,
+  "opr_teleop_hive": 7.3,
+  "opr_tips": 1.11
+ },
+ {
+  "team": "22313",
+  "ours": false,
+  "opr_total": 44.1,
+  "opr_auto": 11.9,
+  "opr_teleop": 32.2,
+  "opr_auto_hive": 3.4,
+  "opr_teleop_hive": 25.9,
+  "opr_tips": 1.32
+ },
+ {
+  "team": "22368",
+  "ours": false,
+  "opr_total": 19.2,
+  "opr_auto": 9.3,
+  "opr_teleop": 9.9,
+  "opr_auto_hive": 1.5,
+  "opr_teleop_hive": 9.3,
+  "opr_tips": 0.19
+ },
+ {
+  "team": "24370",
+  "ours": false,
+  "opr_total": 21.5,
+  "opr_auto": 3.2,
+  "opr_teleop": 18.3,
+  "opr_auto_hive": -1.7,
+  "opr_teleop_hive": 12.0,
+  "opr_tips": 0.37
+ },
+ {
+  "team": "24371",
+  "ours": false,
+  "opr_total": 57.8,
+  "opr_auto": 25.7,
+  "opr_teleop": 32.1,
+  "opr_auto_hive": 14.9,
+  "opr_teleop_hive": 26.4,
+  "opr_tips": 2.2
+ },
+ {
+  "team": "27689",
+  "ours": false,
+  "opr_total": 19.5,
+  "opr_auto": 6.4,
+  "opr_teleop": 13.0,
+  "opr_auto_hive": -0.6,
+  "opr_teleop_hive": 8.9,
+  "opr_tips": 0.16
+ },
+ {
+  "team": "28481",
+  "ours": false,
+  "opr_total": 7.7,
+  "opr_auto": 5.3,
+  "opr_teleop": 2.4,
+  "opr_auto_hive": 0.6,
+  "opr_teleop_hive": -1.7,
+  "opr_tips": -0.1
+ },
+ {
+  "team": "31969",
+  "ours": false,
+  "opr_total": 55.8,
+  "opr_auto": 15.5,
+  "opr_teleop": 40.2,
+  "opr_auto_hive": 7.6,
+  "opr_teleop_hive": 35.0,
+  "opr_tips": 2.0
+ },
+ {
+  "team": "38293",
+  "ours": false,
+  "opr_total": 13.9,
+  "opr_auto": 3.2,
+  "opr_teleop": 10.7,
+  "opr_auto_hive": -3.1,
+  "opr_teleop_hive": 7.0,
+  "opr_tips": -0.14
+ }
+]

@@ -1,0 +1,16 @@
+[
+ {
+  "robot": "19429",
+  "presses": 3,
+  "sticks_cancelled": 1,
+  "dropout_matches": 0,
+  "centre_refused": 0
+ },
+ {
+  "robot": "20245",
+  "presses": 14,
+  "sticks_cancelled": 1,
+  "dropout_matches": 0,
+  "centre_refused": 0
+ }
+]

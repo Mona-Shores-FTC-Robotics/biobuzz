@@ -1,0 +1,26 @@
+[
+ {
+  "robot": "19429",
+  "first_median_s": 0.78,
+  "next_median_s": 0.46,
+  "volleys": 59,
+  "over_1s": 13,
+  "over_1s_pct": 0.22,
+  "slower_than_next": 55,
+  "extra_per_match_s": 3.9,
+  "launch_span_s": 3.22,
+  "first_volley_s": 9.7
+ },
+ {
+  "robot": "20245",
+  "first_median_s": 0.83,
+  "next_median_s": 0.45,
+  "volleys": 92,
+  "over_1s": 12,
+  "over_1s_pct": 0.13,
+  "slower_than_next": 88,
+  "extra_per_match_s": 4.8,
+  "launch_span_s": 3.35,
+  "first_volley_s": 12.0
+ }
+]
