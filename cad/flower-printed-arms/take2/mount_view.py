@@ -24,17 +24,22 @@ _, c, ax, r, h = b["wheel"]
 wheel = cq.Solid.makeCylinder(r, 2 * h, cq.Vector(*(c - ax * h)), cq.Vector(*ax))
 channel = cq.Workplane("XY").box(48.2, 12.0, 100.0, centered=False).translate((167.9, 123.8, 72.6)).val()
 mec = cq.Solid.makeCylinder(48.0, 38.0, cq.Vector(145.0, 141.0, 48.0), cq.Vector(0, 1, 0))
-hj = json.load(open(os.path.join(HERE, name, "clearance.json")))["hump"]
 import parts   # noqa: E402
-parts._HUMP = (hj["height_mm"], hj["leaves_line_u_mm"], *hj["full_u_mm"], hj["back_on_line_u_mm"])
+if name == "2c_straight":
+    G.ARM_Y["left"] = L.LEFT_ARM_2C
+    parts._HUMP = (0.0, parts.HUMP_FROM, parts.HUMP_FROM + 1, parts.HUMP_FROM + 2, parts.HUMP_FROM + 3)
+else:
+    hj = json.load(open(os.path.join(HERE, name, "clearance.json")))["hump"]
+    parts._HUMP = (hj["height_mm"], hj["leaves_line_u_mm"], *hj["full_u_mm"], hj["back_on_line_u_mm"])
 armenv = check.envelope(False).transformGeometry(mat(check.placement("left", 162.0)))
 items = [(channel, "#9aa3ad", .35, "intake channel (grey, holed in real life)"), (mec, "#e0c04a", .25, "front mecanum"),
          (mount("left").val(), "#2a5fd0", .95, "printed mount"), (servo, "#222222", .9, "goBILDA Speed servo"),
          (wheel, "#f08a24", .6, "SWYFT wheel" + ("s" if name == "2a_upright" else " (2.5 in)")),
-         (armenv, "#2fa84f", .25, "printed arm, down")]
-fig = plt.figure(figsize=(15, 7.5))
-for k, (el, az) in enumerate(((22, -50), (18, 35))):
-    a3 = fig.add_subplot(1, 2, k + 1, projection="3d")
+         (armenv, "#2fa84f", .25, "straight arm, down" if name == "2c_straight" else "printed arm, down")]
+VIEWS = ((22, -50), (18, 35), (8, 0)) if name == "2c_straight" else ((22, -50), (18, 35))
+fig = plt.figure(figsize=(7.5 * len(VIEWS), 7.5))
+for k, (el, az) in enumerate(VIEWS):
+    a3 = fig.add_subplot(1, len(VIEWS), k + 1, projection="3d")
     for shp, col, al, lab in items:
         v, f = shp.tessellate(0.5, 0.3)
         V = np.array([[p.x, p.y, p.z] for p in v]) / G.IN
@@ -44,5 +49,5 @@ for k, (el, az) in enumerate(((22, -50), (18, 35))):
     if k == 0:
         from matplotlib.patches import Patch
         a3.legend(handles=[Patch(color=cc, label=ll) for _, cc, _, ll in items], loc="upper left", fontsize=8)
-fig.suptitle(f"{name}: the left corner, mount in blue (bolts into the channel's outer face; the servo's ears screw to its front plate)")
+fig.suptitle(f"{name}: the left corner. Mount in blue: its upright leg bolts to the grey channel, the servo stands on its shelf, spline down to the flat wheel" + (" (right: looking from the front; the servo sits between the channel and the arm)" if name == "2c_straight" else ""))
 plt.tight_layout(); plt.savefig(out, dpi=100)
