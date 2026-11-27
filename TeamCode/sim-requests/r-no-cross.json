@@ -37,7 +37,7 @@
       }
     },
     {
-      "name": "L's preloads miss, R crosses after L parks",
+      "name": "L's preloads miss, we CROSS AND FIX IT",
       "partner": "LNoCrossAuto",
       "fails": "misses preloads",
       "partnerPicks": {
@@ -48,7 +48,7 @@
       }
     },
     {
-      "name": "L's preloads miss, R waits",
+      "name": "L's preloads miss, we WAIT FOR PARTNER",
       "partner": "LNoCrossAuto",
       "fails": "misses preloads",
       "partnerPicks": {
@@ -56,14 +56,14 @@
       }
     },
     {
-      "name": "L dead on LEFT_START, R crosses",
+      "name": "L dead on LEFT_START, we CROSS AND FIX IT",
       "partner": "PartnerLBrokenDownAuto",
       "picks": {
         "if no TIP 2": "CROSS AND FIX IT"
       }
     },
     {
-      "name": "L dead on LEFT_START, R waits",
+      "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
       "partner": "PartnerLBrokenDownAuto"
     }
   ],
