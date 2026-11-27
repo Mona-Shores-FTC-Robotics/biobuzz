@@ -26,24 +26,6 @@
       "partner": "LNoCrossAuto"
     },
     {
-      "name": "L's preloads miss, we WAIT FOR PARTNER",
-      "partner": "LNoCrossAuto",
-      "fails": "misses preloads"
-    },
-    {
-      "name": "L's preloads miss, we CROSS AND FIX IT",
-      "partner": "LNoCrossAuto",
-      "fails": "misses preloads",
-      "picks": {
-        "if no TIP 2": "CROSS AND FIX IT"
-      }
-    },
-    {
-      "name": "Beside L-NoCross, our preloads miss",
-      "partner": "LNoCrossAuto",
-      "oursFails": "misses preloads"
-    },
-    {
       "name": "Our preloads miss, L on WAIT FOR PARTNER FIX",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads",
@@ -52,12 +34,24 @@
       }
     },
     {
+      "name": "L's preloads miss, we WAIT FOR PARTNER",
+      "partner": "LNoCrossAuto",
+      "fails": "misses preloads"
+    },
+    {
       "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
       "partner": "PartnerLBrokenDownAuto"
     },
     {
-      "name": "L dead on LEFT_START, we CROSS AND FIX IT",
-      "partner": "PartnerLBrokenDownAuto",
+      "name": "L-ShootPreloadsPark hits",
+      "partner": "PartnerLLaunchParkAuto",
+      "lastShotS": 3
+    },
+    {
+      "name": "L-ShootPreloadsPark misses, we CROSS AND FIX IT",
+      "partner": "PartnerLLaunchParkAuto",
+      "lastShotS": 3,
+      "fails": "misses",
       "picks": {
         "if no TIP 2": "CROSS AND FIX IT"
       }
