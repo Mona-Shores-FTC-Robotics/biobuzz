@@ -241,6 +241,29 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       one → note its cause from the event; raise `IntakeSubsystem.feedJamFeederStallMs` (300) or
       `feedJamStallMs` (600), or lower `FeederSubsystem.stallTicksPerSecond` (150).
 
+## R-RightUnderHive with L-RightUnderHive, first drives (27 Nov 2026, both robots, a full field, HIVE upright, phones filming both robots and the CELLs)
+
+On the Autonomous menu since 27 Nov 2026 and never driven ([the Auto README](../TeamCode/autos/README.md)). Push the logs
+after each run.
+
+- [ ] Every shot in, both robots: three TIPs; R backward up and down the corridor, nothing over the centre line
+      (x 70.75), R's turret swinging onto its CELL after passing under the HIVE (the simulator gives the first ball
+      1.1 s after R arrives). **Stop:** R's frame touches the centre line or the HIVE → move the corridor path in the
+      Visualizer and re-export
+- [ ] The camera at each check spot reads its CELL in time: L's "RIGHT still up?" after crossing to `RIGHT_AUTO_OFFSET`
+      has 0.75 s for the camera to settle in the simulator
+- [ ] R's `IntakeFull` right after the GARDEN gather: it picks R's route, and a false "not full" costs TIP 3. Note how
+      many POLLEN the gather took (the simulator's corner wheels give 4)
+- [ ] `R_LEFT_CATCH` (61.4, 122.9) beside L on `LEFT_AUTO_OFFSET`: about 1.5 in apart in the simulator's geometry,
+      and 1.1 in from the centre line. **Stop:** any contact → move `R_LEFT_CATCH` in the Visualizer
+- [ ] Each robot's preloads held back (preloads out of the lane), one run each: L crosses with its preloads and fixes
+      TIP 1 (no TIP 1 by 9.5 s), or R waits at `R_LEFT_CATCH` for LEFT; both still park
+- [ ] Time the tight legs against the simulator: L's outer lane (3.4 s), R's park from the left end round the HIVE's
+      foot (4.8 s), L parked by 28.9 s after its crossing; and the four waits' limits (9.5, 21.5, 22.3 and 24.2 s)
+      against the real TIP lags
+- [ ] A dead L on `LEFT_START` (a box there): R touches it at `R_LEFT_CATCH` at about 11.6 s in every simulated run,
+      the known `LEFT_START` limit; check by hand that nothing else touches it
+
 ## R-Solo-WallPark beside R-Solo (24 Nov 2026, either robot, Utility menu, a partner robot or a box at the high end)
 
 - [ ] **Drive: R-Solo-WallPark from RIGHT_START**, three runs, with a partner robot or a 18 in box parked on

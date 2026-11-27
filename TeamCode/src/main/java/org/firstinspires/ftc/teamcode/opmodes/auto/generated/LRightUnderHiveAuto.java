@@ -21,19 +21,19 @@ public final class LRightUnderHiveAuto {
     public static final String SOURCE = "l-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-19|4:26PM";
+    public static final String SAVED = "11-27|1:36PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Always", "CellUp"};
+    public static final String[] TRIGGERS = {"CellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.matchSeconds("Wait for TIP 1 until 20 s", 20, 1)};
+    public static final AutoOption[] OPTIONS = {};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -49,82 +49,154 @@ public final class LRightUnderHiveAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose leftAutoOffset = p.of(40.7, 121.1, 298.7);
+        Pose leftPark = p.of(14.5, 117.4, 0);
         Pose leftStart = p.of(62.3, 133.8, 270);
-        Pose rightPark = p.of(14.5, 98.7, 0);
-        Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
+        Pose rightAutoOffset = p.of(32.1, 16.4, 61);
         Pose wallFlowerStaging = p.of(23.1, 47.2, 180);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose leftAutoHiveOuterLaneToRightParkControl1 = p.of(50, 112, 0);
-        Pose leftAutoHiveOuterLaneToRightParkControl2 = p.of(36, 102, 0);
-        Pose leftAutoHiveOuterLaneToRightParkControl3 = p.of(28, 95, 0);
-        Pose leftAutoHiveOuterLaneToRightParkSegment1Start = p.of(14.5, 98.7, 268.9);
-        Pose scoringFlowerToRightParkControl1 = p.of(38, 112.6, 0);
-        Pose scoringFlowerToRightParkControl2 = p.of(31.8, 94.1, 0);
-        Pose leftAutoOffsetToRightParkControl1 = p.of(38, 104, 0);
-        Pose leftAutoOffsetToRightParkControl2 = p.of(34, 95, 0);
-        Pose lateLeftAutoOffsetToRightParkControl1 = p.of(38, 104, 0);
-        Pose lateLeftAutoOffsetToRightParkControl2 = p.of(34, 95, 0);
-        Pose outerLaneToWallFlowerStagingControl1 = p.of(32, 110, 0);
-        Pose outerLaneToWallFlowerStagingControl2 = p.of(30, 96, 0);
-        Pose outerLaneToWallFlowerStagingControl3 = p.of(26, 60, 0);
-        Pose wallFlowerStagingToRightParkControl1 = p.of(26, 75, 0);
-        Pose noTip1OuterLaneToWallFlowerStagingControl1 = p.of(50, 112, 0);
-        Pose noTip1OuterLaneToWallFlowerStagingControl2 = p.of(34, 104, 0);
-        Pose noTip1OuterLaneToWallFlowerStagingControl3 = p.of(28, 96, 0);
-        Pose noTip1OuterLaneToWallFlowerStagingControl4 = p.of(26, 60, 0);
-        Pose noTip1WallFlowerStagingToRightParkControl1 = p.of(26, 75, 0);
+        Pose leftStartStraightToLeftAutoOffsetControl1 = p.of(56, 124, 0);
+        Pose guardAfterStartLoffLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl1 = p.of(32, 105, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl2 = p.of(30, 80, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl3 = p.of(28, 50, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl4 = p.of(27, 30, 0);
+        Pose guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl1 = p.of(30, 40, 0);
+        Pose guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl2 = p.of(33, 80, 0);
+        Pose guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl3 = p.of(33, 105, 0);
+        Pose guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl4 = p.of(22, 116, 0);
+        Pose guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start = p.of(14.5, 117.4, 61);
+        Pose rightAutoOffsetToWallFlowerStagingControl1 = p.of(26, 30, 0);
+        Pose guardAfterRoffWfWallFlowerStagingToLeftParkControl1 = p.of(30, 75, 0);
+        Pose guardAfterRoffWfWallFlowerStagingToLeftParkControl2 = p.of(30, 105, 0);
+        Pose guardAfterRoffWfWallFlowerStagingToLeftParkControl3 = p.of(22, 115, 0);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl1 = p.of(28, 62, 0);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl2 = p.of(33, 80, 0);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl3 = p.of(33, 105, 0);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment1Start = p.of(40.7, 121.1, 180);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment1End = p.of(40.7, 121.1, 270);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment2Heading = p.of(40.7, 121.1, 270);
+        Pose wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment3Start = p.of(40.7, 121.1, 270);
+        Pose guardAfterWfLoffLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose fixFailedLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose afterTheFixLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl1 = p.of(30, 40, 0);
+        Pose lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl2 = p.of(33, 80, 0);
+        Pose lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl3 = p.of(33, 105, 0);
+        Pose lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl4 = p.of(22, 116, 0);
+        Pose lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start = p.of(14.5, 117.4, 61);
+        Pose lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl1 = p.of(30, 40, 0);
+        Pose lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl2 = p.of(33, 80, 0);
+        Pose lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl3 = p.of(33, 105, 0);
+        Pose lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl4 = p.of(22, 116, 0);
+        Pose lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start = p.of(14.5, 117.4, 61);
+        Pose leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl1 = p.of(32, 105, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl2 = p.of(30, 80, 0);
+        Pose leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl3 = p.of(27, 62, 0);
+        Pose guardAfterLoffWfWallFlowerStagingToLeftParkControl1 = p.of(30, 75, 0);
+        Pose guardAfterLoffWfWallFlowerStagingToLeftParkControl2 = p.of(30, 105, 0);
+        Pose guardAfterLoffWfWallFlowerStagingToLeftParkControl3 = p.of(22, 115, 0);
+        Pose wallFlowerStagingToRightAutoOffsetControl1 = p.of(26, 30, 0);
+        Pose guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl1 = p.of(30, 40, 0);
+        Pose guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl2 = p.of(33, 80, 0);
+        Pose guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl3 = p.of(33, 105, 0);
+        Pose guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl4 = p.of(22, 116, 0);
+        Pose guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start = p.of(14.5, 117.4, 61);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl1 = p.of(30, 30, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl2 = p.of(33, 50, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl3 = p.of(33, 80, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl4 = p.of(33, 105, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1Start = p.of(40.7, 121.1, 61);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1End = p.of(40.7, 121.1, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment2Heading = p.of(40.7, 121.1, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment3Start = p.of(40.7, 121.1, 0);
+        Pose guardAfterRoffLoffLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose leftDownLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose leftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftParkControl1 = p.of(30, 40, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftParkControl2 = p.of(33, 80, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftParkControl3 = p.of(33, 105, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftParkControl4 = p.of(22, 116, 0);
+        Pose rightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start = p.of(14.5, 117.4, 61);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path toLeftAutoHive = Paths.line(leftStart, leftAutoHive).linear(leftStart, leftAutoHive);
-        Path leftAutoHiveOuterLaneToRightPark = Paths.curve(leftAutoHive, leftAutoHiveOuterLaneToRightParkControl1, leftAutoHiveOuterLaneToRightParkControl2, leftAutoHiveOuterLaneToRightParkControl3, rightPark).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(leftAutoHiveOuterLaneToRightParkSegment1Start, rightPark)).until(1, Interpolator.constant(rightPark)));
-        Path toScoringFlowerStaging = Paths.line(leftAutoHive, scoringFlowerStaging).linear(leftAutoHive, scoringFlowerStaging);
-        Path scoringFlowerToRightPark = Paths.curve(scoringFlowerStaging, scoringFlowerToRightParkControl1, scoringFlowerToRightParkControl2, rightPark).linear(scoringFlowerStaging, rightPark);
-        Path scoringFlowerToLeftAutoOffset = Paths.line(scoringFlowerStaging, leftAutoOffset).linear(scoringFlowerStaging, leftAutoOffset);
-        Path leftAutoOffsetToRightPark = Paths.curve(leftAutoOffset, leftAutoOffsetToRightParkControl1, leftAutoOffsetToRightParkControl2, rightPark).linear(leftAutoOffset, rightPark);
-        Path lateLeftAutoOffsetToRightPark = Paths.curve(leftAutoOffset, lateLeftAutoOffsetToRightParkControl1, lateLeftAutoOffsetToRightParkControl2, rightPark).linear(leftAutoOffset, rightPark);
-        Path outerLaneToWallFlowerStaging = Paths.curve(leftAutoOffset, outerLaneToWallFlowerStagingControl1, outerLaneToWallFlowerStagingControl2, outerLaneToWallFlowerStagingControl3, wallFlowerStaging).linear(leftAutoOffset, wallFlowerStaging);
-        Path wallFlowerStagingToRightPark = Paths.curve(wallFlowerStaging, wallFlowerStagingToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path noTip1OuterLaneToWallFlowerStaging = Paths.curve(leftAutoHive, noTip1OuterLaneToWallFlowerStagingControl1, noTip1OuterLaneToWallFlowerStagingControl2, noTip1OuterLaneToWallFlowerStagingControl3, noTip1OuterLaneToWallFlowerStagingControl4, wallFlowerStaging).linear(leftAutoHive, wallFlowerStaging);
-        Path noTip1WallFlowerStagingToRightPark = Paths.curve(wallFlowerStaging, noTip1WallFlowerStagingToRightParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
+        Path leftStartStraightToLeftAutoOffset = Paths.curve(leftStart, leftStartStraightToLeftAutoOffsetControl1, leftAutoOffset).linear(leftStart, leftAutoOffset);
+        Path guardAfterStartLoffLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, guardAfterStartLoffLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path leftAutoOffsetDownTheOuterLaneToRightAutoOffset = Paths.curve(leftAutoOffset, leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl1, leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl2, leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl3, leftAutoOffsetDownTheOuterLaneToRightAutoOffsetControl4, rightAutoOffset).linear(leftAutoOffset, rightAutoOffset);
+        Path guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl1, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl2, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl3, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path rightAutoOffsetToWallFlowerStaging = Paths.curve(rightAutoOffset, rightAutoOffsetToWallFlowerStagingControl1, wallFlowerStaging).linear(rightAutoOffset, wallFlowerStaging);
+        Path guardAfterRoffWfWallFlowerStagingToLeftPark = Paths.curve(wallFlowerStaging, guardAfterRoffWfWallFlowerStagingToLeftParkControl1, guardAfterRoffWfWallFlowerStagingToLeftParkControl2, guardAfterRoffWfWallFlowerStagingToLeftParkControl3, leftPark).linear(wallFlowerStaging, leftPark);
+        Path wallFlowerStagingUpTheOuterLaneToLeftAutoOffset = Paths.curve(wallFlowerStaging, wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl1, wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl2, wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetControl3, leftAutoOffset).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment1Start, wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment1End)).until(0.8, Interpolator.constant(wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment2Heading)).until(1, Interpolator.linear(wallFlowerStagingUpTheOuterLaneToLeftAutoOffsetSegment3Start, leftAutoOffset)));
+        Path guardAfterWfLoffLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, guardAfterWfLoffLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path fixFailedLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, fixFailedLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path afterTheFixLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, afterTheFixLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl1, lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl2, lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl3, lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path lateTip1RightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl1, lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl2, lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl3, lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(lateTip1RightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path leftAutoOffsetDownTheOuterLaneToWallFlowerStaging = Paths.curve(leftAutoOffset, leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl1, leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl2, leftAutoOffsetDownTheOuterLaneToWallFlowerStagingControl3, wallFlowerStaging).linear(leftAutoOffset, wallFlowerStaging);
+        Path guardAfterLoffWfWallFlowerStagingToLeftPark = Paths.curve(wallFlowerStaging, guardAfterLoffWfWallFlowerStagingToLeftParkControl1, guardAfterLoffWfWallFlowerStagingToLeftParkControl2, guardAfterLoffWfWallFlowerStagingToLeftParkControl3, leftPark).linear(wallFlowerStaging, leftPark);
+        Path wallFlowerStagingToRightAutoOffset = Paths.curve(wallFlowerStaging, wallFlowerStagingToRightAutoOffsetControl1, rightAutoOffset).linear(wallFlowerStaging, rightAutoOffset);
+        Path guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl1, guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl2, guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl3, guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
+        Path rightAutoOffsetUpTheOuterLaneToLeftAutoOffset = Paths.curve(rightAutoOffset, rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl1, rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl2, rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl3, rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl4, leftAutoOffset).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1Start, rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1End)).until(0.8, Interpolator.constant(rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment2Heading)).until(1, Interpolator.linear(rightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment3Start, leftAutoOffset)));
+        Path guardAfterRoffLoffLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, guardAfterRoffLoffLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path leftDownLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, leftDownLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path leftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, leftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path rightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, rightAutoOffsetUpTheOuterLaneToLeftParkControl1, rightAutoOffsetUpTheOuterLaneToLeftParkControl2, rightAutoOffsetUpTheOuterLaneToLeftParkControl3, rightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(rightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 1.1, leftAutoHiveOuterLaneToRightPark, 2.1),
-                kit.firstOf("Wait for TIP 1 until 20 s", kit.command("SpinUp"),
-                        kit.when("CellUp").then(
-                                kit.command("LaunchAll"),
-                                kit.firstOf("TIP 1 after 14 s (R fixed it): park now, out of R's way",
-                                        kit.atMatchSeconds(14).then(
-                                                kit.guarded("Timed out", leftAutoHiveOuterLaneToRightPark, 2.1,
-                                                        kit.path("LEFT_AUTO_HIVE, outer lane to RIGHT_PARK", leftAutoHiveOuterLaneToRightPark, 2.1))),
-                                        kit.when("Always").then(
-                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerToRightPark, 1.9),
-                                                kit.command("PickFlower", 8),
-                                                kit.path("SCORING FLOWER to LEFT_AUTO_OFFSET", scoringFlowerToLeftAutoOffset, 1, leftAutoOffsetToRightPark, 1.9),
-                                                kit.firstOf("WALL FLOWER only before 22 s, otherwise park",
-                                                        kit.atMatchSeconds(22).then(
-                                                                kit.guarded("Timed out", lateLeftAutoOffsetToRightPark, 1.9,
-                                                                        kit.firstOf("LEFT still up?",
-                                                                                kit.when("CellUp").then(
-                                                                                        kit.command("LaunchAll")),
-                                                                                kit.afterMs(750)),
-                                                                        kit.path("late: LEFT_AUTO_OFFSET to RIGHT_PARK", lateLeftAutoOffsetToRightPark, 1.9))),
-                                                        kit.when("Always").then(
-                                                                kit.guarded("If Always", wallFlowerStagingToRightPark, 2.1,
-                                                                        kit.firstOf("LEFT still up?",
-                                                                                kit.when("CellUp").then(
-                                                                                        kit.command("LaunchAll")),
-                                                                                kit.afterMs(750)),
-                                                                        kit.path("outer lane to WALL_FLOWER_STAGING", outerLaneToWallFlowerStaging, 2.6, wallFlowerStagingToRightPark, 2.1),
+                kit.guarded("Auto", guardAfterStartLoffLeftAutoOffsetToLeftPark, 1.5,
+                        kit.command("SpinUp"),
+                        kit.path("LEFT_START straight to LEFT_AUTO_OFFSET", leftStartStraightToLeftAutoOffset, 1.5, guardAfterStartLoffLeftAutoOffsetToLeftPark, 1.5),
+                        kit.firstOf("LEFT up? (TIP 1 came; else cross and fix it)",
+                                kit.atMatchSeconds(9.5).then(
+                                        kit.guarded("Timed out", lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                kit.path("LEFT_AUTO_OFFSET down the outer lane to RIGHT_AUTO_OFFSET", leftAutoOffsetDownTheOuterLaneToRightAutoOffset, 3.2, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftPark, 3.2),
+                                                kit.firstOf("RIGHT still up? (TIP 1 never came: fix it)",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", fixFailedLeftAutoOffsetToLeftPark, 1.5,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("RIGHT_AUTO_OFFSET to WALL_FLOWER_STAGING", rightAutoOffsetToWallFlowerStaging, 1.7, guardAfterRoffWfWallFlowerStagingToLeftPark, 2.6),
                                                                         kit.command("PickFlower", 8),
-                                                                        kit.path("WALL_FLOWER_STAGING to RIGHT_PARK", wallFlowerStagingToRightPark, 2.1))))))),
-                        kit.atMatchSeconds(kit.seconds("Wait for TIP 1 until 20 s", 20)).then(
-                                kit.guarded("Timed out", noTip1WallFlowerStagingToRightPark, 2.1,
-                                        kit.path("no TIP 1, outer lane to WALL_FLOWER_STAGING", noTip1OuterLaneToWallFlowerStaging, 2.8, noTip1WallFlowerStagingToRightPark, 2.1),
-                                        kit.command("PickFlower", 8),
-                                        kit.path("no TIP 1, WALL_FLOWER_STAGING to RIGHT_PARK", noTip1WallFlowerStagingToRightPark, 2.1)))));
+                                                                        kit.path("WALL_FLOWER_STAGING up the outer lane to LEFT_AUTO_OFFSET", wallFlowerStagingUpTheOuterLaneToLeftAutoOffset, 2.6, guardAfterWfLoffLeftAutoOffsetToLeftPark, 1.5),
+                                                                        kit.firstOf("LEFT up? (the fix tipped it: add the WALL FLOWER load)",
+                                                                                kit.atMatchSeconds(25.6).then(
+                                                                                        kit.guarded("Timed out", fixFailedLeftAutoOffsetToLeftPark, 1.5,
+                                                                                                kit.path("Fix failed: LEFT_AUTO_OFFSET to LEFT_PARK", fixFailedLeftAutoOffsetToLeftPark, 1.5))),
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", afterTheFixLeftAutoOffsetToLeftPark, 1.5,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("After the fix: LEFT_AUTO_OFFSET to LEFT_PARK", afterTheFixLeftAutoOffsetToLeftPark, 1.5)))))),
+                                                        kit.afterMs(750).then(
+                                                                kit.guarded("Timed out", lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                                        kit.firstOf("RIGHT up? (TIP 1 came late; now TIP 2)",
+                                                                                kit.atMatchSeconds(24.6).then(
+                                                                                        kit.guarded("Timed out", lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                                                                kit.path("Late TIP 1, no TIP 2: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK", lateTip1NoTip2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2))),
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", lateTip1RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("Late TIP 1: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK", lateTip1RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2))))))))),
+                                kit.when("CellUp").then(
+                                        kit.guarded("If CellUp", rightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                kit.command("LaunchAll"),
+                                                kit.path("LEFT_AUTO_OFFSET down the outer lane to WALL_FLOWER_STAGING", leftAutoOffsetDownTheOuterLaneToWallFlowerStaging, 2.6, guardAfterLoffWfWallFlowerStagingToLeftPark, 2.6),
+                                                kit.command("PickFlower", 8),
+                                                kit.path("WALL_FLOWER_STAGING to RIGHT_AUTO_OFFSET", wallFlowerStagingToRightAutoOffset, 1.7, guardAfterWfRoffRightAutoOffsetUpTheOuterLaneToLeftPark, 3.2),
+                                                kit.firstOf("RIGHT up? (TIP 2 came; else take this load to LEFT)",
+                                                        kit.atMatchSeconds(21.5).then(
+                                                                kit.guarded("Timed out", leftDownLeftAutoOffsetToLeftPark, 1.5,
+                                                                        kit.path("RIGHT_AUTO_OFFSET up the outer lane to LEFT_AUTO_OFFSET", rightAutoOffsetUpTheOuterLaneToLeftAutoOffset, 3.2, guardAfterRoffLoffLeftAutoOffsetToLeftPark, 1.5),
+                                                                        kit.firstOf("LEFT still up? (TIP 2 is short: add this load)",
+                                                                                kit.atMatchSeconds(25.6).then(
+                                                                                        kit.guarded("Timed out", leftDownLeftAutoOffsetToLeftPark, 1.5,
+                                                                                                kit.path("LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK", leftDownLeftAutoOffsetToLeftPark, 1.5))),
+                                                                                kit.when("CellUp").then(
+                                                                                        kit.guarded("If CellUp", leftAutoOffsetToLeftPark, 1.5,
+                                                                                                kit.command("LaunchAll"),
+                                                                                                kit.path("LEFT_AUTO_OFFSET to LEFT_PARK", leftAutoOffsetToLeftPark, 1.5)))))),
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", rightAutoOffsetUpTheOuterLaneToLeftPark, 3.2,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK", rightAutoOffsetUpTheOuterLaneToLeftPark, 3.2)))))))));
     }
 }

@@ -35,6 +35,7 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-NoCross | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-no-cross.pp> |
 | L-Clockwise + R-Clockwise (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-clockwise.pp,l-clockwise.pp> |
 | R-LeftUnderHive + L-LeftUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-left-under-hive.pp,l-left-under-hive.pp> |
+| R-RightUnderHive + L-RightUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-right-under-hive.pp,l-right-under-hive.pp> |
 
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
@@ -65,6 +66,34 @@ the GARDEN and touched it in 3 of 20 runs (6 with L 20% slow). With it, 0 contac
 points as nose-first and about 0.7 more balls scored a run (20 Nov 2026, `sim-requests/r-left-under-hive.json`). In
 the best case (`"scenario": "best"`) R then has time for a third TIP: 2.0 TIPs a run become 2.9 (2.95 with L 20% slow),
 56 points 74-75, every robot parked and no contact.
+
+**R-RightUnderHive / L-RightUnderHive** (`r-right-under-hive.pp`, `l-right-under-hive.pp`) is the third pair, on the
+Autonomous menu since 27 Nov 2026 (mentor; a draft from 19 Nov, [its notes](drafts/README.md#the-rightunderhive-pair-r-rightunderhive-and-l-rightunderhive)).
+R goes under the HIVE, always backward up and down the corridor (x 59 to 61, so it never turns there and never crosses the
+centre line); L keeps to the outer lane. Never driven. Three TIPs: R's preloads, fired from `RIGHT_START` facing the
+alliance wall (the turret over its right shoulder), tip RIGHT; L's preloads from `LEFT_AUTO_OFFSET` and R's GARDEN load
+(the corner `GardenGather`) from R's own `R_LEFT_CATCH` (61.4, 122.9, 268.9°) tip LEFT; L's WALL FLOWER load from
+`RIGHT_AUTO_OFFSET` and R's SCORING FLOWER load from R's own `R_RIGHT_CATCH` (59.2, 18.5, 95.7°) tip RIGHT again. R's two
+spots are 42.4 in from the row, where the Belding table scores better than at the old `R_LEFT_FIX` (33.6 in). R parks
+nose first on `RIGHT_PARK_WALL` (facing 90°); L parks on `LEFT_PARK`. The fallbacks, each behind a CELL check with a
+match-clock limit that leaves its park:
+
+- **No TIP 1 by 9.5 s (L):** L takes its preloads down the outer lane to `RIGHT_AUTO_OFFSET`, fires at RIGHT if it is
+  still up, picks the WALL FLOWER and brings that load back to LEFT. R waits at `R_LEFT_CATCH` with the GARDEN load
+  until LEFT is up (at most 22.3 s).
+- **No TIP 2 by 21.5 s (L):** L takes its WALL FLOWER load back up the lane and fires at LEFT if it is still up.
+- **R's GARDEN gather short (lane not full):** R keeps the SCORING FLOWER load at the left end and tops LEFT up with it.
+- **INIT row `FLOWER load` (R):** TIP 3, as drawn; SURE TIP 2 always checks LEFT after the pick and tops it up. Pick SURE
+  TIP 2 beside a partner whose shots are weak.
+- **R's park from the left end** waits to 22.6 s, then goes nose first down the corridor and round the HIVE's foot, so it
+  never meets L in the outer lane; L's lane paths run at x 33 to pass a parked R.
+
+In the simulator (27 Nov 2026, `sim-requests/r-right-under-hive.json`, 10 seeds a case, corner-wheel GARDEN model): best
+case, every shot in and either robot 20% slow, 3 TIPs and 76 points in every run; any one preload, GARDEN or FLOWER volley
+missed, 2 TIPs and 56 (16 POLLEN left, so 2 is the ceiling); both robots parked, no contact and nothing over the centre
+line in all of them. With Belding shot rates, 2 or more TIPs in 10 of 10 smooth runs; with R's preloads missed it is the
+weak case. A dead L on `LEFT_START` is touched by R at `R_LEFT_CATCH` (the pair's known limit, like the other pairs').
+L parks R and R parks L (the mentor's variant) scored the same with R parked about 1 s later, so it was not drawn.
 
 **Known limit: our L dead on `LEFT_START`** (accepted for Fruitport, 19 Nov 2026). Two team spots overlap a robot
 left on `LEFT_START` (62.3, 133.8): `LEFT_AUTO_HIVE` by 3 in and `SCORING_FLOWER_STAGING` by about 1.7 in, with
@@ -128,7 +157,7 @@ Inside the Visualizer, the same list is **View → Team Autos: the latest from b
 in the link: `#team=auto/r-solo/r-solo.pp`.
 
 **Drafts** (`drafts/`, no competition OpMode; a draft may have an isolated test Utility) are listed in Team Autos under their own heading, and
-open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` holds only L-Assist and the RightUnderHive pair (mentor: a
+open beside a partner stand-in the same way. Since 19 Nov 2026 `drafts/` is kept to a few drafts (mentor: a
 small, manageable set); every other draft, and the stand-ins only they used, are in Git history at `f2c9bb7`
 (`git checkout f2c9bb7 -- TeamCode/autos/drafts/<name>.pp` and its generated class brings one back).
 Edit and **Save to GitHub and simulate…** as for any Auto: the path stays in `drafts/`, and the fast
