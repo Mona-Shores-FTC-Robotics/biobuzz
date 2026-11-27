@@ -26,7 +26,7 @@ public final class PartnerLShootParkAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp"};
+    public static final String[] TRIGGERS = {"Empty"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -60,9 +60,9 @@ public final class PartnerLShootParkAuto {
                 kit.guarded("Auto", toPartnerPark, 2,
                         kit.command("SpinUp"),
                         kit.path("to PARTNER_LAUNCH", toPartnerLaunch, 1),
-                        kit.firstOf("Wait for its CELL up, or 9 s",
-                                kit.when("CellUp"),
-                                kit.afterMs(9000)),
+                        kit.firstOf("Shoot at a fixed 7 s (it holds 4, so Empty never fires first)",
+                                kit.when("Empty"),
+                                kit.atMatchSeconds(7)),
                         kit.command("LaunchAll", 15),
                         kit.path("to PARTNER_PARK", toPartnerPark, 2)));
     }

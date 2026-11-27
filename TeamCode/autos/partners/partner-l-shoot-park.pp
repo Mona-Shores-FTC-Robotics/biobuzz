@@ -312,18 +312,19 @@
         "park": false
       },
       {
-        "id": "c-ltip-wait",
+        "id": "c-lsp-at8",
         "kind": "firstOf",
-        "label": "Wait for its CELL up, or 9 s",
+        "label": "Shoot at a fixed 7 s (it holds 4, so Empty never fires first)",
         "rows": [
           {
             "when": [
-              "CellUp"
+              "Empty"
             ],
             "cards": []
           },
           {
-            "afterMs": 9000,
+            "afterMs": 7000,
+            "matchClock": true,
             "cards": []
           }
         ]

@@ -109,9 +109,93 @@
       }
     },
     {
-      "id": "gf-corner-to-rah",
+      "id": "ruh2-garden-to-fix",
       "color": "#59a14f",
-      "name": "GARDEN corner back along the wall, nose first to RIGHT_AUTO_HIVE",
+      "name": "GARDEN corner back along the wall, then up the corridor under the HIVE to R_LEFT_FIX",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.5,
+        "y": 114
+      },
+      "controlPoints": [
+        {
+          "x": 45,
+          "y": 9
+        },
+        {
+          "x": 61,
+          "y": 14
+        },
+        {
+          "x": 61,
+          "y": 40
+        },
+        {
+          "x": 61,
+          "y": 70
+        },
+        {
+          "x": 61,
+          "y": 95
+        },
+        {
+          "x": 60,
+          "y": 106
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 180,
+        "endDeg": 268.4,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.25,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.25,
+              "endProgress": 0.55,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.55,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 268.4
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ruh2-exit-to-rah",
+      "color": "#59a14f",
+      "name": "LEFT not up: R_LEFT_FIX down the corridor to RIGHT_AUTO_HIVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -124,13 +208,21 @@
       },
       "controlPoints": [
         {
-          "x": 40,
-          "y": 9
+          "x": 59,
+          "y": 106
+        },
+        {
+          "x": 58,
+          "y": 70
+        },
+        {
+          "x": 58,
+          "y": 40
         }
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 180,
+        "startDeg": 268.4,
         "endDeg": 96.1,
         "degrees": 0,
         "reverse": false,
@@ -138,22 +230,22 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.3,
+              "endProgress": 0.75,
               "interpolationType": "constant",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "degrees": 180
+                "degrees": 268.4
               }
             },
             {
-              "startProgress": 0.3,
+              "startProgress": 0.75,
               "endProgress": 1,
               "interpolationType": "linear",
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 268.4,
                 "endDeg": 96.1
               }
             }
@@ -286,173 +378,6 @@
             },
             {
               "startProgress": 0.5,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "gf-link-r",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59.2,
-        "y": 20.9
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 96.1
-      }
-    },
-    {
-      "id": "gf-rah-to-fix",
-      "color": "#59a14f",
-      "name": "RIGHT down: nose first up the corridor, turning past the HIVE to R_LEFT_FIX",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.5,
-        "y": 114
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 40
-        },
-        {
-          "x": 59,
-          "y": 70
-        },
-        {
-          "x": 59,
-          "y": 95
-        },
-        {
-          "x": 59,
-          "y": 106
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 96.1,
-        "endDeg": 268.4,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.55,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 96.1
-              }
-            },
-            {
-              "startProgress": 0.55,
-              "endProgress": 0.95,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 96.1,
-                "endDeg": 268.4
-              }
-            },
-            {
-              "startProgress": 0.95,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 268.4
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "r-ru-fix-skip-park",
-      "color": "#4e79a7",
-      "name": "LEFT down, R_LEFT_FIX to RIGHT_PARK_WALL",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 92.5
-      },
-      "controlPoints": [
-        {
-          "x": 32,
-          "y": 121
-        },
-        {
-          "x": 33,
-          "y": 104
-        },
-        {
-          "x": 33,
-          "y": 86
-        },
-        {
-          "x": 33,
-          "y": 76
-        },
-        {
-          "x": 33,
-          "y": 72
-        },
-        {
-          "x": 14.5,
-          "y": 70
-        },
-        {
-          "x": 14.5,
-          "y": 80
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 268.4,
-        "endDeg": 270,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.2,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 268.4,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.2,
               "endProgress": 1,
               "interpolationType": "constant",
               "reversed": false,
@@ -692,7 +617,7 @@
       }
     },
     {
-      "id": "gf-link-c",
+      "id": "ruh2-link-c",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -707,9 +632,9 @@
       }
     },
     {
-      "id": "r-ru-fix-skip-park-2",
+      "id": "r-ru-fix-skip-park",
       "color": "#4e79a7",
-      "name": "LEFT down, R_LEFT_FIX to RIGHT_PARK_WALL (after the FLOWER)",
+      "name": "LEFT down, R_LEFT_FIX to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -961,7 +886,11 @@
     },
     {
       "kind": "path",
-      "lineId": "gf-corner-to-rah"
+      "lineId": "ruh2-garden-to-fix"
+    },
+    {
+      "kind": "path",
+      "lineId": "ruh2-exit-to-rah"
     },
     {
       "kind": "path",
@@ -974,18 +903,6 @@
     {
       "kind": "path",
       "lineId": "ruh2-rah-park-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "gf-link-r"
-    },
-    {
-      "kind": "path",
-      "lineId": "gf-rah-to-fix"
-    },
-    {
-      "kind": "path",
-      "lineId": "r-ru-fix-skip-park"
     },
     {
       "kind": "path",
@@ -1013,11 +930,11 @@
     },
     {
       "kind": "path",
-      "lineId": "gf-link-c"
+      "lineId": "ruh2-link-c"
     },
     {
       "kind": "path",
-      "lineId": "r-ru-fix-skip-park-2"
+      "lineId": "r-ru-fix-skip-park"
     }
   ],
   "fieldPoints": [],
@@ -1119,16 +1036,15 @@
     "pathEnds": {
       "r-ru-garden": "WALL_GARDEN_STAGING",
       "r-ru-garden-park": "RIGHT_PARK_WALL",
-      "gf-corner-to-rah": "RIGHT_AUTO_HIVE",
-      "ruh2-rah-park": "RIGHT_PARK_WALL",
-      "ruh2-rah-park-2": "RIGHT_PARK_WALL",
-      "gf-rah-to-fix": "R_LEFT_FIX",
-      "r-ru-fix-skip-park": "RIGHT_PARK_WALL",
+      "ruh2-garden-to-fix": "R_LEFT_FIX",
       "ruh2-fix-to-sf": "SCORING_FLOWER_STAGING",
       "ruh2-sf-park": "RIGHT_PARK_WALL",
       "ruh2-sf-to-fix": "R_LEFT_FIX",
       "r-ru-fix-park": "RIGHT_PARK_WALL",
-      "r-ru-fix-skip-park-2": "RIGHT_PARK_WALL"
+      "r-ru-fix-skip-park": "RIGHT_PARK_WALL",
+      "ruh2-exit-to-rah": "RIGHT_AUTO_HIVE",
+      "ruh2-rah-park": "RIGHT_PARK_WALL",
+      "ruh2-rah-park-2": "RIGHT_PARK_WALL"
     },
     "cards": [
       {
@@ -1153,15 +1069,15 @@
         "name": "GardenGatherAlongWall"
       },
       {
-        "id": "c-gf-to-rah",
+        "id": "c-ruh2-to-exit",
         "kind": "path",
-        "lineId": "gf-corner-to-rah",
+        "lineId": "ruh2-garden-to-fix",
         "park": false
       },
       {
-        "id": "c-gf-tip1",
+        "id": "c-ruh2-left-up",
         "kind": "firstOf",
-        "label": "TIP 1 came? (RIGHT down, LEFT up)",
+        "label": "LEFT up? (otherwise our preloads missed: back to RIGHT)",
         "rows": [
           {
             "when": [
@@ -1169,15 +1085,32 @@
             ],
             "cards": [
               {
-                "id": "c-gf-up",
+                "id": "c-ruh2-fire1",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "c-ruh2-to-sf",
                 "kind": "path",
-                "lineId": "gf-rah-to-fix",
+                "lineId": "ruh2-fix-to-sf",
                 "park": false
               },
               {
-                "id": "c-ruh2-left-up",
+                "id": "c-ruh2-pick",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 8
+              },
+              {
+                "id": "c-ruh2-back",
+                "kind": "path",
+                "lineId": "ruh2-sf-to-fix",
+                "park": false
+              },
+              {
+                "id": "c-ruh2-left-up2",
                 "kind": "firstOf",
-                "label": "LEFT up?",
+                "label": "LEFT still up?",
                 "rows": [
                   {
                     "when": [
@@ -1185,63 +1118,15 @@
                     ],
                     "cards": [
                       {
-                        "id": "c-ruh2-fire1",
+                        "id": "c-ruh2-fire2",
                         "kind": "action",
                         "name": "LaunchAll"
                       },
                       {
-                        "id": "c-ruh2-to-sf",
+                        "id": "c-ruh2-park",
                         "kind": "path",
-                        "lineId": "ruh2-fix-to-sf",
-                        "park": false
-                      },
-                      {
-                        "id": "c-ruh2-pick",
-                        "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 8
-                      },
-                      {
-                        "id": "c-ruh2-back",
-                        "kind": "path",
-                        "lineId": "ruh2-sf-to-fix",
-                        "park": false
-                      },
-                      {
-                        "id": "c-ruh2-left-up2",
-                        "kind": "firstOf",
-                        "label": "LEFT still up?",
-                        "rows": [
-                          {
-                            "when": [
-                              "LeftCellUp"
-                            ],
-                            "cards": [
-                              {
-                                "id": "c-ruh2-fire2",
-                                "kind": "action",
-                                "name": "LaunchAll"
-                              },
-                              {
-                                "id": "c-ruh2-park",
-                                "kind": "path",
-                                "lineId": "r-ru-fix-park",
-                                "park": true
-                              }
-                            ]
-                          },
-                          {
-                            "afterMs": 750,
-                            "cards": [
-                              {
-                                "id": "c-ruh2-park-2",
-                                "kind": "path",
-                                "lineId": "r-ru-fix-skip-park-2",
-                                "park": true
-                              }
-                            ]
-                          }
-                        ]
+                        "lineId": "r-ru-fix-park",
+                        "park": true
                       }
                     ]
                   },
@@ -1249,7 +1134,7 @@
                     "afterMs": 750,
                     "cards": [
                       {
-                        "id": "c-gf-fix-park",
+                        "id": "c-ruh2-park-2",
                         "kind": "path",
                         "lineId": "r-ru-fix-skip-park",
                         "park": true
@@ -1264,9 +1149,15 @@
             "afterMs": 750,
             "cards": [
               {
-                "id": "c-gf-right-up",
+                "id": "c-ruh2-down",
+                "kind": "path",
+                "lineId": "ruh2-exit-to-rah",
+                "park": false
+              },
+              {
+                "id": "c-ruh2-right-up",
                 "kind": "firstOf",
-                "label": "RIGHT still up? (our preloads missed)",
+                "label": "RIGHT up? (our preloads missed)",
                 "rows": [
                   {
                     "when": [
@@ -1274,12 +1165,12 @@
                     ],
                     "cards": [
                       {
-                        "id": "c-gf-fire-r",
+                        "id": "c-ruh2-fire-r",
                         "kind": "action",
                         "name": "LaunchAll"
                       },
                       {
-                        "id": "c-gf-rah-park",
+                        "id": "c-ruh2-rah-park",
                         "kind": "path",
                         "lineId": "ruh2-rah-park",
                         "park": true
@@ -1290,7 +1181,7 @@
                     "afterMs": 750,
                     "cards": [
                       {
-                        "id": "c-gf-rah-park-2",
+                        "id": "c-ruh2-rah-park-2",
                         "kind": "path",
                         "lineId": "ruh2-rah-park-2",
                         "park": true
@@ -1307,18 +1198,17 @@
     "startAt": "RIGHT_START_GARDEN",
     "linkPaths": [
       "link-2",
-      "ruh2-link-z",
-      "gf-link-r",
       "ruh2-link-a",
       "ruh2-link-b",
-      "gf-link-c"
+      "ruh2-link-c",
+      "ruh2-link-z"
     ],
     "parkFrom": {
       "c-r-garden": "r-ru-garden-park",
-      "c-gf-to-rah": "ruh2-rah-park",
-      "c-gf-up": "r-ru-fix-skip-park",
+      "c-ruh2-to-exit": "r-ru-fix-skip-park",
       "c-ruh2-to-sf": "ruh2-sf-park",
-      "c-ruh2-back": "r-ru-fix-park"
+      "c-ruh2-back": "r-ru-fix-park",
+      "c-ruh2-down": "ruh2-rah-park"
     },
     "teamSpots": [
       "RIGHT_AUTO_HIVE",
