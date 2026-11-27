@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-26T13:10:00.000Z",
+  "timestamp": "2026-11-27T13:37:02.415Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -27,6 +27,47 @@
         "type": "linear",
         "startDeg": 90,
         "endDeg": 96.1
+      }
+    },
+    {
+      "kind": "atomic",
+      "id": "line-mwz0yln5-gmoav9",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 21.303954715636916,
+          "y": 44.43515248796148
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 96.1,
+        "endDeg": 270
+      },
+      "color": "#b07aa1",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "name": "RIGHT_AUTO_HIVE park"
+    },
+    {
+      "id": "link-1",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 96.10000000000002
       }
     },
     {
@@ -108,7 +149,7 @@
       }
     },
     {
-      "id": "link-1",
+      "id": "link-2",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -253,7 +294,7 @@
       }
     },
     {
-      "id": "link-2",
+      "id": "link-3",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -366,7 +407,7 @@
       }
     },
     {
-      "id": "link-3",
+      "id": "link-4",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -479,7 +520,7 @@
       }
     },
     {
-      "id": "link-4",
+      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -571,7 +612,7 @@
       }
     },
     {
-      "id": "link-5",
+      "id": "link-6",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -709,7 +750,7 @@
       }
     },
     {
-      "id": "link-6",
+      "id": "link-7",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -954,6 +995,14 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mwz0yln5-gmoav9"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-1"
+    },
+    {
+      "kind": "path",
       "lineId": "line-mw0be8id-zhk73u"
     },
     {
@@ -962,7 +1011,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-1"
+      "lineId": "link-2"
     },
     {
       "kind": "path",
@@ -974,7 +1023,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-2"
+      "lineId": "link-3"
     },
     {
       "kind": "path",
@@ -986,7 +1035,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-3"
+      "lineId": "link-4"
     },
     {
       "kind": "path",
@@ -998,7 +1047,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-4"
+      "lineId": "link-5"
     },
     {
       "kind": "path",
@@ -1006,7 +1055,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-5"
+      "lineId": "link-6"
     },
     {
       "kind": "path",
@@ -1018,7 +1067,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-6"
+      "lineId": "link-7"
     },
     {
       "kind": "path",
@@ -1137,7 +1186,8 @@
       "line-mw2z8m8r-d4cyle": "LEFT_AUTO_HIVE",
       "line-mwdn0a01-rsp3c": "RIGHT_PARK_WALL",
       "line-mwdn0a01-rspfb": "RIGHT_PARK_WALL",
-      "line-r-solo-to-right-auto-hive": "RIGHT_AUTO_HIVE"
+      "line-r-solo-to-right-auto-hive": "RIGHT_AUTO_HIVE",
+      "line-mwz0yln5-gmoav9": "RIGHT_PARK_WALL"
     },
     "cards": [
       {
@@ -1302,12 +1352,14 @@
       "link-3",
       "link-4",
       "link-5",
-      "link-6"
+      "link-6",
+      "link-7"
     ],
     "parkFrom": {
       "c-mw0be8id-e596r": "line-mw0cnl7i-qkksz9",
       "c-mw2h249a-bml5p": "line-mw2h249i-g9eamy",
-      "c-mw2z05td-62dzu": "line-mw2z05th-whpzzi"
+      "c-mw2z05td-62dzu": "line-mw2z05th-whpzzi",
+      "c-r-solo-to-right-auto-hive": "line-mwz0yln5-gmoav9"
     },
     "teamSpots": [
       "GARDEN_STAGING",
