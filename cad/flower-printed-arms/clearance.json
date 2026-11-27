@@ -1,0 +1,282 @@
+{
+ "units": "mm and in",
+ "corner_parts": "the two SWYFT wheels as their 88.74 mm outer cylinder; goBILDA's Speed servo in its 1802 servo frame, the frame's edge on the intake channel's front hole column (mentor, 26 Nov); hub gap and wheel screw PLACEHOLDERS",
+ "sides": {
+  "left": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 135.0
+     },
+     "servo": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 150.0
+     },
+     "tabs": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 147.0
+     },
+     "frame": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 150.0
+     },
+     "screw": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 147.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 0.2,
+      "in": 0.01,
+      "at_deg": 156.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 10.4,
+      "in": 0.41,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 20.0,
+      "in": 0.79,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 17.0,
+      "in": 0.67,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 13.3,
+      "in": 0.52,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 5.0,
+      "in": 0.2,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 0.2,
+      "in": 0.01,
+      "at_deg": 153.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 48.2,
+      "in": 1.9,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 92.9,
+      "in": 3.66,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 88.9,
+      "in": 3.5,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 98.8,
+      "in": 3.89,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 63.5,
+      "in": 2.5,
+      "at_deg": 159.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 59.2,
+      "in": 2.33,
+      "at_deg": 45.0
+     }
+    }
+   }
+  },
+  "right": {
+   "straight (today)": {
+    "arm": {
+     "wheel": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 138.0
+     },
+     "servo": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 150.0
+     },
+     "tabs": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 147.0
+     },
+     "frame": {
+      "mm": 0.0,
+      "in": 0.0,
+      "at_deg": 150.0
+     },
+     "screw": {
+      "mm": 0.2,
+      "in": 0.01,
+      "at_deg": 153.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 5.0,
+      "in": 0.2,
+      "at_deg": 162.0
+     }
+    }
+   },
+   "printed": {
+    "arm": {
+     "wheel": {
+      "mm": 11.1,
+      "in": 0.44,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 20.0,
+      "in": 0.79,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 17.0,
+      "in": 0.67,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 13.3,
+      "in": 0.52,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 5.6,
+      "in": 0.22,
+      "at_deg": 162.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 5.0,
+      "in": 0.2,
+      "at_deg": 162.0
+     }
+    },
+    "foot (a) skid": {
+     "wheel": {
+      "mm": 48.2,
+      "in": 1.9,
+      "at_deg": 162.0
+     },
+     "servo": {
+      "mm": 92.9,
+      "in": 3.66,
+      "at_deg": 162.0
+     },
+     "tabs": {
+      "mm": 88.9,
+      "in": 3.5,
+      "at_deg": 162.0
+     },
+     "frame": {
+      "mm": 98.8,
+      "in": 3.89,
+      "at_deg": 162.0
+     },
+     "screw": {
+      "mm": 63.5,
+      "in": 2.5,
+      "at_deg": 159.0
+     },
+     "rest of robot (26 Nov STEP)": {
+      "mm": 1000000000.0,
+      "in": 39370078.74,
+      "at_deg": null
+     }
+    }
+   }
+  }
+ },
+ "slack": {
+  "corner parts 0 mm forward, 8 mm up": {
+   "left": {
+    "mm": 4.8,
+    "at_deg": 162.0,
+    "nearest": "wheel"
+   },
+   "right": {
+    "mm": 5.5,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   }
+  },
+  "corner parts -8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 11.5,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   },
+   "right": {
+    "mm": 11.5,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   }
+  },
+  "corner parts -8 mm forward, 8 mm up": {
+   "left": {
+    "mm": 3.7,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   },
+   "right": {
+    "mm": 3.7,
+    "at_deg": 162.0,
+    "nearest": "frame"
+   }
+  },
+  "corner parts 8 mm forward, 0 mm up": {
+   "left": {
+    "mm": 0.0,
+    "at_deg": 162.0,
+    "nearest": "screw"
+   },
+   "right": {
+    "mm": 0.2,
+    "at_deg": 162.0,
+    "nearest": "screw"
+   }
+  }
+ },
+ "stowed": {
+  "front_x_in": 6.38,
+  "top_z_in": 16.74,
+  "lowest_z_in": 6.95,
+  "cube_front_x_in": 10.43,
+  "cube_top_z_in": 18.0
+ },
+ "down": {
+  "front_x_in": 13.04,
+  "top_z_in": 8.21,
+  "lowest_z_in": 0.13
+ },
+ "hump": {
+  "height_mm": 67.0,
+  "leaves_line_u_mm": 48.0,
+  "full_u_mm": [
+   88.0,
+   136.0
+  ],
+  "back_on_line_u_mm": 194.0,
+  "note": "u along the arm from the pivot hole; hole station n is at u = 24 (n - 1)"
+ }
+}

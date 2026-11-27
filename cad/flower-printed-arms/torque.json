@@ -1,0 +1,78 @@
+{
+ "today": {
+  "mass_g": 460.0,
+  "items": [
+   {
+    "what": "2 aluminium arms (estimate)",
+    "g": 150.0
+   },
+   {
+    "what": "2 tip rollers",
+    "g": 17.2
+   },
+   {
+    "what": "2 tip plates (estimate)",
+    "g": 40.0
+   },
+   {
+    "what": "8 mm REX shaft, 312 mm",
+    "g": 123.2
+   },
+   {
+    "what": "mountain (estimate)",
+    "g": 100.0
+   },
+   {
+    "what": "tip hubs, collars, bearings (estimate)",
+    "g": 30.0
+   }
+  ],
+  "torque_kgcm_stowed_0deg": -3.97,
+  "torque_kgcm_pick_162deg": 6.32,
+  "torque_kgcm_worst": 9.12,
+  "worst_at_deg": 116.0
+ },
+ "printed": {
+  "mass_g": 422.0,
+  "items": [
+   {
+    "what": "2 printed arms",
+    "g": 156.6
+   },
+   {
+    "what": "2 skids",
+    "g": 12.6
+   },
+   {
+    "what": "8 mm REX shaft, 312 mm",
+    "g": 123.2
+   },
+   {
+    "what": "mountain (estimate)",
+    "g": 100.0
+   },
+   {
+    "what": "tip hubs, collars, bearings (estimate)",
+    "g": 30.0
+   }
+  ],
+  "torque_kgcm_stowed_0deg": -3.93,
+  "torque_kgcm_pick_162deg": 5.95,
+  "torque_kgcm_worst": 8.18,
+  "worst_at_deg": 119.0
+ },
+ "margin_printed": {
+  "goBILDA Torque": "3.1x stall (1.0x a third of stall)",
+  "goBILDA Speed": "1.1x stall (0.4x a third of stall)",
+  "SWYFT Balance": "3.3x stall (1.1x a third of stall)",
+  "SWYFT Torque": "4.1x stall (1.4x a third of stall)",
+  "SWYFT Speed": "2.3x stall (0.8x a third of stall)"
+ },
+ "margin_today": {
+  "goBILDA Torque": "2.7x stall",
+  "goBILDA Speed": "1.0x stall",
+  "SWYFT Balance": "3.0x stall",
+  "SWYFT Torque": "3.7x stall",
+  "SWYFT Speed": "2.1x stall"
+ }
+}
