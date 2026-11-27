@@ -44,12 +44,15 @@
       "oursFails": "misses preloads"
     },
     {
-      "name": "Partner Parks Left",
-      "partner": "PartnerLeaveParkAuto"
+      "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
+      "partner": "PartnerLBrokenDownAuto"
     },
     {
-      "name": "Partner Still",
-      "partner": "PartnerStillAuto"
+      "name": "L dead on LEFT_START, we CROSS AND FIX IT",
+      "partner": "PartnerLBrokenDownAuto",
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      }
     }
   ],
   "metadata": {
