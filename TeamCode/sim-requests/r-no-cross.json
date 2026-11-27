@@ -44,6 +44,14 @@
       "oursFails": "misses preloads"
     },
     {
+      "name": "Our preloads miss, L on WAIT FOR PARTNER FIX",
+      "partner": "LNoCrossAuto",
+      "oursFails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
       "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
       "partner": "PartnerLBrokenDownAuto"
     },
