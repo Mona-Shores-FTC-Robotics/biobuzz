@@ -80,6 +80,36 @@
     {
       "name": "L dead on LEFT_START, we WAIT FOR PARTNER",
       "partner": "PartnerLBrokenDownAuto"
+    },
+    {
+      "name": "Fast L, PARK FIRST",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "timing": {
+        "speed": 140,
+        "launchS": 0.1,
+        "pickS": 0.6
+      },
+      "picks": {
+        "Endgame": "PARK FIRST"
+      }
+    },
+    {
+      "name": "Fast L, TIPS FIRST",
+      "partner": "LNoCrossAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "timing": {
+        "speed": 140,
+        "launchS": 0.1,
+        "pickS": 0.6
+      },
+      "picks": {
+        "Endgame": "TIPS FIRST"
+      }
     }
   ],
   "metadata": {

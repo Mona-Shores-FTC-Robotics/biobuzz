@@ -9,12 +9,7 @@
     2,
     3,
     4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
+    5
   ],
   "partnerSeeds": [
     1,
@@ -27,52 +22,17 @@
   "calibration": "belding",
   "partners": [
     {
-      "name": "LEAVE-PARK (seen 11 of 32)",
-      "partner": "PartnerLeaveParkAuto"
-    },
-    {
-      "name": "STILL in the corner (seen 4 of 32)",
+      "name": "Partner Still",
       "partner": "PartnerStillAuto"
     },
     {
-      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
-      "partner": "PartnerZoneStillAuto"
+      "name": "Partner Parks Left",
+      "partner": "PartnerLeaveParkAuto"
     },
     {
-      "name": "LEFT-SHOOT-PARK on time (seen 3 of 32)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 50
-      }
-    },
-    {
-      "name": "dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto"
-    },
-    {
-      "name": "parks at 15 s (never seen)",
-      "partner": "PartnerPark1Auto"
-    },
-    {
-      "name": "contingency: our preloads miss, partner LEAVE-PARK",
-      "partner": "PartnerLeaveParkAuto",
-      "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner STILL in the corner",
+      "name": "Our preloads miss, Partner Still",
       "partner": "PartnerStillAuto",
       "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto",
-      "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner misses every shot",
-      "partner": "PartnerLTipParkAuto",
-      "oursFails": "misses preloads",
-      "fails": "misses"
     }
   ],
   "metadata": {
@@ -81,5 +41,6 @@
     "SavedAt": "2026-11-18T21:08:00+00:00",
     "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   },
-  "usual": true
+  "usual": true,
+  "scenario": "best"
 }
