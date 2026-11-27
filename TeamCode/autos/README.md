@@ -194,7 +194,7 @@ accepts a `SOURCE` here as it does in the folder itself.
 | Stand-in | What it does |
 |---|---|
 | `partner-leave-park` | **LEAVE-PARK**, the commonest partner at Belding and Fruitport (11 of 32): leaves `LEFT_START` at 1 s, launches nothing, and is at `PARTNER_PARK` (9.8, 117.4), the top of the LOADING ZONE, by about 3 s. |
-| `partner-zone-still` | **STILL** in the LOADING ZONE (3 of 32): never moves, back to the alliance wall at (8.2, 110). Its frame overlaps `RIGHT_PARK`'s. |
+| `partner-corner-to-zone` | Starts still in the corner by our alliance wall (15, 133.8), leaves at 1 s and drives down the wall into the top of the LOADING ZONE, centre at (9, 110). A robot may not start in the LOADING ZONE (G304), so a partner seen sitting there got there this way. With R-Solo's wall park it is clear down to a centre at about y 110; at y 106 it touches. |
 | `partner-still` | **STILL** in the corner (4 of 32). A partner that is not going to move: it starts where we ask it to, out of the way, back on the side wall in the corner by our alliance wall at (15, 133.8), and sits there for the whole of AUTO. One spot, ours to pick, so there is no right-side twin (mentor, 3 Nov 2026). |
 | `partner-r-broken-down`, `partner-l-broken-down` | A partner that meant to run an Auto and broke down: sits on the right or left start for the whole of AUTO. The "dead" runs use it. **Never seen** in 32 partner runs: their runs are labelled so, and do not drive decisions. |
 | `partner-park-1`, `partner-park-2` | Sits on the left start until 15 s, then parks (two different starts and park spots). Never seen: leavers left at 0.5–2 s; `partner-leave-park` replaces them. |
@@ -229,8 +229,8 @@ they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The 
 | Auto | Alone | On time | Missing | Dead |
 |---|---|---|---|---|
 | L-NoCross | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s (seen: 1.0–5.3 s) | the same, said 5 and 8 s; and missed, staying on its start to 10.3 or 12.3 s (`startDelayS`) | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch (never seen) |
-| R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-leave-park`; `partner-still`; `partner-zone-still` | the same | `partner-l-broken-down` (never seen) |
-| R-Solo | yes | `partner-still`, `partner-zone-still`: R-Solo is for a partner that sits still, out of our way (mentor, 27 Nov 2026) | | |
+| R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-leave-park`; `partner-still`; `partner-corner-to-zone` | the same | `partner-l-broken-down` (never seen) |
+| R-Solo | yes | `partner-still`, `partner-corner-to-zone`: R-Solo is for a partner that sits still, out of our way (mentor, 27 Nov 2026) | | |
 | R-Solo-Nudge (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our

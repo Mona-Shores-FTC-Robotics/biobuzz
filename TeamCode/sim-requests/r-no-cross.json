@@ -46,8 +46,8 @@
       "partner": "PartnerLeaveParkAuto"
     },
     {
-      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
-      "partner": "PartnerZoneStillAuto"
+      "name": "starts in the corner, drives into the top of the LOADING ZONE by 3 s",
+      "partner": "PartnerCornerToZoneAuto"
     },
     {
       "name": "LEAVE-PARK, R on CROSS AND FIX IT",
@@ -64,8 +64,8 @@
       }
     },
     {
-      "name": "STILL in the LOADING ZONE, R on CROSS AND FIX IT",
-      "partner": "PartnerZoneStillAuto",
+      "name": "partner drives into the top of the LOADING ZONE, R on CROSS AND FIX IT",
+      "partner": "PartnerCornerToZoneAuto",
       "picks": {
         "if no TIP 2": "CROSS AND FIX IT"
       }

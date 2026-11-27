@@ -89,7 +89,7 @@ these labels. Each archetype is described by where it is from 0 to 30 s, because
 | Archetype | Seen (of 32) | Qualifiers (of 20) | Where it is, 0 to 30 s | Stand-in |
 |---|---|---|---|---|
 | **LEAVE-PARK** | **11** | 10 | Starts at or near the left start (far side, by the SCORING FLOWER). Moves at 0.5–2 s, launches nothing, and is in the corner / LOADING ZONE by 3–4.5 s. Sits there to 30 s. One (14933) stopped a tile short, behind the LEFT CELL. | `partner-leave-park` (new): leaves `LEFT_START` at 1 s, at `PARTNER_PARK` (9.8, 117.4) by about 3 s |
-| **STILL** | **9** | 9 | Never moves (lights on in every Fruitport case: a choice, not a breakdown). Where it sits: **corner** just past the LOADING ZONE, 4 (20862 Q-26, 15397, 20863, 16220); **in the LOADING ZONE**, 3 (17283, 6482, 15510); scoring-table wall behind the LEFT CELL, 1 (20862 Fruitport Q-17, about 1.5 robot widths from `LEFT_AUTO_HIVE`, so not on `LEFT_START`); audience wall beside our right start, 1 (7911, likely) | `partner-still` (the corner, 15, 133.8); `partner-zone-still` (new: in the LOADING ZONE, 8.2, 110) |
+| **STILL** | **9** | 9 | Never moves (lights on in every Fruitport case: a choice, not a breakdown). Where it sits: **corner** just past the LOADING ZONE, 4 (20862 Q-26, 15397, 20863, 16220); **in or at the edge of the LOADING ZONE**, 3 (17283, 6482, 15510; a robot may not start in the zone (G304), so these were at its edge or nudged in, and the video cannot tell which); scoring-table wall behind the LEFT CELL, 1 (20862 Fruitport Q-17, about 1.5 robot widths from `LEFT_AUTO_HIVE`, so not on `LEFT_START`); audience wall beside our right start, 1 (7911, likely) | `partner-still` (the corner, 15, 133.8); `partner-corner-to-zone` (new: starts in the corner, drives into the top of the zone by 3 s) |
 | **RIGHT-SHOOT-PARK** | **9** | 1 | Right start. Fires its preloads at the RIGHT CELL, last ball out 1.0–5.3 s (median 2.5). **7 hit**, TIP 1 settling 4–10 s; **2 missed** (9133, 8513). It stays on its start 0.5–18 s after its last shot (median about 4 s; 10104 sat 13–18 s), then drives along the alliance wall or under the HIVE and parks. | `partner-r-launch-park` (`lastShotS`, `"fails": "misses"`); it leaves straight after its last shot, earlier than the real ones |
 | **LEFT-SHOOT-PARK** | **3** | 0 | Left start. A first volley at 4.3–6.4 s; in 2 of 3, a second volley at 14–15 s into the LEFT CELL (TIP 2, settled 17.7–20 s). On its start to 15–18 s, then to the corner. All three were 10255. | `partner-l-tip-park`, `partner-l-launch-park` |
 | **CROSSER** | **0** | 0 | Not seen as a partner. (10104 drove under the HIVE late in 3 playoff runs, inside its own half of the lane, after its shots.) | none |
@@ -123,7 +123,7 @@ partner is **the park**, not `LEFT_AUTO_HIVE`.
 | Stand-in | Archetype | Verdict |
 |---|---|---|
 | `partner-leave-park` (new) | LEAVE-PARK | **added**: the commonest partner |
-| `partner-zone-still` (new) | STILL, in the LOADING ZONE | **added** |
+| `partner-corner-to-zone` (new, 27 Nov) | STILL partner that ends in the LOADING ZONE: starts in the corner, drives in by 3 s | **added**; it replaces `partner-zone-still`, which started in the zone, an illegal start (G304) |
 | `partner-still` | STILL, in the corner | keep |
 | `partner-r-launch-park` | RIGHT-SHOOT-PARK | keep; vary with `lastShotS` (1–5 s seen) and `"fails": "misses"` |
 | `partner-l-tip-park` | LEFT-SHOOT-PARK | keep |

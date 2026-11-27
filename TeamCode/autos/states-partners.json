@@ -140,7 +140,7 @@
   },
   "STILL": {
    "label": "STILL",
-   "standIn": "partner-still (corner) / partner-zone-still (LOADING ZONE)",
+   "standIn": "partner-still (corner) / partner-corner-to-zone (drives into the LOADING ZONE)",
    "auto": "R-Solo or R-NoCross",
    "weStart": "RIGHT_START",
    "init": [

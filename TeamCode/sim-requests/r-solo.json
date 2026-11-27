@@ -31,8 +31,8 @@
       "partner": "PartnerStillAuto"
     },
     {
-      "name": "STILL in the LOADING ZONE (seen 3 of 32)",
-      "partner": "PartnerZoneStillAuto"
+      "name": "starts in the corner, drives into the top of the LOADING ZONE by 3 s",
+      "partner": "PartnerCornerToZoneAuto"
     },
     {
       "name": "contingency: our preloads miss, partner STILL in the corner",

@@ -49,7 +49,7 @@ ARCHETYPES = {
         'sim': 'R-Solo 36 pts, 0 contacts (with #759). R-NoCross on CROSS AND FIX IT 36 pts, no contact.',
         'watch': 'SWARM needs their LEAVE and PARK too.'},
     'STILL': {
-        'label': 'STILL', 'standIn': 'partner-still (corner) / partner-zone-still (LOADING ZONE)',
+        'label': 'STILL', 'standIn': 'partner-still (corner) / partner-corner-to-zone (drives into the LOADING ZONE)',
         'auto': 'R-Solo or R-NoCross', 'weStart': 'RIGHT_START',
         'init': ['R-NoCross: if no TIP 2: CROSS AND FIX IT (28 pts, no contact beside a partner in the corner)',
                  'Endgame: PARK FIRST'],
