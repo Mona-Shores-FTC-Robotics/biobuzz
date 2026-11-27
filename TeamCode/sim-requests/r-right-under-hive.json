@@ -4,51 +4,29 @@
   "design": "real robot",
   "partnerDesign": "real robot",
   "calibration": "belding",
-  "ourInRate": 0.92,
-  "partnerInRate": 0.92,
   "seeds": [
+    1,
     2,
+    3,
     4,
+    5,
     6,
+    7,
     8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    24,
-    26,
-    28,
-    30,
-    32,
-    34,
-    36,
-    38,
-    40
+    9,
+    10
   ],
   "partnerSeeds": [
+    1,
     2,
+    3,
     4,
+    5,
     6,
+    7,
     8,
-    10,
-    12,
-    14,
-    16,
-    18,
-    20,
-    22,
-    24,
-    26,
-    28,
-    30,
-    32,
-    34,
-    36,
-    38,
-    40
+    9,
+    10
   ],
   "alliance": "RED",
   "partners": [
@@ -57,19 +35,14 @@
       "partner": "LRightUnderHiveAuto"
     },
     {
-      "name": "R's preload volley misses",
+      "name": "R's preloads miss (L crosses and fixes TIP 1)",
       "partner": "LRightUnderHiveAuto",
       "oursFails": "misses preloads"
     },
     {
-      "name": "L's preload volley misses",
+      "name": "L's preloads miss (L takes its WALL FLOWER load to LEFT)",
       "partner": "LRightUnderHiveAuto",
       "fails": "misses preloads"
-    },
-    {
-      "name": "L's FLOWER volley misses",
-      "partner": "LRightUnderHiveAuto",
-      "fails": "misses volley 2"
     },
     {
       "name": "R's GARDEN volley misses",
@@ -77,8 +50,54 @@
       "oursFails": "misses volley 2"
     },
     {
-      "name": "L dead on its start",
+      "name": "L's WALL FLOWER volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses volley 2"
+    },
+    {
+      "name": "R's SCORING FLOWER volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "oursFails": "misses volley 3"
+    },
+    {
+      "name": "R 20 percent slower",
+      "partner": "LRightUnderHiveAuto",
+      "ourSpeed": 40
+    },
+    {
+      "name": "L 20 percent slower",
+      "partner": "LRightUnderHiveAuto",
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "SURE TIP 2 picked: every shot lands",
+      "partner": "LRightUnderHiveAuto",
+      "picks": {
+        "FLOWER load": "SURE TIP 2"
+      }
+    },
+    {
+      "name": "SURE TIP 2 picked: L's preloads miss",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses preloads",
+      "picks": {
+        "FLOWER load": "SURE TIP 2"
+      }
+    },
+    {
+      "name": "SURE TIP 2 picked: L misses every shot",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses",
+      "picks": {
+        "FLOWER load": "SURE TIP 2"
+      }
+    },
+    {
+      "name": "L dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto"
     }
-  ]
+  ],
+  "scenario": "best"
 }
