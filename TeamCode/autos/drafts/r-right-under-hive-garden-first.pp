@@ -11,7 +11,7 @@
     {
       "id": "r-ru-garden",
       "color": "#4e79a7",
-      "name": "RIGHT_START straight to GARDEN_STAGING",
+      "name": "RIGHT_START along the audience wall to WALL_GARDEN_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,20 +19,19 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 11.5,
-        "y": 22.1
+        "x": 28,
+        "y": 9
       },
       "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 270
+        "type": "constant",
+        "degrees": 180
       }
     },
     {
       "id": "r-ru-garden-park",
       "color": "#4e79a7",
-      "name": "GARDEN to RIGHT_PARK_WALL (guard)",
+      "name": "WALL_GARDEN_STAGING to RIGHT_PARK_WALL (guard)",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -62,8 +61,36 @@
         }
       ],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "piecewise",
+        "startDeg": 180,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -72,19 +99,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 11.5,
-        "y": 22.1
+        "x": 28,
+        "y": 9
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": 180
       }
     },
     {
       "id": "ruh2-garden-to-fix",
       "color": "#59a14f",
-      "name": "GARDEN up the corridor under the HIVE to R_HIVE_EXIT",
+      "name": "GARDEN corner back along the wall, then up the corridor under the HIVE to R_HIVE_EXIT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -97,8 +124,8 @@
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 12
+          "x": 45,
+          "y": 9
         },
         {
           "x": 61,
@@ -114,9 +141,46 @@
         }
       ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 270
+        "type": "piecewise",
+        "startDeg": 180,
+        "endDeg": 270,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.25,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.25,
+              "endProgress": 0.55,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 180,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.55,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -1077,7 +1141,8 @@
         "PickFlower",
         "GardenGather",
         "LaunchOne",
-        "SpinUp"
+        "SpinUp",
+        "GardenGatherAlongWall"
       ],
       "conditions": [
         "Empty",
@@ -1097,15 +1162,11 @@
         "PickFlower": 4,
         "GardenGather": 3,
         "LaunchOne": 0.5,
-        "SpinUp": 0.1
+        "SpinUp": 0.1,
+        "GardenGatherAlongWall": 3
       }
     },
     "points": {
-      "GARDEN_STAGING": [
-        11.5,
-        22.1,
-        270
-      ],
       "RIGHT_AUTO_HIVE": [
         59.2,
         20.9,
@@ -1140,10 +1201,15 @@
         55.6,
         7.7,
         180
+      ],
+      "WALL_GARDEN_STAGING": [
+        28,
+        9,
+        180
       ]
     },
     "pathEnds": {
-      "r-ru-garden": "GARDEN_STAGING",
+      "r-ru-garden": "WALL_GARDEN_STAGING",
       "r-ru-garden-park": "RIGHT_PARK_WALL",
       "ruh2-garden-to-fix": "R_HIVE_EXIT",
       "ruh2-fix-park-0": "RIGHT_PARK_WALL",
@@ -1178,8 +1244,7 @@
       {
         "id": "c-r-gather",
         "kind": "action",
-        "name": "GardenGather",
-        "timeoutS": 5.5
+        "name": "GardenGatherAlongWall"
       },
       {
         "id": "c-ruh2-to-exit",
@@ -1358,7 +1423,6 @@
       "c-ruh2-down": "ruh2-rah-park"
     },
     "teamSpots": [
-      "GARDEN_STAGING",
       "RIGHT_AUTO_HIVE",
       "RIGHT_START",
       "SCORING_FLOWER_STAGING"
