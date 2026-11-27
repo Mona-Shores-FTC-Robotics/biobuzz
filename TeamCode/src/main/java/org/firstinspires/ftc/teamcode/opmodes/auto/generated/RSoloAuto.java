@@ -21,7 +21,7 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-26|8:10AM";
+    public static final String SAVED = "11-27|8:53AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
@@ -57,6 +57,7 @@ public final class RSoloAuto {
         Pose rightParkWall = p.of(14.5, 92.5, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
+        Pose rightAutoHiveParkControl1 = p.of(15.2472, 41.5582, 0);
         Pose wallFlowerStagingParkControl1 = p.of(18, 62, 0);
         Pose wallFlowerStagingParkControl2 = p.of(14.5, 74, 0);
         Pose wallFlowerStagingParkSegment1Start = p.of(14.5, 92.5, 180);
@@ -112,6 +113,7 @@ public final class RSoloAuto {
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
+        Path rightAutoHivePark = Paths.curve(rightAutoHive, rightAutoHiveParkControl1, rightParkWall).linear(rightAutoHive, rightParkWall);
         Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, wallFlowerStagingParkControl2, rightParkWall).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(wallFlowerStagingParkSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path backwardToLeftAutoHive = Paths.curve(wallFlowerStaging, backwardToLeftAutoHiveControl1, leftAutoHive).heading(Interpolator.piecewise().until(0.35, Interpolator.linear(backwardToLeftAutoHiveSegment1Start, leftAutoHive)).until(1, Interpolator.constant(leftAutoHive)));
@@ -128,7 +130,7 @@ public final class RSoloAuto {
         return kit.sequence(
                 kit.guarded("Auto", leftAutoHivePark, 2.8,
                         kit.command("SpinUp"),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHivePark, 2.8),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2),
                         kit.command("PickFlower", 4.5),
