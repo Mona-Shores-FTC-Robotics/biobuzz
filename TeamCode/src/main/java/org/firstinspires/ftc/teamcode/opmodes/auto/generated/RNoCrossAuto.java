@@ -55,10 +55,11 @@ public final class RNoCrossAuto {
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose rightPark = p.of(14.5, 98.7, 0);
         Pose leftAutoOffset = p.of(40.7, 121.1, 298.7);
+        Pose rightAutoOffset = p.of(32.1, 16.4, 61);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose wallFlowerStagingParkControl1 = p.of(26, 75, 0);
-        Pose rightAutoHiveParkControl1 = p.of(25, 45, 0);
+        Pose rightAutoOffsetParkControl1 = p.of(25, 45, 0);
         Pose gardenStagingParkControl1 = p.of(28, 55, 0);
         Pose toRightParkControl1 = p.of(15.9972, 48.2988, 0);
         Pose toRightPark_2Control1 = p.of(15.9972, 48.2988, 0);
@@ -80,54 +81,54 @@ public final class RNoCrossAuto {
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
         Path toWallFlowerStaging = Paths.line(rightAutoHive, wallFlowerStaging).linear(rightAutoHive, wallFlowerStaging);
         Path wallFlowerStagingPark = Paths.curve(wallFlowerStaging, wallFlowerStagingParkControl1, rightPark).linear(wallFlowerStaging, rightPark);
-        Path toRightAutoHivePath = Paths.line(wallFlowerStaging, rightAutoHive).linear(wallFlowerStaging, rightAutoHive);
-        Path rightAutoHivePark = Paths.curve(rightAutoHive, rightAutoHiveParkControl1, rightPark).linear(rightAutoHive, rightPark);
-        Path toGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
+        Path toRightAutoOffset = Paths.line(wallFlowerStaging, rightAutoOffset).linear(wallFlowerStaging, rightAutoOffset);
+        Path rightAutoOffsetPark = Paths.curve(rightAutoOffset, rightAutoOffsetParkControl1, rightPark).linear(rightAutoOffset, rightPark);
+        Path toGardenStaging = Paths.line(rightAutoOffset, gardenStaging).linear(rightAutoOffset, gardenStaging);
         Path gardenStagingPark = Paths.curve(gardenStaging, gardenStagingParkControl1, rightPark).linear(gardenStaging, rightPark);
-        Path toRightAutoHivePath2 = Paths.line(gardenStaging, rightAutoHive).linear(gardenStaging, rightAutoHive);
-        Path toRightPark = Paths.curve(rightAutoHive, toRightParkControl1, rightPark).linear(rightAutoHive, rightPark);
-        Path toRightParkPath = Paths.curve(rightAutoHive, toRightPark_2Control1, rightPark).linear(rightAutoHive, rightPark);
-        Path toRightParkPath2 = Paths.curve(rightAutoHive, toRightPark_3Control1, rightPark).linear(rightAutoHive, rightPark);
-        Path toRightParkPath3 = Paths.curve(rightAutoHive, toRightPark_4Control1, rightPark).linear(rightAutoHive, rightPark);
-        Path wallSideToLeftAutoOffset = Paths.curve(rightAutoHive, wallSideToLeftAutoOffsetControl1, wallSideToLeftAutoOffsetControl2, leftAutoOffset).linear(rightAutoHive, leftAutoOffset);
+        Path toRightAutoOffsetPath = Paths.line(gardenStaging, rightAutoOffset).linear(gardenStaging, rightAutoOffset);
+        Path toRightPark = Paths.curve(rightAutoOffset, toRightParkControl1, rightPark).linear(rightAutoOffset, rightPark);
+        Path toRightParkPath = Paths.curve(rightAutoOffset, toRightPark_2Control1, rightPark).linear(rightAutoOffset, rightPark);
+        Path toRightParkPath2 = Paths.curve(rightAutoOffset, toRightPark_3Control1, rightPark).linear(rightAutoOffset, rightPark);
+        Path toRightParkPath3 = Paths.curve(rightAutoOffset, toRightPark_4Control1, rightPark).linear(rightAutoOffset, rightPark);
+        Path wallSideToLeftAutoOffset = Paths.curve(rightAutoOffset, wallSideToLeftAutoOffsetControl1, wallSideToLeftAutoOffsetControl2, leftAutoOffset).linear(rightAutoOffset, leftAutoOffset);
         Path leftAutoOffsetPark = Paths.curve(leftAutoOffset, leftAutoOffsetParkControl1, leftAutoOffsetParkControl2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(leftAutoOffsetParkSegment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
         Path toRightParkPath4 = Paths.curve(leftAutoOffset, toRightPark_5Control1, toRightPark_5Control2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightPark_5Segment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
         Path toRightParkPath5 = Paths.curve(leftAutoOffset, toRightPark_6Control1, toRightPark_6Control2, rightPark).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(toRightPark_6Segment1Start, rightPark)).until(1, Interpolator.linear(rightPark, rightPark)));
 
         return kit.sequence(
-                kit.guarded("Auto", toRightParkPath3, 2.9,
+                kit.guarded("Auto", toRightParkPath3, 2.7,
                         kit.command("SpinUp"),
                         kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1),
                         kit.command("LaunchAll"),
                         kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2.1),
                         kit.command("PickFlower", 8),
-                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 1.9, rightAutoHivePark, 2.9),
+                        kit.path("to RIGHT_AUTO_OFFSET", toRightAutoOffset, 1.7, rightAutoOffsetPark, 2.7),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
-                                        kit.guarded("If CellUp", toRightParkPath, 2.9,
+                                        kit.guarded("If CellUp", toRightParkPath, 2.7,
                                                 kit.command("LaunchAll"),
-                                                kit.path("to GARDEN_STAGING", toGardenStaging, 2, gardenStagingPark, 2.6),
+                                                kit.path("to GARDEN_STAGING", toGardenStaging, 1.4, gardenStagingPark, 2.6),
                                                 kit.command("GardenGather", 8),
-                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath2, 2),
+                                                kit.path("to RIGHT_AUTO_OFFSET", toRightAutoOffsetPath, 1.4),
                                                 kit.firstOf("RIGHT CELL back up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightPark, 2.9,
+                                                                kit.guarded("If CellUp", toRightPark, 2.7,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.9))),
+                                                                        kit.path("to RIGHT_PARK", toRightPark, 2.7))),
                                                         kit.atMatchSeconds(26).then(
-                                                                kit.guarded("Timed out", toRightParkPath, 2.9,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.9)))))),
+                                                                kit.guarded("Timed out", toRightParkPath, 2.7,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath, 2.7)))))),
                                 kit.atMatchSeconds(kit.seconds("Wait for TIP or CELL up", 20)).then(
-                                        kit.guarded("Timed out", toRightParkPath3, 2.9,
+                                        kit.guarded("Timed out", toRightParkPath3, 2.7,
                                                 kit.route("if no TIP 2", 0, () -> kit.firstOf("RIGHT CELL up by 23 s?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkPath2, 2.9,
+                                                                kit.guarded("If CellUp", toRightParkPath2, 2.7,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 2.9))),
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath2, 2.7))),
                                                         kit.atMatchSeconds(23).then(
-                                                                kit.guarded("Timed out", toRightParkPath3, 2.9,
-                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 2.9))))),
-                                                kit.route("if no TIP 2", 1, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.3, leftAutoOffsetPark, 1.9)),
+                                                                kit.guarded("Timed out", toRightParkPath3, 2.7,
+                                                                        kit.path("to RIGHT_PARK", toRightParkPath3, 2.7))))),
+                                                kit.route("if no TIP 2", 1, () -> kit.path("wall side to LEFT_AUTO_OFFSET", wallSideToLeftAutoOffset, 3.2, leftAutoOffsetPark, 1.9)),
                                                 kit.route("if no TIP 2", 1, () -> kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", toRightParkPath4, 1.9,

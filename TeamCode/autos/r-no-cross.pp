@@ -94,7 +94,7 @@
     {
       "id": "line-mw0c4s3r-aq2td0",
       "color": "#9c755f",
-      "name": "to RIGHT_AUTO_HIVE",
+      "name": "to RIGHT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -102,20 +102,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 180,
-        "endDeg": 96.1
+        "endDeg": 61.0
       }
     },
     {
       "id": "line-mw0c4s3v-u2xhur",
       "color": "#edc948",
-      "name": "RIGHT_AUTO_HIVE park",
+      "name": "RIGHT_AUTO_OFFSET park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -134,7 +134,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 0
       }
     },
@@ -144,13 +144,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.10000000000002
+        "degrees": 61.0
       }
     },
     {
@@ -170,7 +170,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 270
       }
     },
@@ -218,7 +218,7 @@
     {
       "id": "line-mw0c4s3s-i2nkle",
       "color": "#edc948",
-      "name": "to RIGHT_AUTO_HIVE",
+      "name": "to RIGHT_AUTO_OFFSET",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -226,14 +226,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 96.1
+        "endDeg": 61.0
       }
     },
     {
@@ -258,7 +258,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 0
       }
     },
@@ -268,13 +268,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.10000000000002
+        "degrees": 61.0
       }
     },
     {
@@ -299,7 +299,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 0
       }
     },
@@ -309,13 +309,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.10000000000002
+        "degrees": 61.0
       }
     },
     {
@@ -340,7 +340,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 0
       }
     },
@@ -350,13 +350,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.10000000000002
+        "degrees": 61.0
       }
     },
     {
@@ -381,7 +381,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 0
       }
     },
@@ -391,13 +391,13 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 59.2,
-        "y": 20.9
+        "x": 32.1,
+        "y": 16.4
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 96.10000000000002
+        "degrees": 61.0
       }
     },
     {
@@ -426,7 +426,7 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 96.1,
+        "startDeg": 61.0,
         "endDeg": 298.7
       }
     },
@@ -986,13 +986,18 @@
         40.7,
         121.1,
         298.7
+      ],
+      "RIGHT_AUTO_OFFSET": [
+        32.1,
+        16.4,
+        61.0
       ]
     },
     "pathEnds": {
       "line-mw0c4s3r-j498n0": "WALL_FLOWER_STAGING",
-      "line-mw0c4s3r-aq2td0": "RIGHT_AUTO_HIVE",
+      "line-mw0c4s3r-aq2td0": "RIGHT_AUTO_OFFSET",
       "line-mw0c4s3s-fovkx1": "GARDEN_STAGING",
-      "line-mw0c4s3s-i2nkle": "RIGHT_AUTO_HIVE",
+      "line-mw0c4s3s-i2nkle": "RIGHT_AUTO_OFFSET",
       "line-mw0c4s3s-94a0vo": "RIGHT_PARK",
       "line-mw0c4s3v-i79x23": "RIGHT_PARK",
       "line-mw0c4s3v-u2xhur": "RIGHT_PARK",
@@ -1249,7 +1254,8 @@
       "RIGHT_AUTO_HIVE",
       "RIGHT_PARK",
       "RIGHT_START",
-      "WALL_FLOWER_STAGING"
+      "WALL_FLOWER_STAGING",
+      "RIGHT_AUTO_OFFSET"
     ],
     "exportName": "R-NoCross"
   }
