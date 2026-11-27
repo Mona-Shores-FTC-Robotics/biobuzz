@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/r-solo.pp",
-  "spec": "RSoloAuto,PartnerStillAuto",
+  "spec": "RSoloAuto",
   "design": "real robot",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -26,6 +26,10 @@
   "alliance": "RED",
   "calibration": "belding",
   "partners": [
+    {
+      "name": "STILL in the corner, out of our way (seen 4 of 32)",
+      "partner": "PartnerStillAuto"
+    },
     {
       "name": "starts in the corner, drives into the top of the LOADING ZONE by 3 s",
       "partner": "PartnerCornerToZoneAuto"
