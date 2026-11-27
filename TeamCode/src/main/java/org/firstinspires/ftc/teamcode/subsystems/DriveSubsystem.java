@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.localization.ResetPositions;
 import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.ShadowPose;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
+import org.firstinspires.ftc.teamcode.localization.VolleyFixHold;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
 import org.firstinspires.ftc.teamcode.util.WheelPowerCap;
@@ -200,6 +201,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private Pose stillFixPose;
     /** The camera's view of the placement over the time the robot has sat untouched: see {@link SettledStats}. */
     private final SettledStats settled = new SettledStats();
+    /** Whether a volley is feeding ({@link #holdStillFixesWhile}); set by {@code Robot}. */
+    private java.util.function.BooleanSupplier feeding = () -> false;
+    /** A still fix that passes during a volley waits for its end ({@link VolleyFixHold}). */
+    private final VolleyFixHold volleyFixHold = new VolleyFixHold();
+    private String heldFixNote = "";
+
     /** Whether stationary fixes go into the filter this run: {@link LocalizationTuning#stillFixes} at init. */
     private boolean applyStillFixes = LocalizationTuning.stillFixes;
     private Pose lastCameraPose;
@@ -1115,6 +1122,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      */
     private void offerSightings() {
         still = trackStillness();
+        releaseHeldFix();
         if (poseReferenced) fusionShadow.odometry(localizer.pose(), System.nanoTime());
         if (!still) {
             averager.reset();
@@ -1234,14 +1242,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             stillFix = StillFix.TOO_SPREAD;
         } else if (stillFixJumpIn > LocalizationTuning.maxFixJumpIn) {
             stillFix = StillFix.TOO_FAR;
+        } else if (applyStillFixes && volleyFixHold.holding()) {
+            // A volley is feeding: keep the robot and the turret's aim where they are; the newest
+            // batch waits for the feed's end (releaseHeldFix).
+            volleyFixHold.hold(x, y, CellFix.variance(averager.nearestRangeIn(), averager.minTags()),
+                    averager.newestCaptureNs(), now);
+            stillFix = StillFix.HELD;
         } else if (applyStillFixes) {
-            Pose variance = CellFix.variance(averager.nearestRangeIn(), averager.minTags());
-            localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(), variance);
-            stillFixesApplied++;
-            stillFix = StillFix.APPLIED;
-            shadow.applyFix(x, y, now);
-            if (LocalizationTuning.continuousFixes) fusionShadow.matchReal();
-            fusionShadow.stillFix(x, y, variance.x(), now, localizer.pose());
+            applyStillFix(x, y, CellFix.variance(averager.nearestRangeIn(), averager.minTags()),
+                    averager.newestCaptureNs(), now);
         } else {
             stillFix = StillFix.READY;
             shadow.applyFix(x, y, now); // the shadow takes the batch the real pose was only shown
@@ -1249,6 +1258,48 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         }
         averager.reset();
     }
+
+    /** A stationary fix into the filter, and the shadows told. */
+    private void applyStillFix(double x, double y, Pose variance, long captureNs, Pose before) {
+        localizer.addMeasurement(new Pose(x, y, Double.NaN), captureNs, variance);
+        stillFixesApplied++;
+        stillFix = StillFix.APPLIED;
+        shadow.applyFix(x, y, before);
+        if (LocalizationTuning.continuousFixes) fusionShadow.matchReal();
+        fusionShadow.stillFix(x, y, variance.x(), before, localizer.pose());
+    }
+
+    /**
+     * Tracks the feed ({@link #holdStillFixesWhile}); at its end, the fix held through it goes into
+     * the filter, or is dropped if the robot moved or turned since its frames ({@link VolleyFixHold}).
+     */
+    private void releaseHeldFix() {
+        VolleyFixHold.Release release = volleyFixHold.observe(feeding.getAsBoolean(), localizer.pose(), System.nanoTime());
+        if (release == null) return;
+        if (release.apply) {
+            applyStillFix(release.fix.x(), release.fix.y(), release.variance, release.stampNs, release.at);
+        } else if (stillFix == StillFix.HELD) {
+            stillFix = StillFix.WAITING;
+        }
+        heldFixNote = release.note;
+    }
+
+    /**
+     * A stationary fix that passes while {@code feeding} is true is held until it goes false
+     * ({@link LocalizationTuning#holdFixesWhileFeeding}), so a volley is fired from a pose that does
+     * not move under it. {@code Robot} passes the feed gate's state.
+     */
+    public void holdStillFixesWhile(java.util.function.BooleanSupplier feeding) {
+        this.feeding = feeding;
+    }
+
+    /** Stationary fixes held through a volley so far, and how many of them were dropped. */
+    public int stillFixesHeld() { return volleyFixHold.held(); }
+
+    public int heldFixesDropped() { return volleyFixHold.dropped(); }
+
+    /** What became of the last held fix, for the match log; empty before the first. */
+    public String heldFixNote() { return heldFixNote; }
 
     /**
      * Where the camera put the robot in the last half second, from the gated tags of the settled
@@ -1319,7 +1370,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         /** The last batch passed, but stationary fixes are off ({@link #stillFixesOn}). */
         READY,
         /** The last batch went into the filter. */
-        APPLIED
+        APPLIED,
+        /** The last batch passed during a volley's feed and waits for its end ({@link LocalizationTuning#holdFixesWhileFeeding}). */
+        HELD
     }
 
     public StillFix stillFix() { return stillFix; }

@@ -331,6 +331,8 @@ public abstract class RobotOpMode extends OpMode {
     private String cameraStartNote;
     private int loggedAutoHeadingFixes;
     private int loggedShadowFixes;
+    /** The last held still fix's note logged (DriveSubsystem.heldFixNote), so each is one event. */
+    private String loggedHeldFixNote = "";
     private int loggedFusionArrivals;
     private long loggedCameraNs;
     private Object loggedPinpointStatus;
@@ -1654,6 +1656,13 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());
         log.put("/Vision/StillFix", robot.drive.stillFix().ordinal());
         log.put("/Vision/StillFixesApplied", robot.drive.stillFixesApplied());
+        log.put("/Vision/StillFixesHeld", robot.drive.stillFixesHeld());
+        // A still fix held through a volley (LocalizationTuning.holdFixesWhileFeeding): one event when
+        // the volley ends, applied or dropped.
+        if (!robot.drive.heldFixNote().equals(loggedHeldFixNote)) {
+            loggedHeldFixNote = robot.drive.heldFixNote();
+            log.event(loggedHeldFixNote);
+        }
         recordCells();
         recordDrift(mode, pose, referenced);
         if (mode != MatchLog.Mode.DISABLED) {
