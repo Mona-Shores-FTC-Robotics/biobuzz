@@ -72,8 +72,10 @@ def main():
     pp, java = auto_source(args.auto)
     request_path = ROOT / "TeamCode/sim-requests" / (pp.stem + ".json")
     request = json.loads(request_path.read_text(encoding="utf-8")) if request_path.exists() else {}
-    old_profile = str(request.get("spec", "")).partition("@")[2]
-    request["spec"] = java.stem + ("@" + old_profile if old_profile else "")
+    old_spec, _, old_profile = str(request.get("spec", "")).partition("@")
+    # Keep a comma partner ("RSoloAuto,PartnerStillAuto"): then the first run is beside it, not alone.
+    old_partner = old_spec.split("|")[0].partition(",")[2]
+    request["spec"] = java.stem + ("," + old_partner if old_partner else "") + ("@" + old_profile if old_profile else "")
     request["pp"] = pp.relative_to(ROOT).as_posix()
     curated = request.get("partners", [])
     request["partners"] = curated if args.study else []
