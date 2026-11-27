@@ -250,6 +250,20 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
       point; the TIPs and last ball match R-Solo's (sim: last ball 23.1 s, park done 24.7 s vs R-Solo's 24.2 s).
       **Stop:** any contact, or the park still moving at 30 s → bring the logs and the video. [PR #742]
 
+## No still fix moves the pose during a volley (27 Nov 2026, either robot, R-Solo, HIVE upright, phone on the robot)
+
+PR: still fixes held while the feed gate is open (`LocalizationTuning.holdFixesWhileFeeding`, `VolleyFixHold`).
+Fruitport Q-42 (20245): a camera still fix moved the pose 2.5 in during R-Solo's first LEFT volley, Pedro's
+hold dragged the robot 2 in after it, and the first ball left while it moved.
+
+- [ ] **R-Solo, three runs:** film the robot at `LEFT_AUTO_HIVE` through its first LEFT volley. **Good:** the
+      robot does not move while the gate is open, and the match log has `still fix N held through the volley,
+      applied as it ended` at most once per volley, after the last ball. **Stop:** the robot still moves during
+      the volley → check the log for a fix applied while `/FeedGate/Feeding` is 1, push the logs, tell a mentor.
+- [ ] **Basic Drive, a Square launch spot:** drive to one, fire, and watch the same: no nudge mid-volley. A
+      `dropped` line after a volley the driver drove during is expected (the fix no longer matches where the
+      robot is).
+
 ## An empty FLOWER ends the dwell sooner (23 Nov 2026, either robot)
 
 - [ ] **R-Solo with its SCORING FLOWER already empty**, three runs. **Good:** that pick's log line reads

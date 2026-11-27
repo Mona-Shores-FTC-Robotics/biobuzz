@@ -142,7 +142,9 @@ only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and ke
 up to `maxRelocalizeJumpIn`. A bigger correction means the pose is lost: with the robot still and
 a fit from both HIVEs it resets the whole pose, heading too, as the seed does; otherwise it is refused.
 Stationary fixes (`stillFixes`) go into the filter (on: an Auto's pose
-was 2 in off by the GARDEN without them); continuous fixes (`continuousFixes`, frames taken while
+was 2 in off by the GARDEN without them), but never while the feed gate is open: one that passes during a
+volley is held and applied as the volley ends, or dropped if the robot moved since its frames (`VolleyFixHold`,
+`holdFixesWhileFeeding`), so no fix moves the robot or the turret's aim under a volley; continuous fixes (`continuousFixes`, frames taken while
 moving, with their own `continuousFixVarianceScale`) stay off until a run on the robot shows they help:
 `FusionShadow` takes them beside the real pose in every run and the match log's "fusion shadow" lines
 score it at each stop, so that evidence comes from ordinary runs. The reset spots (`ResetPositions`, NaN until measured) are
