@@ -3,7 +3,7 @@
   "spec": "RRightUnderHiveAuto",
   "design": "real robot",
   "partnerDesign": "real robot",
-  "calibration": "belding",
+  "calibration": "fruitport",
   "seeds": [
     1,
     2,
@@ -33,6 +33,21 @@
     {
       "name": "pair: every shot lands",
       "partner": "LRightUnderHiveAuto"
+    },
+    {
+      "name": "NECTAR 1 comes late (released 4 s after TIP 1): it rides to RIGHT in the WALL FLOWER load, or is left",
+      "partner": "LRightUnderHiveAuto",
+      "humanAimRolls": "40.2,120.8,215|8,98.3|24||4;32.1,17.0,106.5|8,98.3|24||0.5"
+    },
+    {
+      "name": "NECTAR 1 never comes (the human keeps it): L holds at most 2.5 s, fires nothing",
+      "partner": "LRightUnderHiveAuto",
+      "humanAimRolls": "none"
+    },
+    {
+      "name": "NECTAR 2 rolled slowly (18 in/s, released 1.5 s after TIP 2): L holds to 26.0 s at most, then parks",
+      "partner": "LRightUnderHiveAuto",
+      "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|18||1.5"
     },
     {
       "name": "R's preloads miss (L crosses and fixes TIP 1)",
@@ -76,6 +91,9 @@
       "partner": "LRightUnderHiveAuto",
       "picks": {
         "FLOWER load": "SURE TIP 2"
+      },
+      "partnerPicks": {
+        "FLOWER load": "SURE TIP 2"
       }
     },
     {
@@ -83,6 +101,9 @@
       "partner": "LRightUnderHiveAuto",
       "fails": "misses preloads",
       "picks": {
+        "FLOWER load": "SURE TIP 2"
+      },
+      "partnerPicks": {
         "FLOWER load": "SURE TIP 2"
       }
     },
@@ -92,6 +113,9 @@
       "fails": "misses",
       "picks": {
         "FLOWER load": "SURE TIP 2"
+      },
+      "partnerPicks": {
+        "FLOWER load": "SURE TIP 2"
       }
     },
     {
@@ -99,5 +123,6 @@
       "partner": "PartnerLBrokenDownAuto"
     }
   ],
-  "scenario": "best"
+  "scenario": "best",
+  "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|24||0.5"
 }
