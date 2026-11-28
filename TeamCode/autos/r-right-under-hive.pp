@@ -5,13 +5,34 @@
     "x": 55.6,
     "y": 7.7,
     "locked": false,
-    "headingDeg": 180
+    "headingDeg": 90
   },
   "lines": [
     {
+      "id": "start-hive",
+      "color": "#59a14f",
+      "name": "RIGHT_START to RIGHT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 20.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 96.1
+      }
+    },
+    {
       "id": "start-garden",
       "color": "#4e79a7",
-      "name": "RIGHT_START straight to GARDEN_STAGING",
+      "name": "RIGHT_AUTO_HIVE straight to GARDEN_STAGING",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -25,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 180,
+        "startDeg": 96.1,
         "endDeg": 270
       }
     },
@@ -2625,6 +2646,10 @@
   "sequence": [
     {
       "kind": "path",
+      "lineId": "start-hive"
+    },
+    {
+      "kind": "path",
       "lineId": "start-garden"
     },
     {
@@ -3014,11 +3039,6 @@
         119.3,
         90
       ],
-      "RIGHT_START_GARDEN": [
-        55.6,
-        7.7,
-        180
-      ],
       "R_RIGHT_CATCH": [
         59.2,
         18.5,
@@ -3043,6 +3063,16 @@
         60,
         34,
         270
+      ],
+      "RIGHT_START": [
+        55.6,
+        7.7,
+        90
+      ],
+      "RIGHT_AUTO_HIVE": [
+        59.2,
+        20.9,
+        96.1
       ]
     },
     "pathEnds": {
@@ -3095,13 +3125,20 @@
       "left-park-4": "RIGHT_PARK_WALL",
       "left-down-10": "R_UNDER_EXIT",
       "exit-park-19": "RIGHT_PARK_WALL",
-      "exit-park-20": "RIGHT_PARK_WALL"
+      "exit-park-20": "RIGHT_PARK_WALL",
+      "start-hive": "RIGHT_AUTO_HIVE"
     },
     "cards": [
       {
         "id": "c1-spinup",
         "kind": "action",
         "name": "SpinUp"
+      },
+      {
+        "id": "c0-start-hive",
+        "kind": "path",
+        "lineId": "start-hive",
+        "park": false
       },
       {
         "id": "c2-launchall",
@@ -3717,7 +3754,7 @@
         ]
       }
     ],
-    "startAt": "RIGHT_START_GARDEN",
+    "startAt": "RIGHT_START",
     "linkPaths": [
       "link-1",
       "link-2",
@@ -3773,7 +3810,9 @@
     },
     "teamSpots": [
       "GARDEN_STAGING",
-      "SCORING_FLOWER_STAGING"
+      "SCORING_FLOWER_STAGING",
+      "RIGHT_START",
+      "RIGHT_AUTO_HIVE"
     ],
     "exportName": "R-RightUnderHive"
   }
