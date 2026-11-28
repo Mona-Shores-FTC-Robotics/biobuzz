@@ -514,6 +514,11 @@ public final class AutoKit {
         return command(name, DEFAULT_TIMEOUT_S, false);
     }
 
+    /** {@link #commandAwayFromPark(String)} with its own time limit, as {@link #command(String, double)}. */
+    public Command commandAwayFromPark(String name, double timeoutS) {
+        return command(name, timeoutS, false);
+    }
+
     /**
      * The registered command {@code name}: runs until it finishes or {@code timeoutS} has passed,
      * whichever is first, so a command that never finishes cannot stall the Auto. The timeout waits
