@@ -1,0 +1,68 @@
+{
+  "pp": "TeamCode/autos/drafts/l-right-under-hive-nectar.pp",
+  "spec": "LRightUnderHiveNectarAuto",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "calibration": "fruitport",
+  "alliance": "RED",
+  "nectarStudy": {
+    "roll": null
+  },
+  "seeds": [
+    2
+  ],
+  "partnerSeeds": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20
+  ],
+  "partners": [
+    {
+      "name": "R partner, earned roll",
+      "partner": "RRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.7,120.5,210",
+          "x": 5.5,
+          "y": 100.18,
+          "speed": 13,
+          "delay": 1,
+          "earliest": 0
+        }
+      }
+    },
+    {
+      "name": "R partner, no roll",
+      "partner": "RRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": null
+      }
+    },
+    {
+      "name": "R partner, late by 5 s",
+      "partner": "RRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.7,120.5,210",
+          "x": 5.5,
+          "y": 100.18,
+          "speed": 13,
+          "delay": 6,
+          "earliest": 0
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "AutoSource": "l-right-under-hive-nectar.pp",
+    "ComparedWith": "c5d658662470b63f662d796f46a2dbde3ec31854",
+    "SimNote": "210-degree LEFT catch. TIP 1 camera cutoff 10.0 s, one optional feed decision 12.5 s. Fruitport shots and FLOWER loads, strict eight-weight field. Paired study and park results in PR #784."
+  }
+}
