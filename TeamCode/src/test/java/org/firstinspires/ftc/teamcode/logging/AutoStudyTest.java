@@ -421,6 +421,12 @@ public class AutoStudyTest {
 
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
+    /**
+     * A request's {@code "humanAimRolls"} (SimRunTest): the human player's aimed rolls for this run, as
+     * {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS} gives them ({@link AutoSim#humanAimRolls}); null leaves the environment's.
+     */
+    static String requestHumanAimRolls;
+
     /** A spec's Auto may carry {@code :blind}: it runs with its camera down ({@link AutoSim#cameraDown}). */
     static final String BLIND = ":blind";
 
@@ -524,7 +530,7 @@ public class AutoStudyTest {
         // AutoSim). Read here, not in the study loop, so a direct run() gets them too (the body-designs chat, 9 Oct).
         AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
         // BIOBUZZ_AUTO_HUMAN_ENTRY=aim: the long roll at a robot on a spot (AutoSim.humanAims; PR #424), and its knobs.
-        AutoSim.humanAims = "aim".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        AutoSim.humanAims = "aim".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY")) || requestHumanAimRolls != null;
         if (AutoSim.humanAims) {
             String spot = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPOT"), from = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_FROM");
             String aimSpeed = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPEED"), aimSpread = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_SPREAD_DEG");
@@ -536,6 +542,11 @@ public class AutoStudyTest {
             if (aimSpeed != null) AutoSim.humanAimSpeedInPerS = Double.parseDouble(aimSpeed);
             if (aimSpread != null) AutoSim.humanAimSpreadDeg = Double.parseDouble(aimSpread);
             if (aimAt != null) AutoSim.humanAimReleaseAtS = Double.parseDouble(aimAt);
+            // BIOBUZZ_AUTO_HUMAN_AIM_ROLLS: one "spot | from | speed | facing" per NECTAR, ";" between (AutoSim.humanAimRolls).
+            String rolls = requestHumanAimRolls != null ? requestHumanAimRolls : System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_ROLLS");
+            AutoSim.humanAimRolls = rolls == null || rolls.trim().isEmpty() ? null : rolls.split(";");
+            String react = System.getenv("BIOBUZZ_AUTO_HUMAN_AIM_REACT_S");
+            if (react != null) AutoSim.humanAimReactS = Double.parseDouble(react);
         }
         String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
         AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);

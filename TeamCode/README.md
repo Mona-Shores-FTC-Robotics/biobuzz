@@ -1301,6 +1301,10 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   slowly. Each field's two HIVEs agreed. `BIOBUZZ_AUTO_HIVE_FIELD=belding1` or `belding2` runs a study at
   either edge (`HiveCalibration.BELDING_FIELD_1`/`_2`); `HiveFieldTest` (`BIOBUZZ_SIM_CHECKS=1`) checks that
   both still pass the Guide's placed cases.
+- **Which calibration.** A realistic run is `"calibration": "fruitport"` (below): Belding's shot rates are out of
+  date (mentor, 28 Nov 2026). A report shows the best case (`"scenario": "best"`, which needs no calibration
+  named) and Fruitport beside it. The Belding calibration stays as the engine both run on and as the source of
+  the few numbers Fruitport's logs do not have.
 - **The Belding calibration** (`BeldingCalibration`, off by default): `BIOBUZZ_AUTO_CALIBRATION=belding` on a
   study, or `"calibration": "belding"` in a request, replaces placeholders with what the Belding Qualifier's 17
   Auto logs, stream video and official scores showed (7 Nov 2026):
@@ -1355,6 +1359,68 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   volley) parks R-Solo after its second volley in every run, 0.4 s short of going for the third.
   **Not calibrated:** drive times beyond what the simulator's own drive gives, and contact with other robots (Q-27). The 0.70 is the weakest number: fire
   counted volleys from a CLOSE spot (`doc/robot-todo.md` §7d).
+- **The Fruitport calibration, the realistic one** (`FruitportCalibration`, off by default):
+  `BIOBUZZ_AUTO_CALIBRATION=fruitport` on a
+  study, or `"calibration": "fruitport"` in a request, runs the same engine with what the Fruitport Qualifier's 15
+  match logs (`events/2026-11-fruitport`, 21 Nov 2026) and its official AUTO TIP counts showed, and keeps Belding's
+  number wherever Fruitport has no evidence. Every count is `read_logs.py steps` on those logs.
+  - **The share of launched pieces that stay in: 0.94 at 39.2 in,** the one range Fruitport's Autos fired from
+    (`RIGHT_AUTO_HIVE` and its twin `LEFT_AUTO_HIVE` are the same distance from their CELLs). It is the share that
+    best fits both ends together, 89 shots: the preloads made the first TIP in 14 of 14 runs (51 shots, three of
+    the volleys only 3 balls, which all had to stay in); eight fired at the empty LEFT CELL made the second TIP
+    once in three (Q-42 yes, Q-11 and Q-28 no) and seven fired never (2 of 2). Taken apart the ends read 0.95 or
+    better and 0.87, but three volley pairs do not show that they differ. **Kept from Belding:** 0.90 at 53.9 in
+    (nothing was fired from further out than 39.2 in, so `RIGHT_AUTO_OFFSET`, 51.2 in, rests on Belding) and 0.70
+    at 36 in (nor from nearer). `"ourInRate"` / `"partnerInRate"` still replace every row.
+  - **How many pieces a volley after a FLOWER pick fires,** 20 volleys: Infrared's fired 1, 3, 4, 3, 4, 1 after
+    the WALL FLOWER and 3, 4, 4, 2 after the SCORING FLOWER (four in 4 of 10); Ultraviolet's 4 six times after the
+    WALL FLOWER and 0, 4, 4, 4 after the SCORING FLOWER (four in 9 of 10). 19429's roller stick does not fill
+    the lane here: its measured volleys replace the 19 Nov observation the Belding calibration uses, until its
+    stick, held out since 22 Nov, is logged. `BIOBUZZ_BELDING_ROBOT` and its `_OURS` / `_PARTNER` choose whose
+    loads, as for Belding.
+  - **How long a pick and a volley take:** every pick stays master's whole 2 s dwell (the 22 picks took 3.0 to
+    4.0 s card to card, the lane-full signal ending none early); a volley of four after a robot's first runs its
+    whole set feed 4 times in 13 (the shot counter missed a ball: 9 of 13 ended at the fourth shot); and a volley
+    of fewer than four, or of none, always runs the whole set feed (8 of 8 did), where the simulator's own
+    shortcut ends it at its last ball and an empty one at once.
+  - **Kept from Belding:** where the HIVE tips (odd and even seeds: Fruitport's counts fit both fields' points and
+    fix neither), the TIP lag, no knock from a hit. **The simulator's own:** GARDEN gathers (no Fruitport Auto
+    gathered the GARDEN) and drive times.
+
+  R-Solo with it, 60 seeds a robot with that robot's own loads (`BIOBUZZ_AUTO_CALIBRATION=fruitport
+  BIOBUZZ_BELDING_ROBOT=19429` or `20245`, the study line above with `RSoloAuto@50` and `real robot`):
+
+  | | Fruitport | Simulator, Fruitport calibration |
+  |---|---|---|
+  | First TIP from the preloads | 14 of 14 | 120 of 120 |
+  | R-Solo, Infrared: second TIP | 0 of 5 | 7 of 60 |
+  | R-Solo, Ultraviolet: second TIP | 1 of 4 | 28 of 60 |
+
+  The 0.94 is the weakest number: it leans on three LEFT volley pairs. The next event's logs go through the same
+  count (`read_logs.py steps`, then the official AUTO TIPs).
+- **The human player's NECTAR, and `PickNectar`.** One NECTAR is owed for each TIP of our HIVE (G426.A). By
+  default it is dropped mid-zone 2 s after the TIP (`AutoSim.HUMAN_DELAY_S`), and now only once no robot's frame
+  is in the LOADING ZONE or within 2 in of it (G427.C: its first touch is the tile). The drop is a placeholder
+  and a rough one: about one in five rolls off the tape. `BIOBUZZ_AUTO_HUMAN_ENTRY=aim` is the aimed roll, and
+  `BIOBUZZ_AUTO_HUMAN_AIM_ROLLS` gives each NECTAR its own, `spot | from | speed | facing` with `;` between:
+  `"32.8,122.7,195.7|9,116|15|facing;RIGHT_AUTO_OFFSET|5.5,96|18"` rolls the first at a robot standing on that
+  pose from (9, 116) at 15 in/s once the robot's intake faces it and 0.5 s more (the human watches the robot
+  turn; nobody signals anybody), and the second at `RIGHT_AUTO_OFFSET` as soon as it is owed. Every roll number
+  is a placeholder until a floor drill.
+  `PickNectar` is the card that takes it (`AutoSim.pickNectar`), a grab as `GardenGather` is: from where it is
+  called, facing the zone, it drives the intake onto our NECTAR lying in or within 12 in of the zone at 30 in/s
+  and comes back; a NECTAR it sees rolling toward it it waits for instead (2.5 s at most, and goes to get it if it stops short within reach); with none in the
+  webcam's view it gives up after 1 s (`BIOBUZZ_SIM_NECTAR_GIVE_UP_S`), and with a full lane it does nothing.
+  **On the robot it is a placeholder** (`AutoRegistration.PLACEHOLDERS`): the card ends at once and the match log
+  says so. A FLOWER pick after it keeps the NECTAR and tops the lane up to four.
+  The three real cards are simulated as the robot's are: `CatchNectar` (the intake on while a wait runs it
+  alongside), `NectarIn` (the lane holds our own NECTAR) and `LaunchOneAimed` (one piece on the turret, ended at
+  its shot, `LaunchCards.launchOneAimedFeedS` its backstop; a design with its turret locked refuses and keeps the
+  piece). A request's `"humanAimRolls"` is the same roll list (an entry may set its own; `"none"` is the drop, and
+  a fifth field holds a roll back that many seconds after the TIP), and `"launchOneFeedS"` sets a `LaunchOne`'s
+  feed in the simulator: the robot's 0.5 s ends before the simulated first ball (0.85 s), so a simulated
+  `LaunchOne` after a drive fires nothing. The study and the draft that use them are in
+  `doc/human-nectar-auto.md` § "28 Nov 2026"; the robot checks in `doc/robot-todo.md`, "Human NECTAR in AUTO".
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it

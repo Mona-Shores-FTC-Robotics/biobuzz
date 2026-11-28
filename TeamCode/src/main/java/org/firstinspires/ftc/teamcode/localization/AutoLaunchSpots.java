@@ -116,6 +116,11 @@ public final class AutoLaunchSpots {
             return String.format(Locale.ROOT, "faces %.1f deg; the turret aims from there at %.1f deg:"
                     + " move it in the Visualizer, which aims it", degrees(headingRad), degrees(aimed));
         }
+        return frameProblem(x, y, headingRad);
+    }
+
+    /** Why the frame at this pose is not inside the field and a quarter inch short of the centre line, or null. */
+    private static String frameProblem(double x, double y, double headingRad) {
         double half = LaunchSpots.FRAME_HALF_IN, c = Math.cos(headingRad), s = Math.sin(headingRad);
         double[][] local = {{half, half}, {half, -half}, {-half, -half}, {-half, half}};
         for (double[] l : local) {
@@ -128,6 +133,34 @@ public final class AutoLaunchSpots {
             }
         }
         return null;
+    }
+
+    /**
+     * How far inside the firing arc's edges the turret's aim must be at a spot an Auto fires
+     * {@code LaunchOneAimed} from, degrees (mentor, 28 Nov 2026).
+     */
+    public static final double AIMED_SHOT_ARC_MARGIN_DEG = 5.0;
+
+    /**
+     * Why a robot centred at ({@code x}, {@code y}) and facing {@code headingRad}, drawn for red, may not fire a
+     * turret-aimed shot ({@code LaunchOneAimed}) from there, or null when it may: the turret's aim at the raised
+     * row of the CELL at its end is inside the firing arc ({@code arcLeftDeg}, {@code arcRightDeg}) by
+     * {@link #AIMED_SHOT_ARC_MARGIN_DEG}, and the frame is inside the field and short of the centre line. The
+     * heading need not aim a locked turret: that is the exception this shot is (CLAUDE.md, "Localization").
+     */
+    public static String aimedShotProblem(double x, double y, double headingRad, double turretForwardIn,
+                                          double turretLeftIn, double arcLeftDeg, double arcRightDeg) {
+        Vec3 row = cellRowFor(y, Alliance.RED);
+        if (row == null) return "has no CELL at its end";
+        double aimed = LaunchSpots.aimTurret(x, y, row.x(), row.y(), turretForwardIn, turretLeftIn);
+        double turretDeg = Math.toDegrees(Math.IEEEremainder(aimed - headingRad, 2 * Math.PI));
+        double m = AIMED_SHOT_ARC_MARGIN_DEG;
+        if (turretDeg > arcLeftDeg - m || turretDeg < -(arcRightDeg - m)) {
+            return String.format(Locale.ROOT, "faces %.1f deg, which puts the turret's aim %.1f deg %s of forward:"
+                            + " outside the firing arc less %.0f deg (%.0f left, %.0f right)", degrees(headingRad),
+                    Math.abs(turretDeg), turretDeg >= 0 ? "left" : "right", m, arcLeftDeg, arcRightDeg);
+        }
+        return frameProblem(x, y, headingRad);
     }
 
     /** A heading in degrees, [0, 360). */

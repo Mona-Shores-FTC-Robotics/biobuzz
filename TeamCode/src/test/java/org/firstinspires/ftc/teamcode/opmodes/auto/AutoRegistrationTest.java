@@ -36,10 +36,31 @@ public class AutoRegistrationTest {
                 expected, actual);
     }
 
-    /** IntakeFull is the colour sensor's full now (LaneFull): nothing is a placeholder. */
+    /**
+     * The one placeholder is PickNectar (our NECTAR in the LOADING ZONE: simulated, no robot mechanism yet), and it
+     * is registered, so an Auto drawn with it initialises and the Driver Station lists it at INIT.
+     */
     @Test
-    public void nothingIsStillAPlaceholder() {
-        assertEquals(java.util.Collections.emptyList(), AutoRegistration.PLACEHOLDERS);
+    public void pickNectarIsTheOnlyPlaceholderAndIsRegistered() {
+        assertEquals(java.util.Collections.singletonList("PickNectar"), AutoRegistration.PLACEHOLDERS);
+        String registered = AutoRegistration.forRobot(null, null, null, null).describe();
+        for (String name : AutoRegistration.PLACEHOLDERS) {
+            assertTrue(name + " is listed as a placeholder but not registered", registered.contains("\"" + name + "\""));
+        }
+    }
+
+    /** NectarIn: a NECTAR of our own colour in any slot of the lane, and nothing else. */
+    @Test
+    public void nectarInIsOurOwnNectarInTheLane() {
+        org.firstinspires.ftc.teamcode.subsystems.LaneTracker lane = new org.firstinspires.ftc.teamcode.subsystems.LaneTracker();
+        assertFalse("an empty lane", AutoRegistration.ownNectarHeld(lane, Alliance.RED));
+        lane.fill(org.firstinspires.ftc.teamcode.subsystems.LaneTracker.Piece.POLLEN, 2);
+        assertFalse("POLLEN only", AutoRegistration.ownNectarHeld(lane, Alliance.RED));
+        lane.fill(org.firstinspires.ftc.teamcode.subsystems.LaneTracker.Piece.RED_NECTAR, 1);
+        assertTrue(AutoRegistration.ownNectarHeld(lane, Alliance.RED));
+        assertFalse("the other alliance's NECTAR is not ours", AutoRegistration.ownNectarHeld(lane, Alliance.BLUE));
+        assertFalse("no alliance", AutoRegistration.ownNectarHeld(lane, Alliance.UNKNOWN));
+        assertFalse(AutoRegistration.ownNectarHeld(null, Alliance.RED));
     }
 
     /** The CELL a robot is aimed at: at the audience end, red's RIGHT one and blue's LEFT one. */
@@ -107,9 +128,9 @@ public class AutoRegistrationTest {
             String name = names.group(1);
             if (name.startsWith("Launch") || name.startsWith("Shoot") || name.startsWith("Fire")) launches.add(name);
         }
-        assertEquals("a launch command that is not LaunchAll, LaunchAllAimed or LaunchOne: all three aim at the CELL at"
-                        + " the robot's end (LaunchAllAimed with the TurretAimer), and no other CELL can be scored from"
-                        + " there (CLAUDE.md, Hard constraints)",
-                java.util.Arrays.asList("LaunchAll", "LaunchAllAimed", "LaunchOne"), launches);
+        assertEquals("a launch command that is not LaunchAll, LaunchAllAimed, LaunchOne or LaunchOneAimed: all four aim at"
+                        + " the CELL at the robot's end (the Aimed ones with the TurretAimer), and no other CELL can be"
+                        + " scored from there (CLAUDE.md, Hard constraints)",
+                java.util.Arrays.asList("LaunchAll", "LaunchAllAimed", "LaunchOne", "LaunchOneAimed"), launches);
     }
 }

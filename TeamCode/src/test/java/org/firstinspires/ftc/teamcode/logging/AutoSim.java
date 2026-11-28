@@ -156,6 +156,25 @@ public final class AutoSim {
     static double humanAimSpeedSpreadInPerS = 2;
     static double humanAimSpreadDeg = 2;
     static double humanAimReleaseAtS = Double.NaN;
+    /**
+     * The aimed roll, one setting per NECTAR (the first TIP's, the second's, ...; the last repeats), each
+     * {@code spot | from | speed | facing | after}: where the robot waits ("x,y,heading°" or a team spot), where on the zone's
+     * tile it is released ("x,y"), its speed (in/s), and "facing" when the human holds it until one of our robots
+     * stands within {@link #HUMAN_AIM_AT_SPOT_IN} of that spot with its intake within {@link #HUMAN_AIM_FACING_DEG}
+     * of the spot's heading, and then {@link #humanAimReactS} more (the human watches the robot turn; nobody signals
+     * anybody); and, optionally, the least seconds after the TIP before it is released (1 s when left out).
+     * {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS="40.7,121.1,195|8,112|15|facing;RIGHT_AUTO_OFFSET|5.5,95|21"}.
+     * Null: the one {@link #humanAimSpot} for every NECTAR, released as soon as it is owed. Placeholders all: no
+     * drill has timed a human's release or measured a roll's speed and spread.
+     */
+    static String[] humanAimRolls;
+    /** A request's {@code "launchOneFeedS"}: a LaunchOne's feed time in the simulator, s; NaN leaves the robot's ({@code Bot.launchOneFeedS}). */
+    static double launchOneFeedOverrideS = Double.NaN;
+    static double humanAimReactS = 0.5;
+    static final double HUMAN_AIM_AT_SPOT_IN = 4, HUMAN_AIM_FACING_DEG = 12;
+    /** How many aimed NECTAR each side's human has released, and since when the robot has faced the next one's roll. */
+    private final int[] aimedEntries = new int[2];
+    private final double[] aimFacingSince = {Double.NaN, Double.NaN};
     static final double HUMAN_AIM_CLEAR_IN = 12;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
@@ -478,6 +497,25 @@ public final class AutoSim {
      */
     static double sweepRowSpeedInPerS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_SWEEP_SPEED", "6"));
 
+    /**
+     * PickNectar's numbers ({@link Bot#pickNectar}). All placeholders: no robot has run the card. How long it looks
+     * for a NECTAR before it gives up ({@code BIOBUZZ_SIM_NECTAR_GIVE_UP_S}); how far from where it was called it will
+     * drive for one; the drive-in push's top speed, in/s ({@code BIOBUZZ_SIM_NECTAR_SPEED}; the FLOWER push's order of
+     * speed, so a loose ball is not knocked away); and how long it stays on a piece it reached but has not taken.
+     */
+    static double pickNectarGiveUpS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_NECTAR_GIVE_UP_S", "1.0"));
+    static double pickNectarReachIn = 30;
+    static double pickNectarSpeedInPerS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_NECTAR_SPEED", "30"));
+    static double pickNectarDwellS = 0.4;
+    /** The longest PickNectar stands waiting for a NECTAR it sees rolling toward it, s ({@code BIOBUZZ_SIM_NECTAR_WAIT_S}). */
+    static double pickNectarWaitS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_NECTAR_WAIT_S", "2.5"));
+    /** A NECTAR this far outside the LOADING ZONE's tape is still the one dropped there (it rolled), in. */
+    static double pickNectarNearZoneIn = 12;
+    /** The longest the drive-in runs after a NECTAR that keeps rolling away, s. */
+    static double pickNectarChaseS = Double.parseDouble(System.getenv().getOrDefault("BIOBUZZ_SIM_NECTAR_CHASE_S", "1.5"));
+    /** How near the LOADING ZONE's edge a robot's frame may be while the human enters a NECTAR (G427.C), in. */
+    static final double HUMAN_ZONE_CLEAR_IN = 2;
+
     /** One robot running {@code autoClass} for {@code alliance}. */
     AutoSim(Class<?> autoClass, Alliance alliance, long seed) {
         this.alliance = alliance;
@@ -719,6 +757,7 @@ public final class AutoSim {
             return;
         }
         if (!humanRolls) {
+            if (robotInZone(a)) return;  // G427.C: its first touch is the tile, never a robot; the human waits
             due.remove(0);
             sim.enterNectar(a);
             bankEntered[side] = true;
@@ -743,12 +782,43 @@ public final class AutoSim {
     /** {@link #humanAims}: one owed NECTAR rolled from the zone at the intake of a robot on {@link #humanAimSpot}. */
     private void aimedEntry(Alliance a, List<Double> due, int side, Result result) {
         if (!Double.isNaN(humanAimReleaseAtS) && now < humanAimReleaseAtS) return;
-        double[] from = forAlliance(humanAimFrom, a == Alliance.RED);
+        String spotName = humanAimSpot;
+        double[] fromRed = humanAimFrom;
+        double rollSpeed = humanAimSpeedInPerS;
+        boolean whenFacing = false;
+        if (humanAimRolls != null && humanAimRolls.length > 0) {
+            String[] roll = humanAimRolls[Math.min(aimedEntries[side], humanAimRolls.length - 1)].split("\\|");
+            spotName = roll[0].trim();
+            if (roll.length > 1) fromRed = new double[] {Double.parseDouble(roll[1].split(",")[0].trim()), Double.parseDouble(roll[1].split(",")[1].trim())};
+            if (roll.length > 2) rollSpeed = Double.parseDouble(roll[2].trim());
+            whenFacing = roll.length > 3 && "facing".equals(roll[3].trim());
+            // A fifth field: released no sooner than this long after the TIP (a slow human: the NECTAR comes late).
+            if (roll.length > 4 && !roll[4].trim().isEmpty()
+                    && now < due.get(0) - HUMAN_ROLL_DELAY_S + Double.parseDouble(roll[4].trim())) return;
+        }
+        if (whenFacing) {
+            double[] want = forAlliance(aimSpot(spotName), a == Alliance.RED);
+            boolean facing = false;
+            for (Bot b : bots) {
+                if (b.alliance != a) continue;
+                double[] pose = pedro(b.drive.pose);
+                double intake = pose[2] + (b.design.intakeAtBack ? Math.PI : 0);
+                facing |= Math.hypot(pose[0] - want[0], pose[1] - want[1]) <= HUMAN_AIM_AT_SPOT_IN
+                        && Math.abs(Math.toDegrees(AdvantageScopeFrame.wrap(intake - want[2]))) <= HUMAN_AIM_FACING_DEG;
+            }
+            if (!facing) {
+                aimFacingSince[side] = Double.NaN;
+                return;
+            }
+            if (Double.isNaN(aimFacingSince[side])) aimFacingSince[side] = now;
+            if (now - aimFacingSince[side] < humanAimReactS) return;
+        }
+        double[] from = forAlliance(fromRed, a == Alliance.RED);
         for (Bot b : bots) {
             double[] pose = pedro(b.drive.pose);
             if (Math.hypot(pose[0] - from[0], pose[1] - from[1]) < HUMAN_AIM_CLEAR_IN) return;  // the human waits
         }
-        double[] spot = forAlliance(aimSpot(humanAimSpot), a == Alliance.RED);
+        double[] spot = forAlliance(aimSpot(spotName), a == Alliance.RED);
         double reach = RobotDesign.REAL_FRAME_IN / 2;
         for (Bot b : bots) {
             if (b.alliance == a) {
@@ -760,12 +830,14 @@ public final class AutoSim {
         double ty = spot[1] + (Double.isNaN(spot[2]) ? 0 : reach * Math.sin(spot[2]));
         double off = Math.toRadians(humanAimSpreadDeg) * sim.random.nextGaussian();
         double heading = Math.atan2(ty - from[1], tx - from[0]) + off;
-        double speed = Math.max(6, humanAimSpeedInPerS + humanAimSpeedSpreadInPerS * sim.random.nextGaussian());
+        double speed = Math.max(6, rollSpeed + humanAimSpeedSpreadInPerS * sim.random.nextGaussian());
         due.remove(0);
         bankEntered[side] = true;
+        aimedEntries[side]++;
+        aimFacingSince[side] = Double.NaN;
         if (sim.enterNectarAimed(a, from, heading, speed)) {
             String text = String.format(Locale.ROOT, "human: NECTAR rolled from (%.1f, %.1f) at %.0f in/s toward %s's intake"
-                            + " (%.0f in), %.1f deg off", from[0], from[1], speed, humanAimSpot,
+                            + " (%.0f in), %.1f deg off", from[0], from[1], speed, spotName,
                     Math.hypot(tx - from[0], ty - from[1]), Math.toDegrees(off));
             for (Bot b : bots) if (b.alliance == a) result.robots.get(b.index).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, text));
         }
@@ -802,6 +874,27 @@ public final class AutoSim {
             if (b.alliance != a) continue;
             double[] pose = pedro(b.drive.pose);
             if (Math.hypot(pose[0] - sx, pose[1] - sy) < HUMAN_CUE_RADIUS_IN && b.body.speed() < 2) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Whether any robot's frame is in the alliance's LOADING ZONE or within {@link #HUMAN_ZONE_CLEAR_IN} of it. A
+     * NECTAR must touch the zone's tile before anything else (G427.C), so the drop waits for the zone to clear
+     * (doc/human-player-playbook.md: "never drop while a robot is in the box").
+     */
+    private boolean robotInZone(Alliance a) {
+        double[] zone = FieldSim.loadingZone(a);
+        double m = HUMAN_ZONE_CLEAR_IN;
+        for (Bot b : bots) {
+            if (b.drive == null) continue;
+            double[] pose = pedro(b.drive.pose);
+            for (double[] c : corners(pose, b.design)) {
+                if (c[0] > zone[0] - m && c[0] < zone[1] + m && c[1] > zone[2] - m && c[1] < zone[3] + m) return true;
+            }
+            for (double x : new double[] {zone[0], zone[1]}) {
+                for (double y : new double[] {zone[2], zone[3]}) if (inside(new double[] {x, y}, pose, b.design)) return true;
+            }
         }
         return false;
     }
@@ -1556,6 +1649,13 @@ public final class AutoSim {
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
             trackTurret();
+            // A LaunchAll with nothing to fire still opens its gate and feeds, where the calibration says so
+            // (BeldingCalibration.shortVolleysRunTheFeed): the robot has no way to know it is empty.
+            if (firing && feedingAll && body.stored.isEmpty() && shortVolleyRunsFeed() && launcherReady()
+                    && Double.isNaN(activeFeedAt) && drive.speedNow <= SimDrive.FIRE_SPEED_IN_PER_S) {
+                gateOpenAt = now;
+                activeFeedAt = now;
+            }
             if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             // LaunchAll and LaunchOne fire as the robot's LaunchCards do: at our CELL at the robot's end of the
             // field (TurretAim.nearEndCell, TurretAimer), up or not, and from any range, once spun up and still;
@@ -2281,6 +2381,12 @@ public final class AutoSim {
                             () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
+                    // The robot's LaunchOneAimed: one piece with the turret on the CELL at the robot's end, ending at its
+                    // counted shot with LaunchCards.launchOneAimedFeedS its backstop. A robot whose turret cannot aim
+                    // (the locked designs) refuses, as the robot's does, and keeps the piece.
+                    .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, this::launchOneAimed)
+                    // The robot's CatchNectar: the intake on until whoever runs the card ends it.
+                    .command("CatchNectar", 2.0, this::catchNectar)
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
@@ -2316,7 +2422,17 @@ public final class AutoSim {
                     // A row of loose pieces on the tiles ahead (a partner's preloads left for us, doc/three-tips.md):
                     // sim only, the robot has no such card.
                     .grab("SweepRow", SWEEP_ROW_REACH_IN / sweepRowSpeedInPerS, this::sweepRow)
+                    // Our NECTAR lying in the LOADING ZONE (the human player's drop after a TIP): a grab, so the endgame
+                    // guard never cuts it and plans with master's typical time. A placeholder on the robot
+                    // (AutoRegistration.PLACEHOLDERS): only the simulator runs it.
+                    .grab("PickNectar", typical("PICK_NECTAR", AutoRegistration.PICK_NECTAR_TYPICAL_S), this::pickNectar)
                     .trigger("IntakeFull", this::fullSensed)
+                    // The robot's NectarIn: the lane holds a NECTAR of our own alliance.
+                    .trigger("NectarIn", () -> {
+                        FieldSim.Kind ours = alliance == Alliance.BLUE ? FieldSim.Kind.BLUE_NECTAR : FieldSim.Kind.RED_NECTAR;
+                        for (FieldSim.Piece held : body.stored) if (held.kind == ours) return true;
+                        return false;
+                    })
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
                     .trigger("HeldWorth4", () -> design.countsPieces
@@ -2384,6 +2500,18 @@ public final class AutoSim {
         }
 
         /**
+         * A LaunchOne's feed time: the robot's {@code LaunchCards.launchOneFeedS}, or {@code BIOBUZZ_SIM_LAUNCH_ONE_FEED_S}
+         * for a what-if. The robot's 0.5 s (not measured) is shorter than the simulated gate-to-first-ball time
+         * ({@link RobotDesign#gateToFirstBallS}, 0.85 s), so a simulated LaunchOne after a drive fires nothing: a study
+         * that wants a one-ball launch ending at its counted shot sets this to about 1.2 (a request: {@code "launchOneFeedS"}).
+         */
+        private double launchOneFeedS() {
+            if (!Double.isNaN(launchOneFeedOverrideS)) return launchOneFeedOverrideS;
+            String v = System.getenv("BIOBUZZ_SIM_LAUNCH_ONE_FEED_S");
+            return v != null && !v.isEmpty() ? Double.parseDouble(v) : LaunchCards.launchOneFeedS;
+        }
+
+        /**
          * Whether a fire step with nothing left to fire is over. Without the throat beam the robot has
          * no way to know it is empty, and the simulator lets it stop at once (its shot counter ending
          * the feed, as {@code LaunchCards} does at its 4th shot). With the beam
@@ -2392,6 +2520,7 @@ public final class AutoSim {
          * {@code firstBallWithinS} after the gate with no ball at all.
          */
         private boolean emptyStepOver() {
+            if (shortVolleyRunsFeed() && feedingAll) return false;  // the set feed time ends it, as on the robot
             if (!BeamBreakSubsystem.throatFitted || Double.isNaN(activeFeedAt)) return true;
             if (shotsFired == shotsAtStep) return now - activeFeedAt >= BeamBreakSubsystem.firstBallWithinS;
             return now - lastShotFiredAt >= BeamBreakSubsystem.quietS;
@@ -2442,24 +2571,73 @@ public final class AutoSim {
 
         private final LaunchApproach launchApproach = new LaunchApproach();
 
+        /** Whether the fire step under way is a LaunchAll (not a LaunchOne). */
+        private boolean feedingAll;
+
+        /**
+         * Whether a LaunchAll that holds fewer than four, or nothing, runs its whole set feed instead of ending at its
+         * last ball: the robot without a throat beam ({@link BeldingCalibration#shortVolleysRunTheFeed}, measured at
+         * Fruitport). Never with the beam fitted, which sees the lane run dry, and never in the best case.
+         */
+        private boolean shortVolleyRunsFeed() {
+            return BeldingCalibration.on && BeldingCalibration.shortVolleysRunTheFeed && !BeldingCalibration.bestCase
+                    && !BeamBreakSubsystem.throatFitted;
+        }
+
         /** What a launch card does as it starts, or the approach as it opens the gate on the way in. */
         private void beginLaunch(int count) {
+            feedingAll = count == Integer.MAX_VALUE;
             wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
             if (count == Integer.MAX_VALUE) volleysStarted++;
             // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
-            boolean wholeFeed = BeldingCalibration.on && BeldingCalibration.wholeFeed() && count == Integer.MAX_VALUE
-                    && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted;
+            // An event that measured how often the counter missed a ball draws it a volley (BeldingCalibration.wholeFeedChance).
+            if (feedLuck == null) feedLuck = new java.util.Random((seed + 7) * 0xD1B54A32D192ED03L + index);
+            boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE
+                    && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted && BeldingCalibration.wholeFeed(feedLuck);
             shotsAtStep = shotsFired;
             spinUp();
             fireStepBegins();
             firing = true;
             activeFeedAt = Double.NaN;
-            activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : LaunchCards.launchOneFeedS;
+            activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0)
+                    : aimedOne ? LaunchCards.launchOneAimedFeedS : launchOneFeedS();
             nextShotAt = Math.max(nextShotAt, now);
             shotTarget = count == Integer.MAX_VALUE
                     ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
                         ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
                     : shotsFired + count;
+        }
+
+        /** Whether the fire step under way is a LaunchOneAimed: its feed backstop is the robot's {@code launchOneAimedFeedS}. */
+        private boolean aimedOne;
+
+        /** The robot's {@code LaunchCards.launchOneAimed}: one piece, turret-aimed; refused (nothing fed) by a design with no turret. */
+        private Command launchOneAimed() {
+            if (design.launcher != RobotDesign.Launcher.TURRET) {
+                return Commands.instant(() -> pending.add("LaunchOneAimed: not firing, the turret cannot aim; the piece stays in the lane"));
+            }
+            final Command one = launch(1);
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        aimedOne = true;
+                        one.start();
+                        aimedOne = false;
+                    })
+                    .setExecute(one::execute)
+                    .setDone(one::done)
+                    .setEnd(one::end);
+        }
+
+        /** The robot's {@code CatchNectar}: the intake on from the card's start to its end; it never ends by itself. */
+        private Command catchNectar() {
+            final boolean[] before = new boolean[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        before[0] = intakeEnabled;
+                        intakeEnabled = true;
+                    })
+                    .setDone(() -> false)
+                    .setEnd(end -> intakeEnabled = before[0]);
         }
 
         private Command launch(int count) {
@@ -2473,7 +2651,7 @@ public final class AutoSim {
                         beginLaunch(count);
                     })
                     .setDone(() -> (body.stored.isEmpty() && shotTarget != Integer.MAX_VALUE && emptyStepOver()) || shotsFired >= shotTarget
-                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt))
+                            || (body.stored.isEmpty() && Double.isNaN(activeFeedAt) && !(shortVolleyRunsFeed() && feedingAll))
                             || (!Double.isNaN(activeFeedAt) && now - activeFeedAt >= activeFeedLimit))
                     .setEnd(end -> {
                         firing = false;
@@ -2577,6 +2755,8 @@ public final class AutoSim {
          */
         /** Its own stream, so the calibration's short picks leave every other draw as it was. */
         private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
+        /** Its own stream too: which volleys the shot counter misses a ball of ({@link BeldingCalibration#wholeFeedChance}). */
+        private java.util.Random feedLuck;
 
         /**
          * The robot's empty-FLOWER end ({@code DwellWatch}): MASTER's dwell ends {@code FlowerPicker.dwell.dwellEmptyMs}
@@ -2689,7 +2869,10 @@ public final class AutoSim {
                                         + (full ? "a full load (best case)" : "the roller stick fills the lane"));
                             }
                         } else if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
-                            int reach = BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck);
+                            // The draw is what the pick brought to the launcher; a piece held before it (a NECTAR taken
+                            // on the way, PickNectar) is kept, and the two together are the lane's four at most.
+                            int reach = Math.min(FieldSim.ROBOT_CAPACITY, heldAtStart[0]
+                                    + BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck));
                             int lost = 0;
                             while (body.stored.size() > reach) {
                                 FieldSim.Piece gone = body.stored.remove(body.stored.size() - 1);
@@ -2697,7 +2880,7 @@ public final class AutoSim {
                                 gone.x = -1000;
                                 lost++;
                             }
-                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (Belding calibration)");
+                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (the calibration's draw)");
                         }
                         intakeEnabled = intakeBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
@@ -2783,6 +2966,191 @@ public final class AutoSim {
                         pending.add(String.format(Locale.ROOT, "SweepRow: took %d in %.1f s, holds %d",
                                 body.stored.size() - heldBefore[0], now - startedAt[0], body.stored.size()));
                     });
+        }
+
+        /**
+         * PickNectar: takes our own NECTAR lying in our LOADING ZONE, the one the human player drops there after a TIP
+         * of our HIVE ({@link #humanEntries}; G426.A, G427). A grab, as the robot's would be ({@code GrabRoutine}'s
+         * contract): from where the card is called, facing the zone, it drives the intake onto the piece at
+         * {@link #pickNectarSpeedInPerS}, stays {@link #pickNectarDwellS} if the piece is not in yet, and drives back
+         * to where it started. With no NECTAR of ours in view in the zone it looks for {@link #pickNectarGiveUpS} and
+         * gives up; with a full lane it does nothing (G407). "In view" is the webcam's ({@link RobotDesign#cameraRangeIn},
+         * {@link RobotDesign#cameraHalfFovDeg}) from the intake's heading: a piece on the tiles in the zone or within
+         * {@link #pickNectarNearZoneIn} of it (the simulator's drop often rolls off the tape), no further than
+         * {@link #pickNectarReachIn} from where the card began. A piece still rolling is chased: the drive-in is aimed
+         * again whenever it has moved 2 in, for {@link #pickNectarChaseS} at most. The intake takes it as it takes any
+         * loose piece ({@link RobotDesign#intakeGrabChance}, so some pushes miss and the dwell retries).
+         *
+         * <p>A NECTAR it sees rolling toward it (the human player's roll at a robot that turned its intake to the
+         * zone) it does not chase: it stands with the intake on until the piece is in, for {@link #pickNectarWaitS} at
+         * most, and drives for it only if it stops or slows to a creep (under 6 in/s) short of the intake, within reach.
+         *
+         * <p>Sim only so far: on the robot the name is a placeholder ({@code AutoRegistration.PLACEHOLDERS}) until a
+         * webcam-steered grab exists ({@code doc/robot-todo.md}, "Human NECTAR in AUTO"). Every number is a placeholder.
+         */
+        private Command pickNectar() {
+            final Pose[] origin = new Pose[1];
+            final FieldSim.Piece[] target = new FieldSim.Piece[1];
+            final int[] phase = new int[1];  // 0 done, 1 looking, 2 driving in, 3 driving back
+            final double[] startedAt = new double[1], inAt = new double[1], dwellFrom = new double[1], backAt = new double[1];
+            final double[] speedBefore = new double[1];
+            final boolean[] intakeBefore = new boolean[1];
+            final int[] heldBefore = new int[1];
+            final String[] outcome = new String[1];
+            final double[] aimedAt = new double[2];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        double[] at = pedro(drive.pose);
+                        origin[0] = new Pose(at[0], at[1], at[2]);
+                        startedAt[0] = now;
+                        heldBefore[0] = body.stored.size();
+                        intakeBefore[0] = intakeEnabled;
+                        speedBefore[0] = drive.maxSpeed;
+                        target[0] = null;
+                        outcome[0] = null;
+                        dwellFrom[0] = Double.NaN;
+                        phase[0] = 1;
+                        if (FieldSim.full(body)) {
+                            phase[0] = 0;
+                            outcome[0] = "lane full, nothing to take";
+                        }
+                    })
+                    .setExecute(() -> {
+                        if (phase[0] == 1) {
+                            FieldSim.Piece incoming = nectarRollingIn();
+                            if (incoming != null) {
+                                phase[0] = 4;
+                                target[0] = incoming;
+                                inAt[0] = now;
+                                intakeEnabled = true;
+                                return;
+                            }
+                            target[0] = nectarInZone(origin[0]);
+                            if (target[0] != null) {
+                                phase[0] = 2;
+                                inAt[0] = now;
+                                intakeEnabled = true;
+                                drive.maxSpeed = Math.min(speedBefore[0], pickNectarSpeedInPerS);
+                                aimedAt[0] = target[0].x;
+                                aimedAt[1] = target[0].y;
+                                driveOnto(target[0]);
+                            } else if (now - startedAt[0] >= pickNectarGiveUpS) {
+                                phase[0] = 0;
+                                outcome[0] = String.format(Locale.ROOT, "no NECTAR of ours seen by the LOADING ZONE, gave up after %.1f s (%s)",
+                                        now - startedAt[0], nectarNotSeen);
+                            }
+                        } else if (phase[0] == 4) {
+                            boolean taken = target[0].where == FieldSim.Where.ROBOT && body.stored.contains(target[0]);
+                            // Stopped, or down to a creep: it will not reach the intake by itself.
+                            boolean stopped = target[0].where == FieldSim.Where.FIELD && Math.hypot(target[0].vx, target[0].vy) < 6;
+                            boolean near = Math.hypot(target[0].x - origin[0].x(), target[0].y - origin[0].y()) <= pickNectarReachIn;
+                            if (taken || FieldSim.full(body)) {
+                                phase[0] = 0;
+                                backAt[0] = now;
+                            } else if (stopped && near) {  // it stopped short: go and get it
+                                phase[0] = 2;
+                                drive.maxSpeed = Math.min(speedBefore[0], pickNectarSpeedInPerS);
+                                aimedAt[0] = target[0].x;
+                                aimedAt[1] = target[0].y;
+                                driveOnto(target[0]);
+                            } else if (stopped || target[0].where != FieldSim.Where.FIELD || now - inAt[0] >= pickNectarWaitS) {
+                                phase[0] = 0;
+                                backAt[0] = now;
+                                outcome[0] = String.format(Locale.ROOT, "the NECTAR rolling in did not arrive (%s at (%.0f, %.0f) after %.1f s)",
+                                        stopped ? "stopped out of reach" : "still rolling", target[0].x, target[0].y, now - inAt[0]);
+                            }
+                        } else if (phase[0] == 2) {
+                            boolean taken = target[0].where == FieldSim.Where.ROBOT && body.stored.contains(target[0]);
+                            boolean chasing = now - inAt[0] < pickNectarChaseS && target[0].where == FieldSim.Where.FIELD
+                                    && Math.hypot(target[0].x - aimedAt[0], target[0].y - aimedAt[1]) > 2
+                                    && Math.hypot(target[0].x - origin[0].x(), target[0].y - origin[0].y()) <= pickNectarReachIn;
+                            if (!taken && chasing) {  // it rolled: aim again
+                                aimedAt[0] = target[0].x;
+                                aimedAt[1] = target[0].y;
+                                dwellFrom[0] = Double.NaN;
+                                driveOnto(target[0]);
+                            }
+                            if (!taken && drive.pathDone() && Double.isNaN(dwellFrom[0])) dwellFrom[0] = now;
+                            if (taken || FieldSim.full(body) || (!Double.isNaN(dwellFrom[0]) && now - dwellFrom[0] >= pickNectarDwellS)) {
+                                if (!taken) outcome[0] = "reached the NECTAR but did not take it";
+                                phase[0] = 3;
+                                backAt[0] = now;
+                                double[] at = pedro(drive.pose);
+                                Pose from = new Pose(at[0], at[1], at[2]);
+                                drive.follow(Paths.line(from, origin[0]).linear(from, origin[0]));
+                            }
+                        }
+                    })
+                    .setDone(() -> phase[0] == 0 || (phase[0] == 3 && drive.pathDone()))
+                    .setEnd(end -> {
+                        intakeEnabled = intakeBefore[0];
+                        drive.maxSpeed = speedBefore[0];
+                        if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
+                        int took = body.stored.size() - heldBefore[0];
+                        if (outcome[0] != null && took == 0) {
+                            pending.add("PickNectar: " + outcome[0]);
+                        } else {
+                            pending.add(String.format(Locale.ROOT, "PickNectar: took %d in %.1f s (looked %.2f, in %.2f, back %.2f), holds %d",
+                                    took, now - startedAt[0], inAt[0] - startedAt[0], backAt[0] - inAt[0], now - backAt[0], body.stored.size()));
+                        }
+                    });
+        }
+
+        /** Our own NECTAR on the tiles, in the webcam's view and rolling toward this robot (closing at 3 in/s or more), or null. */
+        private FieldSim.Piece nectarRollingIn() {
+            if (!design.launchesNectar) return null;
+            FieldSim.Kind ours = alliance == Alliance.BLUE ? FieldSim.Kind.BLUE_NECTAR : FieldSim.Kind.RED_NECTAR;
+            double[] at = pedro(drive.pose);
+            double facing = at[2] + (design.intakeAtBack ? Math.PI : 0);
+            for (FieldSim.Piece p : sim.pieces) {
+                if (p.kind != ours || p.where != FieldSim.Where.FIELD || p.cell != null || p.flower >= 0) continue;
+                if (p.z > FieldSim.NECTAR_RADIUS_IN + 1) continue;
+                double dx = at[0] - p.x, dy = at[1] - p.y, d = Math.hypot(dx, dy);
+                if (d > design.cameraRangeIn || d < 1e-6) continue;
+                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(-dy, -dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg)) continue;
+                if ((p.vx * dx + p.vy * dy) / d >= 3) return p;
+            }
+            return null;
+        }
+
+        /** Why PickNectar's last look found nothing, for the timeline when it gives up. */
+        private String nectarNotSeen = "";
+
+        /** Our own NECTAR on the tiles in or by our LOADING ZONE, in the webcam's view from {@code origin}: the nearest, or null. */
+        private FieldSim.Piece nectarInZone(Pose origin) {
+            FieldSim.Kind ours = alliance == Alliance.BLUE ? FieldSim.Kind.BLUE_NECTAR : FieldSim.Kind.RED_NECTAR;
+            nectarNotSeen = "this robot does not launch NECTAR";
+            if (!design.launchesNectar) return null;
+            double[] zone = FieldSim.loadingZone(alliance);
+            double[] at = pedro(drive.pose);
+            double facing = at[2] + (design.intakeAtBack ? Math.PI : 0);
+            FieldSim.Piece best = null;
+            double bestD = Double.MAX_VALUE, nearestD = Double.MAX_VALUE;
+            nectarNotSeen = "none of ours loose on the field";
+            for (FieldSim.Piece p : sim.pieces) {
+                if (p.kind != ours || p.where != FieldSim.Where.FIELD || p.cell != null || p.flower >= 0) continue;
+                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
+                double near = pickNectarNearZoneIn;
+                String why = p.x < zone[0] - near || p.x > zone[1] + near || p.y < zone[2] - near || p.y > zone[3] + near
+                                ? "not by the LOADING ZONE"
+                        : p.z > FieldSim.NECTAR_RADIUS_IN + 1 ? "still falling"
+                        : d > design.cameraRangeIn ? "beyond the camera"
+                        : Math.hypot(p.x - origin.x(), p.y - origin.y()) > pickNectarReachIn ? "too far from where the card began"
+                        : Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg)
+                                ? "out of the camera's view" : null;
+                if (why != null) {
+                    if (d < nearestD) {
+                        nearestD = d;
+                        nectarNotSeen = String.format(Locale.ROOT, "nearest at (%.0f, %.0f): %s", p.x, p.y, why);
+                    }
+                    continue;
+                }
+                if (d < bestD) {
+                    bestD = d;
+                    best = p;
+                }
+            }
+            return best;
         }
 
         private Command gardenGather(boolean alongWall) {

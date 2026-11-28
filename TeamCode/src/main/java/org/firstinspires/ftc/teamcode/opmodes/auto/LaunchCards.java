@@ -177,6 +177,14 @@ public final class LaunchCards {
     public static double launchOneFeedS = 0.5;
 
     /**
+     * {@code LaunchOneAimed}'s backstop, seconds: the feed ends at its first counted shot, or after this. 1.2: the
+     * first ball leaves about 0.75 to 0.85 s after the gate opens (19429, 18 Nov 2026; every Auto LaunchAll at
+     * Belding and Fruitport), so {@link #launchOneFeedS}' 0.5 s would end before it. <b>Not measured</b> with
+     * one piece in the lane.
+     */
+    public static double launchOneAimedFeedS = 1.2;
+
+    /**
      * Whether a {@code LaunchAll} right after a path opens the gate on the approach (see the class
      * comment) rather than only once the robot has settled. On until a robot check shows the hit
      * rate on the approach is worse than firing still; the condition's knobs are
@@ -582,6 +590,64 @@ public final class LaunchCards {
                 });
     }
 
+    /**
+     * {@code LaunchOneAimed}: one piece, from where the robot stands, with the turret aimed at the CELL at the
+     * robot's end ({@code AimedVolley} with its arc margin, the TeleOp's {@code TurretAimer}), for a spot whose
+     * heading does not aim a locked turret: the robot faces somewhere else (its intake at the LOADING ZONE, for the
+     * human player's NECTAR) and the turret alone holds the CELL. It spins up, aims every loop, opens the gate once
+     * the launcher is at speed and the turret is on target inside the arc less its margin, and feeds until the first
+     * counted shot or {@link #launchOneAimedFeedS}. A turret that cannot aim (locked forward, a dropped hold) fires
+     * from home only where home points at the CELL; anywhere else, as for any other {@link AimedShot#refusal()}, the
+     * card ends with nothing fed and the piece still in the lane, and it says why. Does not count toward {@code Empty}.
+     */
+    public Command launchOneAimed(AimedShot shot) {
+        if (shot == null) throw new IllegalArgumentException("LaunchOneAimed needs a turret to aim");
+        final Volley volley = new Volley("LaunchOneAimed", false, true);
+        final boolean[] refused = new boolean[1];
+        final double[] startedAt = new double[1];
+        return new CommandBuilder()
+                .setStart(() -> {
+                    volley.reset();
+                    startedAt[0] = secondsNow.getAsDouble();
+                    String why = shot.refusal();
+                    refused[0] = why != null;
+                    if (refused[0]) {
+                        note.accept("LaunchOneAimed: not firing, " + why + "; the piece stays in the lane");
+                        return;
+                    }
+                    launcher.spinUp();
+                    shot.start();
+                })
+                .setExecute(() -> {
+                    if (refused[0] || volley.fed()) {
+                        if (!refused[0]) shot.aim();
+                        return;
+                    }
+                    boolean aiming = shot.aim();
+                    String why = shot.refusal();
+                    if (why != null) {
+                        refused[0] = true;
+                        note.accept(String.format(Locale.US, "LaunchOneAimed: not firing, %s (%.2f s in, the gate never opened);"
+                                + " the piece stays in the lane", why, secondsNow.getAsDouble() - startedAt[0]));
+                        return;
+                    }
+                    if (!speedReady() || (aiming && !shot.onTarget())) return;
+                    note.accept(String.format(Locale.US, "LaunchOneAimed opened the gate, %s, %.2f s after it started%s",
+                            aiming ? "the turret on target" : "the turret at home, which points at the CELL",
+                            secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
+                    volley.begin(secondsNow.getAsDouble(), false);
+                })
+                .setDone(() -> refused[0] || volley.done(secondsNow.getAsDouble()))
+                .setEnd(end -> {
+                    shot.done();
+                    if (!volley.fed()) {
+                        if (!refused[0]) note.accept("LaunchOneAimed ended before the gate opened (" + end + "): nothing fed");
+                        return;
+                    }
+                    volley.end(end);
+                });
+    }
+
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
         return launch("LaunchOne", false);
@@ -703,9 +769,17 @@ public final class LaunchCards {
         /** This feed's lane jam has been noted as the lane entry's to clear. */
         private boolean leftToLane;
 
+        /** A one-ball launch that ends at its first counted shot ({@code LaunchOneAimed}), not on {@code LaunchOne}'s timer alone. */
+        private final boolean oneCounted;
+
         Volley(String name, boolean volleyCard) {
+            this(name, volleyCard, false);
+        }
+
+        Volley(String name, boolean volleyCard, boolean oneCounted) {
             this.name = name;
             this.volleyCard = volleyCard;
+            this.oneCounted = oneCounted;
         }
 
         void reset() {
@@ -748,6 +822,7 @@ public final class LaunchCards {
         }
 
         private double limitS() {
+            if (oneCounted) return nonNegative(launchOneAimedFeedS);
             if (!volleyCard) return nonNegative(launchOneFeedS);
             return launcher.throatBalls() >= 0 ? nonNegative(throatBackstopS) : nonNegative(volleyFeedS(first));
         }
@@ -785,7 +860,7 @@ public final class LaunchCards {
             if (balls < 0) {
                 double enough = endAfter();
                 int shots = launcher.shots();
-                allShotsOut = volleyCard && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
+                allShotsOut = (volleyCard || oneCounted) && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
                 if (allShotsOut) endWhy = ", ended at the last counted shot";
                 if (allShotsOut || !volleyCard) return allShotsOut;
                 // A beam behind the gate: the volley's last ball has passed the gate once it stays clear

@@ -6,6 +6,11 @@ package org.firstinspires.ftc.teamcode.logging;
  * (a study) or {@code "calibration": "belding"} (a request) turns it on. README, "Simulating an Auto", has the
  * study that runs R-Solo and L-NoCross with it, and their TIP counts beside Belding's.
  *
+ * <p>It is also the engine of every event's calibration: {@link FruitportCalibration} ({@code "fruitport"}) turns
+ * this on and puts the Fruitport Qualifier's rows, loads and times in place of Belding's ({@link #STAY_IN}, the load
+ * tables, {@link #PICK_DWELL_S}, {@link #wholeFeedChance}, {@link #rollerFillsLane}), keeping every number Fruitport
+ * has no evidence for.
+ *
  * <p><b>What it sets, and from what:</b>
  * <ul>
  *   <li><b>How many pieces a volley after a FLOWER pick fires</b> ({@link #load}). This is what decided the
@@ -46,12 +51,16 @@ package org.firstinspires.ftc.teamcode.logging;
 final class BeldingCalibration {
     private BeldingCalibration() {}
 
-    /** On for this JVM's runs; a request or a test may set it. */
-    static boolean on = "belding".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"));
+    /** On for this JVM's runs; a request or a test may set it. {@code fruitport} turns it on too ({@link FruitportCalibration}). */
+    static boolean on = "belding".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"))
+            || "fruitport".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"));
 
 
-    /** Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. */
-    static final double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.70)},
+    /**
+     * Launch range from the turret axis, inches, and the fraction of launched pieces that stay in the CELL. Belding's
+     * rows; another event's calibration puts its own here ({@link FruitportCalibration#use}).
+     */
+    static double[][] STAY_IN = {{36.0, env("BIOBUZZ_BELDING_STAY_CLOSE", 0.70)},
             {42.4, env("BIOBUZZ_BELDING_STAY_CATCH", 0.95)}, {53.9, env("BIOBUZZ_BELDING_STAY_START", 0.90)}};
 
     /**
@@ -77,6 +86,27 @@ final class BeldingCalibration {
     /** Whether a LaunchAll after a robot's first runs its whole set feed: Belding's undercounting shot counter, not in the best case. */
     static boolean wholeFeed() {
         return WHOLE_FEED && !bestCase;
+    }
+
+    /**
+     * The chance that one LaunchAll after a robot's first runs its whole set feed although four balls went: the shot
+     * counter missed one. 0 for Belding (all or nothing there, {@link #WHOLE_FEED}); an event that measured the
+     * share sets it ({@link FruitportCalibration#WHOLE_FEED_CHANCE}).
+     */
+    static double wholeFeedChance = 0;
+
+    /**
+     * Whether a LaunchAll holding fewer than four pieces, or none, runs its whole set feed
+     * ({@code LaunchCards.launchAllFeedS}) rather than ending at its last ball, which is the simulator's own
+     * shortcut. Off for Belding, as its runs were fitted; on where an event's logs show it
+     * ({@link FruitportCalibration}).
+     */
+    static boolean shortVolleysRunTheFeed = false;
+
+    /** {@link #wholeFeed()} for one volley: always with {@link #WHOLE_FEED}, else by {@link #wholeFeedChance}; never in the best case. */
+    static boolean wholeFeed(java.util.Random luck) {
+        if (bestCase) return false;
+        return WHOLE_FEED || (wholeFeedChance > 0 && luck.nextDouble() < wholeFeedChance);
     }
 
     /**
@@ -129,7 +159,7 @@ final class BeldingCalibration {
      * Seconds a FLOWER pick stays on the FLOWER even once the lane is full: the logged picks took 3.3 to 3.8 s card
      * to card, the simulator's about 2.9 s.
      */
-    static final double PICK_DWELL_S = env("BIOBUZZ_BELDING_PICK_DWELL", 0.7);
+    static double PICK_DWELL_S = env("BIOBUZZ_BELDING_PICK_DWELL", 0.7);
 
     /**
      * How many pieces each robot's volley after a FLOWER pick actually fired at Belding, counted from the launcher
@@ -137,8 +167,8 @@ final class BeldingCalibration {
      * were also counted on video, never under; capped at the lane's four). Infrared's loads came up short on
      * both FLOWERs; Ultraviolet's were full but for Q-1's wedge.
      */
-    static final int[] IR_WALL = {0, 2, 4, 2, 1}, IR_SCORING = {0, 4, 3, 4, 2, 0, 4, 4};
-    static final int[] UV_WALL = {4, 4, 4, 4, 4, 4}, UV_SCORING = {1, 4, 4};
+    static int[] IR_WALL = {0, 2, 4, 2, 1}, IR_SCORING = {0, 4, 3, 4, 2, 0, 4, 4};
+    static int[] UV_WALL = {4, 4, 4, 4, 4, 4}, UV_SCORING = {1, 4, 4};
 
     /**
      * {@code BIOBUZZ_BELDING_ROBOT}: whose loads a run draws from: "19429" (Infrared), "20245" (Ultraviolet), "both"
@@ -179,9 +209,16 @@ final class BeldingCalibration {
         return "19429".equals(robot);
     }
 
+    /**
+     * Whether a roller stick fills the lane at all: the mentor's observation of 19 Nov 2026, which Belding's draw
+     * (before the roller) cannot speak to. Off for an event whose logs counted that robot's volleys with the roller
+     * fitted ({@link FruitportCalibration}: 19429's fired four in 4 of 10), so its draw is used instead.
+     */
+    static boolean rollerFillsLane = true;
+
     /** Whether the robot at {@code index} fills its lane on a pick or a gather that reaches the pieces ({@link #rollerStick}). */
     static boolean rollerFills(int index) {
-        return on && rollerStick(robotFor(index));
+        return on && rollerFillsLane && rollerStick(robotFor(index));
     }
 
     /** Whether every load of the robot at {@code index} is four ({@link #robotFor(int)} "full"): a FLOWER pick's, and a GARDEN gather's too. */
@@ -241,4 +278,9 @@ final class BeldingCalibration {
     static final double MISS_SPEED_FACTOR = 0.85;
     /** A shot that stays in keeps this much of the placeholder spread, so it still lands in different places. */
     static final double HIT_SPREAD = 0.0;
+
+    // BIOBUZZ_AUTO_CALIBRATION=fruitport: Fruitport's numbers in place of the ones above, from this JVM's first run.
+    static {
+        if ("fruitport".equals(System.getenv("BIOBUZZ_AUTO_CALIBRATION"))) FruitportCalibration.use();
+    }
 }

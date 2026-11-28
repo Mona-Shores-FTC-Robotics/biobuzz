@@ -336,6 +336,10 @@ turret, locked, aims at the CELL at that end from there, the frame stays inside 
 centre line (`AutoLaunchSpots.launchSpotProblem`, which `AutoVolleySpotsTest` holds every Auto to). The
 Visualizer turns a spot a Launch all fires from to face its CELL as you make or move it, so there is
 nothing to do by hand. A spot earns its place here when a second Auto wants it.
+A turret-aimed launch (`LaunchAllAimed` after a park, `LaunchOneAimed` for one piece) may be fired from any
+named spot whose heading keeps the near CELL inside the firing arc by 5 degrees, with the same frame rule
+(`AutoLaunchSpots.aimedShotProblem`; mentor, 28 Nov 2026): the robot need not face the CELL. It does not fire
+without a referenced pose, and a turret that cannot aim fires from home only where home points at the CELL.
 
 - **Using one.** In the Visualizer, pick it from a step's spot dropdown (under "Team spots"), or
   select a path and press 🔗 on its end in the Path panel, then pick the spot: the end jumps to it

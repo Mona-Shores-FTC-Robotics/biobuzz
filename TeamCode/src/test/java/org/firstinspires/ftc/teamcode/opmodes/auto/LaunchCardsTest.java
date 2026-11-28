@@ -198,6 +198,60 @@ public class LaunchCardsTest {
         assertEquals(LaunchCards.launchAllFeedS, timeOf(first("idle")) - timeOf(first("feed")), 0.05);
     }
 
+    // ------------------------------------------------ LaunchOneAimed, one piece on the turret (28 Nov 2026)
+
+    @Test
+    public void aOneBallAimedLaunchEndsAtItsCountedShot() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        Command card = cards.launchOneAimed(shot);
+        card.schedule();
+        step(0.8);
+        assertTrue("fed, and still feeding: no shot counted yet", first("feed") != null && first("idle") == null);
+        shots++;
+        finish(card, 1);
+        assertEquals("ended at the shot, not at the backstop", 0.8, timeOf(first("idle")) - timeOf(first("feed")), 0.1);
+        assertTrue(shot.done);
+        assertEquals("one ball does not empty the robot", 0, cards.launchAllsCompleted());
+    }
+
+    @Test
+    public void aOneBallAimedLaunchWithNoShotCountedEndsAtItsBackstop() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        run(cards.launchOneAimed(shot), 5);
+        assertEquals(LaunchCards.launchOneAimedFeedS, timeOf(first("idle")) - timeOf(first("feed")), 0.05);
+        assertTrue("longer than LaunchOne's feed, which ends before the first ball",
+                LaunchCards.launchOneAimedFeedS > LaunchCards.launchOneFeedS + 0.3);
+    }
+
+    @Test
+    public void aOneBallAimedLaunchThatMayNotFireKeepsThePiece() {
+        // A turret that cannot aim at a spot where home does not point at the CELL: the shot says so, nothing is fed.
+        FakeShot shot = new FakeShot();
+        shot.canAim = false;
+        shot.refusal = "the turret cannot aim (locked forward, or it dropped its hold) and home points 84 deg off the CELL";
+        atSpeed = true;
+        run(cards.launchOneAimed(shot), 0.2);
+        assertEquals(null, first("feed"));
+        assertTrue(notes.toString(), notes.get(0).contains("the piece stays in the lane"));
+    }
+
+    @Test
+    public void aOneBallAimedLaunchWaitsForTheTurretOnTarget() {
+        FakeShot shot = new FakeShot();
+        atSpeed = true;
+        Command card = cards.launchOneAimed(shot);
+        card.schedule();
+        step(0.4);
+        assertEquals("not on target: no feed", null, first("feed"));
+        shot.onTarget = true;
+        finish(card, 5);
+        assertEquals(0.4, timeOf(first("feed")), 0.05);
+    }
+
     @Test
     public void spinUpAsksTheLauncherAndFinishesAtOnce() {
         run(cards.spinUp(), 0.1);

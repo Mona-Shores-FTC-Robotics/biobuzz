@@ -21,6 +21,27 @@ public class AimedVolleyTest {
         assertFalse(AimedVolley.canAim(true, false, null, null));
     }
 
+    /** A turret that cannot aim fires from home only where home points at the CELL: never from a heading that faces elsewhere. */
+    @Test
+    public void homeIsAShotOnlyWhereItPointsAtTheCell() {
+        assertNull("a spot that aims a locked turret", AimedVolley.homeRefusal(0.4));
+        assertNull(AimedVolley.homeRefusal(-AimedVolley.HOME_AIM_TOLERANCE_DEG));
+        assertTrue("L-RightUnderHive's NECTAR spot, 84 deg off", AimedVolley.homeRefusal(84).contains("84 deg off the CELL"));
+        assertTrue(AimedVolley.homeRefusal(-20) != null);
+        assertTrue("not known is not a shot", AimedVolley.homeRefusal(Double.NaN).contains("not known"));
+    }
+
+    /** The one-ball aimed shot asks for the aim inside the arc by its margin; a volley from the park asks for none. */
+    @Test
+    public void theAimIsInsideTheArcByTheMargin() {
+        assertTrue(AimedVolley.insideArcBy(84, 90, 90, 5));
+        assertFalse(AimedVolley.insideArcBy(88.7, 90, 90, 5));
+        assertTrue(AimedVolley.insideArcBy(-85, 90, 90, 5));
+        assertFalse(AimedVolley.insideArcBy(-86, 90, 90, 5));
+        assertTrue("no margin asks nothing more", AimedVolley.insideArcBy(89.9, 90, 90, 0));
+        assertFalse(AimedVolley.insideArcBy(Double.NaN, 90, 90, 5));
+    }
+
     @Test
     public void theParkVolleyNeedsAPoseAndAnAlliance() {
         // 19429, 18 Nov 2026: parked by 26.2 s with 2 POLLEN.

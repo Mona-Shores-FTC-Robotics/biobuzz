@@ -1,4 +1,81 @@
-# Human NECTAR in AUTO: where, when, and is it worth it (4 Nov 2026, study)
+# Human NECTAR in AUTO: where, when, and is it worth it (4 Nov 2026 study; 28 Nov 2026 update first)
+
+## 28 Nov 2026: NECTAR 1 into LEFT, for the RightUnderHive pair (read this first)
+
+Everything below this section is the 4 Nov study: it predates the turret, the simulator's GARDEN and corner
+wheels, the Fruitport rates and the RightUnderHive pair, and its times are stale. This section is the current
+answer. Its runs are the Java simulator's (`SimRunTest`), times are seconds after our PLAY, the realistic case
+is `"calibration": "fruitport"` and the best case `"scenario": "best"`. R is master's R-RightUnderHive
+(`RIGHT_START` facing 90°, preloads from `RIGHT_AUTO_HIVE`). Every arm ran the same seeds: 60 in the best case,
+120 at Fruitport rates.
+
+**The draft** (`auto/l-right-under-hive-nectar`, L-RightUnderHive only; R is untouched). L fires its preloads
+from `LEFT_AUTO_OFFSET` as now. If that volley is done by 11.0 s, it turns on the spot to 215° (its own spot
+`L_NECTAR_TURN`: the intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward),
+holds there with the intake on (`CatchNectar`) until 12.0 s on the match clock while the human player rolls the
+NECTAR TIP 1 earned at it, fires that NECTAR at LEFT with the turret if the lane holds one (`NectarIn`,
+`LaunchOneAimed`), and leaves for the WALL FLOWER. LEFT then holds 4 POLLEN and a NECTAR (5.65 POLLEN-weights)
+before R's GARDEN load, so R's four tip it with one of them missed. A NECTAR that comes after 12.0 s is not
+waited for.
+
+| L's plan for NECTAR 1 | Best case, 3 TIPs | Fruitport, 3 TIPs | Fruitport, 2+ TIPs | Both parked | Contact |
+|---|---|---|---|---|---|
+| master's pair (no NECTAR) | 59 of 60 | 21 of 120 | 116 | 120 | 1 |
+| **the draft: hold to 12.0 s, fire it aimed from 215°** | 59 of 60 | **27 of 120** | 116 | 120 | 1 |
+| the same, leaving as soon as the NECTAR is in (no fixed hold) | 59 of 60 | 30 of 120 | 115 | 120 | 1 |
+| turn back to 298.7° and fire it locked | 54 of 60 | 30 of 120 | 116 | 120 | 2 |
+| fire it with a one-ball `LaunchAll` (the whole 2.4 s feed), aimed / locked | 59 / 54 of 60 | 25 / 21 of 120 | 115 | 120 | 10 / 13 |
+| no shot at LEFT: carry it to RIGHT in the WALL FLOWER load (rolled to L 7 in from its spot) | 59 of 60 | 34 of 120 | 117 | 120 | 2 |
+| the same, picked up still from a spot 16 in off the zone (`PickNectar`) | 58 of 60 | 29 of 120 | 117 | 120 | 1 |
+| the intake-forward pair (f9926276, L drives through the zone), the new R start patched in | 58 of 60 | 22 of 120 | 118 | 120 | 0 |
+
+The hold time: 12.0 s gives 27 of 120, 11.5 s 26, 11.0 s 23. All three keep the best case at 59 of 60.
+
+**Rejected, with the numbers** (60 seeds each, best case / Fruitport 3-TIP runs, Fruitport contact):
+- Drive into the zone, pick the NECTAR up, come back and fire it at LEFT: 29 / 5, contact 21. L is still at the
+  left end when R leaves `R_LEFT_CATCH` for the SCORING FLOWER at 14.8 s, and reaches `RIGHT_AUTO_OFFSET` after
+  its 21.5 s check.
+- Move partway (7 in, or to 16 in off the zone), catch, come back to a left-end spot and fire with a one-ball
+  `LaunchAll`: 54 / 6 and 42 / 5, contact 7.
+- NECTAR 2 at the right end (the TIP 2 NECTAR rolled down the outer lane at L, fired at RIGHT as its own
+  shot), at `RIGHT_AUTO_OFFSET` and at catch points 19 and 34 in up the lane: 19 to 20 of 60 against 18
+  without it, both robots parked in only 40 to 46 of 60 and contact in 34 to 37. L stands or drives on the
+  outer lane when R's park comes up it at about 25 s. It does not fit; the human keeps NECTAR 2 for TELEOP.
+
+**Where the Fruitport runs lose their third TIP** (120 runs each):
+
+| Cause | master's pair | NECTAR 1 into LEFT (leaving when it is in) |
+|---|---|---|
+| 3 TIPs | 21 | 30 |
+| TIP 2 late: LEFT one or more short when R fired, so L or R gave up on RIGHT | 43 | 4 |
+| A short FLOWER load: fewer than 8 fired at RIGHT (R's, L's, both) | 46 (20, 14, 12) | 70 (32, 22, 16) |
+| 8 fired at RIGHT, one or more missed | 7 | 13 |
+| TIP 1 late or missed (L crosses to fix it) | 3 | 3 |
+
+So the NECTAR does what the mentor wanted, TIP 2 on time in all but 4 runs, and what is left is the FLOWER
+loads: at Fruitport's loads a pick brings four in 13 of 20 volleys. That is the next lever, not more weight in
+LEFT.
+
+**Times in the simulator** (medians; 10th to 90th percentile in brackets): TIP 1 settles at 6.9 s (6.3 to
+9.0); L's preloads are out at 9.2 (8.6 to 11.2); the NECTAR, released 1 s after TIP 1 and rolled 31 in at
+13 in/s, is in the intake at about 10.4; the shot takes 0.9 s. Leaving as soon as it is in, L is gone from the
+left end at 11.4 s (13.3 at the 90th percentile); with the draft's hold, at 12.9 s; R reaches `R_LEFT_CATCH`
+at 12.2 s and leaves it for the SCORING FLOWER, 6.5 in from L's spot, at 14.8 s. L then reaches
+`RIGHT_AUTO_OFFSET` at about 20.6 s with the hold (16.8 today), inside its 21.5 s check, and TIP 2 has come by
+then (17.9 s, a second sooner than today: 9.65 weights is well past the tipping point).
+
+**What the numbers rest on, all placeholders:** the human's release 1 s after TIP 1 and the roll's speed and
+aim (the simulator catches 108 of 111 such rolls: nobody has rolled one); the turn (0.3 s in the simulator,
+about 0.6 s on a robot at 150°/s); the one-ball shot ending at its counted shot in 0.9 s. On the robot
+`LaunchOne`'s 0.5 s feed is shorter than the 0.75 to 0.85 s from gate to first ball, so the draft uses the new
+`LaunchOneAimed` (1.2 s backstop), and a one-ball `LaunchAll` costs its whole feed, which the table shows is
+worth 5 TIPs in 120 runs and adds contact. The robot checks are `doc/robot-todo.md`, "Human NECTAR in AUTO".
+
+**One difference from the mentor's sketch.** The check at 12.0 s is `NectarIn` (the lane holds our own NECTAR,
+by the entrance colour sensor's lane count), not `Empty`: on the robot `Empty` means "a `LaunchAll` has
+finished since this wait began", not "the lane is empty", so it would never skip the shot.
+
+---
 
 A study for the mentor's decision, backed by simulator runs. No robot code changes here. The rules are as the team
 read them and the Q&A confirmed them (`doc/human-nectar.md` in branch history, commit `f9831183`;
