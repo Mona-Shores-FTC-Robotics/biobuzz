@@ -6,6 +6,10 @@ import org.firstinspires.ftc.teamcode.subsystems.IndicatorSubsystem.Signal;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.lang.reflect.Proxy;
+
 /** The light shows only what the drive team acts on: the class comment's three rows. */
 public class IndicatorSubsystemTest {
 
@@ -112,5 +116,31 @@ public class IndicatorSubsystemTest {
                 IndicatorSubsystem.position(Signal.NECTAR_CUE_BLUE, fast, late), EPS);
         assertEquals(IndicatorSubsystem.BLUE, IndicatorSubsystem.position(Signal.NECTAR_CUE_BLUE, 2 * fast, late), EPS);
         assertEquals("under 5 Hz", true, IndicatorSubsystem.NECTAR_FAST_FLASH_MS >= 100);
+    }
+
+    @Test
+    public void theNectarCueComesOnAtTheCallAndGoesOutWithTheHold() {
+        HardwareMap map = new HardwareMap(null, null) {
+            @Override public <T> T get(Class<? extends T> type, String name) {
+                return type.cast(Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{type},
+                        (proxy, method, args) -> null));
+            }
+        };
+        IndicatorSubsystem light = new IndicatorSubsystem(map);
+        assertEquals(false, light.nectarCueOn());
+        light.nectarCue(true);
+        assertEquals("CallNectar: on at the turn", true, light.nectarCueOn());
+        light.nectarHold();
+        assertEquals(true, light.nectarCueOn());
+        light.nectarCue(false);
+        assertEquals("the hold's end", false, light.nectarCueOn());
+        double max = IndicatorSubsystem.NECTAR_CUE_MAX_MS;
+        try {
+            IndicatorSubsystem.NECTAR_CUE_MAX_MS = 0;
+            light.nectarCue(true);
+            assertEquals("a skipped hold: out by itself", false, light.nectarCueOn());
+        } finally {
+            IndicatorSubsystem.NECTAR_CUE_MAX_MS = max;
+        }
     }
 }

@@ -467,9 +467,9 @@ tipping RIGHT by hand at about 5 s.
       (`launchOneFeedS`, never measured), shorter than the 0.75 to 0.85 s from gate to first ball: with one
       piece and a shut gate it probably fires nothing. Try it five times and put the number that works in a PR.
 - [ ] **The light tells the human player when to roll** (`claude/nectar-light`). The draft L alone, five runs,
-      the human player at the LOADING ZONE. **Good:** as L finishes its turn to 215° the light flashes the
-      alliance's colour at 2 Hz, flashes faster (4 Hz) from 1.5 s into the wait
-      (`IndicatorSubsystem.NECTAR_FAST_AFTER_MS`), and goes dark (or green, the NECTAR in) as L fires or leaves;
+      the human player at the LOADING ZONE. **Good:** as L starts its turn to 215° (`CallNectar`) the light
+      flashes the alliance's colour at 2 Hz, through the volley, flashes faster (4 Hz) from 1.5 s into the hold
+      (`IndicatorSubsystem.NECTAR_FAST_AFTER_MS`), and goes dark (or green, the NECTAR in) as the hold ends;
       the human player can see it from the zone and rolls on it. **Tune:** the fast flash comes too late to act
       on → lower `NECTAR_FAST_AFTER_MS` in Panels; nobody can tell the two rates apart → note it in the PR.
 - [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed

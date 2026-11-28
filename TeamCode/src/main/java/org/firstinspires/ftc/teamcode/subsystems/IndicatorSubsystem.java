@@ -28,10 +28,11 @@ import org.firstinspires.ftc.teamcode.util.Throttle;
  *       shoots into itself)</td></tr>
  *   <tr><td>After PLAY, Circle's arc turn has just started ({@code ArcTurn})</td><td>orange, one solid
  *       pulse of {@link #ARC_TURN_PULSE_MS}</td><td>lets the robot turn itself</td></tr>
- *   <tr><td>After PLAY, an Auto waits for the human player's NECTAR ({@code CatchNectar} runs: the intake
- *       turned to the LOADING ZONE)</td><td>the alliance's colour, flashing at 2 Hz, then 4 Hz from
- *       {@link #NECTAR_FAST_AFTER_MS} into the wait</td><td>the human player rolls the NECTAR now; faster
- *       means the robot is about to give up and leave (mentor, 28 Nov 2026)</td></tr>
+ *   <tr><td>After PLAY, an Auto calls for the human player's NECTAR ({@code CallNectar}, as the robot
+ *       starts turning its intake to the LOADING ZONE, until its {@code CatchNectar} hold ends)</td><td>the
+ *       alliance's colour, flashing at 2 Hz, then 4 Hz from {@link #NECTAR_FAST_AFTER_MS} into the hold</td><td>the
+ *       human player rolls the NECTAR now; faster means the robot is about to give up and leave (mentor,
+ *       28 Nov 2026)</td></tr>
  *   <tr><td>After PLAY, the lane is full (the colour sensor's {@code LaneFull})</td><td>green</td>
  *       <td>stops intaking</td></tr>
  *   <tr><td>After PLAY, the shot is behind the firing arc ({@code ArcLight})</td><td>orange</td>
@@ -75,16 +76,23 @@ public class IndicatorSubsystem implements Subsystem {
     }
 
     /**
-     * How long into the NECTAR wait the light flashes faster, ms: the wait lasts at most about
-     * 2.5 s (the RightUnderHive NECTAR hold), so from 1.5 s in the human player sees the robot is
-     * about to leave. A starting point, <b>not seen on the robot</b>.
+     * How long into the NECTAR hold ({@code CatchNectar}) the light flashes faster, ms: the hold
+     * lasts at most about 2.5 s (the RightUnderHive NECTAR hold), so from 1.5 s in the human player
+     * sees the robot is about to leave. A starting point, <b>not seen on the robot</b>.
      */
     public static double NECTAR_FAST_AFTER_MS = 1500;
+    /**
+     * The NECTAR cue goes out by itself this long after it came on, ms, in case the Auto skipped the
+     * hold that would have ended it (a late TIP: the turn and the volley, then no hold).
+     */
+    public static double NECTAR_CUE_MAX_MS = 8000;
     /** The faster flash's half period, ms: 125 is 4 Hz, still under the 5 Hz the manual frowns on. */
     public static double NECTAR_FAST_FLASH_MS = 125;
 
     /** When the NECTAR cue came on ({@link #nectarCue}), ms on the nanoTime clock; negative: off. */
     private long nectarCueSinceMs = -1;
+    /** When the NECTAR hold began ({@link #nectarHold}), the same clock; negative: not holding yet. */
+    private long nectarHoldSinceMs = -1;
 
     /**
      * How long the arc turn's orange pulse lasts, ms: one solid orange as Circle starts turning the
@@ -151,16 +159,30 @@ public class IndicatorSubsystem implements Subsystem {
     }
 
     /**
-     * The NECTAR cue ({@code CatchNectar}, an Auto's wait for the human player's NECTAR): on as the
-     * wait starts, off as it ends. {@code RobotOpMode} reads {@link #nectarCueOn()} into {@link #choose}.
+     * The NECTAR cue: on from {@code CallNectar} (the robot starts turning its intake to the LOADING
+     * ZONE), or from the hold if nothing called it; off as the hold ends, or after
+     * {@link #NECTAR_CUE_MAX_MS}. {@code RobotOpMode} reads {@link #nectarCueOn()} into {@link #choose}.
      */
     public void nectarCue(boolean on) {
-        if (!on) nectarCueSinceMs = -1;
-        else if (nectarCueSinceMs < 0) nectarCueSinceMs = System.nanoTime() / 1_000_000L;
+        if (!on) {
+            nectarCueSinceMs = -1;
+            nectarHoldSinceMs = -1;
+        } else if (nectarCueSinceMs < 0) {
+            nectarCueSinceMs = System.nanoTime() / 1_000_000L;
+        }
+    }
+
+    /** {@code CatchNectar} has begun: the cue on, and its faster flash counted from now. */
+    public void nectarHold() {
+        nectarCue(true);
+        if (nectarHoldSinceMs < 0) nectarHoldSinceMs = System.nanoTime() / 1_000_000L;
     }
 
     public boolean nectarCueOn() {
-        return nectarCueSinceMs >= 0;
+        if (nectarCueSinceMs < 0) return false;
+        if (System.nanoTime() / 1_000_000L - nectarCueSinceMs < NECTAR_CUE_MAX_MS) return true;
+        nectarCue(false);
+        return false;
     }
 
     /**
@@ -194,7 +216,7 @@ public class IndicatorSubsystem implements Subsystem {
     }
 
     /**
-     * The same, {@code cueMs} into the NECTAR cue: its flash is {@link #FLASH_MS} until
+     * The same, {@code cueMs} into the NECTAR hold: its flash is {@link #FLASH_MS} until
      * {@link #NECTAR_FAST_AFTER_MS}, then {@link #NECTAR_FAST_FLASH_MS}.
      */
     static double position(Signal signal, long nowMs, long cueMs) {
@@ -225,6 +247,7 @@ public class IndicatorSubsystem implements Subsystem {
     public void initialize() {
         signal = Signal.OFF;
         nectarCueSinceMs = -1;
+        nectarHoldSinceMs = -1;
         written = Double.NaN;
     }
 
@@ -238,7 +261,7 @@ public class IndicatorSubsystem implements Subsystem {
     public void update() {
         long nowNs = System.nanoTime();
         long nowMs = nowNs / 1_000_000L;
-        long cueMs = nectarCueSinceMs < 0 ? 0 : nowMs - nectarCueSinceMs;
+        long cueMs = nectarHoldSinceMs < 0 ? 0 : nowMs - nectarHoldSinceMs;
         double position = Math.max(0.0, Math.min(1.0, position(signal, nowMs, cueMs)));
         if (position != written || resend.due(nowNs)) {
             light.setPosition(position);
