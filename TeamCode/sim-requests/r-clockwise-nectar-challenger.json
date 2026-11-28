@@ -184,6 +184,7 @@
     }
   ],
   "metadata": {
-    "SimNote": "Exploratory matched Clockwise nectar challenger; current Fruitport feed/scoring, full loads; no physical roll calibration. Human policy identical across arms. Delays are after each earned TIP, never early."
+    "SimNote": "Exploratory matched Clockwise nectar challenger; current Fruitport feed/scoring, full loads; no physical roll calibration. Human policy identical across arms. Delays are after each earned TIP, never early.",
+    "Exporter": "Visualizer PR217 7456193de284abcbac5e018c4d081b2d8f74424d; restores outer guard around nectar wait"
   }
 }
