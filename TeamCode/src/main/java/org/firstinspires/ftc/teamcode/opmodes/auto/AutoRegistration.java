@@ -394,6 +394,9 @@ public final class AutoRegistration {
      * {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it, and the
      * indicator light flashing the alliance's colour meanwhile, so the human player rolls the NECTAR
      * now (faster near the end: {@code IndicatorSubsystem.NECTAR_FAST_AFTER_MS}; mentor, 28 Nov 2026).
+     * It leaves the intake on as it ends: an Auto runs the intake the whole time
+     * ({@code BuiltAuto.intakeRequest}; the intake holds itself once the lane is full), so an idle
+     * here would leave it off for the rest of the Auto.
      */
     private static Command catchNectar(Robot robot) {
         return new CommandBuilder()
@@ -402,10 +405,7 @@ public final class AutoRegistration {
                     robot.indicator.nectarCue(true);
                 })
                 .setDone(() -> false)
-                .setEnd(end -> {
-                    robot.intake.idle();
-                    robot.indicator.nectarCue(false);
-                });
+                .setEnd(end -> robot.indicator.nectarCue(false));
     }
 
     /** Whether {@code lane} holds a NECTAR of {@code alliance}'s colour in any slot. No alliance, no lane: false. Pure. */
