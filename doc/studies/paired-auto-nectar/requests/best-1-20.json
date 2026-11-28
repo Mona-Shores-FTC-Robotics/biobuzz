@@ -1,0 +1,73 @@
+{
+  "spec": "RLeftUnderHiveAuto",
+  "pp": "TeamCode/autos/r-left-under-hive.pp",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "calibration": "fruitport",
+  "alliance": "RED",
+  "seeds": [
+    1
+  ],
+  "humanAimRolls": "61.4,120.45,268.9|5.5,95|24||1;59.2,20.9,96.1|5.5,95|26||1;keep",
+  "partners": [
+    {
+      "name": "Master",
+      "timing": {
+        "speed": 50
+      },
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "name": "Bounded NECTAR",
+      "timing": {
+        "speed": 50
+      },
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    }
+  ],
+  "scenario": "best"
+}

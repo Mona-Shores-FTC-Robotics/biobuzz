@@ -1,0 +1,10 @@
+route,seeds,profile,n,clean_three,clean_two,both_parks,contacts,crosses
+r-left-under-hive,1-120,Fruitport,120,53,118,120,0,0
+r-left-under-hive,201-320,Fruitport,120,68,119,120,0,0
+r-left-under-hive,1-10,best,10,10,10,10,0,0
+r-clockwise,1-120,Fruitport,120,29,115,120,3,0
+r-clockwise,201-320,Fruitport,120,35,119,120,0,0
+r-clockwise,1-10,best,10,10,10,10,0,0
+r-no-cross,1-120,Fruitport,120,0,83,120,0,0
+r-no-cross,201-320,Fruitport,120,0,86,120,0,0
+r-no-cross,1-10,best,10,0,10,10,0,0
