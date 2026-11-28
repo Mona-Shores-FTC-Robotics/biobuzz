@@ -1412,8 +1412,15 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   and comes back; a NECTAR it sees rolling toward it it waits for instead (2.5 s at most, and goes to get it if it stops short within reach); with none in the
   webcam's view it gives up after 1 s (`BIOBUZZ_SIM_NECTAR_GIVE_UP_S`), and with a full lane it does nothing.
   **On the robot it is a placeholder** (`AutoRegistration.PLACEHOLDERS`): the card ends at once and the match log
-  says so. A FLOWER pick after it keeps the NECTAR and tops the lane up to four. What the real card needs is in
-  `doc/robot-todo.md`, "Human NECTAR in AUTO"; the study that uses it is `doc/human-nectar-auto.md`.
+  says so. A FLOWER pick after it keeps the NECTAR and tops the lane up to four.
+  The three real cards are simulated as the robot's are: `CatchNectar` (the intake on while a wait runs it
+  alongside), `NectarIn` (the lane holds our own NECTAR) and `LaunchOneAimed` (one piece on the turret, ended at
+  its shot, `LaunchCards.launchOneAimedFeedS` its backstop; a design with its turret locked refuses and keeps the
+  piece). A request's `"humanAimRolls"` is the same roll list (an entry may set its own; `"none"` is the drop, and
+  a fifth field holds a roll back that many seconds after the TIP), and `"launchOneFeedS"` sets a `LaunchOne`'s
+  feed in the simulator: the robot's 0.5 s ends before the simulated first ball (0.85 s), so a simulated
+  `LaunchOne` after a drive fires nothing. The study and the draft that use them are in
+  `doc/human-nectar-auto.md` § "28 Nov 2026"; the robot checks in `doc/robot-todo.md`, "Human NECTAR in AUTO".
 - **The launcher fires at the robot's one setpoint.** The real robot's designs fire every shot at master's
   `LauncherSubsystem.targetTicksPerSecond` (`RobotDesign.fixedSetpoint`), at one pitch, whatever the distance,
   so a shot from nearer or further than RIGHT_START goes long or short. **Measured:** the setpoint, and that it
