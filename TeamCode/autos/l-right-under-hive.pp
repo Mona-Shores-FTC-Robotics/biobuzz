@@ -2033,7 +2033,7 @@
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "LaunchOneAimed": 1.2,
-        "CatchNectar": 2
+        "CatchNectar": 0.6
       }
     },
     "points": {
@@ -2372,56 +2372,109 @@
                         "park": false
                       },
                       {
-                        "id": "c31-hold",
-                        "kind": "firstOf",
-                        "label": "Hold for the human player's NECTAR, intake on",
-                        "alongside": "CatchNectar",
-                        "rows": [
-                          {
-                            "afterMs": 12000,
-                            "matchClock": true,
-                            "cards": []
-                          }
-                        ]
-                      },
-                      {
                         "id": "c44-check",
                         "kind": "firstOf",
-                        "label": "NECTAR in the lane? (fire it at LEFT: R may then miss one)",
+                        "label": "TIP 1 early? (then hold at most 2.5 s; else only to 12 s)",
                         "rows": [
                           {
-                            "when": [
-                              "NectarIn"
-                            ],
+                            "afterMs": 9500,
+                            "matchClock": true,
                             "cards": [
                               {
-                                "id": "c45-check",
+                                "id": "c31-hold",
                                 "kind": "firstOf",
-                                "label": "LEFT still up?",
+                                "label": "Hold for the human player's NECTAR, intake on: until it is in, or 12 s",
+                                "alongside": "CatchNectar",
                                 "rows": [
                                   {
+                                    "afterMs": 12000,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
                                     "when": [
-                                      "CellUp"
+                                      "NectarIn"
                                     ],
                                     "cards": [
                                       {
-                                        "id": "c46-launchoneaimed",
-                                        "kind": "action",
-                                        "name": "LaunchOneAimed"
+                                        "id": "c45-check",
+                                        "kind": "firstOf",
+                                        "label": "LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                        "rows": [
+                                          {
+                                            "afterMs": 12000,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c46-launchoneaimed",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
                                       }
                                     ]
-                                  },
-                                  {
-                                    "afterMs": 150,
-                                    "cards": []
                                   }
                                 ]
                               }
                             ]
                           },
                           {
-                            "afterMs": 100,
-                            "cards": []
+                            "when": [
+                              "Always"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c47-hold",
+                                "kind": "firstOf",
+                                "label": "Hold for the human player's NECTAR, intake on: until it is in, at most 2.5 s",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 2500,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c48-check",
+                                        "kind": "firstOf",
+                                        "label": "LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                        "rows": [
+                                          {
+                                            "afterMs": 12000,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c49-launchoneaimed",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
                           }
                         ]
                       },

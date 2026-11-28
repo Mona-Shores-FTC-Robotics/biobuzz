@@ -39,13 +39,6 @@
       "partner": "PartnerZoneStillAuto"
     },
     {
-      "name": "LEFT-SHOOT-PARK on time (seen 3 of 32)",
-      "partner": "PartnerLTipParkAuto",
-      "timing": {
-        "speed": 50
-      }
-    },
-    {
       "name": "dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto"
     },
@@ -67,12 +60,6 @@
       "name": "contingency: our preloads miss, partner dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto",
       "oursFails": "misses preloads"
-    },
-    {
-      "name": "contingency: our preloads miss, partner misses every shot",
-      "partner": "PartnerLTipParkAuto",
-      "oursFails": "misses preloads",
-      "fails": "misses"
     }
   ],
   "metadata": {

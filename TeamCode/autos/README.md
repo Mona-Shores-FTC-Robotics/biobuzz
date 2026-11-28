@@ -261,7 +261,7 @@ they said" and "breaks down partway" are not modelled (mentor, 3 Nov 2026). The 
 |---|---|---|---|---|
 | L-NoCross | yes | `partner-r-launch-park`, last shot at 2, 5, 8 and 12 s: our partner wait runs to 6, 9, 12 and 16 s (seen: 1.0–5.3 s) | the same, said 5 and 8 s; and missed, staying on its start to 10.3 or 12.3 s (`startDelayS`) | `partner-r-broken-down`, said 8 s: we wait to 12 s, then take the Otherwise branch (never seen) |
 | R-NoCross | yes | `partner-l-tip-park` at 50 in/s; `partner-leave-park`; `partner-still`; `partner-zone-still` | the same | `partner-l-broken-down` (never seen) |
-| R-Solo | yes | `partner-leave-park`, `partner-still`, `partner-zone-still`, `partner-l-tip-park`; `partner-park-1` (never seen) | | `partner-l-broken-down` (never seen) |
+| R-Solo | yes | `partner-leave-park`, `partner-still`, `partner-zone-still`; `partner-park-1` (never seen). Not `partner-l-tip-park`: a partner that shoots at LEFT is not who R-Solo runs beside (mentor, 28 Nov 2026) | | `partner-l-broken-down` (never seen) |
 | R-Solo-Nudge (draft, `drafts/`) | yes | `partner-push-start`, pushable: pushed off the wall into the LOADING ZONE | | |
 
 **The results table** in the workflow's job summary has a row per seed of each run: points, our

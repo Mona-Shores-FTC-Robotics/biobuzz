@@ -236,15 +236,23 @@ public final class LRightUnderHiveAuto {
                                                                         kit.path("RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK", rightAutoOffsetUpTheOuterLaneToLeftPark, 3.2))))),
                                         kit.when("Always").then(
                                                 kit.path("LEFT_AUTO_OFFSET: turn the intake to the LOADING ZONE", leftAutoOffsetTurnTheIntakeToTheLoadingZone, 0.5, guardAfterLoffTurnLNectarTurnToLeftPark, 1.5),
-                                                kit.firstOf("Hold for the human player's NECTAR, intake on", kit.command("CatchNectar"),
-                                                        kit.atMatchSeconds(12)),
-                                                kit.firstOf("NECTAR in the lane? (fire it at LEFT: R may then miss one)",
-                                                        kit.when("NectarIn").then(
-                                                                kit.firstOf("LEFT still up?",
-                                                                        kit.when("CellUp").then(
-                                                                                kit.command("LaunchOneAimed")),
-                                                                        kit.afterMs(150))),
-                                                        kit.afterMs(100)),
+                                                kit.firstOf("TIP 1 early? (then hold at most 2.5 s; else only to 12 s)",
+                                                        kit.atMatchSeconds(9.5).then(
+                                                                kit.firstOf("Hold for the human player's NECTAR, intake on: until it is in, or 12 s", kit.command("CatchNectar"),
+                                                                        kit.atMatchSeconds(12),
+                                                                        kit.when("NectarIn").then(
+                                                                                kit.firstOf("LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                                                                        kit.atMatchSeconds(12),
+                                                                                        kit.when("CellUp").then(
+                                                                                                kit.command("LaunchOneAimed")))))),
+                                                        kit.when("Always").then(
+                                                                kit.firstOf("Hold for the human player's NECTAR, intake on: until it is in, at most 2.5 s", kit.command("CatchNectar"),
+                                                                        kit.afterMs(2500),
+                                                                        kit.when("NectarIn").then(
+                                                                                kit.firstOf("LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                                                                        kit.atMatchSeconds(12),
+                                                                                        kit.when("CellUp").then(
+                                                                                                kit.command("LaunchOneAimed"))))))),
                                                 kit.path("L_NECTAR_TURN down the outer lane to WALL_FLOWER_STAGING", lNectarTurnDownTheOuterLaneToWallFlowerStaging, 2.6, guardAfterTurnWfWallFlowerStagingToLeftPark, 2.6),
                                                 kit.command("PickFlower", 8),
                                                 kit.path("NECTAR: WALL_FLOWER_STAGING to RIGHT_AUTO_OFFSET", nectarWallFlowerStagingToRightAutoOffset, 1.7, guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2),

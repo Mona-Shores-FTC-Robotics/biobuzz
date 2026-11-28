@@ -40,7 +40,7 @@
       "humanAimRolls": "40.2,120.8,215|8,98.3|13||4"
     },
     {
-      "name": "NECTAR 1 never comes (the human keeps it): L holds to 12 s, fires nothing",
+      "name": "NECTAR 1 never comes (the human keeps it): L holds at most 2.5 s, fires nothing",
       "partner": "LRightUnderHiveAuto",
       "humanAimRolls": "none"
     },
