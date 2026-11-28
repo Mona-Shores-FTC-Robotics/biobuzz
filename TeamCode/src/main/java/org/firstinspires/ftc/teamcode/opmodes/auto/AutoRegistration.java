@@ -354,6 +354,12 @@ public final class AutoRegistration {
                 // ---- real: the intake running, for a NECTAR the human player rolls at the robot. It never ends
                 // by itself: a wait runs it alongside (NectarIn, at most until a match second) and ends it.
                 .command("CatchNectar", 2.0, () -> catchNectar(robot))
+                // ---- real: the indicator light calls for the human player's NECTAR (flashing the alliance's
+                // colour) from now until the CatchNectar hold ends; drawn as the robot starts its turn to the
+                // LOADING ZONE, so the human player sees it early (mentor, 28 Nov 2026).
+                .command("CallNectar", 0.1, () -> Commands.instant(() -> {
+                    if (robot != null) robot.indicator.nectarCue(true);
+                }))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
@@ -390,12 +396,23 @@ public final class AutoRegistration {
      * tracker no longer assumes a TIP, and this wait lasts until the camera sees the CELL up, or
      * its time runs out and the Auto takes the other way.
      */
-    /** {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it. */
+    /**
+     * {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it, and the
+     * indicator light flashing the alliance's colour meanwhile (from {@code CallNectar} if the Auto
+     * called earlier), so the human player rolls the NECTAR now; faster from
+     * {@code IndicatorSubsystem.NECTAR_FAST_AFTER_MS} into the hold (mentor, 28 Nov 2026).
+     * It leaves the intake on as it ends: an Auto runs the intake the whole time
+     * ({@code BuiltAuto.intakeRequest}; the intake holds itself once the lane is full), so an idle
+     * here would leave it off for the rest of the Auto.
+     */
     private static Command catchNectar(Robot robot) {
         return new CommandBuilder()
-                .setStart(() -> robot.intake.intake())
+                .setStart(() -> {
+                    robot.intake.intake();
+                    robot.indicator.nectarHold();
+                })
                 .setDone(() -> false)
-                .setEnd(end -> robot.intake.idle());
+                .setEnd(end -> robot.indicator.nectarCue(false));
     }
 
     /** Whether {@code lane} holds a NECTAR of {@code alliance}'s colour in any slot. No alliance, no lane: false. Pure. */
