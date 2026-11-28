@@ -1,0 +1,189 @@
+{
+  "pp": "TeamCode/autos/drafts/r-clockwise-nectar-challenger.pp",
+  "spec": "RClockwiseNectarChallengerAuto@50",
+  "folder": "clockwise-nectar-challenger-candidate-fruitport",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "calibration": "fruitport",
+  "loop": "clockwise",
+  "seeds": [
+    1
+  ],
+  "partnerSeeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "alliance": "RED",
+  "humanAimRolls": "58.5,120.45,205|5.5,95|26||4;32.1,16.4,109|5.5,95|28||1",
+  "partners": [
+    {
+      "name": "WALL FLOWER nominal",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "GARDEN nominal",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "R slow only",
+      "ourSpeed": 40,
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "L slow only",
+      "timing": {
+        "speed": 40
+      },
+      "partner": "LClockwiseNectarChallengerAuto",
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "Both rolls late",
+      "humanAimRolls": "58.5,120.45,205|5.5,95|26||6;32.1,16.4,109|5.5,95|28||3",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "Second roll withheld through AUTO",
+      "humanAimRolls": "58.5,120.45,205|5.5,95|26||4;32.1,16.4,109|5.5,95|28||99",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "Both rolls withheld through AUTO",
+      "humanAimRolls": "58.5,120.45,205|5.5,95|26||99;32.1,16.4,109|5.5,95|28||99",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "R preloads miss",
+      "oursFails": "misses preloads",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "L preloads miss",
+      "fails": "misses preloads",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "TIPS FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "TIPS FIRST"
+      }
+    },
+    {
+      "name": "PARK FIRST",
+      "partner": "LClockwiseNectarChallengerAuto",
+      "timing": {
+        "speed": 50
+      },
+      "picks": {
+        "Pickup": "WALL_FLOWER",
+        "Endgame": "PARK FIRST"
+      },
+      "partnerPicks": {
+        "Pickup": "GARDEN",
+        "Endgame": "PARK FIRST"
+      }
+    }
+  ],
+  "metadata": {
+    "SimNote": "Exploratory matched Clockwise nectar challenger; current Fruitport feed/scoring, full loads; no physical roll calibration. Human policy identical across arms. Delays are after each earned TIP, never early."
+  }
+}
