@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-27T13:53:23.718Z",
+  "timestamp": "2026-11-28T05:14:20.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -424,7 +424,7 @@
     {
       "id": "line-mw2z8m8r-d4cyle",
       "color": "#e15759",
-      "name": "to LEFT_AUTO_HIVE",
+      "name": "to R_NECTAR_TURN",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -432,20 +432,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
+        "x": 58.5,
         "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 268.9
+        "endDeg": 203.7
       }
     },
     {
       "id": "line-mw2h249a-0a0w4q",
       "color": "#b07aa1",
-      "name": "to RIGHT_PARK_WALL",
+      "name": "R_NECTAR_TURN to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -488,7 +488,7 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 268.9,
+        "startDeg": 203.7,
         "endDeg": 270,
         "degrees": 0,
         "reverse": false,
@@ -501,7 +501,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 268.9,
+                "startDeg": 203.7,
                 "endDeg": 270
               }
             },
@@ -525,19 +525,19 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
+        "x": 58.5,
         "y": 120.45
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.9
+        "degrees": 203.7
       }
     },
     {
       "id": "line-mwdn0a01-rsp3c",
       "color": "#b07aa1",
-      "name": "to RIGHT_PARK_WALL",
+      "name": "R_NECTAR_TURN to RIGHT_PARK_WALL",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -580,7 +580,7 @@
       ],
       "heading": {
         "type": "piecewise",
-        "startDeg": 268.9,
+        "startDeg": 203.7,
         "endDeg": 270,
         "degrees": 0,
         "reverse": false,
@@ -593,7 +593,7 @@
               "reversed": false,
               "continueFromPrevious": false,
               "parameters": {
-                "startDeg": 268.9,
+                "startDeg": 203.7,
                 "endDeg": 270
               }
             },
@@ -1108,7 +1108,11 @@
         "PickFlower",
         "GardenGather",
         "LaunchOne",
-        "SpinUp"
+        "SpinUp",
+        "LaunchAllAimed",
+        "LaunchOneAimed",
+        "CatchNectar",
+        "CallNectar"
       ],
       "conditions": [
         "Empty",
@@ -1118,7 +1122,8 @@
         "Tip",
         "CameraBlind",
         "CellUp",
-        "Always"
+        "Always",
+        "NectarIn"
       ],
       "events": [
         "Tip"
@@ -1128,7 +1133,11 @@
         "PickFlower": 4,
         "GardenGather": 3,
         "LaunchOne": 0.5,
-        "SpinUp": 0.1
+        "SpinUp": 0.1,
+        "LaunchAllAimed": 2.5,
+        "LaunchOneAimed": 1.2,
+        "CatchNectar": 0.6,
+        "CallNectar": 0.1
       }
     },
     "points": {
@@ -1171,6 +1180,11 @@
         14.5,
         92.5,
         270
+      ],
+      "R_NECTAR_TURN": [
+        58.5,
+        120.45,
+        203.7
       ]
     },
     "pathEnds": {
@@ -1183,7 +1197,7 @@
       "line-mw2z05td-jkwfz4": "LEFT_AUTO_HIVE",
       "line-mw2z05th-whpzzi": "RIGHT_PARK_WALL",
       "line-mw2z1rrz-ltmk3y": "RIGHT_AUTO_HIVE",
-      "line-mw2z8m8r-d4cyle": "LEFT_AUTO_HIVE",
+      "line-mw2z8m8r-d4cyle": "R_NECTAR_TURN",
       "line-mwdn0a01-rsp3c": "RIGHT_PARK_WALL",
       "line-mwdn0a01-rspfb": "RIGHT_PARK_WALL",
       "line-r-solo-to-right-auto-hive": "RIGHT_AUTO_HIVE",
@@ -1252,6 +1266,11 @@
                 "timeoutS": 4.5
               },
               {
+                "id": "c-rsn-callnectar",
+                "kind": "action",
+                "name": "CallNectar"
+              },
+              {
                 "id": "c-mw2z8m8r-obclc",
                 "kind": "path",
                 "lineId": "line-mw2z8m8r-d4cyle",
@@ -1270,7 +1289,49 @@
                       {
                         "id": "c-mw2h249a-p5yh3",
                         "kind": "action",
-                        "name": "LaunchAll"
+                        "name": "LaunchAllAimed"
+                      },
+                      {
+                        "id": "c-rsn-hold",
+                        "kind": "firstOf",
+                        "label": "Hold for the human player's NECTAR, intake on: until it is in, at most 1.5 s",
+                        "alongside": "CatchNectar",
+                        "rows": [
+                          {
+                            "afterMs": 1500,
+                            "cards": []
+                          },
+                          {
+                            "when": [
+                              "NectarIn"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c-rsn-check",
+                                "kind": "firstOf",
+                                "label": "LEFT still up? (fire the NECTAR at LEFT)",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c-rsn-launchoneaimed",
+                                        "kind": "action",
+                                        "name": "LaunchOneAimed"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "afterMs": 750,
+                                    "cards": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
                       },
                       {
                         "id": "c-mw2h249a-nxkzp",

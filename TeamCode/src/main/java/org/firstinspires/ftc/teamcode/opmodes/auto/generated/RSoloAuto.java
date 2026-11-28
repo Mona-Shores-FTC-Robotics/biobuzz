@@ -21,13 +21,13 @@ public final class RSoloAuto {
     public static final String SOURCE = "r-solo.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-27|8:53AM";
+    public static final String SAVED = "11-28|12:14AM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "PickFlower", "SpinUp"};
+    public static final String[] COMMANDS = {"CallNectar", "CatchNectar", "LaunchAll", "LaunchAllAimed", "LaunchOneAimed", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"CellUp"};
+    public static final String[] TRIGGERS = {"CellUp", "NectarIn"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -55,6 +55,7 @@ public final class RSoloAuto {
         Pose leftAutoHive = p.of(61.4, 120.45, 268.9);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
         Pose rightParkWall = p.of(14.5, 92.5, 270);
+        Pose rNectarTurn = p.of(58.5, 120.45, 203.7);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose rightAutoHiveParkControl1 = p.of(15.2472, 41.5582, 0);
@@ -80,36 +81,36 @@ public final class RSoloAuto {
         Pose scoringFlowerStagingParkControl6 = p.of(14.5, 70, 0);
         Pose scoringFlowerStagingParkControl7 = p.of(14.5, 80, 0);
         Pose scoringFlowerStagingParkSegment1Start = p.of(14.5, 92.5, 90);
-        Pose toRightParkWallControl1 = p.of(32, 121, 0);
-        Pose toRightParkWallControl2 = p.of(33, 104, 0);
-        Pose toRightParkWallControl3 = p.of(33, 86, 0);
-        Pose toRightParkWallControl4 = p.of(33, 76, 0);
-        Pose toRightParkWallControl5 = p.of(33, 72, 0);
-        Pose toRightParkWallControl6 = p.of(14.5, 70, 0);
-        Pose toRightParkWallControl7 = p.of(14.5, 80, 0);
-        Pose toRightParkWallSegment1Start = p.of(14.5, 92.5, 268.9);
-        Pose toRightParkWall_2Control1 = p.of(32, 121, 0);
-        Pose toRightParkWall_2Control2 = p.of(33, 104, 0);
-        Pose toRightParkWall_2Control3 = p.of(33, 86, 0);
-        Pose toRightParkWall_2Control4 = p.of(33, 76, 0);
-        Pose toRightParkWall_2Control5 = p.of(33, 72, 0);
-        Pose toRightParkWall_2Control6 = p.of(14.5, 70, 0);
-        Pose toRightParkWall_2Control7 = p.of(14.5, 80, 0);
-        Pose toRightParkWall_2Segment1Start = p.of(14.5, 92.5, 268.9);
+        Pose rNectarTurnToRightParkWallControl1 = p.of(32, 121, 0);
+        Pose rNectarTurnToRightParkWallControl2 = p.of(33, 104, 0);
+        Pose rNectarTurnToRightParkWallControl3 = p.of(33, 86, 0);
+        Pose rNectarTurnToRightParkWallControl4 = p.of(33, 76, 0);
+        Pose rNectarTurnToRightParkWallControl5 = p.of(33, 72, 0);
+        Pose rNectarTurnToRightParkWallControl6 = p.of(14.5, 70, 0);
+        Pose rNectarTurnToRightParkWallControl7 = p.of(14.5, 80, 0);
+        Pose rNectarTurnToRightParkWallSegment1Start = p.of(14.5, 92.5, 203.7);
+        Pose rNectarTurnToRightParkWall_2Control1 = p.of(32, 121, 0);
+        Pose rNectarTurnToRightParkWall_2Control2 = p.of(33, 104, 0);
+        Pose rNectarTurnToRightParkWall_2Control3 = p.of(33, 86, 0);
+        Pose rNectarTurnToRightParkWall_2Control4 = p.of(33, 76, 0);
+        Pose rNectarTurnToRightParkWall_2Control5 = p.of(33, 72, 0);
+        Pose rNectarTurnToRightParkWall_2Control6 = p.of(14.5, 70, 0);
+        Pose rNectarTurnToRightParkWall_2Control7 = p.of(14.5, 80, 0);
+        Pose rNectarTurnToRightParkWall_2Segment1Start = p.of(14.5, 92.5, 203.7);
         Pose toRightAutoHive_2Control1 = p.of(58.7683, 101.5686, 0);
         Pose toRightAutoHive_2Control2 = p.of(65.2005, 71.9052, 0);
         Pose toRightAutoHive_2Control3 = p.of(56, 40, 0);
         Pose toRightAutoHive_2Segment1Start = p.of(59.2, 20.9, 268.9);
         Pose toRightAutoHive_2Segment1End = p.of(59.2, 20.9, 270);
         Pose toRightAutoHive_2Segment2Start = p.of(59.2, 20.9, 270);
-        Pose toRightParkWall_3Control1 = p.of(30, 40, 0);
-        Pose toRightParkWall_3Control2 = p.of(16, 62, 0);
-        Pose toRightParkWall_3Control3 = p.of(14, 72, 0);
-        Pose toRightParkWall_3Segment1Start = p.of(14.5, 92.5, 96.1);
-        Pose toRightParkWall_4Control1 = p.of(30, 40, 0);
-        Pose toRightParkWall_4Control2 = p.of(16, 62, 0);
-        Pose toRightParkWall_4Control3 = p.of(14, 72, 0);
-        Pose toRightParkWall_4Segment1Start = p.of(14.5, 92.5, 96.1);
+        Pose toRightParkWallControl1 = p.of(30, 40, 0);
+        Pose toRightParkWallControl2 = p.of(16, 62, 0);
+        Pose toRightParkWallControl3 = p.of(14, 72, 0);
+        Pose toRightParkWallSegment1Start = p.of(14.5, 92.5, 96.1);
+        Pose toRightParkWall_2Control1 = p.of(30, 40, 0);
+        Pose toRightParkWall_2Control2 = p.of(16, 62, 0);
+        Pose toRightParkWall_2Control3 = p.of(14, 72, 0);
+        Pose toRightParkWall_2Segment1Start = p.of(14.5, 92.5, 96.1);
 
         // Paths, written as the stock Visualizer export writes them.
         Path toRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
@@ -120,12 +121,12 @@ public final class RSoloAuto {
         Path leftAutoHivePark = Paths.curve(leftAutoHive, leftAutoHiveParkControl1, leftAutoHiveParkControl2, leftAutoHiveParkControl3, leftAutoHiveParkControl4, leftAutoHiveParkControl5, leftAutoHiveParkControl6, leftAutoHiveParkControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(leftAutoHiveParkSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path toScoringFlowerStaging = Paths.line(toScoringFlowerStagingStart, scoringFlowerStaging).linear(toScoringFlowerStagingStart, scoringFlowerStaging);
         Path scoringFlowerStagingPark = Paths.curve(scoringFlowerStaging, scoringFlowerStagingParkControl1, scoringFlowerStagingParkControl2, scoringFlowerStagingParkControl3, scoringFlowerStagingParkControl4, scoringFlowerStagingParkControl5, scoringFlowerStagingParkControl6, scoringFlowerStagingParkControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(scoringFlowerStagingParkSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
-        Path toLeftAutoHive = Paths.line(scoringFlowerStaging, leftAutoHive).linear(scoringFlowerStaging, leftAutoHive);
-        Path toRightParkWall = Paths.curve(leftAutoHive, toRightParkWallControl1, toRightParkWallControl2, toRightParkWallControl3, toRightParkWallControl4, toRightParkWallControl5, toRightParkWallControl6, toRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
-        Path toRightParkWallPath = Paths.curve(leftAutoHive, toRightParkWall_2Control1, toRightParkWall_2Control2, toRightParkWall_2Control3, toRightParkWall_2Control4, toRightParkWall_2Control5, toRightParkWall_2Control6, toRightParkWall_2Control7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(toRightParkWall_2Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
+        Path toRNectarTurn = Paths.line(scoringFlowerStaging, rNectarTurn).linear(scoringFlowerStaging, rNectarTurn);
+        Path rNectarTurnToRightParkWall = Paths.curve(rNectarTurn, rNectarTurnToRightParkWallControl1, rNectarTurnToRightParkWallControl2, rNectarTurnToRightParkWallControl3, rNectarTurnToRightParkWallControl4, rNectarTurnToRightParkWallControl5, rNectarTurnToRightParkWallControl6, rNectarTurnToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(rNectarTurnToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
+        Path rNectarTurnToRightParkWallPath = Paths.curve(rNectarTurn, rNectarTurnToRightParkWall_2Control1, rNectarTurnToRightParkWall_2Control2, rNectarTurnToRightParkWall_2Control3, rNectarTurnToRightParkWall_2Control4, rNectarTurnToRightParkWall_2Control5, rNectarTurnToRightParkWall_2Control6, rNectarTurnToRightParkWall_2Control7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(rNectarTurnToRightParkWall_2Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path toRightAutoHivePath = Paths.curve(leftAutoHive, toRightAutoHive_2Control1, toRightAutoHive_2Control2, toRightAutoHive_2Control3, rightAutoHive).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(toRightAutoHive_2Segment1Start, toRightAutoHive_2Segment1End)).until(1, Interpolator.linear(toRightAutoHive_2Segment2Start, rightAutoHive)));
-        Path toRightParkWallPath2 = Paths.curve(rightAutoHive, toRightParkWall_3Control1, toRightParkWall_3Control2, toRightParkWall_3Control3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toRightParkWall_3Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
-        Path toRightParkWallPath3 = Paths.curve(rightAutoHive, toRightParkWall_4Control1, toRightParkWall_4Control2, toRightParkWall_4Control3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toRightParkWall_4Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
+        Path toRightParkWall = Paths.curve(rightAutoHive, toRightParkWallControl1, toRightParkWallControl2, toRightParkWallControl3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
+        Path toRightParkWallPath = Paths.curve(rightAutoHive, toRightParkWall_2Control1, toRightParkWall_2Control2, toRightParkWall_2Control3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toRightParkWall_2Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
 
         return kit.sequence(
                 kit.guarded("Auto", leftAutoHivePark, 2.8,
@@ -137,29 +138,37 @@ public final class RSoloAuto {
                         kit.path("BACKWARD to LEFT_AUTO_HIVE", backwardToLeftAutoHive, 2.9, leftAutoHivePark, 2.8),
                         kit.firstOf("Wait for TIP or CELL up",
                                 kit.when("CellUp").then(
-                                        kit.guarded("If CellUp", toRightParkWallPath, 2.8,
+                                        kit.guarded("If CellUp", rNectarTurnToRightParkWallPath, 2.8,
                                                 kit.command("LaunchAll"),
                                                 kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 2.9),
                                                 kit.command("PickFlower", 4.5),
-                                                kit.path("to LEFT_AUTO_HIVE", toLeftAutoHive, 1.3),
+                                                kit.command("CallNectar"),
+                                                kit.path("to R_NECTAR_TURN", toRNectarTurn, 1),
                                                 kit.firstOf("LEFT CELL still up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkWall, 2.8,
-                                                                        kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWall, 2.8))),
+                                                                kit.guarded("If CellUp", rNectarTurnToRightParkWall, 2.8,
+                                                                        kit.commandAwayFromPark("LaunchAllAimed"),
+                                                                        kit.firstOf("Hold for the human player's NECTAR, intake on: until it is in, at most 1.5 s", kit.command("CatchNectar"),
+                                                                                kit.afterMs(1500),
+                                                                                kit.when("NectarIn").then(
+                                                                                        kit.firstOf("LEFT still up? (fire the NECTAR at LEFT)",
+                                                                                                kit.when("CellUp").then(
+                                                                                                        kit.command("LaunchOneAimed")),
+                                                                                                kit.afterMs(750)))),
+                                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWall, 2.8))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkWallPath, 2.8,
-                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath, 2.8)))))),
+                                                                kit.guarded("Timed out", rNectarTurnToRightParkWallPath, 2.8,
+                                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWallPath, 2.8)))))),
                                 kit.afterMs(750).then(
-                                        kit.guarded("Timed out", toRightParkWallPath3, 2.9,
+                                        kit.guarded("Timed out", toRightParkWallPath, 2.9,
                                                 kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 3.3),
                                                 kit.firstOf("RIGHT CELL still up?",
                                                         kit.when("CellUp").then(
-                                                                kit.guarded("If CellUp", toRightParkWallPath2, 2.9,
+                                                                kit.guarded("If CellUp", toRightParkWall, 2.9,
                                                                         kit.command("LaunchAll"),
-                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath2, 2.9))),
+                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWall, 2.9))),
                                                         kit.afterMs(750).then(
-                                                                kit.guarded("Timed out", toRightParkWallPath3, 2.9,
-                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath3, 2.9)))))))));
+                                                                kit.guarded("Timed out", toRightParkWallPath, 2.9,
+                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath, 2.9)))))))));
     }
 }

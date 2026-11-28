@@ -66,8 +66,9 @@
     "AutoSource": "r-solo.pp",
     "SavedBy": "dustinhans; the drive to RIGHT_AUTO_HIVE turns clear of the centre line",
     "SavedAt": "2026-11-18T21:08:00+00:00",
-    "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
+    "SimNote": "R-Solo NECTAR draft 28 Nov 2026: the human player's NECTAR rolled at R_NECTAR_TURN during the last LEFT volley (placeholder roll: 24 in/s, released once R faces the zone)"
   },
   "usual": true,
-  "scenario": "best"
+  "scenario": "best",
+  "humanAimRolls": "58.5,120.45,203.7|8,98.3|24|facing"
 }
