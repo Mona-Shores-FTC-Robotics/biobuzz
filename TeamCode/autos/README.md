@@ -37,6 +37,8 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-LeftUnderHive + L-LeftUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-left-under-hive.pp,l-left-under-hive.pp> |
 | R-RightUnderHive + L-RightUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-right-under-hive.pp,l-right-under-hive.pp> |
 
+A pair also opens by its name in `pairs.json` (`#team=master/RightUnderHive`, `LeftUnderHive`, `Clockwise`, `NoCross`), and in a checkout the Visualizer's **Compare with partner** picks the other half from it. Add a pair there when you add one.
+
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
 notes are in Git history.
@@ -70,8 +72,8 @@ the best case (`"scenario": "best"`) R then has time for a third TIP: 2.0 TIPs a
 **R-RightUnderHive / L-RightUnderHive** (`r-right-under-hive.pp`, `l-right-under-hive.pp`) is the third pair, on the
 Autonomous menu since 27 Nov 2026 (mentor; a draft from 19 Nov, [its notes](drafts/README.md#the-rightunderhive-pair-r-rightunderhive-and-l-rightunderhive)).
 R goes under the HIVE, always backward up and down the corridor (x 59 to 61, so it never turns there and never crosses the
-centre line); L keeps to the outer lane. Never driven. Three TIPs: R's preloads, fired from `RIGHT_START` facing the
-alliance wall (the turret over its right shoulder), tip RIGHT; L's preloads from `LEFT_AUTO_OFFSET` and R's GARDEN load
+centre line); L keeps to the outer lane. Never driven. Three TIPs: R's preloads, fired from `RIGHT_AUTO_HIVE` after
+the drive up from `RIGHT_START` (set up facing 90°, as every other Auto; mentor, 28 Nov 2026), tip RIGHT; L's preloads from `LEFT_AUTO_OFFSET` and R's GARDEN load
 (the corner `GardenGather`) from R's own `R_LEFT_CATCH` (61.4, 122.9, 268.9°) tip LEFT; L's WALL FLOWER load from
 `RIGHT_AUTO_OFFSET` and R's SCORING FLOWER load from R's own `R_RIGHT_CATCH` (59.2, 18.5, 95.7°) tip RIGHT again. R's two
 spots are 42.4 in from the row, where the Belding table scores better than at the old `R_LEFT_FIX` (33.6 in). R parks
