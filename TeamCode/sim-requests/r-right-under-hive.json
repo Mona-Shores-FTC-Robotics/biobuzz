@@ -50,9 +50,14 @@
       "oursFails": "misses volley 2"
     },
     {
-      "name": "L's WALL FLOWER volley misses",
+      "name": "L's NECTAR shot misses (LEFT gets its 8 POLLEN only)",
       "partner": "LRightUnderHiveAuto",
       "fails": "misses volley 2"
+    },
+    {
+      "name": "L's WALL FLOWER volley misses",
+      "partner": "LRightUnderHiveAuto",
+      "fails": "misses volley 3"
     },
     {
       "name": "R's SCORING FLOWER volley misses",
