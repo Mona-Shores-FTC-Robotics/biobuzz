@@ -90,6 +90,19 @@ match-clock limit that leaves its park:
   deciding it on the field instead would need both robots to agree on when TIP 2 came, which no trigger records.
 - **R's park from the left end** waits to 22.6 s, then goes nose first down the corridor and round the HIVE's foot, so it
   never meets L in the outer lane; L's lane paths run at x 33 to pass a parked R.
+- **The human player's two NECTARs** (#792, mentor, 28 Nov 2026). NECTAR 1: once LEFT is up, L lights the alliance
+  colour (`CallNectar`), turns to 215° at its own `L_NECTAR_TURN`, fires its preloads turret-aimed there
+  (`kit.commandAwayFromPark`) while the human player rolls, holds at most 2.5 s for the NECTAR (`CatchNectar` until
+  `NectarIn`) and fires it at LEFT (`LaunchOneAimed`); a late TIP 1 skips the hold. NECTAR 2: after its WALL FLOWER
+  volley at RIGHT, L lights again, turns to 106.5° at `L_NECTAR2_SHOT`, holds until it is in or 26.0 s, fires it at
+  RIGHT and parks at its own `L_WALL_PARK`; when RIGHT is already up as R arrives, R fires and parks at `LEFT_PARK` back
+  under the HIVE (4.1 s), leaving L the lane. How the human player rolls: `doc/human-player-playbook.md`.
+
+On master since 28 Nov 2026, in the simulator (`sim-requests/r-right-under-hive.json`; the realistic case at Fruitport
+rates with FLOWER picks of four and no feed jams, #790): **3 TIPs in 91 of 120**, 2+ in 119, both parked in 120, one
+contact; the misses are a NECTAR not caught (NECTAR 1 82 of 120, NECTAR 2 71 of 108) plus one missed shot, mostly long
+from 51 in. Best case, 3 TIPs and 76 points whether or not the NECTARs come; R 20% slow does not finish its park in 10
+of 10 (the longer park under the HIVE). The paragraph below is the pair before the NECTARs.
 
 In the simulator (27 Nov 2026, `sim-requests/r-right-under-hive.json`, 10 seeds a case, corner-wheel GARDEN model): best
 case, every shot in and either robot 20% slow, 3 TIPs and 76 points in every run; any one preload, GARDEN or FLOWER volley

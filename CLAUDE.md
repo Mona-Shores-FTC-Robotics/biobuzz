@@ -178,8 +178,9 @@ robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchA
 (no drive since) is the volley after a park: fired from a `…_PARK` spot, behind a CELL check, so the guard
 adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
 the robot stays parked. Drawn anywhere else it is an ordinary aimed volley the guard parks after, exported as
-`kit.commandAwayFromPark` (L-RightUnderHive's preloads from its NECTAR turn; mentor, 28 Nov 2026). `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
-fired at LEFT from `LEFT_AUTO_OFFSET`'s place with the robot's intake turned to the LOADING ZONE. Every volley
+`kit.commandAwayFromPark` (L-RightUnderHive's preloads from its NECTAR turn; mentor, 28 Nov 2026). `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's two human NECTARs,
+fired at LEFT from `L_NECTAR_TURN` and at RIGHT from `L_NECTAR2_SHOT`, the robot's intake turned to the LOADING ZONE
+and its light calling the roll (`CallNectar`). Every volley
 after an Auto's first still sits behind a CELL check, locked or aimed. The team's launch spots are `AutoLaunchSpots.all()` (every team
 spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
 `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to

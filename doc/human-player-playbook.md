@@ -26,6 +26,23 @@ comes even if one ball misses.** Each TIP is 20 points.
 - Take anything off the field (G428), or score anything by hand (G427 note, G202).
 - Be the drive coach: a coach may not touch NECTAR (G424).
 
+## In AUTO, with R-RightUnderHive and L-RightUnderHive: roll the NECTAR to L
+
+Only when our two robots run this pair. Each TIP earns one NECTAR, and L asks for each one. **Watch L's light:**
+it flashes our alliance colour when L wants the NECTAR, and flashes **faster** when it is about to give up and leave.
+
+1. **NECTAR 1, about 7 to 9 s in.** RIGHT tips (TIP 1). L, at the LEFT end near you, turns its intake toward the
+   LOADING ZONE and its light starts flashing. **Roll one NECTAR straight at L's intake** (about 3 ft away), along the
+   floor, as soon as the light starts. L fires its own 4 balls while the NECTAR rolls; it then catches it and shoots it.
+2. **NECTAR 2, about 19 to 22 s in.** LEFT tips (TIP 2). L is now at the RIGHT end, about 6 ft away, and turns toward
+   you again, light flashing. **Roll the second NECTAR firmly at L's intake**: it has to cover the 6 ft in about 3 s.
+   It is TIP 3's spare: with it, TIP 3 still comes if one ball misses.
+
+If you can't roll in time, or a robot is in the way, **keep the NECTAR**: L gives up, leaves as planned, and the
+NECTAR is still yours for TELEOP. The usual rules hold: release low, onto a tile inside the LOADING ZONE, never onto
+a robot. These rolls are practice targets, not yet measured: practise both until 9 of 10 reach L, and tell the
+programmers how fast you roll (`doc/robot-todo.md`, "The NECTAR roll reaches L").
+
 ## Where
 
 Our LOADING ZONE is the taped box against our wall, on the **second tile from the left corner** as
