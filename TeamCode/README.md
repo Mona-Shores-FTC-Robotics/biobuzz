@@ -1372,12 +1372,12 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
     better and 0.87, but three volley pairs do not show that they differ. **Kept from Belding:** 0.90 at 53.9 in
     (nothing was fired from further out than 39.2 in, so `RIGHT_AUTO_OFFSET`, 51.2 in, rests on Belding) and 0.70
     at 36 in (nor from nearer). `"ourInRate"` / `"partnerInRate"` still replace every row.
-  - **How many pieces a volley after a FLOWER pick fires,** 20 volleys: Infrared's fired 1, 3, 4, 3, 4, 1 after
-    the WALL FLOWER and 3, 4, 4, 2 after the SCORING FLOWER (four in 4 of 10); Ultraviolet's 4 six times after the
-    WALL FLOWER and 0, 4, 4, 4 after the SCORING FLOWER (four in 9 of 10). 19429's roller stick does not fill
-    the lane here: its measured volleys replace the 19 Nov observation the Belding calibration uses, until its
-    stick, held out since 22 Nov, is logged. `BIOBUZZ_BELDING_ROBOT` and its `_OURS` / `_PARTNER` choose whose
-    loads, as for Belding.
+  - **How many pieces a volley after a FLOWER pick fires: four in 9 of 10, for both robots.** Ultraviolet's ten
+    logged volleys fired 4 six times after the WALL FLOWER and 0, 4, 4, 4 after the SCORING FLOWER. Infrared is
+    given the same loads on the mentor's word (28 Nov 2026: its stick was fixed, and it was 9 of 10 or better by
+    its last Fruitport matches). The logs do not show it: 19429's ten volleys fired 1, 3, 4, 3, 4, 1 and 3, 4,
+    4, 2, four in 4 of 10, its last three matches 3, 4, 4, 2 and 1; `BIOBUZZ_FRUITPORT_19429_LOADS=logged` runs
+    with those. `BIOBUZZ_BELDING_ROBOT` and its `_OURS` / `_PARTNER` choose whose loads, as for Belding.
   - **How long a pick and a volley take:** every pick stays master's whole 2 s dwell (the 22 picks took 3.0 to
     4.0 s card to card, the lane-full signal ending none early); a volley of four after a robot's first runs its
     whole set feed 4 times in 13 (the shot counter missed a ball: 9 of 13 ended at the fourth shot); and a volley
@@ -1393,7 +1393,7 @@ and writes a `.wpilog` you open in AdvantageScope like a match log. It is test c
   | | Fruitport | Simulator, Fruitport calibration |
   |---|---|---|
   | First TIP from the preloads | 14 of 14 | 120 of 120 |
-  | R-Solo, Infrared: second TIP | 0 of 5 | 7 of 60 |
+  | R-Solo, Infrared: second TIP, with its logged loads (`BIOBUZZ_FRUITPORT_19429_LOADS=logged`) | 0 of 5 | 7 of 60 |
   | R-Solo, Ultraviolet: second TIP | 1 of 4 | 28 of 60 |
 
   The 0.94 is the weakest number: it leans on three LEFT volley pairs. The next event's logs go through the same

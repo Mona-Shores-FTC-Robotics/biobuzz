@@ -77,20 +77,34 @@ public class FruitportCalibrationTest {
         assertEquals("nearer than Fruitport fired from, Belding's CLOSE row", 0.70, BeldingCalibration.stayInFraction(36.0), 1e-9);
     }
 
-    /** The loads are the logged volleys: 20245's WALL FLOWER volleys all four, 19429's short more often than not. */
+    /**
+     * Both robots' loads are four in 9 of 10: 20245's ten logged volleys, and 19429 given the same (mentor, 28 Nov
+     * 2026). 19429's own logged volleys, four in 4 of 10, are kept beside them.
+     */
     @Test
-    public void theLoadsAreFruitportsVolleys() {
+    public void bothRobotsLoadsAreFullNineTimesInTen() {
         assumeNotSelectedByEnvironment();
+        org.junit.Assume.assumeTrue(System.getenv("BIOBUZZ_FRUITPORT_19429_LOADS") == null);
         FruitportCalibration.use();
-        Random luck = new Random(1);
-        int ir4 = 0;
-        for (int i = 0; i < 2000; i++) {
-            assertEquals(4, BeldingCalibration.load("20245", false, luck));
-            if (BeldingCalibration.load("19429", i % 2 == 0, luck) == 4) ir4++;
+        for (String robot : new String[] {"19429", "20245", "both"}) {
+            Random luck = new Random(1);
+            int full = 0, n = 4000;
+            for (int i = 0; i < n; i++) {
+                assertEquals(robot + " at the WALL FLOWER", 4, BeldingCalibration.load(robot, false, luck));
+                if (BeldingCalibration.load(robot, true, luck) == 4) full++;
+            }
+            assertEquals(robot + ": the SCORING FLOWER load is four 3 times in 4", 0.75, full / (double) n, 0.03);
         }
-        assertEquals("19429 fired four in 4 of its 10 volleys after a pick", 0.4, ir4 / 2000.0, 0.05);
-        assertEquals(20, FruitportCalibration.IR_WALL.length + FruitportCalibration.IR_SCORING.length
-                + FruitportCalibration.UV_WALL.length + FruitportCalibration.UV_SCORING.length);
+        int[] wall = FruitportCalibration.UV_WALL, scoring = FruitportCalibration.UV_SCORING;
+        int fours = 0;
+        for (int v : wall) if (v == 4) fours++;
+        for (int v : scoring) if (v == 4) fours++;
+        assertEquals("four in 9 of the 10 volleys", 9, fours);
+        assertEquals(10, wall.length + scoring.length);
+        int logged = 0;
+        for (int v : FruitportCalibration.IR_WALL_LOGGED) if (v == 4) logged++;
+        for (int v : FruitportCalibration.IR_SCORING_LOGGED) if (v == 4) logged++;
+        assertEquals("19429's logged volleys: four in 4 of 10", 4, logged);
     }
 
     /** 19429's roller stick does not fill the lane here: its measured volleys are drawn instead. */
