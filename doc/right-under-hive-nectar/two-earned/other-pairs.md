@@ -17,6 +17,12 @@ Master registers four coordinated pairs in `TeamCode/autos/pairs.json`. The turr
 4. Budget the last normal volley as well as the extra feed against both robots' park times. A retained piece can be fired from an eligible `LaunchAllAimed` park only after the park and a fresh near-CELL check. Keep each pair's original camera recovery if the desired CELL fails to rise.
 5. Keep two distinct earned-piece IDs through release, receipt, scoring and spill. Compare identical Fruitport seeds with both deliveries, each withheld or late, failed preloads, partial/full FLOWER loads and either drive slowed. A success needs the last ball out by 30 s, settlement by 38 s, both parks, no robot contact and both robot frames on their half.
 
+### The new master cards
+
+`CallNectar` starts the alliance-colour flash that the human can see. `CatchNectar` begins the hold phase and the light goes off when that wait ends, including on timeout. When the next checked card is a one-ball shot, the turret can keep the CELL through that handoff. A visible light does not confirm arrival. The simulated clock-based human releases in this study were independent of the indicator. A future drill can measure release delay when the human watches the light.
+
+Master also supports a full `LaunchAllAimed` from a named scoring spot. Away from a park, the Visualizer exports `commandAwayFromPark` so the endgame guard still budgets the park. This makes a preload volley with the chassis facing a legal receive lane a separate design to investigate. The single-count feed and its continuous live-hold checks still belong to `LaunchOneAimed`. None of the reported rates assume an off-axis four-ball preload volley.
+
 ### LeftUnderHive pilot
 
 The final optional L draft leaves R on master and ends the LEFT and RIGHT waits by **10.6 s and 23.1 s**. On seeds 1–36 it scored **9/36** qualifying triples, compared with **4/36** for master. Both reached two TIPs on the same 29 seeds. With only R slowed to 40 in/s the counts were 9/36 and 4/36. With only L slowed they were 7/36 and 4/36. Best case was 36/36 for both. Every run in those comparisons parked both robots without contact or a robot crossing. The first NECTAR was present in TIP 2 on 16/36 nominal runs. The second reached a settled TIP 3 once. The sample supports testing the first receive on the robot, particularly its 71° intake approach.

@@ -505,17 +505,37 @@ public final class AutoKit {
     }
 
     /**
+     * {@code name}, a parked volley ({@link AutoRegistry#parkedVolley}: {@code LaunchAllAimed}) drawn
+     * where the robot has not parked (not right after a park card): an ordinary volley, which the
+     * guard plans a park after as it does for {@code LaunchAll}. L-RightUnderHive fires its preloads
+     * aimed from its NECTAR turn this way (mentor, 28 Nov 2026). The Visualizer's export writes it.
+     */
+    public Command commandAwayFromPark(String name) {
+        return command(name, DEFAULT_TIMEOUT_S, false);
+    }
+
+    /** {@link #commandAwayFromPark(String)} with its own time limit, as {@link #command(String, double)}. */
+    public Command commandAwayFromPark(String name, double timeoutS) {
+        return command(name, timeoutS, false);
+    }
+
+    /**
      * The registered command {@code name}: runs until it finishes or {@code timeoutS} has passed,
      * whichever is first, so a command that never finishes cannot stall the Auto. The timeout waits
      * while the registry holds time limits ({@link AutoRegistry#holdTimeLimitsWhile}). A timeout is
      * traced, since it usually means a mechanism did not do its job.
      */
     public Command command(String name, double timeoutS) {
+        return command(name, timeoutS, true);
+    }
+
+    /** {@link #command(String, double)}; {@code mayBeParked} false: never a parked volley ({@link #commandAwayFromPark}). */
+    private Command command(String name, double timeoutS, boolean mayBeParked) {
         final Command inner = registry.command(name);
         final boolean grab = registry.isGrab(name);
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
         final boolean volley = registry.isVolley(name);
-        final boolean parkedVolley = registry.isParkedVolley(name);
+        final boolean parkedVolley = mayBeParked && registry.isParkedVolley(name);
         final double lastPieceSeconds = volley ? registry.lastPieceSeconds(name) : Double.NaN;
         final AutoRegistry.Approach approach = registry.approach(name);
         final CommandCard card = approach == null ? null : new CommandCard();

@@ -2691,6 +2691,8 @@ public final class AutoSim {
                                 public void approaching(Pose pose, double remainingIn) { observeCatchCell(); }
                                 public void cancel() { catchTurnEnd = null; }
                             })
+                    // The robot's CallNectar: the indicator light only; nothing on the field.
+                    .command("CallNectar", 0.1, () -> Commands.instant(() -> { }))
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))

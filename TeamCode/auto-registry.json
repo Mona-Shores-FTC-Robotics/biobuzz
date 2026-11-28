@@ -10,7 +10,8 @@
     {"name": "GardenGather", "typicalS": 3.0},
     {"name": "GardenGatherAlongWall", "typicalS": 2.0},
     {"name": "PickNectar", "typicalS": 2.0},
-    {"name": "CatchNectar", "typicalS": 2.0}
+    {"name": "CatchNectar", "typicalS": 2.0},
+    {"name": "CallNectar", "typicalS": 0.1}
   ],
   "triggers": [
     "Empty",

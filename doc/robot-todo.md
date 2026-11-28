@@ -488,6 +488,12 @@ tipping RIGHT by hand at about 5 s.
       on the first counted shot, or within 1.2 s with the counter unavailable. Record which sensor counted the
       piece and whether it had actually left. Compare with the ordinary `LaunchOne` feed of 0.5 s. Report a
       retained piece or a missed count before using the setting on the field.
+- [ ] **The light tells the human player when to roll** (`claude/nectar-light`). The draft L alone, five runs,
+      the human player at the LOADING ZONE. **Good:** as L starts its turn to 215° (`CallNectar`) the light
+      flashes the alliance's colour at 2 Hz, through the volley, flashes faster (4 Hz) from 1.5 s into the hold
+      (`IndicatorSubsystem.NECTAR_FAST_AFTER_MS`), and goes dark (or green, the NECTAR in) as the hold ends;
+      the human player can see it from the zone and rolls on it. **Tune:** the fast flash comes too late to act
+      on → lower `NECTAR_FAST_AFTER_MS` in Panels; nobody can tell the two rates apart → note it in the PR.
 - [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed
       from above the turret. Verify the measured angle follows the LEFT CELL throughout the turn and the gate stays
       closed until it settles. **Good:** `/Turret/…` shows the aim within 2° at the shot, with both the measured

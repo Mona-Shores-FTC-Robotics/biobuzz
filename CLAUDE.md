@@ -171,12 +171,11 @@ is made or moved). **Turret-aimed** (`LaunchAllAimed`, `LaunchOneAimed`; `AimedV
 `TurretAimer`, at the near CELL only): any named spot whose heading keeps that CELL inside the firing arc
 (`TurretArc`) by 5 degrees, the frame inside the field and short of the centre line
 (`AutoLaunchSpots.aimedShotProblem`). Never from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's
-alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. Both aimed shots require a referenced
-pose. Only the parked volley may fire from home when its turret cannot aim, and only when home points within
-3 degrees of the CELL. `LaunchAllAimed` is the volley after a
-park: fired from a `…_PARK` spot right after the park card that drove there, behind a CELL check, so the guard
-adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
-the robot stays parked. `LaunchOneAimed` fires one piece at the near CELL from an Auto's own named
+alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. Aimed cards require a referenced pose.
+A full `LaunchAllAimed` volley may fire from home only when home points within 3 degrees of its CELL. Immediately
+after a park card it is a parked volley at a named `…_PARK` spot, with no additional park. At another named
+scoring spot the exporter uses `kit.commandAwayFromPark` so the guard still reserves park time. The last piece
+must leave by 30 s. `LaunchOneAimed` fires one piece at the near CELL from an Auto's own named
 receiving spot. The footprint must clear the field boundary and centre line. During the turn into a
 `CatchNectar` wait the turret tracks the CELL with the gate closed, including when a timing choice
 leads to the same catch on both branches. The zeroed turret must hold the CELL with both its measured
