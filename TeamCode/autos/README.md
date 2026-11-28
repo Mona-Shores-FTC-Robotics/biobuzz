@@ -37,6 +37,8 @@ One link each, always the latest on `master` (the Visualizer reads the file from
 | R-LeftUnderHive + L-LeftUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-left-under-hive.pp,l-left-under-hive.pp> |
 | R-RightUnderHive + L-RightUnderHive (a pair) | <https://mona-shores-ftc-robotics.github.io/Visualizer/#team=master/r-right-under-hive.pp,l-right-under-hive.pp> |
 
+A pair also opens by its name in `pairs.json` (`#team=master/RightUnderHive`, `LeftUnderHive`, `Clockwise`, `NoCross`), and in a checkout the Visualizer's **Compare with partner** picks the other half from it. Add a pair there when you add one.
+
 The Belding work order is **L-NoCross, R-NoCross, then R-Solo-Nudge**. R-Solo stays the
 existing reference. The Infraviolet pair was retired on 16 Nov 2026 (mentor); its drawings and
 notes are in Git history.

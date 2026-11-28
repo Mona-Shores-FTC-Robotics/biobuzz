@@ -1,0 +1,9 @@
+{
+  "about": "Autos that run together, one pair per entry: the Visualizer opens a pair together (Team Autos, a #team=<branch>/<name> link, and Compare with partner in a checkout).",
+  "pairs": [
+    {"name": "RightUnderHive", "files": ["r-right-under-hive.pp", "l-right-under-hive.pp"], "note": "R under the HIVE, L the outer lane"},
+    {"name": "LeftUnderHive", "files": ["r-left-under-hive.pp", "l-left-under-hive.pp"], "note": "R the wall lane, L under the HIVE"},
+    {"name": "Clockwise", "files": ["r-clockwise.pp", "l-clockwise.pp"], "note": "both robots on a one-way loop"},
+    {"name": "NoCross", "files": ["r-no-cross.pp", "l-no-cross.pp"], "note": "each robot keeps to its end"}
+  ]
+}
