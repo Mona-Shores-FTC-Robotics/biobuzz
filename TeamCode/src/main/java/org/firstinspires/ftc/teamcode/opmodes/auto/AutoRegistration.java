@@ -300,11 +300,13 @@ public final class AutoRegistration {
         // null robot only describes the list; its factories are never called.
         final LaunchCards launch = robot == null ? null
                 : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
+        final CatchNectarAimed nectar = robot == null ? null
+                : new CatchNectarAimed(robot, setup, settle, launch, matchSeconds, note);
         final AutoRegistry registry = new AutoRegistry();
         return registry
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
-                .holdTimeLimitsWhile(() -> launch != null && launch.feeding())
+                .holdTimeLimitsWhile(() -> launch != null && (launch.feeding() || nectar.feeding()))
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.
                 // A volley: the endgame guard goes for the next one when its last piece can be out
@@ -324,6 +326,10 @@ public final class AutoRegistration {
                 // else (the LOADING ZONE): ends at its counted shot, never fires from home. See the class comment.
                 .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, () -> launch.launchOneAimed(
                         new AimedVolley(robot, setup, matchSeconds, AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG)))
+                // Off-axis at the Auto's own named spot. Its approach tracks the near CELL with
+                // the gate shut. Missing the catch or losing independent aim costs only this shot.
+                .volley("CatchNectarAimed", CatchNectarAimed.PLANNED_S, CatchNectarAimed.PLANNED_S,
+                        () -> nectar.command(), nectar)
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The

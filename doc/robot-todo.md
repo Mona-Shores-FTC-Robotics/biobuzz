@@ -246,6 +246,21 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
 On the Autonomous menu since 27 Nov 2026 and never driven ([the Auto README](../TeamCode/autos/README.md)). Push the logs
 after each run.
 
+For the [left-end NECTAR draft, #781](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/781), film
+the intake, turret and both robots on one clock. Record all times from our PLAY.
+
+- [ ] Film the four ordinary preloads and L turning from its LEFT shot heading to 210°. Verify the
+      turret tracks the near CELL through the turn. On a dry run with the turret
+      locked, its hold lost, or the pose unreferenced, verify the gate stays closed. Interrupt an active
+      feed on the bench and check the gate closes as soon as the hold drops.
+- [ ] With one own NECTAR in the lane and confirmed aim, measure gate-open to counted shot. Allow at least
+      0.85 s for the ball to leave. Verify the first count closes the gate, an empty lane skips the feed,
+      and a missing count reaches the backstop. Check an unspent piece is still available on the next leg.
+- [ ] Have the human roll once after TIP 1 settles and both frames clear the entire LOADING ZONE. Mark
+      release, arrival at the intake, first counted extra shot and L leaving the spot against the 12.5 s
+      decision. Repeat with an intentionally late roll and a withheld roll. Count captures, retained
+      POLLEN from the WALL FLOWER, contact with R, and both robots parked by 30 s.
+
 - [ ] Every shot in, both robots: three TIPs; R backward up and down the corridor, nothing over the centre line
       (x 70.75), R's turret swinging onto its CELL after passing under the HIVE (the simulator gives the first ball
       1.1 s after R arrives). **Stop:** R's frame touches the centre line or the HIVE → move the corridor path in the

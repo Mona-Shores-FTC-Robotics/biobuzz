@@ -501,6 +501,11 @@ public class AutoStudyTest {
      */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, PartnerTiming timing,
                               long seed, Alliance alliance, Map<String, String> metadata, File file) throws Exception {
+        return run(spec, design, partnerDesign, partnerSpeed, timing, seed, alliance, metadata, file, null);
+    }
+
+    static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, PartnerTiming timing,
+                              long seed, Alliance alliance, Map<String, String> metadata, File file, NectarStudy nectar) throws Exception {
         design = withSet(design);
         partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
@@ -514,6 +519,10 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
+        if (nectar != null) {
+            sim.leftNectar(nectar.roll);
+            nectar.configureRobot(sim, first);
+        }
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));
@@ -560,6 +569,7 @@ public class AutoStudyTest {
             double[] pProfile = Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
             Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pProfile[0], pProfile[1], pProfile[2]).design(partnerDesign == null ? design : partnerDesign);
+            if (nectar != null) nectar.configureRobot(sim, second);
             if (partnerPicks != null) sim.picks(partnerPicks);
             if (timing != null) {
                 timing.derive(second, partnerDesign == null ? design : partnerDesign);

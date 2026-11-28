@@ -179,7 +179,14 @@ park: fired from a `…_PARK` spot right after the park card that drove there, b
 adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
 the robot stays parked. `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
 fired at LEFT from `LEFT_AUTO_OFFSET`'s place with the robot's intake turned to the LOADING ZONE. Every volley
-after an Auto's first still sits behind a CELL check, locked or aimed. The team's launch spots are `AutoLaunchSpots.all()` (every team
+after an Auto's first still sits behind a CELL check, locked or aimed. For `CatchNectarAimed`, an Auto or draft may turn at its own
+named receiving pose and aim the turret independently at the near CELL after its camera-checked
+volley. The footprint must clear the field boundary and centre line. Both the measured turret and
+its target must stay inside the firing arc by `CatchNectarAimed.ARC_MARGIN_DEG` with a referenced
+pose and an active, aligned hold. Loss of any firing condition closes the gate and leaves the piece
+in the lane. The card waits to its match-clock cutoff and feeds at most one counted shot, with a
+finite feed backstop.
+The team's launch spots are `AutoLaunchSpots.all()` (every team
 spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
 `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to
 tip RIGHT itself, and `AutoLaunchSpotsTest` checks every one and the five's own placement. HIVE and OFFSET at
