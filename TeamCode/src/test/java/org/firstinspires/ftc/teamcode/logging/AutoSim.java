@@ -158,11 +158,12 @@ public final class AutoSim {
     static double humanAimReleaseAtS = Double.NaN;
     /**
      * The aimed roll, one setting per NECTAR (the first TIP's, the second's, ...; the last repeats), each
-     * {@code spot | from | speed | facing}: where the robot waits ("x,y,heading°" or a team spot), where on the zone's
+     * {@code spot | from | speed | facing | after}: where the robot waits ("x,y,heading°" or a team spot), where on the zone's
      * tile it is released ("x,y"), its speed (in/s), and "facing" when the human holds it until one of our robots
      * stands within {@link #HUMAN_AIM_AT_SPOT_IN} of that spot with its intake within {@link #HUMAN_AIM_FACING_DEG}
      * of the spot's heading, and then {@link #humanAimReactS} more (the human watches the robot turn; nobody signals
-     * anybody). {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS="40.7,121.1,195|8,112|15|facing;RIGHT_AUTO_OFFSET|5.5,95|21"}.
+     * anybody); and, optionally, the least seconds after the TIP before it is released (1 s when left out).
+     * {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS="40.7,121.1,195|8,112|15|facing;RIGHT_AUTO_OFFSET|5.5,95|21"}.
      * Null: the one {@link #humanAimSpot} for every NECTAR, released as soon as it is owed. Placeholders all: no
      * drill has timed a human's release or measured a roll's speed and spread.
      */
@@ -791,6 +792,9 @@ public final class AutoSim {
             if (roll.length > 1) fromRed = new double[] {Double.parseDouble(roll[1].split(",")[0].trim()), Double.parseDouble(roll[1].split(",")[1].trim())};
             if (roll.length > 2) rollSpeed = Double.parseDouble(roll[2].trim());
             whenFacing = roll.length > 3 && "facing".equals(roll[3].trim());
+            // A fifth field: released no sooner than this long after the TIP (a slow human: the NECTAR comes late).
+            if (roll.length > 4 && !roll[4].trim().isEmpty()
+                    && now < due.get(0) - HUMAN_ROLL_DELAY_S + Double.parseDouble(roll[4].trim())) return;
         }
         if (whenFacing) {
             double[] want = forAlliance(aimSpot(spotName), a == Alliance.RED);

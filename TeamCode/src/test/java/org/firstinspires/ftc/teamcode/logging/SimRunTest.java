@@ -225,6 +225,8 @@ public class SimRunTest {
         String oursFails;
         /** {@code "picks"}, {@code "partnerPicks"}: the INIT picks for this entry's runs, ours and the partner's; null: the request's, else as drawn. */
         Map<String, Object> picks;
+        /** This entry's own human rolls ({@code "humanAimRolls"}); null: the request's. */
+        String humanAimRolls;
         Map<String, Object> partnerPicks;
         /** {@code "ourLaunchS"}: a what-if, seconds between our own shots; null: the design's. */
         Object ourLaunchS;
@@ -298,6 +300,8 @@ public class SimRunTest {
             }
             made.oursFails = (String) oursFails;
             if (e.get("picks") instanceof Map) made.picks = (Map<String, Object>) e.get("picks");
+            // An entry's own "humanAimRolls" replaces the request's for it: "none" is the mid-zone drop (no roll).
+            if (e.get("humanAimRolls") instanceof String) made.humanAimRolls = (String) e.get("humanAimRolls");
             made.ourLaunchS = e.get("ourLaunchS");
             if (e.get("partnerPicks") instanceof Map) made.partnerPicks = (Map<String, Object>) e.get("partnerPicks");
             out.add(made);
@@ -369,6 +373,9 @@ public class SimRunTest {
                     String log = "seed-" + seed + ".wpilog";
                     metadata.put("SimSeed", String.valueOf(seed));
                     AutoStudyTest.loop = request.get("loop") instanceof String ? (String) request.get("loop") : null;
+                    String requestRolls = request.get("humanAimRolls") instanceof String ? (String) request.get("humanAimRolls") : null;
+                    String rolls = entry.humanAimRolls != null ? entry.humanAimRolls : requestRolls;
+                    AutoStudyTest.requestHumanAimRolls = rolls == null || "none".equals(rolls) ? null : rolls;
                     AutoStudyTest.picks = entry.picks != null ? entry.picks
                             : request.get("picks") instanceof Map ? (Map<String, Object>) request.get("picks") : null;
                     AutoStudyTest.partnerPicks = entry.partnerPicks != null ? entry.partnerPicks
