@@ -90,4 +90,27 @@ public class IndicatorSubsystemTest {
         assertEquals("solid, not flashing", IndicatorSubsystem.ORANGE,
                 IndicatorSubsystem.position(Signal.ARC_TURN, half), EPS);
     }
+
+    @Test
+    public void theNectarWaitFlashesTheAllianceColourFasterNearItsEnd() {
+        assertEquals(Signal.NECTAR_CUE_RED,
+                IndicatorSubsystem.choose(false, false, true, Alliance.RED, false, false, false, true));
+        assertEquals(Signal.NECTAR_CUE_BLUE,
+                IndicatorSubsystem.choose(false, false, false, Alliance.BLUE, false, false, false, true));
+        assertEquals("never in INIT", Signal.ALLIANCE_RED,
+                IndicatorSubsystem.choose(true, false, false, Alliance.RED, false, false, false, true));
+        assertEquals("off: as before", Signal.FULL,
+                IndicatorSubsystem.choose(false, false, true, Alliance.RED, false, false, false, false));
+        long slow = (long) IndicatorSubsystem.FLASH_MS;
+        long fast = (long) IndicatorSubsystem.NECTAR_FAST_FLASH_MS;
+        long late = (long) IndicatorSubsystem.NECTAR_FAST_AFTER_MS;
+        assertEquals(IndicatorSubsystem.RED, IndicatorSubsystem.position(Signal.NECTAR_CUE_RED, 0, 0), EPS);
+        assertEquals("2 Hz early", IndicatorSubsystem.RED,
+                IndicatorSubsystem.position(Signal.NECTAR_CUE_RED, fast, fast), EPS);
+        assertEquals(IndicatorSubsystem.OFF, IndicatorSubsystem.position(Signal.NECTAR_CUE_RED, slow, slow), EPS);
+        assertEquals("4 Hz late", IndicatorSubsystem.OFF,
+                IndicatorSubsystem.position(Signal.NECTAR_CUE_BLUE, fast, late), EPS);
+        assertEquals(IndicatorSubsystem.BLUE, IndicatorSubsystem.position(Signal.NECTAR_CUE_BLUE, 2 * fast, late), EPS);
+        assertEquals("under 5 Hz", true, IndicatorSubsystem.NECTAR_FAST_FLASH_MS >= 100);
+    }
 }

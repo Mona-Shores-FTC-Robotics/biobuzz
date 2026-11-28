@@ -390,12 +390,22 @@ public final class AutoRegistration {
      * tracker no longer assumes a TIP, and this wait lasts until the camera sees the CELL up, or
      * its time runs out and the Auto takes the other way.
      */
-    /** {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it. */
+    /**
+     * {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it, and the
+     * indicator light flashing the alliance's colour meanwhile, so the human player rolls the NECTAR
+     * now (faster near the end: {@code IndicatorSubsystem.NECTAR_FAST_AFTER_MS}; mentor, 28 Nov 2026).
+     */
     private static Command catchNectar(Robot robot) {
         return new CommandBuilder()
-                .setStart(() -> robot.intake.intake())
+                .setStart(() -> {
+                    robot.intake.intake();
+                    robot.indicator.nectarCue(true);
+                })
                 .setDone(() -> false)
-                .setEnd(end -> robot.intake.idle());
+                .setEnd(end -> {
+                    robot.intake.idle();
+                    robot.indicator.nectarCue(false);
+                });
     }
 
     /** Whether {@code lane} holds a NECTAR of {@code alliance}'s colour in any slot. No alliance, no lane: false. Pure. */
