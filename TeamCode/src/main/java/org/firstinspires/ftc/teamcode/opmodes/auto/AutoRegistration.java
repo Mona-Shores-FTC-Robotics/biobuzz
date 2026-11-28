@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
@@ -40,7 +41,11 @@ import java.util.function.Function;
  * they run on the robot today as timed scripts: a placeholder command finishes at once, and a
  * placeholder trigger never fires, so a wait on it runs to its time limit. {@link #PLACEHOLDERS}
  * lists them, {@link BuiltAuto} shows the list on the Driver Station at INIT, and each one goes
- * when its mechanism lands. None is left: {@code IntakeFull} is the colour sensor's full
+ * when its mechanism lands. One is listed: {@code PickNectar}, a grab of our own NECTAR lying in our
+ * LOADING ZONE (the human player's drop after a TIP of our HIVE, G426.A). Only the simulator runs it
+ * ({@code AutoSim.pickNectar}); on the robot the card finishes at once, taking nothing, and says so
+ * in the match log. What the real one needs is in {@code doc/robot-todo.md}, "Human NECTAR in AUTO".
+ * {@code IntakeFull} is no placeholder: it is the colour sensor's full
  * ({@code ColorSensorSubsystem.full()}, a piece held under it), the same signal that stops the
  * roller and turns the light green.
  *
@@ -241,8 +246,15 @@ public final class AutoRegistration {
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 
+    /**
+     * {@code PickNectar}'s typical seconds, for the endgame guard and the Visualizer's preview: a drive-in push onto
+     * a NECTAR in the LOADING ZONE from a spot about 16 in out, and the drive back. A placeholder with the card: the
+     * simulator's grab takes 1.3 to 1.8 s ({@code AutoSim.pickNectar}), and no robot has run one.
+     */
+    public static final double PICK_NECTAR_TYPICAL_S = 2.0;
+
     /** The names registered as placeholders, in registration order. Shown at INIT. */
-    public static final List<String> PLACEHOLDERS = Collections.emptyList();
+    public static final List<String> PLACEHOLDERS = Collections.singletonList("PickNectar");
 
     private static final HiveCell[] CELLS = HiveCell.values();
 
@@ -310,6 +322,12 @@ public final class AutoRegistration {
                 .grab("GardenGatherAlongWall", GARDEN_GATHER_ALONG_WALL_TYPICAL_S,
                         () -> GardenGather.alongWallCommand(robot, note),
                         robot == null ? null : GardenGather.alongWallApproach(robot, note))
+                // ---- placeholder (PLACEHOLDERS): our NECTAR in the LOADING ZONE. No mechanism yet: the card
+                // finishes at once and takes nothing. A grab, as the real one will be (it drives in and back), so an
+                // Auto drawn with it is planned by the guard as it will be run. Simulated in AutoSim.pickNectar.
+                .grab("PickNectar", PICK_NECTAR_TYPICAL_S, () -> Commands.instant(() -> {
+                    if (note != null) note.accept("PickNectar: a placeholder, no NECTAR grab on the robot yet; nothing taken");
+                }))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)

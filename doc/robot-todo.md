@@ -442,6 +442,43 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
       shows 8–9 ms loops every 250 ms while spinning, only single 4–5 ms ones. **Stop:** the median up by
       more than 1 ms → the PR, with both logs.
 
+## Human NECTAR in AUTO: what `PickNectar` needs (either robot, a NECTAR of each colour, the phone)
+
+`PickNectar` is registered as a **placeholder** (`AutoRegistration.PLACEHOLDERS`): only the simulator runs it,
+and on the robot the card ends at once, taking nothing. The simulator study (PR for
+`claude/human-nectar-fruitport`, `doc/human-nectar-auto.md` § "28 Nov 2026") has L-RightUnderHive take the
+NECTAR earned by TIP 1 at its own spot by the LOADING ZONE on its way to the WALL FLOWER, and carry it to the
+RIGHT CELL with 3 POLLEN. These decide whether a real card is worth writing, and give the simulator its numbers.
+The colour sensor keeping our own NECTAR is not on this list: it has worked all season.
+
+- [ ] **NECTAR's colour for the webcam.** `PieceVisionSubsystem`'s NECTAR HSV range is still -1 (not measured).
+      Vision: HIVE & Pose with the webcam on, a red and a blue NECTAR on a grey tile 10, 20 and 30 in ahead,
+      lab lights and then the gym's: write down H, S and V of each. **Good:** one range per colour that finds
+      the NECTAR at all three distances and never a POLLEN beside it. Put the two ranges in a PR.
+- [ ] **A FLOWER pick that starts with one piece held stops at four** (G407). Basic Drive, feed one NECTAR in by
+      hand, then D-pad up at the WALL FLOWER, five times. **Good:** 3 POLLEN come in, the light goes green,
+      the roller stops, and `read_logs.py picks` shows the dwell ending on the full lane each time.
+      **Stop:** a fourth POLLEN is taken (5 held) or the pick dwells its whole 2 s holding 4 → the PR, with
+      the log: the Auto's pick after a NECTAR needs the lane count to be right.
+- [ ] **The intake takes a loose NECTAR on the tile.** Intake on, drive onto a still NECTAR at a crawl, then at
+      about 15 and 30 in/s, ten each, nose square and then 20° off. **Good:** 9 of 10 taken at 15 in/s (the
+      simulator assumes 85% a touch, a placeholder, and a 30 in/s drive-in). Then the roll: a second person
+      rolls it from 20 and 30 in at the stopped robot's intake, ten each. Count taken, bounced off, missed.
+- [ ] **A turn on the spot as a drawn path.** The catch needs the robot to turn its intake to the zone and back
+      without leaving its spot: an Auto with a 1 in path that turns 100°, run five times. **Good:** it ends
+      within 1 in and 2° of the drawn end in under 1.2 s (`read_logs.py legs`). **Stop:** it wanders or takes
+      over 2 s → say so in the PR; the drawn Auto then moves 7 in to its own spot instead (as the study's does).
+- [ ] **How long a one-ball `LaunchAll` and a `LaunchOne` take.** With one NECTAR in the lane: `LaunchAll` five
+      times, `LaunchOne` five times (a two-card test Auto). **Good to know:** the card's seconds and whether the
+      ball left (`read_logs.py steps`). Without the throat beam a one-ball `LaunchAll` should run its whole
+      2.4 s feed, and `LaunchOne` feeds 0.5 s (`LaunchCards.launchOneFeedS`, not measured), which in the
+      simulator is over before the first ball reaches the wheels (0.85 s): if the robot's `LaunchOne` fires
+      nothing either, raise it in a PR.
+- [ ] **The human player's drop and short roll** (the drill in `doc/human-nectar-auto.md`, the last section,
+      beside the playbook's): 20 drops into a taped 4 in square mid-zone, timed from a called "TIP"; then 20
+      rolls of 20 in at a 10 in gate. Record seconds from the call to the ball at rest (the simulator uses 2 s),
+      and how many stay in the zone (the simulator's drop rolls off the tape about one time in five).
+
 ## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
 
 We may launch only our own alliance's NECTAR (the other alliance's is a penalty: G408, as the

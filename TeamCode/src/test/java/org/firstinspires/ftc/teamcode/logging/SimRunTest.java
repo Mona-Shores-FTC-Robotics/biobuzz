@@ -49,6 +49,10 @@ import java.util.regex.Pattern;
  * stand-in, {@code PartnerRBrokenDownAuto} or {@code PartnerLBrokenDownAuto}, with {@code lastShotS} still setting our wait).
  * {@code "pushable": true} lets our robot push a partner that is not driving ({@link AutoSim#pushable}: a partner with no
  * Auto that we move off the wall and into the LOADING ZONE); without it, touching one is a collision.
+ * {@code "humanAimRolls"} has the human player roll each NECTAR a TIP earns at a robot
+ * ({@link AutoSim#humanAimRolls}: {@code "spot | from | speed | facing"} per NECTAR, {@code ;} between) instead of
+ * dropping it mid-zone, and {@code "launchOneFeedS"} sets a LaunchOne's feed in the simulator (a one-ball launch that
+ * ends at its counted shot needs about 1.2; the robot's 0.5 s is not measured). Placeholders both, for the NECTAR study.
  * {@code "calibration": "fruitport"} is the Fruitport Qualifier's calibration ({@link FruitportCalibration}) in
  * place of Belding's. With either calibration, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
  * each robot's launched pieces that stay in, from any range, in place of Belding's rows
@@ -114,6 +118,17 @@ public class SimRunTest {
                 out.put("scenario", "best");
             }
             BeldingCalibration.dwellOverride = dwell(request.get("tipDwellS"));
+            // "humanAimRolls": the human player rolls each owed NECTAR at a robot instead of dropping it mid-zone,
+            // "spot | from | speed | facing" per NECTAR with ";" between (AutoSim.humanAimRolls; placeholders all).
+            // "launchOneFeedS": a LaunchOne's feed in the simulator, for a one-ball launch that ends at its shot.
+            if (request.get("humanAimRolls") instanceof String) {
+                AutoStudyTest.requestHumanAimRolls = (String) request.get("humanAimRolls");
+                out.put("humanAimRolls", AutoStudyTest.requestHumanAimRolls);
+            }
+            if (request.get("launchOneFeedS") instanceof Number) {
+                AutoSim.launchOneFeedOverrideS = ((Number) request.get("launchOneFeedS")).doubleValue();
+                out.put("launchOneFeedS", AutoSim.launchOneFeedOverrideS);
+            }
             // "throatBeam": true: our robot with the throat beam fitted (BeamBreakSubsystem.throatFitted), its
             // volleys ending at their last ball rather than the feed timer.
             if (Boolean.TRUE.equals(request.get("throatBeam"))) {
@@ -145,6 +160,8 @@ public class SimRunTest {
             BeldingCalibration.restore();
             BeldingCalibration.ourInRate = Double.NaN;
             BeldingCalibration.dwellOverride = null;
+            AutoStudyTest.requestHumanAimRolls = null;
+            AutoSim.launchOneFeedOverrideS = Double.NaN;
             BeldingCalibration.partnerInRate = Double.NaN;
             if (!fruitportBefore) FruitportCalibration.restore();
             BeldingCalibration.on = beldingBefore;

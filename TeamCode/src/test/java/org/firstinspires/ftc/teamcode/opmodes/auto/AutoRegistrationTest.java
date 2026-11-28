@@ -36,10 +36,17 @@ public class AutoRegistrationTest {
                 expected, actual);
     }
 
-    /** IntakeFull is the colour sensor's full now (LaneFull): nothing is a placeholder. */
+    /**
+     * The one placeholder is PickNectar (our NECTAR in the LOADING ZONE: simulated, no robot mechanism yet), and it
+     * is registered, so an Auto drawn with it initialises and the Driver Station lists it at INIT.
+     */
     @Test
-    public void nothingIsStillAPlaceholder() {
-        assertEquals(java.util.Collections.emptyList(), AutoRegistration.PLACEHOLDERS);
+    public void pickNectarIsTheOnlyPlaceholderAndIsRegistered() {
+        assertEquals(java.util.Collections.singletonList("PickNectar"), AutoRegistration.PLACEHOLDERS);
+        String registered = AutoRegistration.forRobot(null, null, null, null).describe();
+        for (String name : AutoRegistration.PLACEHOLDERS) {
+            assertTrue(name + " is listed as a placeholder but not registered", registered.contains("\"" + name + "\""));
+        }
     }
 
     /** The CELL a robot is aimed at: at the audience end, red's RIGHT one and blue's LEFT one. */
