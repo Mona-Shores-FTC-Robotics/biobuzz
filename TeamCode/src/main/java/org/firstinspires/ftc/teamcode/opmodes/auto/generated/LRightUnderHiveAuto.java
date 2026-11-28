@@ -250,6 +250,7 @@ public final class LRightUnderHiveAuto {
                                                                         kit.path("NECTAR: LEFT_AUTO_OFFSET to LEFT_PARK", nectarLeftAutoOffsetToLeftPark, 1.5))))),
                                         kit.when("CellUp").then(
                                                 kit.command("LaunchAll"),
+                                                kit.route("FLOWER load", 0, () -> kit.command("CallNectar")),
                                                 kit.route("FLOWER load", 0, () -> kit.path("RIGHT_AUTO_OFFSET: turn the intake to the LOADING ZONE", rightAutoOffsetTurnTheIntakeToTheLoadingZone, 0.3, guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallPark, 2.6)),
                                                 kit.route("FLOWER load", 0, () -> kit.firstOf("Hold for NECTAR 2 (TIP 2 earned it), intake on: until it is in, or 26.0 s", kit.command("CatchNectar"),
                                                         kit.when("NectarIn").then(

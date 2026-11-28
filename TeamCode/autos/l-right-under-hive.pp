@@ -2449,6 +2449,11 @@
                             "label": "TIP 3",
                             "cards": [
                               {
+                                "id": "c61-callnectar2-0",
+                                "kind": "action",
+                                "name": "CallNectar"
+                              },
+                              {
                                 "id": "c201-roff-turn2",
                                 "kind": "path",
                                 "lineId": "roff-turn2-b",
