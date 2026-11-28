@@ -98,23 +98,47 @@ Check: Hardware reads it once per INIT (INIT again to re-read). For the live che
 `throatBehindGate` both on in Panels for the bench session, INIT Basic Drive, and read the Robot page's "Gate beam"
 line; the `RobotDifferences` lines come with the switch item further down this group, once these pass.
 
-- [ ] **Caliper the 2168's body before printing:** thickness (8 or 9 mm?), width, LED from its end. **Good:** 8 mm
-      thick, 10 wide, 5 from the end (the files' numbers). **Stop:** anything else → `BODY_T` etc. in
+- [ ] **Caliper the 2168's body before printing:** thickness without the LED (the files are built to the
+      datasheet's 9; the mentor's model `cad/beam-mount/ref/ir_break_beam_5mm.step` measures 8.1), width, LED from
+      its end, and the dome's height above the face (model: 4.8). **Good:** 9 thick, 10 wide, 5 from the end,
+      4.8 dome. **8.1 thick:** print as is, and put a strip of 1 mm foam tape on the receiver's back under the lip
+      and hooks (0.9 mm of play there otherwise). **Stop:** anything else → `BODY_T`, `DOME_H` etc. in
       `floor_sled.py` and `parts.py`, run both, print those files.
+- [ ] **Room under the floor channel:** the sleds now hang 3.1 mm below the channel's bottom edges (so the LED's
+      dome stays under the lane floor; README "The LED's dome"). Look under the channel along the 43 mm (snap) or
+      75 mm (screwed) from the 14 mm hole under the ball's last spot. **Good:** nothing within 4 mm below the
+      channel's edges there (a 4 mm hex key laid across the edges slides along freely). **Stop:** something is →
+      note what and how far; the mentor picks between a shorter sled and the side-mounted beam (option (b)).
+- [ ] **The dome stays under the lane:** sled in, emitter in, a straightedge across the floor's top over the 14 mm
+      hole. **Good:** the dome does not touch it. **Stop:** it does → the body is thicker than `BODY_T`, or not
+      pressed down onto the pocket's floor.
 - [ ] **Before printing, look inside the floor channel:** the 43 mm of it from the 14 mm hole under the ball's
       last spot away from the gate must be empty (no nut, screw end or wire inside the U), and the open
       side's two side-wall holes there (the side facing the purple wheels) reachable with a small screwdriver. **Stop:** a nut or screw inside → note
       where; the sled gets a notch or flips end for end.
 - [ ] **Print one sled first (`cad/beam-mount/README.md`) and click it in empty:** it pushes in by hand and all four
-      pins click. **Good:** pulled down hard and shaken it stays; no rattle you can hear; a straightedge across the
-      channel's bottom edges touches no plastic; the LED pocket is centred in the 14 mm hole. **Stop:** too stiff to
+      pins click. **Good:** pulled down hard and shaken it stays; no rattle you can hear; the sled's bottom stands an
+      even 3.1 mm below the channel's bottom edges, end to end (it is not cocked); the LED pocket is centred in the 14 mm hole. **Stop:** too stiff to
       push in → `ARM_T` 1.4 to 1.2 in `floor_sled.py`; pins pop out with a pull → `PIN_OUT` 1.0 to 1.2; rattles →
-      a strip of thin foam tape on the sled's top. Then the emitter in: its body flush with the sled's top (if not,
-      it is thicker than 8 mm, above).
-- [ ] **Fit the receiver:** over the emitter's hole, held at both ends (lip, then its screw). **Good:** the body lies
-      flat on the mount, no gap at the LED end; Check: Hardware reads HIGH (clear) with the lane empty and LOW with
-      a ball on the spot. **Stop:** clear with a ball there → slide the mount in its slots (±3 mm); still clear →
-      the plate's hole is too far off the floor's, note by how much.
+      a strip of thin foam tape on the sled's top. Then the emitter in, pressed down onto the pocket's floor: its
+      dome below the sled's top.
+- [ ] **Receiver fit test first (`beam_fit_test`, 1.9 cm3):** press the receiver, wire end first against the stop,
+      into each of its three pockets
+      (one, two, three notches: ribs gripping 0.15, 0.25, 0.35 mm a side). **Good:** the two-notch pocket takes it
+      with a thumb and it does not fall out held upside down and shaken. **Stop:** another pocket is the one →
+      `RIB_CRUSH` in `parts.py` to its value, run it, print `beam_mount`.
+- [ ] **Fit the receiver (`beam_mount`, no screw):** LED end under the 3 mm lip, wire end pressed down until both
+      arms click over it. **Good:** the body lies flat, no gap at either end; held upside down and tapped hard it
+      stays; spreading the two arms lets it out; the arms do not crack or stay bent after 5 in-and-outs; Check:
+      Hardware reads HIGH (clear) with the lane empty and LOW with a ball on the spot. **Stop:** too stiff to click
+      → `ARM_T` 1.4 to 1.2 in `parts.py`; loose under the hooks → `HOOK` 1.0 to 1.3; an arm cracks → note where
+      (root or hook); clear with a ball there → slide the mount in its slots (±3 mm); still clear → the plate's hole
+      is too far off the floor's, note by how much. The M2 x 12 and nut are a backup only, if the clips ever let go.
+- [ ] **Screwed sled (`floor_sled_screwed`, if it is the one tried):** M3 x 8 button heads from the lane through
+      the floor's 4 mm holes, self-tapping into the sled's 2.5 mm pilots (no nuts). **Good:** each bites and pulls
+      the sled flat against the floor without stripping; out and in again 3 times it still holds; nothing shows
+      below the channel. **Stop:** too tight to start → run a 3/32 in drill through the pilot; strips → print with
+      6 walls instead of 4, or a tighter 2.3 mm pilot (`PILOT_D` in `floor_sled.py`).
 - [ ] **Nothing else breaks it:** Basic Drive, intake and feeder wheels on, gate opened and shut 10 times, lane
       empty. **Good:** never LOW. Then 4 balls in: LOW from the first ball's arrival until the volley's last ball
       leaves, HIGH within 0.1 s after it (Robot page, phone slow-motion). **Stop:** HIGH between two balls of one

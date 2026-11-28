@@ -1,7 +1,8 @@
-"""Draws parts.png: the mount alone, the mount with a sensor on a goBILDA wall, and its footprint on the hole pattern.
+"""Draws parts.png (the receiver mount: as it prints, with a sensor on a goBILDA wall, a section through its snap arms,
+its footprint on the hole pattern, and the fit test) and floor_sled_screwed.png (option B and a section through a screw).
 
     pip install cadquery trimesh manifold3d matplotlib
-    python3 cad/beam-mount/parts.py && python3 cad/beam-mount/render.py      # draws the STL parts.py wrote
+    python3 cad/beam-mount/parts.py && python3 cad/beam-mount/floor_sled.py && (cd cad/beam-mount && python3 render.py)
 """
 import os
 
@@ -11,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import trimesh
 
+import floor_sled
 import parts
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -83,25 +85,86 @@ def wall():
     return w
 
 
-def sensor():
-    """The sensor as a plain block on the plate, LED end over the window, plus its LED dome and screw head."""
-    y0 = -parts.LED_FROM_END
-    body = slab(-parts.BODY_W / 2, parts.BODY_W / 2, y0, y0 + parts.BODY_L, parts.PLATE_T, parts.PLATE_T + 9)
-    head = cyl(0, parts.LED_TO_SCREW, parts.PLATE_T + 9, parts.PLATE_T + 11.5, 5.5)
-    return body, head
+REF = os.path.join(HERE, "ref", "ir_break_beam_5mm.step")
 
 
-def main():
+def ref_sensor():
+    """The mentor's model of one sensor half as a mesh, in its own frame: body x -5..5, LED face at y 8.1 (+y),
+    LED end at z -10, the LED at z -5."""
+    import tempfile
+    import cadquery as cq
+    solid = min(cq.importers.importStep(REF).solids().vals(), key=lambda v: abs(v.Center().x))
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "s.stl")
+        cq.exporters.export(cq.Workplane().add(solid), p, tolerance=0.02, angularTolerance=0.1)
+        return trimesh.load(p)
+
+
+MODEL_T = 8.1                # the model's body thickness; its LED face is at y = MODEL_T
+
+
+def as_thick(ref, t):
+    """The model with its body stretched to thickness t (the datasheet's 9), the LED's ring and dome moved with the face."""
+    m = ref.copy()
+    v = m.vertices.copy()
+    body = v[:, 1] <= MODEL_T + 1e-6
+    v[body, 1] *= t / MODEL_T
+    v[~body, 1] += t - MODEL_T
+    m.vertices = v
+    return m
+
+
+def placed(mesh, rows, offset):
+    m = mesh.copy()
+    t = np.eye(4); t[:3, :3] = np.array(rows, dtype=float); t[:3, 3] = offset
+    m.apply_transform(t)
+    return m
+
+
+def sensor_in_mount(ref, t):
+    """Seated in beam_mount, a body t thick: LED face down on the plate, LED on the beam axis, wire end toward +Y."""
+    return placed(as_thick(ref, t), [[1, 0, 0], [0, 0, 1], [0, -1, 0]], [0, 5.0, parts.PLATE_T + t])
+
+
+def sensor_in_sled(ref, t):
+    """Seated in a floor sled, a body t thick: on the pocket's floor, LED face up, LED on the beam axis."""
+    bottom = -floor_sled.FACE_DEPTH - floor_sled.BODY_T
+    return placed(as_thick(ref, t), [[-1, 0, 0], [0, 0, 1], [0, 1, 0]], [0, 5.0, bottom])
+
+
+def section(ax, mesh, normal, origin, axes, colour="k"):
+    for s in trimesh.intersections.mesh_plane(mesh, plane_normal=normal, plane_origin=origin):
+        ax.plot(s[:, axes[0]], s[:, axes[1]], colour, lw=1)
+
+
+def draw_parts():
     m = trimesh.load(os.path.join(HERE, "beam_mount.stl"))
-    fig = plt.figure(figsize=(15, 5.5))
-    yellow, grey = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8)
-    show(fig.add_subplot(1, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
-    body, head = sensor()
-    show(fig.add_subplot(1, 3, 2), raster([(wall(), grey), (m, yellow), (body, (0.2, 0.2, 0.2)), (head, (0.85, 0.85, 0.9))], 35, -60),
-         "On a goBILDA wall: sensor in, its screw on top\n(the lane is on the far side of the wall)")
-    ax = fig.add_subplot(1, 3, 3)
-    for s in trimesh.intersections.mesh_plane(m, plane_normal=[0, 0, 1], plane_origin=[0, 0, 0.5]):
-        ax.plot(s[:, 0], s[:, 1], "k", lw=1)
+    ft = trimesh.load(os.path.join(HERE, "beam_fit_test.stl"))
+    fig = plt.figure(figsize=(15, 10.5))
+    yellow, grey, dark = (0.95, 0.75, 0.2), (0.72, 0.74, 0.8), (0.2, 0.2, 0.2)
+    show(fig.add_subplot(2, 3, 1), raster([(m, yellow)], 40, -60), "beam_mount.stl, as it prints")
+    ref = ref_sensor()
+    seated = sensor_in_mount(ref, parts.BODY_T)
+    seated81 = sensor_in_mount(ref, MODEL_T)
+    show(fig.add_subplot(2, 3, 2), raster([(wall(), grey), (m, yellow), (seated, dark)], 35, -60),
+         "On a goBILDA wall, sensor in, LED down\n(lip over the LED end, hooks over the wire end)")
+    show(fig.add_subplot(2, 3, 3), raster([(ft, yellow)], 45, -70),
+         "beam_fit_test.stl: ribs 0.15 / 0.25 / 0.35 mm\n(1, 2, 3 notches)")
+    y1 = parts.LED_TO_SCREW + parts.LED_FROM_END + parts.FIT
+    ax = fig.add_subplot(2, 3, 4)
+    section(ax, m, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2))
+    section(ax, seated81, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2), "tab:orange")
+    section(ax, seated, [0, 1, 0], [0, y1 - 2.0, 0], (0, 2), "tab:red")
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title("Across the wire end (2 mm in): the arms, free of the plate,\nand their hooks over a 9 mm body (red); the 8.1 mm model (orange)", fontsize=10)
+    ax = fig.add_subplot(2, 3, 5)
+    section(ax, m, [1, 0, 0], [0, 0, 0], (1, 2))
+    section(ax, seated81, [1, 0, 0], [0, 0, 0], (1, 2), "tab:orange")
+    section(ax, seated, [1, 0, 0], [0, 0, 0], (1, 2), "tab:red")
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title("Along the middle: the 3 mm lip over the LED end; the LED's ring\nin its counterbore, the dome in the window: the sensor sits flat", fontsize=10)
+    ax = fig.add_subplot(2, 3, 6)
+    section(ax, m, [0, 0, 1], [0, 0, 0.5], (0, 1))
     for cx in (0.0, -24.0):
         ax.add_patch(plt.Circle((cx, 0), 7.0, fill=False, color="tab:blue"))
         for dx in (-8, 8):
@@ -109,9 +172,67 @@ def main():
                 ax.add_patch(plt.Circle((cx + dx, dy), 2.25, fill=False, color="tab:blue"))
     ax.plot(0, 0, "r+", ms=14)
     ax.set_aspect("equal"); ax.grid(alpha=0.3)
-    ax.set_title("Underside (black) over goBILDA's holes (blue)\n+ = beam; hex = the sensor screw's nut", fontsize=10)
+    ax.set_title("Underside (black) over goBILDA's holes (blue)\n+ = beam; the arms' slots go right through", fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(HERE, "parts.png"), dpi=90)
+
+
+def draw_screwed():
+    m = trimesh.load(os.path.join(HERE, "floor_sled_screwed.stl"))
+    f = floor_sled
+    fig = plt.figure(figsize=(15, 5.5))
+    show(fig.add_subplot(1, 2, 1), raster([(m, (0.07, 0.5, 0.56))], 35, -60),
+         "floor_sled_screwed.stl, top face up (it prints this face down):\nfour blind 2.5 mm pilot holes, no nuts")
+    ax = fig.add_subplot(1, 2, 2)
+    section(ax, m, [0, 1, 0], [0, f.SCREW_Y, 0], (0, 2))
+    w2 = f.POCKET_W / 2
+    ax.add_patch(plt.Rectangle((-w2 - f.WALL_T, 0), 2 * w2 + 2 * f.WALL_T, f.FLOOR_T, color="0.7"))      # the floor
+    for side in (-1, 1):
+        ax.add_patch(plt.Rectangle((side * w2 - (f.WALL_T if side < 0 else 0), -f.POCKET_H), f.WALL_T, f.POCKET_H, color="0.7"))
+        x = side * f.SCREW_X
+        ax.add_patch(plt.Rectangle((x - 1.5, f.FLOOR_T - f.SCREW_L), 3.0, f.SCREW_L, color="tab:orange", alpha=0.8))
+        ax.add_patch(plt.Rectangle((x - 2.85, f.FLOOR_T), 5.7, 1.65, color="tab:orange"))                 # button head
+    ax.set_aspect("equal"); ax.grid(alpha=0.3)
+    ax.set_title(f"Across the channel at a screw ({f.SCREW_Y} mm from the beam): an M3 x 8 (orange) through the\n"
+                 f"2.5 mm floor bites {f.SCREW_L - f.FLOOR_T:.1f} mm into a {f.PILOT_DEPTH:.0f} mm pilot; "
+                 f"{f.H - f.PILOT_DEPTH:.1f} mm of sled under it", fontsize=10)
+    plt.tight_layout()
+    plt.savefig(os.path.join(HERE, "floor_sled_screwed.png"), dpi=90)
+
+
+def draw_sled_fit():
+    """sensor_fit_sleds.png: the mentor's model seated in each floor sled, cut along the beam axis, with the
+    channel's floor; the LED's dome against the lane floor's top face."""
+    ref = ref_sensor()
+    f = floor_sled
+    seated = sensor_in_sled(ref, f.BODY_T)
+    seated81 = sensor_in_sled(ref, MODEL_T)
+    fig = plt.figure(figsize=(16, 4.6))
+    for i, name in enumerate(("floor_sled", "floor_sled_screwed")):
+        m = trimesh.load(os.path.join(HERE, f"{name}.stl"))
+        ax = fig.add_subplot(1, 2, i + 1)
+        section(ax, m, [1, 0, 0], [0, 0, 0], (1, 2))
+        section(ax, seated81, [1, 0, 0], [0, 0, 0], (1, 2), "tab:orange")
+        section(ax, seated, [1, 0, 0], [0, 0, 0], (1, 2), "tab:red")
+        lo, hi = m.bounds[0][1] - 3, m.bounds[1][1] + 3
+        ax.add_patch(plt.Rectangle((lo, 0), -7 - lo, f.FLOOR_T, color="0.7"))           # the floor, cut by its 14 mm hole
+        ax.add_patch(plt.Rectangle((7, 0), hi - 7, f.FLOOR_T, color="0.7"))
+        ax.axhline(f.FLOOR_T, color="tab:blue", lw=0.8, ls="--")
+        ax.axhline(-f.POCKET_H, color="0.5", lw=0.8, ls=":")
+        top = seated.bounds[1][2]
+        ax.set_aspect("equal"); ax.grid(alpha=0.3)
+        top81 = seated81.bounds[1][2]
+        ax.set_title(f"{name}, cut along the beam: dome top {top - f.FLOOR_T:+.1f} mm (9 mm body, red),\n"
+                     f"{top81 - f.FLOOR_T:+.1f} mm (8.1 model, orange) from the lane floor's top (blue); "
+                     f"{f.HANG:.1f} mm below the channel (dots)", fontsize=10)
+    plt.tight_layout()
+    plt.savefig(os.path.join(HERE, "sensor_fit_sleds.png"), dpi=90)
+
+
+def main():
+    draw_parts()
+    draw_screwed()
+    draw_sled_fit()
 
 
 if __name__ == "__main__":

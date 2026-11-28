@@ -7,8 +7,14 @@ Where it goes (the new transfer, mentor's Onshape export of 23 Nov 2026): the 11
 is the lane floor under the ball's last spot, behind the gate. That channel lies open side down, so its inside is
 a pocket 27.0 mm wide and 9.5 mm tall under the floor the ball rolls on. The sled fills that pocket and holds the
 emitter LED up, looking through the channel's 14 mm hole at the ball's spot; the receiver looks down from the top
-plate (beam_mount, parts.py). Nothing sticks out below the channel's edges, and **nothing is on the floor the ball
-rolls on**: the sled holds by the channel's side walls.
+plate (beam_mount, parts.py). **Nothing is on the floor the ball rolls on**: the sled holds by the channel's side
+walls.
+
+The LED stands proud of the body: its dome's top is 4.8 mm above the face (the mentor's model). So the body sits
+FACE_DEPTH (2.6 mm) under the floor's underside, keeping the dome 0.3 mm under the lane floor's top face where the
+waiting ball rests, and with the datasheet's 9 mm body the sled is 12.6 mm tall: it hangs HANG (3.1 mm) below the
+channel's bottom edges (mentor's choice of fix pending, 27 Nov 2026; README "The LED's dome"). The body is pressed
+down onto the pocket's floor between vertical crush ribs; the channel's floor above stops it rising.
 
 How it holds: the channel's side walls have 4 mm holes every 8 mm along it, 4.0 mm above their bottom edges, one
 level with each 14 mm hole. The sled has four pins, two on each side, each on a flexible arm (a strip of the sled
@@ -28,13 +34,16 @@ just an empty pocket.
 The sled reaches from the beam's 14 mm hole away from the gate and the purple wheel stack, and the wires leave at
 that end, inside the channel (mentor, 23 Nov 2026). WIRES_TOWARD_GATE True turns it the other way.
 
-**Option B, `floor_sled_screwed`:** no pins. Longer (81 mm), reaching 40 mm each way along the channel, with four
-screw places, one in each corner: the floor's 4 mm holes 9.4 mm either side of the centre line, 33 mm each way
-along the channel from the beam's hole. Use any two (one each end) or all four: an M3 x 8 button head down through
-the floor into an M3 nut slid into a tunnel in the sled, each in a +-3 mm slot. The two on the wheel side at the gate
-end sit under the purple wheels: a screwdriver reaches them only if the wheels leave room. Both screws are 33 mm along the channel from the
-beam's hole, 39 mm and 28 mm from where the balls cross: no ball rolls over them, and they are reached from the top.
-Tightening them pulls the sled, and the emitter on its crush ribs, flat against the floor.
+**Option B, `floor_sled_screwed`:** no pins, no nuts. Longer (75 mm), reaching 38 mm each way along the channel,
+with four screw places, one in each corner: the floor's 4 mm holes 9.4 mm either side of the centre line, 33.4 mm
+each way along the channel from the beam's hole. Use any two (one each end) or all four: an M3 x 8 button head down
+from the lane through the floor's hole, self-tapping into a blind 2.5 mm pilot hole in the sled (head mentor,
+27 Nov 2026: no hidden nuts). Each pilot has at least 2.5 mm of solid plastic round it on every side and 2.3 mm under
+it, so the screw bites 5.5 mm and never reaches the sensor pocket, the wire slot or the sled's bottom. The holes place
+the sled, as the snap sled's pins do. The two on the wheel side at the gate end sit under the purple wheels: a
+screwdriver reaches them only if the wheels leave room. Both screws are 33 mm along the channel from the beam's hole,
+39 mm and 28 mm from where the balls cross: no ball rolls over them, and they are reached from the top. Tightening
+them pulls the sled flat against the floor.
 
 Millimetres. Sled frame: origin on the beam axis at the floor's underside (the sled's top face), X across the
 channel, Y along it (+Y away from the gate, where the wires leave), Z up (into the lane). The open side (the one you
@@ -51,7 +60,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # ---- the sensor (Adafruit 2168; not yet measured with calipers, see README) ----
 BODY_L = 20.0
 BODY_W = 10.0
-BODY_T = 8.0                 # Adafruit says 8, the QT50CM datasheet 9: measure it. The sled's floor is what is left
+BODY_T = 9.0                 # the QT50CM datasheet (mentor, 27 Nov 2026); the model measures 8.1, see the README
+DOME_H = 4.8                 # the LED's dome top above the body's face (the model): it must stay under the lane floor
+DOME_CLEAR = 0.3             # ...this far under the floor's top face, where the waiting ball rests
 LED_FROM_END = 5.0           # LED centre from the nearer end; the wires leave the other end
 FIT = 0.3                    # clearance per side around the body
 # ---- the channel (goBILDA 11-hole Mini U-Channel, measured off the CAD) ----
@@ -80,18 +91,25 @@ NUT_X = 6.9                  # the nut slot's inner face from the beam axis: an 
 OPEN_SIDE_MIRRORED = True    # the snap sled's square pins and backup screw go on +X, the side facing the wheels
 WIRES_TOWARD_GATE = False    # False: the sled and its wires run from the beam's hole away from the gate (+Y)
 SCREW_X = 9.4               # option B's screws: the floor's 4 mm holes 9.4 mm off the centre line, away from the wheels...
-SCREW_Y = 33.4               # ...33.4 mm each way along the channel from the beam's hole
-SLIDE = 3.0                  # +-3 mm slots along the channel
-NUT_TUNNEL_W = 5.8           # a nut slides in from the sled's end and cannot turn
-NUT_TUNNEL_H = 2.7
-NUT_TUNNEL_TOP = 3.0         # tunnel roof below the top face: an M3 x 8 through the 2.5 mm floor ends 5.5 down
-SCREW_TAIL = 2.5             # sled beyond each slot's end
-RIB_H = 0.2                  # two crush ribs across the pocket's floor press the body up against the floor
-RIB_W = 1.0
+SCREW_Y = 33.4               # ...33.4 mm each way along the channel from the beam's hole (the holes place the sled)
+PILOT_D = 2.5                # option B's screws self-tap into the plastic: a 2.5 mm pilot as printed (open it with a
+                             # 3/32 in drill, 2.4 mm, if it prints tight). No nuts.
+PILOT_DEPTH = 7.0            # blind, from the top face: an M3 x 8 through the 2.5 mm floor bites 5.5 mm, and 1.5 more
+                             # takes the chips. 2.3 mm of solid sled stays under it: nothing comes out of the bottom
+SCREW_L = 8.0                # the screw it is drawn for (M3 x 8 button head)
+FLOOR_T = 2.5                # the channel's floor, which the screw passes through first
+BOSS_WALL = 2.5              # at least this much solid plastic round each pilot, on every side, for the thread
+END_TAIL = 3.0               # sled beyond each pilot hole's edge, along the channel
+RIB_CRUSH = 0.25             # vertical crush ribs on the pocket's sides reach this far into the body
+RIB_BASE = 1.2
+RIB_YS = (-2.5, 5.0, 13.0)   # along the pocket, from the LED: clear of the body's side grooves (9 to 11)
+SLED_FLOOR = 1.0             # the sled's floor under the body
 WIRE_W = 6.0                 # wire slot out of the wire end
 END_MARGIN = 2.0             # sled beyond the LED end of the body
 
-H = POCKET_H - DROP
+FACE_DEPTH = DOME_H + DOME_CLEAR - FLOOR_T    # the body's LED face this far below the floor's underside (the sled's top)
+H = FACE_DEPTH + BODY_T + SLED_FLOOR         # the sled's height: deeper than the channel, so it hangs below it
+HANG = H - POCKET_H                          # below the channel's bottom edges
 W = POCKET_W - 2 * SIDE_FIT
 
 
@@ -114,19 +132,32 @@ def pin(side, square_under):
     return rod.intersect(wedge)
 
 
+def pocket(part, by0, by1, yend):
+    """The body's pocket, open at the top: the body is pressed down onto the pocket's floor between vertical crush
+    ribs, LED face FACE_DEPTH under the sled's top, so its dome stays under the lane floor. A wire slot runs out to
+    yend at the full depth."""
+    bx = BODY_W / 2 + FIT
+    z0 = -FACE_DEPTH - BODY_T
+    part = part.cut(box(-bx, bx, by0, by1, z0, 0.1))
+    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, yend + 0.1, z0, 0.1))
+    for side in (1, -1):
+        for ry in RIB_YS:
+            tip = side * (BODY_W / 2 - RIB_CRUSH)
+            pts = [(side * (bx + 0.1), ry - RIB_BASE / 2), (tip, ry), (side * (bx + 0.1), ry + RIB_BASE / 2)]
+            part = part.union(cq.Workplane("XY").workplane(offset=z0).polyline(pts).close().extrude(-z0))
+    assert all(not (8.4 < ry < 11.6) for ry in RIB_YS), "a crush rib lands in the body's side groove"
+    assert H - FACE_DEPTH - BODY_T >= 0.8, "too little sled floor under the body"
+    return part
+
+
 def floor_sled():
-    floor = H - BODY_T
-    assert floor >= 0.8, f"the sensor is {BODY_T} mm thick: only {floor:.1f} mm of floor is left under it"
     by0 = -LED_FROM_END - FIT                 # the pocket for the body, LED end
     by1 = BODY_L - LED_FROM_END + FIT         # ...wire end
     y0 = by0 - END_MARGIN
     y1 = PIN_YS[1] + ARM_TIP
     part = box(-W / 2, W / 2, y0, y1, -H, 0)
     bx = BODY_W / 2 + FIT
-    part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))                     # the body, LED up against the floor
-    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, y1 + 0.1, -BODY_T, 0.1))   # the wires out the end
-    for ry in (by0 + 3.0, by1 - 3.0):
-        part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
+    part = pocket(part, by0, by1, y1)
     # the arms: a slot behind each, open at the sled's end; the front pair free at the LED end, the back pair at the
     # far end, each growing from the sled ARM_LEN from its pin
     arms = ((PIN_YS[0], y0 - 0.1, PIN_YS[0] + ARM_LEN), (PIN_YS[1], PIN_YS[1] - ARM_LEN, y1 + 0.1))
@@ -156,29 +187,24 @@ def floor_sled():
 
 
 def floor_sled_screwed():
-    """Option B: no pins; four screw places, the floor holes 9.4 mm either side of the centre, 33.4 mm each way."""
-    floor = H - BODY_T
-    assert floor >= 0.8, f"the sensor is {BODY_T} mm thick: only {floor:.1f} mm of floor is left under it"
+    """Option B: no pins; four screw places, the floor holes 9.4 mm either side of the centre, 33.4 mm each way.
+    Each is a blind 2.5 mm pilot hole from the top face, which an M3 x 8 self-taps into through the floor: no nuts."""
     by0 = -LED_FROM_END - FIT
     by1 = BODY_L - LED_FROM_END + FIT
-    yend = SCREW_Y + SLIDE + M3_CLEAR / 2 + SCREW_TAIL
+    yend = SCREW_Y + PILOT_D / 2 + END_TAIL
     part = box(-W / 2, W / 2, -yend, yend, -H, 0)
-    bx = BODY_W / 2 + FIT
-    part = part.cut(box(-bx, bx, by0, by1, -BODY_T, 0.1))
-    part = part.cut(box(-WIRE_W / 2, WIRE_W / 2, by1 - 0.1, yend + 0.1, -BODY_T, 0.1))
-    for ry in (by0 + 3.0, by1 - 3.0):
-        part = part.union(box(-bx, bx, ry - RIB_W / 2, ry + RIB_W / 2, -BODY_T, -BODY_T + RIB_H))
+    part = pocket(part, by0, by1, yend)
     for sx, sy in ((-SCREW_X, SCREW_Y), (-SCREW_X, -SCREW_Y), (SCREW_X, SCREW_Y), (SCREW_X, -SCREW_Y)):
-        part = part.cut(cq.Workplane("XY").workplane(offset=-NUT_TUNNEL_TOP - 0.1).center(sx, sy)
-                        .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(NUT_TUNNEL_TOP + 0.2))
-        part = part.cut(cq.Workplane("XY").workplane(offset=-H - 0.1).center(sx, sy)
-                        .slot2D(2 * SLIDE + M3_CLEAR, M3_CLEAR, angle=90).extrude(H - NUT_TUNNEL_TOP - NUT_TUNNEL_H + 0.1))
-        out = 1 if sy > 0 else -1             # the tunnel opens at the sled's nearer end
-        t0, t1 = sy - out * (SLIDE + NUT_AF), out * (yend + 0.1)
-        part = part.cut(box(sx - NUT_TUNNEL_W / 2, sx + NUT_TUNNEL_W / 2, min(t0, t1), max(t0, t1),
-                            -NUT_TUNNEL_TOP - NUT_TUNNEL_H, -NUT_TUNNEL_TOP))
-    assert SCREW_X - NUT_TUNNEL_W / 2 > WIRE_W / 2 and SCREW_X + NUT_TUNNEL_W / 2 < W / 2, "a nut tunnel hits the wires or the side"
-    assert SCREW_Y - SLIDE - NUT_AF > by1, "a nut tunnel runs into the sensor pocket"
+        part = part.cut(cq.Workplane("XY").workplane(offset=-PILOT_DEPTH).center(sx, sy)
+                        .circle(PILOT_D / 2).extrude(PILOT_DEPTH + 0.1))
+    r = PILOT_D / 2
+    bite = SCREW_L - FLOOR_T
+    assert bite + 0.5 <= PILOT_DEPTH, "the screw bottoms out in its pilot hole"
+    assert H - PILOT_DEPTH >= 1.5, "the pilot hole comes too near the sled's bottom"
+    assert W / 2 - (SCREW_X + r) >= BOSS_WALL, "too little plastic between a pilot hole and the sled's side"
+    assert SCREW_X - r - WIRE_W / 2 >= BOSS_WALL, "too little plastic between a pilot hole and the wire slot"
+    assert SCREW_Y - r - by1 >= BOSS_WALL and SCREW_Y - r + by0 >= BOSS_WALL, "a pilot hole is near the sensor pocket"
+    assert END_TAIL >= BOSS_WALL, "too little plastic between a pilot hole and the sled's end"
     if WIRES_TOWARD_GATE:
         part = part.mirror("XZ")
     return part
@@ -187,6 +213,7 @@ def floor_sled_screwed():
 def export(part, name):
     solid = part.val()
     assert solid.isValid()
+    assert len(part.solids().vals()) == 1, f"{name} is not one piece"
     for ext in ("step", "stl", "3mf"):
         kw = {"tolerance": 0.01, "angularTolerance": 0.1} if ext != "step" else {}
         cq.exporters.export(part, os.path.join(HERE, f"{name}.{ext}"), **kw)
