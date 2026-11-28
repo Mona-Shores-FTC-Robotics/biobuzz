@@ -441,42 +441,52 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
       shows 8–9 ms loops every 250 ms while spinning, only single 4–5 ms ones. **Stop:** the median up by
       more than 1 ms → the PR, with both logs.
 
-## Human NECTAR in AUTO: what `PickNectar` needs (either robot, a NECTAR of each colour, the phone)
+## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
-`PickNectar` is registered as a **placeholder** (`AutoRegistration.PLACEHOLDERS`): only the simulator runs it,
-and on the robot the card ends at once, taking nothing. The simulator study (PR for
-`claude/human-nectar-fruitport`, `doc/human-nectar-auto.md` § "28 Nov 2026") has L-RightUnderHive take the
-NECTAR earned by TIP 1 at its own spot by the LOADING ZONE on its way to the WALL FLOWER, and carry it to the
-RIGHT CELL with 3 POLLEN. These decide whether a real card is worth writing, and give the simulator its numbers.
-The colour sensor keeping our own NECTAR is not on this list: it has worked all season.
+The draft on `auto/l-right-under-hive-nectar` (PR for `claude/human-nectar-fruitport`; the study is
+`doc/human-nectar-auto.md` § "28 Nov 2026"): after its preloads at `LEFT_AUTO_OFFSET`, L turns on the spot to
+215° (its intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward), holds
+there with the intake on (`CatchNectar`) until 12.0 s on the match clock while the human player rolls the
+NECTAR TIP 1 earned, fires it at LEFT with the turret if the lane holds one (`NectarIn`, `LaunchOneAimed`),
+and leaves for the WALL FLOWER. None of it has run on a robot. Run it as the pair, or L alone with a person
+tipping RIGHT by hand at about 5 s.
 
-- [ ] **NECTAR's colour for the webcam.** `PieceVisionSubsystem`'s NECTAR HSV range is still -1 (not measured).
-      Vision: HIVE & Pose with the webcam on, a red and a blue NECTAR on a grey tile 10, 20 and 30 in ahead,
-      lab lights and then the gym's: write down H, S and V of each. **Good:** one range per colour that finds
-      the NECTAR at all three distances and never a POLLEN beside it. Put the two ranges in a PR.
-- [ ] **A FLOWER pick that starts with one piece held stops at four** (G407). Basic Drive, feed one NECTAR in by
-      hand, then D-pad up at the WALL FLOWER, five times. **Good:** 3 POLLEN come in, the light goes green,
-      the roller stops, and `read_logs.py picks` shows the dwell ending on the full lane each time.
-      **Stop:** a fourth POLLEN is taken (5 held) or the pick dwells its whole 2 s holding 4 → the PR, with
-      the log: the Auto's pick after a NECTAR needs the lane count to be right.
-- [ ] **The intake takes a loose NECTAR on the tile.** Intake on, drive onto a still NECTAR at a crawl, then at
-      about 15 and 30 in/s, ten each, nose square and then 20° off. **Good:** 9 of 10 taken at 15 in/s (the
-      simulator assumes 85% a touch, a placeholder, and a 30 in/s drive-in). Then the roll: a second person
-      rolls it from 20 and 30 in at the stopped robot's intake, ten each. Count taken, bounced off, missed.
-- [ ] **A turn on the spot as a drawn path.** The catch needs the robot to turn its intake to the zone and back
-      without leaving its spot: an Auto with a 1 in path that turns 100°, run five times. **Good:** it ends
-      within 1 in and 2° of the drawn end in under 1.2 s (`read_logs.py legs`). **Stop:** it wanders or takes
-      over 2 s → say so in the PR; the drawn Auto then moves 7 in to its own spot instead (as the study's does).
-- [ ] **How long a one-ball `LaunchAll` and a `LaunchOne` take.** With one NECTAR in the lane: `LaunchAll` five
-      times, `LaunchOne` five times (a two-card test Auto). **Good to know:** the card's seconds and whether the
-      ball left (`read_logs.py steps`). Without the throat beam a one-ball `LaunchAll` should run its whole
-      2.4 s feed, and `LaunchOne` feeds 0.5 s (`LaunchCards.launchOneFeedS`, not measured), which in the
-      simulator is over before the first ball reaches the wheels (0.85 s): if the robot's `LaunchOne` fires
-      nothing either, raise it in a PR.
-- [ ] **The human player's drop and short roll** (the drill in `doc/human-nectar-auto.md`, the last section,
-      beside the playbook's): 20 drops into a taped 4 in square mid-zone, timed from a called "TIP"; then 20
-      rolls of 20 in at a 10 in gate. Record seconds from the call to the ball at rest (the simulator uses 2 s),
-      and how many stay in the zone (the simulator's drop rolls off the tape about one time in five).
+- [ ] **The colour sensor reads a rolled NECTAR at the entrance, during and after a volley.** Basic Drive,
+      alliance set, intake on: roll our NECTAR in from 30 in, ten times with the lane empty and the launcher
+      idle, ten with the launcher at speed just after a volley (the wheels still spinning down, the feeder
+      just stopped). **Good:** the lane shows it as ours every time (`read_logs.py series <log> /Events |
+      grep "NECTAR in"`, and the Robot page's lane letters), no reject burst. **Stop:** one read as the other
+      alliance's or as unknown → the gate stays shut and L carries it, which is safe, but the shot is lost:
+      the log's hue and brightness to the PR.
+- [ ] **The one-ball feed is long enough, and the shot is counted.** A two-card test Auto, one NECTAR in the
+      lane, `LaunchOneAimed` at a spot that aims the turret about 80° left; five times, filmed. **Good:** the
+      ball leaves every time, and the log says `LaunchOneAimed fed … (…, ended at the last counted shot): 1
+      shots detected` in under 1.2 s. **Tune:** it ends on its 1.2 s backstop with the ball already gone →
+      the dip detector missed a lone NECTAR (`read_logs.py launcher`); the ball is still in the lane at the
+      backstop → raise `LaunchCards.launchOneAimedFeedS`. `LaunchOne` itself still feeds 0.5 s
+      (`launchOneFeedS`, never measured), shorter than the 0.75 to 0.85 s from gate to first ball: with one
+      piece and a shut gate it probably fires nothing. Try it five times and put the number that works in a PR.
+- [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed
+      from above the turret. **Good:** `/Turret/…` shows the aim within 2° of the LEFT CELL from the end of
+      the turn to the shot, inside the arc (the shot needs 5° of margin: `AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),
+      and the NECTAR goes in. **Stop:** `LaunchOneAimed: not firing, …` in the log (the hold dropped, the aim
+      at the arc's edge, the pose not referenced) → the reason to the PR; the robot kept the NECTAR, as it should.
+      **Never** run it with the turret locked forward expecting a shot: it refuses, by design, because home at
+      215° points at the alliance wall and the human player.
+- [ ] **A turn on the spot as a drawn path.** The draft's turn is a 0.6 in path that turns 84°. **Good:** it
+      ends within 1 in and 2° of the drawn end in under 1 s (`read_logs.py legs`; the simulator gives it
+      0.3 s, a real turn at 150°/s takes about 0.6). **Stop:** it wanders or takes over 1.5 s → say so in the PR.
+- [ ] **The human player's release after TIP 1.** With the robot running the draft, the human releases the
+      NECTAR low onto the LOADING ZONE tile as the CELL settles, rolled at the robot's intake (about 30 in
+      away), and never before L has started turning (a ball at a robot that still holds 4, or at its side,
+      is wasted). Ten runs: write down the seconds from TIP 1 settled to release and to the ball in the
+      intake, and how many are in by 12.0 s. The simulator uses 1 s to release and about 2.4 s of roll,
+      placeholders both. **Good:** 8 of 10 in the lane by 12.0 s. If most are in by 11 s, move the hold
+      earlier in the Visualizer: each half second is L's margin at `RIGHT_AUTO_OFFSET`.
+- [ ] **`PickNectar`, the drive-in grab, stays a placeholder.** If the roll proves unreliable and a still drop
+      mid-zone is wanted instead: NECTAR's webcam HSV range (`PieceVisionSubsystem`, still -1), and a FLOWER
+      pick that starts with one piece held stopping at four (feed one NECTAR in by hand, D-pad up at the WALL
+      FLOWER, five times: 3 POLLEN come in and the light goes green).
 
 ## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
 

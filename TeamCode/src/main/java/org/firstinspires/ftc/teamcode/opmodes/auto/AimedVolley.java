@@ -21,8 +21,10 @@ import java.util.function.DoubleSupplier;
  * <p>It does not fire, and the robot stays parked ({@link #refusal()}), without a referenced pose or an
  * alliance, or once the gate would open too late for the pieces held to be out before AUTO ends
  * ({@link #gateDeadlineS}). A turret locked forward, or one that dropped its hold ({@code TurretDriveWatch}),
- * holds home and the volley fires from there, as a {@code LaunchAll}: the park spot faces the CELL. While the
- * turret aims, the gate waits for it on target with the aim inside the firing arc ({@link #onTarget()}).
+ * holds home and the volley fires from there, as a {@code LaunchAll}, only where home points at the CELL
+ * ({@link #homeRefusal}: a spot that aims a locked turret, as the park spots do); anywhere else it does not fire
+ * and the robot keeps its load. While the turret aims, the gate waits for it on target with the aim inside the
+ * firing arc, less the card's margin ({@link #onTarget()}).
  *
  * <p>Why (19429, 18 Nov 2026, L-UnderHive 5:10 PM): the RIGHT-up wait gave up at 22.0 s, the robot was
  * parked at LEFT_PARK by 26.2 s with 2 POLLEN still in the lane, and the LEFT CELL was up (camera, 23 s).
@@ -42,6 +44,9 @@ final class AimedVolley implements LaunchCards.AimedShot {
     private final MatchSetup setup;
     private final DoubleSupplier matchSeconds;
     private final TurretAimer aimer;
+    /** Asked only where the CELL lies from home ({@link TurretAimer#solve}); it never moves the turret. */
+    private final TurretAimer homeProbe;
+    private final double arcMarginDeg;
     /** The card is under way; it asked the turret to aim. */
     private boolean active;
     private boolean aiming;
@@ -50,10 +55,21 @@ final class AimedVolley implements LaunchCards.AimedShot {
      * @param matchSeconds seconds since the Auto's PLAY: NaN before it
      */
     AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds) {
+        this(robot, setup, matchSeconds, 0.0);
+    }
+
+    /**
+     * @param arcMarginDeg how far inside the firing arc's edges the aim must be for the gate to open, degrees
+     *                     ({@code LaunchOneAimed}: the robot stands turned well away from the CELL, so the aim is
+     *                     near an edge by design)
+     */
+    AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds, double arcMarginDeg) {
+        this.arcMarginDeg = arcMarginDeg;
         this.robot = robot;
         this.setup = setup;
         this.matchSeconds = matchSeconds;
         this.aimer = new TurretAimer(robot);
+        this.homeProbe = new TurretAimer(robot);
     }
 
     @Override public void start() {
@@ -80,12 +96,19 @@ final class AimedVolley implements LaunchCards.AimedShot {
     }
 
     @Override public boolean onTarget() {
-        return robot.turret.onTarget() && TurretArc.allowsFeed(robot.turret.angleDegrees(), aimer.aimDeg(), 0.0);
+        return robot.turret.onTarget() && TurretArc.allowsFeed(robot.turret.angleDegrees(), aimer.aimDeg(), 0.0)
+                && insideArcBy(aimer.aimDeg(), TurretSubsystem.arcLeftDeg, TurretSubsystem.arcRightDeg, arcMarginDeg);
     }
 
     @Override public String refusal() {
-        return parkRefusal(robot.drive.poseReferenced(), alliance(), matchSeconds.getAsDouble(),
+        String why = parkRefusal(robot.drive.poseReferenced(), alliance(), matchSeconds.getAsDouble(),
                 robot.colorSensor.lane().count());
+        if (why != null) return why;
+        // A turret that cannot aim fires from home only where home points at the CELL (a spot that aims a locked
+        // turret). Anywhere else it keeps its load: home there points somewhere nobody chose.
+        if (canAim(true, TurretSubsystem.lockedForward, robot.turret.faultNote(), alliance())) return null;
+        boolean solved = homeProbe.solve(alliance(), TurretAimer.SWITCH_BAND_IN);
+        return homeRefusal(solved ? homeProbe.aimDeg() : Double.NaN);
     }
 
     @Override public void done() {
@@ -99,6 +122,37 @@ final class AimedVolley implements LaunchCards.AimedShot {
     private Alliance alliance() {
         Alliance alliance = setup == null ? null : setup.alliance();
         return alliance == null ? Alliance.UNKNOWN : alliance;
+    }
+
+    /**
+     * How far from straight ahead the CELL may lie for a turret that cannot aim (locked forward, a dropped hold) to
+     * fire from home, degrees: a spot whose heading aims a locked turret, with the pose's and the hold's slack.
+     */
+    static final double HOME_AIM_TOLERANCE_DEG = 3.0;
+
+    /**
+     * Why a turret that cannot aim may not fire from home, or null when it may: the CELL lies {@code aimDeg} from
+     * the robot's forward (+ left; NaN: not known), and home is a shot at it only within
+     * {@link #HOME_AIM_TOLERANCE_DEG}. Pure.
+     */
+    static String homeRefusal(double aimDeg) {
+        if (Double.isNaN(aimDeg)) return "the turret cannot aim and where the CELL lies from home is not known";
+        double off = Math.IEEEremainder(aimDeg, 360.0);
+        if (Math.abs(off) <= HOME_AIM_TOLERANCE_DEG) return null;
+        return String.format(Locale.US, "the turret cannot aim (locked forward, or it dropped its hold) and home points %.0f deg"
+                + " off the CELL", Math.abs(off));
+    }
+
+    /**
+     * Whether an aim {@code aimDeg} from the robot's forward (+ left) is at least {@code marginDeg} inside an arc
+     * of {@code arcLeftDeg} to the left and {@code arcRightDeg} to the right. No margin asks nothing; a NaN aim
+     * with a margin is not inside. Pure.
+     */
+    static boolean insideArcBy(double aimDeg, double arcLeftDeg, double arcRightDeg, double marginDeg) {
+        if (!(marginDeg > 0)) return true;
+        if (Double.isNaN(aimDeg)) return false;
+        double aim = Math.IEEEremainder(aimDeg, 360.0);
+        return aim <= arcLeftDeg - marginDeg && aim >= -(arcRightDeg - marginDeg);
     }
 
     /** Whether the turret may aim: a referenced pose, an alliance, not locked forward, no dropped hold. Pure. */

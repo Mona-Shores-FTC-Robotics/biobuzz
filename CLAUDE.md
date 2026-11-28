@@ -163,16 +163,23 @@ list from the generated `localization/generated/TeamSpots.java`, `RIGHT_START` a
 being the measured ones, so a start is made or moved in the Visualizer, never in Java. A spot several Autos share is a team
 spot (`TeamCode/autos/README.md` lists them, side first: `RIGHT_START`, `RIGHT_PARK`); an Auto may also
 have spots of its own, made in the Visualizer (mentor, 17 Nov 2026). An Auto launches from its start or
-from a named spot fit to launch from, a team spot or its own (`AutoLaunchSpots.launchSpotProblem`: the
-turret, locked, aimed at the CELL at its end within 0.3 degrees, the frame inside the field and short
-of the centre line; the Visualizer aims a spot a Launch all fires from as it is made or moved), never
-from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's alone). `AutoVolleySpotsTest` fails
-an Auto that launches anywhere else. The one exception is `LaunchAllAimed` (`AimedVolley`): the turret
-aimed by the TeleOp's `TurretAimer` at the near CELL only, fired from a `…_PARK` spot (a team spot or the
-Auto's own) right after the park card that drove there, behind a CELL check. The park comes first, so the guard
-adds none after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire; with no
-referenced pose it does not fire and the robot stays parked, and a turret locked forward or that dropped its
-hold fires from home. The team's launch spots are `AutoLaunchSpots.all()` (every team
+from a named spot, a team spot or its own, in one of two ways (mentor, 28 Nov 2026: the turret works out to
+about 90 degrees either side). **Locked** (`LaunchAll`, `LaunchOne`): a spot fit to launch from
+(`AutoLaunchSpots.launchSpotProblem`: the turret, locked, aimed at the CELL at its end within 0.3 degrees, the
+frame inside the field and short of the centre line; the Visualizer aims a spot a Launch all fires from as it
+is made or moved). **Turret-aimed** (`LaunchAllAimed`, `LaunchOneAimed`; `AimedVolley`, the TeleOp's
+`TurretAimer`, at the near CELL only): any named spot whose heading keeps that CELL inside the firing arc
+(`TurretArc`) by 5 degrees, the frame inside the field and short of the centre line
+(`AutoLaunchSpots.aimedShotProblem`). Never from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's
+alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. An aimed shot keeps two safeguards:
+with no referenced pose it does not fire, and a turret locked forward or that dropped its hold fires from home
+only where home points at the CELL within 3 degrees (a spot that also aims a locked turret); anywhere else the
+robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchAllAimed` is the volley after a
+park: fired from a `…_PARK` spot right after the park card that drove there, behind a CELL check, so the guard
+adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
+the robot stays parked. `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
+fired at LEFT from `LEFT_AUTO_OFFSET`'s place with the robot's intake turned to the LOADING ZONE. Every volley
+after an Auto's first still sits behind a CELL check, locked or aimed. The team's launch spots are `AutoLaunchSpots.all()` (every team
 spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
 `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to
 tip RIGHT itself, and `AutoLaunchSpotsTest` checks every one and the five's own placement. HIVE and OFFSET at

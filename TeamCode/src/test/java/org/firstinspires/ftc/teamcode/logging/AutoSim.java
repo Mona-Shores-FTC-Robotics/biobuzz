@@ -2377,6 +2377,12 @@ public final class AutoSim {
                             () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
+                    // The robot's LaunchOneAimed: one piece with the turret on the CELL at the robot's end, ending at its
+                    // counted shot with LaunchCards.launchOneAimedFeedS its backstop. A robot whose turret cannot aim
+                    // (the locked designs) refuses, as the robot's does, and keeps the piece.
+                    .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, this::launchOneAimed)
+                    // The robot's CatchNectar: the intake on until whoever runs the card ends it.
+                    .command("CatchNectar", 2.0, this::catchNectar)
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
@@ -2417,6 +2423,12 @@ public final class AutoSim {
                     // (AutoRegistration.PLACEHOLDERS): only the simulator runs it.
                     .grab("PickNectar", typical("PICK_NECTAR", AutoRegistration.PICK_NECTAR_TYPICAL_S), this::pickNectar)
                     .trigger("IntakeFull", this::fullSensed)
+                    // The robot's NectarIn: the lane holds a NECTAR of our own alliance.
+                    .trigger("NectarIn", () -> {
+                        FieldSim.Kind ours = alliance == Alliance.BLUE ? FieldSim.Kind.BLUE_NECTAR : FieldSim.Kind.RED_NECTAR;
+                        for (FieldSim.Piece held : body.stored) if (held.kind == ours) return true;
+                        return false;
+                    })
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
                     .trigger("HeldWorth4", () -> design.countsPieces
@@ -2583,12 +2595,45 @@ public final class AutoSim {
             fireStepBegins();
             firing = true;
             activeFeedAt = Double.NaN;
-            activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0) : launchOneFeedS();
+            activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0)
+                    : aimedOne ? LaunchCards.launchOneAimedFeedS : launchOneFeedS();
             nextShotAt = Math.max(nextShotAt, now);
             shotTarget = count == Integer.MAX_VALUE
                     ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
                         ? shotsFired + (int) Math.ceil(LaunchCards.launchAllEndAfterShots) : Integer.MAX_VALUE)
                     : shotsFired + count;
+        }
+
+        /** Whether the fire step under way is a LaunchOneAimed: its feed backstop is the robot's {@code launchOneAimedFeedS}. */
+        private boolean aimedOne;
+
+        /** The robot's {@code LaunchCards.launchOneAimed}: one piece, turret-aimed; refused (nothing fed) by a design with no turret. */
+        private Command launchOneAimed() {
+            if (design.launcher != RobotDesign.Launcher.TURRET) {
+                return Commands.instant(() -> pending.add("LaunchOneAimed: not firing, the turret cannot aim; the piece stays in the lane"));
+            }
+            final Command one = launch(1);
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        aimedOne = true;
+                        one.start();
+                        aimedOne = false;
+                    })
+                    .setExecute(one::execute)
+                    .setDone(one::done)
+                    .setEnd(one::end);
+        }
+
+        /** The robot's {@code CatchNectar}: the intake on from the card's start to its end; it never ends by itself. */
+        private Command catchNectar() {
+            final boolean[] before = new boolean[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        before[0] = intakeEnabled;
+                        intakeEnabled = true;
+                    })
+                    .setDone(() -> false)
+                    .setEnd(end -> intakeEnabled = before[0]);
         }
 
         private Command launch(int count) {

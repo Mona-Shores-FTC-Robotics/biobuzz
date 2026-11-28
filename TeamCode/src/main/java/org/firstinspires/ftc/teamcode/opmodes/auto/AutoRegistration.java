@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
+import org.firstinspires.ftc.teamcode.subsystems.LaneTracker;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
@@ -73,6 +77,21 @@ import java.util.function.Function;
  * without a piece sensor. {@code LaunchAll} has an approach too ({@link LaunchCards#approach()}): the
  * path card right before it opens the gate in the last few inches once the robot is aimed and the
  * launcher at speed, so the card only finishes the feed.
+ *
+ * <h2>The human player's NECTAR: CatchNectar, NectarIn, LaunchOneAimed</h2>
+ *
+ * <p>One NECTAR is ours to enter for each TIP of our HIVE (G426.A), and the human player rolls it at a robot
+ * that has turned its intake to the LOADING ZONE. {@code CatchNectar} runs the intake, as the driver's intake
+ * button does, until the card is ended; it never drives. Draw it as the command a wait runs alongside.
+ * {@code NectarIn} is true while the lane holds a NECTAR of our own alliance, as the entrance colour sensor
+ * classed it going in ({@code LaneTracker}); an uncertain piece is not ours, and {@code NectarReject} then
+ * keeps the gate shut whatever an Auto asks. So the wait is "NectarIn, at most until a second on the match
+ * clock, while CatchNectar runs": a NECTAR that does not come costs the wait and nothing else.
+ * {@code LaunchOneAimed} fires that one piece with the turret aimed at the CELL at the robot's end
+ * ({@link LaunchCards#launchOneAimed}), from a spot whose heading faces the zone, not the CELL. It ends at its
+ * first counted shot, never fires from home, and leaves the piece in the lane if the turret cannot aim: the
+ * NECTAR then rides to the next volley. {@code AutoVolleySpotsTest} holds the spot to
+ * {@code AutoLaunchSpots.aimedShotProblem}.
  *
  * <h2>LeftCellUp and RightCellUp</h2>
  *
@@ -301,6 +320,10 @@ public final class AutoRegistration {
                 .parkedVolley("LaunchAllAimed", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S,
                         () -> launch.launchAllAimed(new AimedVolley(robot, setup, matchSeconds)))
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
+                // One piece with the turret aimed at the CELL at the robot's end, from a spot that faces somewhere
+                // else (the LOADING ZONE): ends at its counted shot, never fires from home. See the class comment.
+                .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, () -> launch.launchOneAimed(
+                        new AimedVolley(robot, setup, matchSeconds, AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG)))
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The
@@ -328,9 +351,15 @@ public final class AutoRegistration {
                 .grab("PickNectar", PICK_NECTAR_TYPICAL_S, () -> Commands.instant(() -> {
                     if (note != null) note.accept("PickNectar: a placeholder, no NECTAR grab on the robot yet; nothing taken");
                 }))
+                // ---- real: the intake running, for a NECTAR the human player rolls at the robot. It never ends
+                // by itself: a wait runs it alongside (NectarIn, at most until a match second) and ends it.
+                .command("CatchNectar", 2.0, () -> catchNectar(robot))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
+                // ---- real: the lane holds a NECTAR of our own alliance (the entrance colour sensor's class).
+                .trigger("NectarIn", () -> robot != null && setup != null
+                        && ownNectarHeld(robot.colorSensor.lane(), setup.alliance()))
                 // ---- real: the camera, through our HIVE's tracker. See the class comment.
                 .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
                 .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))
@@ -361,6 +390,24 @@ public final class AutoRegistration {
      * tracker no longer assumes a TIP, and this wait lasts until the camera sees the CELL up, or
      * its time runs out and the Auto takes the other way.
      */
+    /** {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it. */
+    private static Command catchNectar(Robot robot) {
+        return new CommandBuilder()
+                .setStart(() -> robot.intake.intake())
+                .setDone(() -> false)
+                .setEnd(end -> robot.intake.idle());
+    }
+
+    /** Whether {@code lane} holds a NECTAR of {@code alliance}'s colour in any slot. No alliance, no lane: false. Pure. */
+    static boolean ownNectarHeld(LaneTracker lane, Alliance alliance) {
+        if (lane == null || alliance == null) return false;
+        LaneTracker.Piece ours = alliance == Alliance.RED ? LaneTracker.Piece.RED_NECTAR
+                : alliance == Alliance.BLUE ? LaneTracker.Piece.BLUE_NECTAR : null;
+        if (ours == null) return false;
+        for (int i = 0; i < LaneTracker.SLOTS; i++) if (lane.slot(i) == ours) return true;
+        return false;
+    }
+
     static boolean cellUp(HiveTracker hive, boolean left) {
         if (hive == null || hive.assumed()) return false;
         return left ? hive.leftCellUp() : hive.rightCellUp();

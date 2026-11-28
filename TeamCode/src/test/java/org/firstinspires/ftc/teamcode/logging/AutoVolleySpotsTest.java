@@ -29,7 +29,9 @@ import java.util.Map;
  * <p>One exception, narrow (mentor, 19 Nov 2026): {@code LaunchAllAimed}, the turret aimed from where the robot stands at the
  * CELL at its end ({@code AimedVolley}), is fired from a park spot (a team spot or the Auto's own, named {@code …_PARK}) right
  * after the park card that drove there, and nowhere else. The park comes first; the aim is the TeleOp's, at the near
- * CELL only.
+ * CELL only. A second exception is {@code LaunchOneAimed} (mentor, 28 Nov 2026): one piece, turret-aimed, from a
+ * named spot whose heading need not aim a locked turret, as long as the aim is inside the firing arc with margin
+ * ({@code AutoLaunchSpots.aimedShotProblem}).
  */
 public class AutoVolleySpotsTest {
 
@@ -113,7 +115,12 @@ public class AutoVolleySpotsTest {
                     if (!parked || spot == null || !spot.endsWith("_PARK")) {
                         elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed is fired only from a …_PARK spot,"
                                 + " right after the park card that drove there");
+                    } else if (aimedProblem() != null) {
+                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed " + aimedProblem());
                     }
+                } else if ("action".equals(kind) && "LaunchOneAimed".equals(card.get("name"))) {
+                    String problem = aimedProblem();
+                    if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") LaunchOneAimed " + problem);
                 } else if ("action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
                     String problem = problem();
                     if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") " + problem);
@@ -134,6 +141,18 @@ public class AutoVolleySpotsTest {
             }
         }
 
+        /** Why a LaunchOneAimed from where the robot is breaks its rule, or null: a named spot with a heading, the aim inside the arc with margin. */
+        @SuppressWarnings("unchecked")
+        private String aimedProblem() {
+            double rx = blue ? FieldFrame.FIELD_SIZE_INCHES - x : x;
+            double ry = blue ? FieldFrame.FIELD_SIZE_INCHES - y : y;
+            List<Object> pose = spot == null ? null : (List<Object>) points.get(spot);
+            if (pose == null || pose.size() < 3) return "is not fired from a named spot with a heading";
+            double h = Math.toRadians(((Number) pose.get(2)).doubleValue() + (blue ? 180 : 0));
+            return AutoLaunchSpots.aimedShotProblem(rx, ry, h, TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn,
+                    TurretSubsystem.arcLeftDeg, TurretSubsystem.arcRightDeg);
+        }
+
         /**
          * Why a volley from where the robot is breaks the rule, or null when it is from a start or a
          * named spot fit to launch from. The spot's own heading is the robot's: the path ends on it.
@@ -149,6 +168,25 @@ public class AutoVolleySpotsTest {
             return AutoLaunchSpots.launchSpotProblem(rx, ry, h,
                     TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn);
         }
+    }
+
+    /**
+     * The one-ball aimed shot's rule (mentor, 28 Nov 2026), a spot whose heading faces the LOADING ZONE and whose
+     * turret alone holds the CELL: any named spot, a team spot or the Auto's own, where the turret's aim at the CELL
+     * at its end is inside the firing arc by {@code AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG}, the frame inside
+     * the field and short of the centre line.
+     */
+    @Test
+    public void anAimedShotsSpotKeepsTheAimInsideTheArcWithMargin() {
+        double f = TurretSubsystem.turretForwardIn, l = TurretSubsystem.turretLeftIn;
+        // LEFT_AUTO_OFFSET's place: 215 deg puts the aim about 84 deg left (inside 90 less 5); 205 deg about 94 (outside).
+        assertTrue(AutoLaunchSpots.aimedShotProblem(40.2, 120.8, Math.toRadians(215), f, l, 90, 90) == null);
+        assertTrue(AutoLaunchSpots.aimedShotProblem(40.2, 120.8, Math.toRadians(205), f, l, 90, 90).contains("outside the firing arc"));
+        assertTrue("88.7 deg is inside the arc but not by the margin",
+                AutoLaunchSpots.aimedShotProblem(40.2, 120.8, Math.toRadians(210), f, l, 90, 90) != null);
+        assertTrue("over the centre line", AutoLaunchSpots.aimedShotProblem(66, 120.8, Math.toRadians(250), f, l, 90, 90) != null);
+        // A spot that aims a locked turret is fit for it too: the aim is dead ahead.
+        assertTrue(AutoLaunchSpots.aimedShotProblem(40.7, 121.1, Math.toRadians(298.7), f, l, 90, 90) == null);
     }
 
     /** ({@code x}, {@code y}), drawn for red, is a start (a team …_START spot). */
