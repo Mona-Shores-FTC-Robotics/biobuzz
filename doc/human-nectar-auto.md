@@ -1,5 +1,16 @@
 # Human NECTAR in AUTO: where, when, and is it worth it (4 Nov 2026 study; 28 Nov 2026 update first)
 
+> **What is on master now (late 28 Nov 2026):** R-RightUnderHive with L-RightUnderHive takes **both** NECTARs
+> (#792), and the sections below describe steps on the way there. NECTAR 1: once LEFT is up, L lights the alliance
+> colour (`CallNectar`), turns to 215° at `L_NECTAR_TURN`, fires its preloads turret-aimed while the human player
+> rolls, holds at most 2.5 s for the NECTAR and fires it at LEFT. NECTAR 2: after its WALL FLOWER volley at RIGHT, L
+> lights again, turns to 106.5° at `L_NECTAR2_SHOT`, holds until it is in or 26.0 s, fires it at RIGHT and parks by
+> the wall, while R parks at `LEFT_PARK` back under the HIVE. There is no INIT row (#793). The simulator now keeps
+> every piece a robot picks, assumes FLOWER picks of four and no feed jams (#790): **91 of 120 three-TIP runs at
+> Fruitport rates**, 2+ TIPs in 119, both parked in 120, one contact. The 29 misses are a NECTAR not caught
+> (NECTAR 1 82 of 120, NECTAR 2 71 of 108) with one shot missed, mostly long from 51 in. What decides it now is on
+> the robot: `doc/robot-todo.md`, "Human NECTAR in AUTO". How the human player rolls: `doc/human-player-playbook.md`.
+
 ## 28 Nov 2026: NECTAR 1 into LEFT, for the RightUnderHive pair (read this first)
 
 Everything below this section is the 4 Nov study: it predates the turret, the simulator's GARDEN and corner
