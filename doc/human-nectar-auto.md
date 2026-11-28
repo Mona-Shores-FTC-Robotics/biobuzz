@@ -9,6 +9,38 @@ is `"calibration": "fruitport"` and the best case `"scenario": "best"`. R is mas
 (`RIGHT_START` facing 90°, preloads from `RIGHT_AUTO_HIVE`). Every arm ran the same seeds: 60 in the best case,
 120 at Fruitport rates.
 
+**Current numbers and the current draft** (later on 28 Nov; they replace the table and the draft paragraph
+below, which are kept for the arms that were rejected). Two things changed. `"calibration": "fruitport"` now
+gives both robots' FLOWER picks four in 9 of 10 (mentor, 28 Nov 2026; 19429's logged 4 of 10 is
+`BIOBUZZ_FRUITPORT_19429_LOADS=logged`). And the hold was redrawn after the Visualizer's Match view showed the
+fixed 12.0 s hold idling L for 8 s behind an early TIP 1: the hold now ends when the NECTAR is in
+(`NectarIn`, then `LaunchOneAimed` at once), or 2.5 s after the turn, or at 12.0 s on the match clock when the
+turn ended after 9.5 s; the shot never starts after 12.0 s. It is drawn as "TIP 1 early?" (9.5 s on the clock)
+choosing between a hold of at most 2.5 s and a hold to 12.0 s, each with one trigger row and one time row.
+
+| Same seeds, Java simulator | Best case, 3 TIPs | Fruitport, 3 TIPs | Fruitport, 2+ TIPs | Both parked | Contact |
+|---|---|---|---|---|---|
+| master's pair (no NECTAR) | 59 of 60 | 31 of 120 | 119 | 120 | 1 |
+| **the draft: NECTAR 1 into LEFT, the redrawn hold** | 59 of 60 | **46 of 120** | 119 | 120 | 1 |
+
+| Where the Fruitport runs lose TIP 3 (120 each) | master's pair | the draft |
+|---|---|---|
+| TIP 2 late: LEFT one or more short when R fired | 43 | 13 |
+| A short FLOWER load at RIGHT (R's SCORING FLOWER pick) | 26 | 34 |
+| 8 fired at RIGHT, one or more missed | 17 | 24 |
+| TIP 1 late or missed | 3 | 3 |
+
+L leaves the left end at 11.7 s (median; 12.6 s at the 90th percentile), master's L at 9.3 s. In the
+Visualizer's preview (its typical timing, TIP 1 settled at 3.1 s) the hold runs 4.6 to 6.6 s with `NectarIn`
+answered yes (the 2.0 s is `CatchNectar`'s typical time, which the preview uses for a trigger with a command
+alongside) and 4.6 to 7.1 s answered no, and the pair keeps three TIPs both ways.
+
+**NECTAR 2 at the right end, on the spot, does not fit yet.** The same trick at `RIGHT_AUTO_OFFSET` (turn the
+intake to the LOADING ZONE, hold, fire aimed at RIGHT, park) had contact in 6 to 8 of 8 best-case runs in three
+tries: R's park path passes 18 in from `RIGHT_AUTO_OFFSET` while L holds there; L leaving with R crosses it at
+the foot of the outer lane; and L leaving after R has to pass R, parked, with 16 in between centres. It needs
+R's park or L's park redrawn, which is R's route and was not touched.
+
 **The draft** (`auto/l-right-under-hive-nectar`, L-RightUnderHive only; R is untouched). L fires its preloads
 from `LEFT_AUTO_OFFSET` as now. If that volley is done by 11.0 s, it turns on the spot to 215° (its own spot
 `L_NECTAR_TURN`: the intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward),
