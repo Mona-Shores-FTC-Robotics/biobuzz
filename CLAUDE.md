@@ -174,10 +174,11 @@ is made or moved). **Turret-aimed** (`LaunchAllAimed`, `LaunchOneAimed`; `AimedV
 alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. An aimed shot keeps two safeguards:
 with no referenced pose it does not fire, and a turret locked forward or that dropped its hold fires from home
 only where home points at the CELL within 3 degrees (a spot that also aims a locked turret); anywhere else the
-robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchAllAimed` is the volley after a
-park: fired from a `…_PARK` spot right after the park card that drove there, behind a CELL check, so the guard
+robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchAllAimed` right after a park card
+(no drive since) is the volley after a park: fired from a `…_PARK` spot, behind a CELL check, so the guard
 adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
-the robot stays parked. `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
+the robot stays parked. Drawn anywhere else it is an ordinary aimed volley the guard parks after, exported as
+`kit.commandAwayFromPark` (L-RightUnderHive's preloads from its NECTAR turn; mentor, 28 Nov 2026). `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
 fired at LEFT from `LEFT_AUTO_OFFSET`'s place with the robot's intake turned to the LOADING ZONE. Every volley
 after an Auto's first still sits behind a CELL check, locked or aimed. The team's launch spots are `AutoLaunchSpots.all()` (every team
 spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
