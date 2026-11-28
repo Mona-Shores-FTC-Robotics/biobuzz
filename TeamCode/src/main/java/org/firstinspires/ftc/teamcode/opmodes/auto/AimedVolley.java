@@ -1,12 +1,23 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import com.pedropathing.math.Pose;
+
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
+import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
+import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
 import org.firstinspires.ftc.teamcode.opmodes.TurretAimer;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretArc;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
+import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
 import java.util.function.DoubleSupplier;
@@ -16,7 +27,9 @@ import java.util.function.DoubleSupplier;
  * park spot after the park, with the turret aimed at the CELL at the robot's end by the TeleOp's own aim
  * ({@link TurretAimer}: odometry and the CELL's field point, or the camera when it sees that CELL) to take
  * up what the park spot's chassis aim leaves. An Auto otherwise holds the turret at home; this aims it
- * for the one card, then sends it home.
+ * for the card, then sends it home. For an away-from-park volley the turn's approach tracks the
+ * near CELL with the gate closed. The command requires the existing zeroed hold, the measured
+ * direction and the demand at the drawn spot, and closes the gate if it loses that hold.
  *
  * <p>It does not fire, and the robot stays parked ({@link #refusal()}), without a referenced pose or an
  * alliance, or once the gate would open too late for the pieces held to be out before AUTO ends
@@ -30,7 +43,7 @@ import java.util.function.DoubleSupplier;
  * parked at LEFT_PARK by 26.2 s with 2 POLLEN still in the lane, and the LEFT CELL was up (camera, 23 s).
  * The mentor's trial parks facing the LEFT CELL (LEFT_AUTO_PARK) and fires those 2 in AUTO (19 Nov 2026).
  */
-final class AimedVolley implements LaunchCards.AimedShot {
+final class AimedVolley implements LaunchCards.AimedShot, AutoRegistry.Approach {
 
     /**
      * Gate open to the first ball out, and each ball after it, seconds (19429, 18 Nov 2026: about
@@ -47,23 +60,31 @@ final class AimedVolley implements LaunchCards.AimedShot {
     /** Asked only where the CELL lies from home ({@link TurretAimer#solve}); it never moves the turret. */
     private final TurretAimer homeProbe;
     private final double arcMarginDeg;
+    private final PathEndSettle receiveSpot;
     /** The card is under way; it asked the turret to aim. */
     private boolean active;
     private boolean aiming;
+    private double drawnBearing = Double.NaN;
+    private boolean leftEnd;
+    private boolean cellFell;
 
     /**
      * @param matchSeconds seconds since the Auto's PLAY: NaN before it
      */
     AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds) {
-        this(robot, setup, matchSeconds, 0.0);
+        this(robot, setup, matchSeconds, null, 0);
     }
 
     /**
-     * @param arcMarginDeg how far inside the firing arc's edges the aim must be for the gate to open, degrees
-     *                     ({@code LaunchOneAimed}: the robot stands turned well away from the CELL, so the aim is
-     *                     near an edge by design)
+     * @param receiveSpot the driven path's endpoint and settle check for a one-ball receive
      */
-    AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds, double arcMarginDeg) {
+    AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds, PathEndSettle receiveSpot) {
+        this(robot, setup, matchSeconds, receiveSpot, AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG);
+    }
+
+    private AimedVolley(Robot robot, MatchSetup setup, DoubleSupplier matchSeconds, PathEndSettle receiveSpot,
+                        double arcMarginDeg) {
+        this.receiveSpot = receiveSpot;
         this.arcMarginDeg = arcMarginDeg;
         this.robot = robot;
         this.setup = setup;
@@ -73,13 +94,41 @@ final class AimedVolley implements LaunchCards.AimedShot {
     }
 
     @Override public void start() {
+        if (active) return; // The drive-in approach hands the live hold to its command.
         active = true;
         aiming = false;
+        cellFell = false;
+        drawnBearing = Double.NaN;
+        if (receiveSpot != null && receiveSpot.endPose() != null) {
+            Pose end = receiveSpot.endPose();
+            leftEnd = AutoRegistration.aimedLeft(alliance(), end.y());
+            HiveCell cell = TurretAim.nearEndCell(alliance(), end.y(), null, HiveFieldPoints.AXLE_Y_IN, 0);
+            Vec3 row = cell == null ? null : HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+            if (row != null) drawnBearing = TurretAim.fromFieldDeg(end.x(), end.y(), end.heading(),
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+        }
     }
+
+    // The approach tracks the near CELL while the gate stays closed. Only the command can feed.
+    @Override public void started(Pose end) { start(); aim(); }
+    @Override public void approaching(Pose pose, double remainingIn) { aim(); }
+    @Override public void cancel() { done(); }
 
     @Override public boolean aim() {
         boolean can = canAim(robot.drive.poseReferenced(), TurretSubsystem.lockedForward,
                 robot.turret.faultNote(), alliance());
+        if (arcMarginDeg > 0) {
+            // start() on the aimer sends the turret home and re-arms a dropped hold. An angled
+            // receive must keep an existing, zeroed hold and must leave a fault latched.
+            if (!can || !Double.isFinite(drawnBearing) || !robot.turret.zeroed() || !robot.turret.holding()) return false;
+            HiveTracker hive = robot.hive.of(alliance());
+            if (hive != null && !hive.assumed() && hive.state() == (leftEnd ? HiveState.RIGHT_CELL_UP : HiveState.LEFT_CELL_UP)) {
+                cellFell = true;
+            }
+            if (cellFell) return false;
+            aimer.update(alliance(), TurretAimer.SWITCH_BAND_IN);
+            return Double.isFinite(aimer.aimDeg()) && robot.turret.faultNote() == null;
+        }
         if (can) {
             if (!aiming) aimer.start();
             aiming = true;
@@ -96,6 +145,10 @@ final class AimedVolley implements LaunchCards.AimedShot {
     }
 
     @Override public boolean onTarget() {
+        if (arcMarginDeg > 0) {
+            return receiveSpot != null && receiveSpot.atAimedSpot() && robot.turret.onTarget() && !robot.turret.atArcEdge()
+                    && receiveAligned(robot.turret.angleDegrees(), aimer.aimDeg(), drawnBearing, arcMarginDeg);
+        }
         return robot.turret.onTarget() && TurretArc.allowsFeed(robot.turret.angleDegrees(), aimer.aimDeg(), 0.0)
                 && insideArcBy(aimer.aimDeg(), TurretSubsystem.arcLeftDeg, TurretSubsystem.arcRightDeg, arcMarginDeg);
     }
@@ -104,6 +157,10 @@ final class AimedVolley implements LaunchCards.AimedShot {
         String why = parkRefusal(robot.drive.poseReferenced(), alliance(), matchSeconds.getAsDouble(),
                 robot.colorSensor.lane().count());
         if (why != null) return why;
+        if (arcMarginDeg > 0) {
+            return canAim(true, TurretSubsystem.lockedForward, robot.turret.faultNote(), alliance())
+                    && robot.turret.holding() && robot.turret.zeroed() ? null : "no zeroed turret hold on the CELL";
+        }
         // A turret that cannot aim fires from home only where home points at the CELL (a spot that aims a locked
         // turret). Anywhere else it keeps its load: home there points somewhere nobody chose.
         if (canAim(true, TurretSubsystem.lockedForward, robot.turret.faultNote(), alliance())) return null;
@@ -115,8 +172,22 @@ final class AimedVolley implements LaunchCards.AimedShot {
         if (!active) return;
         active = false;
         aimer.off();
-        if (aiming || !robot.turret.holding()) robot.turret.home();
+        if (arcMarginDeg > 0) {
+            if (robot.turret.holding() && robot.turret.faultNote() == null) robot.turret.home();
+        } else if (aiming || !robot.turret.holding()) robot.turret.home();
         aiming = false;
+    }
+
+    /** Check the measured angle against this loop's demand and the near CELL's field bearing.
+     * The motor's on-target bit can still describe the previous loop's home setpoint. */
+    static boolean receiveAligned(double measured, double demand, double fieldAim, double margin) {
+        double left = TurretArc.left(), right = TurretArc.right();
+        return TurretArc.active() && Double.isFinite(TurretSubsystem.arcLeftDeg)
+                && Double.isFinite(TurretSubsystem.arcRightDeg) && margin > 0
+                && insideArcBy(measured, left, right, margin) && insideArcBy(demand, left, right, margin)
+                && insideArcBy(fieldAim, left, right, margin)
+                && Math.abs(Math.IEEEremainder(measured - fieldAim, 360)) <= margin
+                && Math.abs(Math.IEEEremainder(measured - demand, 360)) <= Math.min(margin, TurretSubsystem.holdToleranceDeg);
     }
 
     private Alliance alliance() {

@@ -217,6 +217,44 @@ public class LaunchCardsTest {
     }
 
     @Test
+    public void awayVolleyNeverFeedsFromHomeEvenIfTheParkWouldAllowIt() {
+        FakeShot shot = new FakeShot();
+        shot.canAim = false;
+        shot.onTarget = true;
+        atSpeed = true;
+        run(cards.launchAllAwayFromPark(shot), 0.3);
+        assertEquals(null, first("feed"));
+        assertEquals(0, cards.launchAllsCompleted());
+    }
+
+    @Test
+    public void awayVolleyClosesItsGateOnTheLoopThatLosesTheCell() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        Command command = cards.launchAllAwayFromPark(shot);
+        command.schedule();
+        step(0.2);
+        assertTrue(cards.feeding());
+        shot.onTarget = false;
+        double lostAt = now;
+        finish(command, 0.1);
+        assertEquals(lostAt, timeOf(first("idle")), LOOP_S);
+        assertFalse(cards.feeding());
+        assertEquals("an interrupted volley still holds its remaining load", 0, cards.launchAllsCompleted());
+    }
+
+    @Test
+    public void aHealthyAwayVolleyCountsAsTheFirstOrdinaryVolley() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        run(cards.launchAllAwayFromPark(shot), 5);
+        assertEquals(LaunchCards.firstLaunchAllFeedS, timeOf(first("idle")) - timeOf(first("feed")), 0.05);
+        assertEquals(1, cards.launchAllsCompleted());
+    }
+
+    @Test
     public void aOneBallAimedLaunchWithNoShotCountedEndsAtItsBackstop() {
         FakeShot shot = new FakeShot();
         shot.onTarget = true;

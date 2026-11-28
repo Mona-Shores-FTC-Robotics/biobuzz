@@ -44,6 +44,23 @@ public class HiveFieldTest {
     }
 
     @Test
+    public void anExplicitHeavyFieldWinsOnBothSeedParities() {
+        boolean before = BeldingCalibration.on;
+        try {
+            BeldingCalibration.on = true;
+            for (long seed : new long[]{1, 2}) {
+                assertEquals(HiveCalibration.BELDING_FIELD_2,
+                        AutoSim.hiveTipPoint(HiveCalibration.tipPointInBand("belding2"), seed), 0);
+                assertEquals(BeldingCalibration.tipPoint(seed), AutoSim.hiveTipPoint(null, seed), 0);
+            }
+            BeldingCalibration.on = false;
+            assertEquals(HiveCalibration.tipPointInBand, AutoSim.hiveTipPoint(null, 2), 0);
+        } finally {
+            BeldingCalibration.on = before;
+        }
+    }
+
+    @Test
     public void namesParse() {
         assertEquals(HiveCalibration.BELDING_FIELD_1, HiveCalibration.tipPointInBand("belding1"), 0);
         assertEquals(HiveCalibration.BELDING_FIELD_2, HiveCalibration.tipPointInBand("Belding2"), 0);

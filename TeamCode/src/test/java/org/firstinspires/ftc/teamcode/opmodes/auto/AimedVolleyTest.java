@@ -12,6 +12,16 @@ import org.junit.Test;
 public class AimedVolleyTest {
 
     @Test
+    public void awayFeedRequiresTheLiveAngleAndDemandInsideTheMarginAtTheDrawnBearing() {
+        assertTrue(AimedVolley.receiveAligned(83, 84, 84, 5));
+        assertFalse(AimedVolley.receiveAligned(0, 84, 84, 5));
+        assertFalse(AimedVolley.receiveAligned(0, 0, 84, 5));
+        assertFalse(AimedVolley.receiveAligned(86, 84, 84, 5));
+        assertFalse(AimedVolley.receiveAligned(84, 86, 84, 5));
+        assertFalse(AimedVolley.receiveAligned(84, Double.NaN, 84, 5));
+    }
+
+    @Test
     public void theTurretAimsOnlyWithAPoseAnAllianceAndAWorkingTurret() {
         assertTrue(AimedVolley.canAim(true, false, null, Alliance.RED));
         assertFalse("no pose: home", AimedVolley.canAim(false, false, null, Alliance.RED));

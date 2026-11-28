@@ -295,8 +295,14 @@ public final class RRightUnderHiveAuto {
                                                                                                                                         kit.path("Outer lane: R_RIGHT_CATCH nose first to the park", outerLaneRRightCatchNoseFirstToThePark, 2.9)))))),
                                                                                                 kit.when("RightCellUp").then(
                                                                                                         kit.guarded("If RightCellUp", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7,
-                                                                                                                kit.command("LaunchAll"),
-                                                                                                                kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7))))))))))),
+                                                                                                                kit.firstOf("Can R finish this RIGHT volley and still reach LEFT_PARK?",
+                                                                                                                        kit.atMatchSeconds(23.2).then(
+                                                                                                                                kit.guarded("Timed out", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7,
+                                                                                                                                        kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7))),
+                                                                                                                        kit.when("Always").then(
+                                                                                                                                kit.guarded("If Always", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7,
+                                                                                                                                        kit.command("LaunchAll"),
+                                                                                                                                        kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7)))))))))))))),
                                 kit.afterMs(100).then(
                                         kit.guarded("Timed out", shortGatherGuardRLeftCatchToRightParkWall2, 2.8,
                                                 kit.path("Short gather: GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH", shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatch, 3.8, shortGatherGuardRLeftCatchToRightParkWall2, 2.8),

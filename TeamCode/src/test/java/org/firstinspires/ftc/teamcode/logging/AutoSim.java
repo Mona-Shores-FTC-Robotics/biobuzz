@@ -437,6 +437,7 @@ public final class AutoSim {
     private Bot configuring;
 
     private FieldSim sim;
+    Double hiveFieldOverride;
 
     /** The field as the last run left it, or as it is now during one: for working out a plan. */
     FieldSim field() {
@@ -748,6 +749,31 @@ public final class AutoSim {
         return this;
     }
 
+    /** Aimed releases wait for the entire LOADING ZONE to clear, including extensions and fixed partners. */
+    private boolean releaseZoneOccupied(Alliance a) {
+        if (robotInZone(a)) return true;
+        double[] zone = FieldSim.loadingZone(a);
+        for (Bot b : bots) {
+            // Enclose the complete rotated frame and any modeled extensions. The box can delay a corner release.
+            double xmin = Double.POSITIVE_INFINITY, ymin = Double.POSITIVE_INFINITY;
+            double xmax = Double.NEGATIVE_INFINITY, ymax = Double.NEGATIVE_INFINITY;
+            for (double[] p : outline(pedro(b.drive.pose), b.design, now, b.body.wallsOut, b.body.flapsOnly,
+                    b.body.slideOut, b.body.flapsFolded)) {
+                xmin = Math.min(xmin, p[0]);
+                xmax = Math.max(xmax, p[0]);
+                ymin = Math.min(ymin, p[1]);
+                ymax = Math.max(ymax, p[1]);
+            }
+            if (xmax >= zone[0] && xmin <= zone[1] && ymax >= zone[2] && ymin <= zone[3]) return true;
+        }
+        // A fixed stand-in's drawn frame uses the full 18-inch starting square.
+        for (double[] parked : sim.parkedRobots) {
+            double r = 9 * (Math.abs(Math.cos(parked[2])) + Math.abs(Math.sin(parked[2])));
+            if (parked[0] + r >= zone[0] && parked[0] - r <= zone[1] && parked[1] + r >= zone[2] && parked[1] - r <= zone[3]) return true;
+        }
+        return false;
+    }
+
     /** One loop's human-player entries for an alliance: {@code due} holds when each owed NECTAR may go in. */
     private void humanEntries(Alliance a, List<Double> due, int side, Result result) {
         if (due.isEmpty() || now < due.get(0)) return;
@@ -788,6 +814,13 @@ public final class AutoSim {
         boolean whenFacing = false;
         if (humanAimRolls != null && humanAimRolls.length > 0) {
             String[] roll = humanAimRolls[Math.min(aimedEntries[side], humanAimRolls.length - 1)].split("\\|");
+            // Withhold this earned piece without changing which TIP earns the following one.
+            if ("keep".equals(roll[0].trim())) {
+                due.remove(0);
+                aimedEntries[side]++;
+                aimFacingSince[side] = Double.NaN;
+                return;
+            }
             spotName = roll[0].trim();
             if (roll.length > 1) fromRed = new double[] {Double.parseDouble(roll[1].split(",")[0].trim()), Double.parseDouble(roll[1].split(",")[1].trim())};
             if (roll.length > 2) rollSpeed = Double.parseDouble(roll[2].trim());
@@ -813,6 +846,7 @@ public final class AutoSim {
             if (Double.isNaN(aimFacingSince[side])) aimFacingSince[side] = now;
             if (now - aimFacingSince[side] < humanAimReactS) return;
         }
+        if (now >= AutoKit.AUTO_LENGTH_S || releaseZoneOccupied(a)) return;
         double[] from = forAlliance(fromRed, a == Alliance.RED);
         for (Bot b : bots) {
             double[] pose = pedro(b.drive.pose);
@@ -987,12 +1021,26 @@ public final class AutoSim {
     }
 
     Result write(WpiLog log) throws IOException {
+        double previous = HiveCalibration.tipPointInBand;
+        try {
+            HiveCalibration.tipPointInBand = hiveTipPoint(hiveFieldOverride, seed);
+            return writeMatch(log);
+        } finally {
+            HiveCalibration.tipPointInBand = previous;
+        }
+    }
+
+    static double hiveTipPoint(Double override, long seed) {
+        if (override != null) return override;
+        return BeldingCalibration.on ? BeldingCalibration.tipPoint(seed) : HiveCalibration.tipPointInBand;
+    }
+
+    private Result writeMatch(WpiLog log) throws IOException {
         List<String> names = new ArrayList<>();
         for (Bot b : bots) names.add(name(b.autoClass));
         Result result = new Result(runName(), alliance, names);
         for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
         for (Bot b : bots) result.opponents |= b.alliance != alliance;
-        if (BeldingCalibration.on) HiveCalibration.tipPointInBand = BeldingCalibration.tipPoint(seed);
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
@@ -2381,6 +2429,9 @@ public final class AutoSim {
                     // and a locked one fires from home, as the robot's falls back to.
                     .parkedVolley("LaunchAllAimed", VOLLEY_PLANNED_S, Math.min(VOLLEY_PLANNED_S, AutoRegistration.LAUNCH_ALL_LAST_PIECE_S),
                             () -> launch(Integer.MAX_VALUE))
+                    .awayFromPark("LaunchAllAimed", () -> design.launcher == RobotDesign.Launcher.TURRET
+                            ? launch(Integer.MAX_VALUE) : Commands.instant(() -> pending.add(
+                                    "LaunchAllAimed: not firing, the away volley needs a live turret hold")), null)
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     // The robot's LaunchOneAimed: one piece with the turret on the CELL at the robot's end, ending at its

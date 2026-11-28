@@ -3438,15 +3438,41 @@
                                     ],
                                     "cards": [
                                       {
-                                        "id": "c203-launchall",
-                                        "kind": "action",
-                                        "name": "LaunchAll"
-                                      },
-                                      {
-                                        "id": "c201-right-left-park",
-                                        "kind": "path",
-                                        "lineId": "right-left-park",
-                                        "park": true
+                                        "id": "far-park-deadline",
+                                        "kind": "firstOf",
+                                        "label": "Can R finish this RIGHT volley and still reach LEFT_PARK?",
+                                        "rows": [
+                                          {
+                                            "afterMs": 23200,
+                                            "matchClock": true,
+                                            "cards": [
+                                              {
+                                                "id": "slow-right-far-park",
+                                                "kind": "path",
+                                                "lineId": "right-left-park",
+                                                "park": true
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "when": [
+                                              "Always"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c203-launchall",
+                                                "kind": "action",
+                                                "name": "LaunchAll"
+                                              },
+                                              {
+                                                "id": "c201-right-left-park",
+                                                "kind": "path",
+                                                "lineId": "right-left-park",
+                                                "park": true
+                                              }
+                                            ]
+                                          }
+                                        ]
                                       }
                                     ]
                                   }

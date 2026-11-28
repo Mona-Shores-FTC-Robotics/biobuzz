@@ -21,6 +21,20 @@ import java.util.List;
  */
 public class PathEndSettleTest {
 
+    @Test
+    public void anAwayVolleyNeedsTheDrawnSpotAndHeading() {
+        assertFalse(settle.atAimedSpot());
+        Path path = pathEndingAt(180);
+        settle.pathStarted(path);
+        pose = new Pose(96, 0, Math.PI);
+        settle.pathEnded(path);
+        assertFalse(settle.atAimedSpot());
+        pose = new Pose(99, 0, Math.toRadians(160));
+        assertFalse(settle.atAimedSpot());
+        pose = new Pose(99, 0, Math.PI);
+        assertTrue(settle.atAimedSpot());
+    }
+
     private static final double EPS = 1e-9;
 
     private final List<String> events = new ArrayList<>();

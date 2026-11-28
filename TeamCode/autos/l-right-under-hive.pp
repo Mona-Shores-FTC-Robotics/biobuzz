@@ -1176,7 +1176,7 @@
     {
       "id": "loff-park-9",
       "color": "#e15759",
-      "name": "NECTAR, LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "name": "Late TIP 2: LEFT not seen up, return to L_WALL_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1185,18 +1185,26 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 28,
-          "y": 121
+          "x": 36,
+          "y": 116
+        },
+        {
+          "x": 29,
+          "y": 106
+        },
+        {
+          "x": 24,
+          "y": 96
         }
       ],
       "heading": {
         "type": "linear",
         "startDeg": 298.7,
-        "endDeg": 0
+        "endDeg": 90
       }
     },
     {
@@ -1992,7 +2000,7 @@
       "roff-park-6": "LEFT_PARK",
       "roff-loff-2": "LEFT_AUTO_OFFSET",
       "loff-park-8": "LEFT_PARK",
-      "loff-park-9": "LEFT_PARK",
+      "loff-park-9": "L_WALL_PARK",
       "loff-park-10": "LEFT_PARK",
       "roff-park-7": "LEFT_PARK",
       "roff-turn2-b": "L_NECTAR2_SHOT",
@@ -2021,7 +2029,7 @@
         "label": "LEFT up? (TIP 1 came; else cross and fix it)",
         "rows": [
           {
-            "afterMs": 9500,
+            "afterMs": 10000,
             "cards": [
               {
                 "id": "c13-loff-roff",
@@ -2444,6 +2452,67 @@
                                         "id": "c203-launchoneaimed",
                                         "kind": "action",
                                         "name": "LaunchOneAimed"
+                                      },
+                                      {
+                                        "id": "queue-own-nectar",
+                                        "kind": "firstOf",
+                                        "label": "Own NECTAR still in the lane after the counted shot?",
+                                        "rows": [
+                                          {
+                                            "when": [
+                                              "NectarIn"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "queue-cell-up",
+                                                "kind": "firstOf",
+                                                "label": "RIGHT still up?",
+                                                "rows": [
+                                                  {
+                                                    "when": [
+                                                      "CellUp"
+                                                    ],
+                                                    "cards": [
+                                                      {
+                                                        "id": "queue-cutoff",
+                                                        "kind": "firstOf",
+                                                        "label": "Enough time to take a second counted shot before PARK?",
+                                                        "rows": [
+                                                          {
+                                                            "afterMs": 24800,
+                                                            "matchClock": true,
+                                                            "cards": []
+                                                          },
+                                                          {
+                                                            "when": [
+                                                              "Always"
+                                                            ],
+                                                            "cards": [
+                                                              {
+                                                                "id": "queue-second-piece",
+                                                                "kind": "action",
+                                                                "name": "LaunchOneAimed",
+                                                                "timeoutS": 1.0
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "afterMs": 60,
+                                                    "cards": []
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "afterMs": 60,
+                                            "cards": []
+                                          }
+                                        ]
                                       },
                                       {
                                         "id": "c204-turn2-park",

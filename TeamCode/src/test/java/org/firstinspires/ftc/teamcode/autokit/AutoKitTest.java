@@ -1463,6 +1463,20 @@ public class AutoKitTest {
         assertEquals("the launch starts when the path ends", 1.0, drive.progressWhen.get("LaunchAll start"), 1e-9);
     }
 
+    @Test
+    public void theTurnRunsTheAwayApproachAndHandsItToTheAwayShotOnlyAtItsEnd() {
+        RecordingApproach aim = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .parkedVolley("Aimed", 1, 1, () -> lasting("Parked", 0.2))
+                .awayFromPark("Aimed", () -> lasting("Away", 0.2), aim), () -> now);
+        run(kit.sequence(kit.path("turn", line(0, 20)), kit.commandAwayFromPark("Aimed")), 6);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), aim.seen);
+        assertEquals(1.0, drive.progressWhen.get("Away start"), 1e-9);
+        run(kit.sequence(kit.path("park", line(20, 30)), kit.command("Aimed")), 6);
+        assertTrue(log.toString(), log.contains("Parked start"));
+        assertEquals("the parked shot did not run an away approach", 2, aim.seen.size());
+    }
+
     /**
      * The guard parks after the drive instead of starting the command it got ready for: a gate the
      * approach opened must close, so the approach is cancelled. Before 4 Nov 2026 only a refused grab

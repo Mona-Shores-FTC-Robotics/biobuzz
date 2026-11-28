@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
  * ({@link AutoSim#humanAimRolls}: {@code "spot | from | speed | facing"} per NECTAR, {@code ;} between) instead of
  * dropping it mid-zone, and {@code "launchOneFeedS"} sets a LaunchOne's feed in the simulator (a one-ball launch that
  * ends at its counted shot needs about 1.2; the robot's 0.5 s is not measured). Placeholders both, for the NECTAR study.
+ * {@code "hiveField": "belding2"} fixes the rocker at the heavier guide-band setting across seeds.
  * {@code "calibration": "fruitport"} is the Fruitport Qualifier's calibration ({@link FruitportCalibration}) in
  * place of Belding's. With either calibration, {@code "ourInRate"} and {@code "partnerInRate"} (0 to 1) set the share of
  * each robot's launched pieces that stay in, from any range, in place of Belding's rows
@@ -97,9 +98,16 @@ public class SimRunTest {
         boolean fruitportBefore = FruitportCalibration.on;
         boolean throatBefore = BeamBreakSubsystem.throatFitted;
         boolean approachBefore = LaunchCards.launchOnApproach;
-        double tipPointBefore = HiveCalibration.tipPointInBand;
+        Double previousHiveField = AutoStudyTest.requestHiveField;
         try {
             Map<String, Object> request = request(dir);
+            Object field = request.get("hiveField");
+            if (field == null) field = System.getenv("BIOBUZZ_AUTO_HIVE_FIELD");
+            AutoStudyTest.requestHiveField = field == null ? null : HiveCalibration.tipPointInBand(field.toString());
+            if (field != null) {
+                out.put("hiveField", field);
+                out.put("hiveTipPointInBand", AutoStudyTest.requestHiveField);
+            }
             Object calibration = request.get("calibration");
             if ("belding".equals(calibration)) {
                 BeldingCalibration.on = true;
@@ -147,7 +155,7 @@ public class SimRunTest {
                 // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
                 BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
                 BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
-                // "feedJamChance": the chance a LaunchAll's feed stalls, its pieces kept (0 until calibrated).
+                // "feedJamChance": the chance a LaunchAll feed stalls.
                 if (request.get("feedJamChance") instanceof Number) {
                     BeldingCalibration.feedJamChance = ((Number) request.get("feedJamChance")).doubleValue();
                     out.put("feedJamChance", BeldingCalibration.feedJamChance);
@@ -174,7 +182,7 @@ public class SimRunTest {
             BeamBreakSubsystem.throatFitted = throatBefore;
             LaunchCards.launchOnApproach = approachBefore;
             BeldingCalibration.bestCase = false;
-            HiveCalibration.tipPointInBand = tipPointBefore;
+            AutoStudyTest.requestHiveField = previousHiveField;
             write(dir, out);
         }
     }
@@ -378,6 +386,8 @@ public class SimRunTest {
                     long seed = (long) value;
                     String log = "seed-" + seed + ".wpilog";
                     metadata.put("SimSeed", String.valueOf(seed));
+                    double fieldPoint = AutoSim.hiveTipPoint(AutoStudyTest.requestHiveField, seed);
+                    metadata.put("SimHiveTipPointInBand", Double.toString(fieldPoint));
                     AutoStudyTest.loop = request.get("loop") instanceof String ? (String) request.get("loop") : null;
                     String requestRolls = request.get("humanAimRolls") instanceof String ? (String) request.get("humanAimRolls") : null;
                     String rolls = entry.humanAimRolls != null ? entry.humanAimRolls : requestRolls;
@@ -495,6 +505,7 @@ public class SimRunTest {
         m.put("partnerLaunched", partner == null ? null : (double) partner.launched);
         m.put("launchedAtDownCell", (double) ours.launchedAtDownCell);
         m.put("partnerLaunchedAtDownCell", partner == null ? null : (double) partner.launchedAtDownCell);
+        m.put("lastShotAt", time(ours.lastShotAt));
         m.put("partnerLastShotAt", partner == null ? null : time(partner.lastShotAt));
         List<Object> tips = new ArrayList<>();
         for (double t : r.tipsAt) tips.add(t);

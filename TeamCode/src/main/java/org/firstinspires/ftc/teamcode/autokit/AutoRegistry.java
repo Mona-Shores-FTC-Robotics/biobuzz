@@ -41,6 +41,8 @@ public final class AutoRegistry {
     private final Set<String> parkedVolleys = new HashSet<>();
     private final Map<String, Double> lastPieceSeconds = new LinkedHashMap<>();
     private final Map<String, Approach> approaches = new LinkedHashMap<>();
+    private final Map<String, Supplier<Command>> awayCommands = new LinkedHashMap<>();
+    private final Map<String, Approach> awayApproaches = new LinkedHashMap<>();
     /** Triggers registered with {@link #trigger}: true while something is so, not since a wait began. */
     private final Set<String> stateTriggers = new HashSet<>();
     private BooleanSupplier holdTimeLimits = () -> false;
@@ -205,6 +207,25 @@ public final class AutoRegistry {
         volley(name, typicalS, lastPieceS, factory);
         parkedVolleys.add(name);
         return this;
+    }
+
+    /** The same drawn volley away from park may require a different aiming interlock and drive-in approach. */
+    public AutoRegistry awayFromPark(String name, Supplier<Command> factory, Approach approach) {
+        if (!isParkedVolley(name) || factory == null || awayCommands.containsKey(name)) {
+            throw new IllegalArgumentException("Expected one away-from-park factory for parked volley " + name);
+        }
+        awayCommands.put(name, factory);
+        if (approach != null) awayApproaches.put(name, approach);
+        return this;
+    }
+
+    Command commandAwayFromPark(String name) {
+        Supplier<Command> factory = awayCommands.get(name);
+        return factory == null ? command(name) : factory.get();
+    }
+
+    Approach approachAwayFromPark(String name) {
+        return awayCommands.containsKey(name) ? awayApproaches.get(name) : approach(name);
     }
 
     /** Whether {@code name} was registered with {@link #parkedVolley}. */

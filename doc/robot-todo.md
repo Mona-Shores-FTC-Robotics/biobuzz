@@ -477,6 +477,12 @@ missed shot, so the checks below in this order decide it.
       (`IndicatorSubsystem.NECTAR_FAST_AFTER_MS`), and goes dark (or green, the NECTAR in) as the hold ends;
       the human player can see it from the zone and rolls on it. **Tune:** the fast flash comes too late to act
       on → lower `NECTAR_FAST_AFTER_MS` in Panels; nobody can tell the two rates apart → note it in the PR.
+- [ ] **Turn-first preload interlock (#792).** With the launcher empty, record the chassis heading, turret
+      command and measured angle, gate and feeder through the turn. The gate must stay shut until the
+      robot reaches its named spot. On the bench, lose alignment while feeding. Confirm the gate closes
+      that loop, the feeder idles and the interrupted volley does not report `Empty`. Repeat with the
+      turret locked forward. With the hold verified, film a four-POLLEN feed from the spot and check
+      that the extra NECTAR needs its own counted shot.
 - [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed
       from above the turret. **Good:** `/Turret/…` shows the aim within 2° of the LEFT CELL from the end of
       the turn to the shot, inside the arc (the shot needs 5° of margin: `AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),

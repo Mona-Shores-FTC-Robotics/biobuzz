@@ -171,10 +171,12 @@ is made or moved). **Turret-aimed** (`LaunchAllAimed`, `LaunchOneAimed`; `AimedV
 `TurretAimer`, at the near CELL only): any named spot whose heading keeps that CELL inside the firing arc
 (`TurretArc`) by 5 degrees, the frame inside the field and short of the centre line
 (`AutoLaunchSpots.aimedShotProblem`). Never from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's
-alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. An aimed shot keeps two safeguards:
-with no referenced pose it does not fire, and a turret locked forward or that dropped its hold fires from home
-only where home points at the CELL within 3 degrees (a spot that also aims a locked turret); anywhere else the
-robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchAllAimed` right after a park card
+alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. Every aimed shot requires a referenced
+pose. A parked volley may use home with a locked turret only if home points within 3 degrees of the CELL.
+An away-from-park aimed volley or a single aimed piece requires a live, zeroed turret hold, a settled chassis
+at the drawn spot and both the requested and measured bearings inside the firing arc by 5 degrees. The
+away-from-park volley's drive-in approach tracks the near CELL with the gate closed. A loss of that hold while
+feeding closes the gate and leaves the remaining load. `LaunchAllAimed` right after a park card
 (no drive since) is the volley after a park: fired from a `…_PARK` spot, behind a CELL check, so the guard
 adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
 the robot stays parked. Drawn anywhere else it is an ordinary aimed volley the guard parks after, exported as
