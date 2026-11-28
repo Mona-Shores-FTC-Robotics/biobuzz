@@ -147,6 +147,11 @@ public class SimRunTest {
                 // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
                 BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
                 BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
+                // "feedJamChance": the chance a LaunchAll's feed stalls, its pieces kept (0 until calibrated).
+                if (request.get("feedJamChance") instanceof Number) {
+                    BeldingCalibration.feedJamChance = ((Number) request.get("feedJamChance")).doubleValue();
+                    out.put("feedJamChance", BeldingCalibration.feedJamChance);
+                }
                 if (BeldingCalibration.bestCase) {
                     if (Double.isNaN(BeldingCalibration.ourInRate)) BeldingCalibration.ourInRate = 1;
                     if (Double.isNaN(BeldingCalibration.partnerInRate)) BeldingCalibration.partnerInRate = 1;
@@ -163,6 +168,7 @@ public class SimRunTest {
             AutoStudyTest.requestHumanAimRolls = null;
             AutoSim.launchOneFeedOverrideS = Double.NaN;
             BeldingCalibration.partnerInRate = Double.NaN;
+            BeldingCalibration.feedJamChance = 0;
             if (!fruitportBefore) FruitportCalibration.restore();
             BeldingCalibration.on = beldingBefore;
             BeamBreakSubsystem.throatFitted = throatBefore;

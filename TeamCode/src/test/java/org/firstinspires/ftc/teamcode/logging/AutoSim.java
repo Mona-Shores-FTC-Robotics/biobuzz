@@ -1705,6 +1705,7 @@ public final class AutoSim {
             if (!streaming && !design.firesOnTheMove && Double.isNaN(gateOpenAt) && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
+            if (firing && feedJammed) return;
             if (firing && Double.isNaN(gateOpenAt)) gateOpenAt = now;
             if (firing && Double.isNaN(activeFeedAt)) activeFeedAt = now;
             // The first piece is still on its way from the gate to the wheels.
@@ -2594,6 +2595,10 @@ public final class AutoSim {
             // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
             // An event that measured how often the counter missed a ball draws it a volley (BeldingCalibration.wholeFeedChance).
             if (feedLuck == null) feedLuck = new java.util.Random((seed + 7) * 0xD1B54A32D192ED03L + index);
+            if (jamLuck == null) jamLuck = new java.util.Random((seed + 11) * 0xC2B2AE3D27D4EB4FL + index);
+            feedJammed = BeldingCalibration.on && count == Integer.MAX_VALUE && !body.stored.isEmpty()
+                    && BeldingCalibration.feedJams(jamLuck);
+            if (feedJammed) pending.add("feed jam: nothing fed this volley; " + body.stored.size() + " stay in the lane");
             boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE
                     && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted && BeldingCalibration.wholeFeed(feedLuck);
             shotsAtStep = shotsFired;
@@ -2755,10 +2760,12 @@ public final class AutoSim {
          * model ({@link #extractor}), as for a path an Auto draws to a FLOWER. A design with the intake at the back
          * picks backwards: the rule runs on the intake's heading.
          */
-        /** Its own stream, so the calibration's short picks leave every other draw as it was. */
-        private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
         /** Its own stream too: which volleys the shot counter misses a ball of ({@link BeldingCalibration#wholeFeedChance}). */
         private java.util.Random feedLuck;
+        /** And which volleys' feeds stall ({@link BeldingCalibration#feedJamChance}), so the other draws stay as they were. */
+        private java.util.Random jamLuck;
+        /** This volley's feed stalled: nothing is fed, and the pieces stay in the lane for the next attempt. */
+        private boolean feedJammed;
 
         /**
          * The robot's empty-FLOWER end ({@code DwellWatch}): MASTER's dwell ends {@code FlowerPicker.dwell.dwellEmptyMs}
@@ -2778,7 +2785,6 @@ public final class AutoSim {
             final double[] dwellFrom = new double[1];
             final double[] squareFrom = new double[1];
             final boolean[] intakeBefore = new boolean[1];
-            final boolean[] pickAtScoringFlower = new boolean[1];
             final double[] pickFlowerAt = new double[2];
             final boolean[] reachedDwell = new boolean[1];
             final int[] heldAtStart = new int[1];
@@ -2811,7 +2817,6 @@ public final class AutoSim {
                         square[0] = new Pose(sq.x(), sq.y(), sq.heading() - flip);
                         contact[0] = new Pose(in.x(), in.y(), in.heading() - flip);
                         intakeBefore[0] = intakeEnabled;
-                        pickAtScoringFlower[0] = Math.abs(flower.y - centre) > 60;
                         pickFlowerAt[0] = flower.x;
                         pickFlowerAt[1] = flower.y;
                         reachedDwell[0] = false;
@@ -2870,20 +2875,10 @@ public final class AutoSim {
                                 if (more > 0) pending.add("PickFlower: " + more + " more taken, "
                                         + (full ? "a full load (best case)" : "the roller stick fills the lane"));
                             }
-                        } else if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
-                            // The draw is what the pick brought to the launcher; a piece held before it (a NECTAR taken
-                            // on the way, PickNectar) is kept, and the two together are the lane's four at most.
-                            int reach = Math.min(FieldSim.ROBOT_CAPACITY, heldAtStart[0]
-                                    + BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck));
-                            int lost = 0;
-                            while (body.stored.size() > reach) {
-                                FieldSim.Piece gone = body.stored.remove(body.stored.size() - 1);
-                                gone.where = FieldSim.Where.OUTSIDE;
-                                gone.x = -1000;
-                                lost++;
-                            }
-                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (the calibration's draw)");
                         }
+                        // Otherwise the robot keeps every piece the pick collected: pickup, feed and scoring are separate
+                        // (mentor, 28 Nov 2026). A volley that fires short is a feed jam (BeldingCalibration.feedJamChance)
+                        // and leaves its pieces in the lane, never a pick that loses them.
                         intakeEnabled = intakeBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
                     });

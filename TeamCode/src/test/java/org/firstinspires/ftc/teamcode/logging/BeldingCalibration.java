@@ -103,6 +103,21 @@ final class BeldingCalibration {
      */
     static boolean shortVolleysRunTheFeed = false;
 
+    /**
+     * The chance that a LaunchAll's feed stalls: nothing reaches the wheels this volley, and every piece the robot
+     * holds stays in its lane for the next attempt (a request's {@code "feedJamChance"}). Pickup, feed and scoring
+     * are separate: a FLOWER pick keeps what it collects ({@code AutoSim}'s pick never takes a piece back), a jam
+     * is this, and a launched piece stays in by {@link #stayIn}. A Fruitport robot fired 0 while holding 4 after a
+     * SCORING FLOWER (mentor, 28 Nov 2026), so jams happen, but how often is <b>not yet calibrated</b>: 0 until a
+     * log measures it. Never in the best case.
+     */
+    static double feedJamChance = 0;
+
+    /** Whether this volley's feed stalls ({@link #feedJamChance}). */
+    static boolean feedJams(java.util.Random luck) {
+        return !bestCase && feedJamChance > 0 && luck.nextDouble() < feedJamChance;
+    }
+
     /** {@link #wholeFeed()} for one volley: always with {@link #WHOLE_FEED}, else by {@link #wholeFeedChance}; never in the best case. */
     static boolean wholeFeed(java.util.Random luck) {
         if (bestCase) return false;
@@ -226,7 +241,11 @@ final class BeldingCalibration {
         return "full".equals(robotFor(index));
     }
 
-    /** The pieces of a pick that reach the launcher, drawn from {@code robot}'s logged volleys at that FLOWER. */
+    /**
+     * A volley's pieces fired after a pick at that FLOWER, drawn from {@code robot}'s logged volleys. Not a pickup
+     * count: a volley that fired fewer may have held more (Fruitport: 0 fired while holding 4), so the simulator no
+     * longer takes pieces back by it; kept for the logs' record and for studies that ask for it.
+     */
     static int load(String robot, boolean scoringFlower, java.util.Random luck) {
         int[] ir = scoringFlower ? IR_SCORING : IR_WALL, uv = scoringFlower ? UV_SCORING : UV_WALL;
         switch (robot) {

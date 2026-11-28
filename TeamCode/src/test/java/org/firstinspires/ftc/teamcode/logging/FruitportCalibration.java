@@ -24,7 +24,10 @@ package org.firstinspires.ftc.teamcode.logging;
  *       Q-39), four in 4 of 10, and its last three matches 3, 4, 4, 2 and 1. Those are kept as
  *       {@link #IR_WALL_LOGGED} and {@link #IR_SCORING_LOGGED}; {@code BIOBUZZ_FRUITPORT_19429_LOADS=logged} runs
  *       with them. Either way 19429's roller stick draws its loads here ({@link BeldingCalibration#rollerFillsLane}
- *       off) instead of filling the lane every time.</li>
+ *       off) instead of filling the lane every time. <b>These counts are not pickup</b> (mentor, 28 Nov 2026): a
+ *       volley that fired 0 had a robot holding 4, so the simulator keeps every piece a pick collects and a short
+ *       volley is a feed jam ({@link BeldingCalibration#feedJamChance}, not yet calibrated), its pieces left in
+ *       the lane.</li>
  *   <li><b>How many launched pieces stay in the CELL</b> ({@link #STAY_IN}): <b>0.94 at {@link #AUTO_HIVE_RANGE_IN}</b>
  *       (39.2 in), the one range Fruitport's Autos fired from: {@code RIGHT_AUTO_HIVE} at the RIGHT CELL and its
  *       twin {@code LEFT_AUTO_HIVE} at the LEFT CELL are the same distance out. It is the one share that best fits
