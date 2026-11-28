@@ -1705,9 +1705,10 @@ public final class AutoSim {
             if (!streaming && !design.firesOnTheMove && Double.isNaN(gateOpenAt) && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
-            if (firing && feedJammed) return;
             if (firing && Double.isNaN(gateOpenAt)) gateOpenAt = now;
             if (firing && Double.isNaN(activeFeedAt)) activeFeedAt = now;
+            // A stalled feed: the gate is open and the feeder runs its set time, but nothing reaches the wheels.
+            if (firing && feedJammed) return;
             // The first piece is still on its way from the gate to the wheels.
             if (firing && now < gateOpenAt + design.gateToFirstBallS) return;
             reportTurretWait();
@@ -2595,7 +2596,9 @@ public final class AutoSim {
             // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
             // An event that measured how often the counter missed a ball draws it a volley (BeldingCalibration.wholeFeedChance).
             if (feedLuck == null) feedLuck = new java.util.Random((seed + 7) * 0xD1B54A32D192ED03L + index);
-            if (jamLuck == null) jamLuck = new java.util.Random((seed + 11) * 0xC2B2AE3D27D4EB4FL + index);
+            // Mixed, not seed + index: java.util.Random's first draws from neighbouring seeds are nearly equal, so
+            // both robots of a pair would jam in the same runs.
+            if (jamLuck == null) jamLuck = new java.util.Random(mix64((seed + 11) * 0xC2B2AE3D27D4EB4FL ^ (index + 1) * 0x9E3779B97F4A7C15L));
             feedJammed = BeldingCalibration.on && count == Integer.MAX_VALUE && !body.stored.isEmpty()
                     && BeldingCalibration.feedJams(jamLuck);
             if (feedJammed) pending.add("feed jam: nothing fed this volley; " + body.stored.size() + " stay in the lane");
@@ -2764,6 +2767,13 @@ public final class AutoSim {
         private java.util.Random feedLuck;
         /** And which volleys' feeds stall ({@link BeldingCalibration#feedJamChance}), so the other draws stay as they were. */
         private java.util.Random jamLuck;
+        /** A 64-bit finaliser (MurmurHash3's), so nearby seeds give unrelated streams. */
+        private long mix64(long z) {
+            z = (z ^ (z >>> 33)) * 0xFF51AFD7ED558CCDL;
+            z = (z ^ (z >>> 33)) * 0xC4CEB9FE1A85EC53L;
+            return z ^ (z >>> 33);
+        }
+
         /** This volley's feed stalled: nothing is fed, and the pieces stay in the lane for the next attempt. */
         private boolean feedJammed;
 
