@@ -443,13 +443,18 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
 
 ## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
-The draft on `auto/l-right-under-hive-nectar` (PR for `claude/human-nectar-fruitport`; the study is
-`doc/human-nectar-auto.md` § "28 Nov 2026"): after its preloads at `LEFT_AUTO_OFFSET`, L turns on the spot to
-215° (its intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward), holds
-there with the intake on (`CatchNectar`) until 12.0 s on the match clock while the human player rolls the
-NECTAR TIP 1 earned, fires it at LEFT with the turret if the lane holds one (`NectarIn`, `LaunchOneAimed`),
-and leaves for the WALL FLOWER. None of it has run on a robot. Run it as the pair, or L alone with a person
-tipping RIGHT by hand at about 5 s.
+The draft to run is `auto/r-right-under-hive-nectar2` (both NECTARs; it includes `auto/l-right-under-hive-turn-first`).
+**NECTAR 1:** once LEFT is up, L lights the alliance colour (`CallNectar`), turns on the spot at `LEFT_AUTO_OFFSET` to
+215° (`L_NECTAR_TURN`: its intake at the LOADING ZONE, the turret on the LEFT CELL about 84° left of forward), fires its
+preloads there turret-aimed (`LaunchAllAimed`, `kit.commandAwayFromPark`) while the human player rolls the NECTAR TIP 1
+earned, holds with the intake on (`CatchNectar`) until `NectarIn` or at most 2.5 s, fires it at LEFT (`LaunchOneAimed`)
+and leaves for the WALL FLOWER. **NECTAR 2:** after its WALL FLOWER volley at `RIGHT_AUTO_OFFSET`, L lights again, turns
+to 106.5° (`L_NECTAR2_SHOT`), holds until `NectarIn` or 26.0 s, fires it at RIGHT (the turret about 45° right) and
+parks at `L_WALL_PARK`; R, if RIGHT is already up when it arrives, fires and parks at `LEFT_PARK` back under the HIVE.
+Both robots' `FLOWER load` row must be set the same (mismatched, they collide every time in the simulator). None of it
+has run on a robot. Simulated at Fruitport rates with FLOWER picks 4 of 4 and no feed jams: 91 of 120 three-TIP runs,
+every one parked, one contact; the failures are NECTARs not caught (NECTAR 1 82 of 120, NECTAR 2 71 of 108) with a
+missed shot, so the checks below in this order decide it.
 
 - [ ] **The colour sensor reads a rolled NECTAR at the entrance, during and after a volley.** Basic Drive,
       alliance set, intake on: roll our NECTAR in from 30 in, ten times with the lane empty and the launcher
@@ -493,6 +498,30 @@ tipping RIGHT by hand at about 5 s.
       mid-zone is wanted instead: NECTAR's webcam HSV range (`PieceVisionSubsystem`, still -1), and a FLOWER
       pick that starts with one piece held stopping at four (feed one NECTAR in by hand, D-pad up at the WALL
       FLOWER, five times: 3 POLLEN come in and the light goes green).
+
+- [ ] **The NECTAR roll reaches L, both NECTARs** (the draft above; the human player at the LOADING ZONE, L placed
+      by hand). NECTAR 1: L at `L_NECTAR_TURN` (40.2, 120.8, 215°), released as L's light starts. NECTAR 2: L at
+      `L_NECTAR2_SHOT` (32.1, 17.0, 106.5°), a 76 in roll, released once TIP 2 has settled. Ten each, filmed.
+      **Good:** caught 9 of 10 or better, within about 5 in of the intake's middle. **Record** the release to
+      catch time and the misses' reason (short, wide, knocked by a loose piece). The simulator assumes 24 in/s, 2°
+      spread, released 0.5 s after the cue: put the measured speed and spread in a PR (`humanAimRolls` in
+      `TeamCode/sim-requests/r-right-under-hive.json`). **If 76 in does not reach:** the NECTAR 2 hold has a 20 to
+      30 in drive-forward version, one parameter away (the study's scripts); check the intake runs on that drive.
+- [ ] **Shots from 51 in stay in.** From `RIGHT_AUTO_OFFSET` and `R_RIGHT_CATCH`, a volley of 4, five volleys each,
+      filmed. **Record** how many of 20 stay in. The simulator uses Belding's 0.90 there (Fruitport's Autos fired
+      only from 39 in, 0.94), and most of its missed shots are long ones from here: the count goes in a PR
+      (`FruitportCalibration.STAY_IN`'s 53.9 in row, or a new 51 in row).
+- [ ] **The NECTAR 2 shot:** `LaunchOneAimed` from 106.5° at `RIGHT_AUTO_OFFSET`, the turret about 45° right of
+      forward. Five times. **Good:** the NECTAR goes in and the log's `LaunchOneAimed fed … 1 shots detected`.
+- [ ] **R's park back under the HIVE** (`R_RIGHT_CATCH` nose first to `LEFT_PARK`). Five runs, filmed from the end
+      of the field. **Good:** about 4.1 s, clear of the HIVE's foot bar (2.2 in in the plan) and short of the centre
+      line (1.2 in). **Stop:** it touches the foot bar or reaches over the line: the clearance to the PR, and the
+      NECTAR 2 draft does not go to an event until the path is moved.
+- [ ] **A volley that fires nothing with balls in the lane** (any Auto, any run): count it with the volleys it was
+      among. The simulator assumes no feed jams (`BeldingCalibration.feedJamChance` 0): at 10% a volley the pair's
+      three-TIP runs fall from 91 to 50 of 120, so the real rate matters. The count goes in a PR.
+- [ ] **Then the whole pair, filmed,** both `FLOWER load` rows the same, a human player for both NECTARs: five runs,
+      the match logs pulled (`tools/pull-logs`).
 
 ## The NECTAR gate (Fruitport, 21 Nov): before the State Championship
 
