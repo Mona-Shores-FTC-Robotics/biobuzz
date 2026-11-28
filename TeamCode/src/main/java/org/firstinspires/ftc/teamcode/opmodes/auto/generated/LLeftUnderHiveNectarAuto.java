@@ -120,35 +120,36 @@ public final class LLeftUnderHiveNectarAuto {
                                                 kit.atMatchSeconds(20)),
                                         kit.path("rescue park to LEFT_AUTO_PARK", rescueParkToLeftAutoPark, 3.7))),
                         kit.when("LeftCellUp").then(
-                                kit.command("LaunchAll", 1),
-                                kit.firstOf("After the LEFT preloads, receive NECTAR until 10.6 s", kit.command("CatchNectar"),
-                                        kit.atMatchSeconds(10.6),
-                                        kit.when("NectarIn").then(
-                                                kit.firstOf("LEFT still up for the extra shot?",
-                                                        kit.when("LeftCellUp").then(
-                                                                kit.command("LaunchOneAimed", 1.6)),
-                                                        kit.afterMs(80)))),
-                                kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.7, gardenAbortParkToLeftPark, 4.5),
-                                kit.command("GardenGather", 5.5),
-                                kit.path("garden exit to RIGHT_AUTO_HIVE", gardenExitToRightAutoHive, 2, underHiveParkToLeftAutoPark, 3.8),
-                                kit.firstOf("RIGHT up before 22 s, otherwise park, then fire at LEFT from the park if it is up",
-                                        kit.atMatchSeconds(22).then(
-                                                kit.guarded("Timed out", underHiveParkToLeftAutoPark, 3.8,
-                                                        kit.path("under hive park to LEFT_AUTO_PARK", underHiveParkToLeftAutoPark, 3.8),
-                                                        kit.firstOf("LEFT up before 27.5 s, otherwise stay parked",
-                                                                kit.atMatchSeconds(27.5),
+                                kit.guarded("If LeftCellUp", underHiveParkToLeftAutoPark, 3.8,
+                                        kit.command("LaunchAll", 1),
+                                        kit.firstOf("After the LEFT preloads, receive NECTAR until 10.6 s", kit.command("CatchNectar"),
+                                                kit.atMatchSeconds(10.6),
+                                                kit.when("NectarIn").then(
+                                                        kit.firstOf("LEFT still up for the extra shot?",
                                                                 kit.when("LeftCellUp").then(
-                                                                        kit.command("LaunchAllAimed", 4))))),
-                                        kit.when("RightCellUp").then(
-                                                kit.guarded("If RightCellUp", underHiveParkToLeftAutoPark, 3.8,
-                                                        kit.command("LaunchAll", 1),
-                                                        kit.firstOf("After the RIGHT volley, receive NECTAR until 23.1 s", kit.command("CatchNectar"),
-                                                                kit.atMatchSeconds(23.1),
-                                                                kit.when("NectarIn").then(
-                                                                        kit.firstOf("RIGHT still up for the extra shot?",
-                                                                                kit.when("RightCellUp").then(
-                                                                                        kit.command("LaunchOneAimed", 1.6)),
-                                                                                kit.afterMs(80)))),
-                                                        kit.path("under hive park to LEFT_AUTO_PARK", underHiveParkToLeftAutoPark, 3.8)))))));
+                                                                        kit.command("LaunchOneAimed", 1.6)),
+                                                                kit.afterMs(80)))),
+                                        kit.path("early garden to GARDEN_STAGING", earlyGardenToGardenStaging, 3.7, gardenAbortParkToLeftPark, 4.5),
+                                        kit.command("GardenGather", 5.5),
+                                        kit.path("garden exit to RIGHT_AUTO_HIVE", gardenExitToRightAutoHive, 2, underHiveParkToLeftAutoPark, 3.8),
+                                        kit.firstOf("RIGHT up before 22 s, otherwise park, then fire at LEFT from the park if it is up",
+                                                kit.atMatchSeconds(22).then(
+                                                        kit.guarded("Timed out", underHiveParkToLeftAutoPark, 3.8,
+                                                                kit.path("under hive park to LEFT_AUTO_PARK", underHiveParkToLeftAutoPark, 3.8),
+                                                                kit.firstOf("LEFT up before 27.5 s, otherwise stay parked",
+                                                                        kit.atMatchSeconds(27.5),
+                                                                        kit.when("LeftCellUp").then(
+                                                                                kit.command("LaunchAllAimed", 4))))),
+                                                kit.when("RightCellUp").then(
+                                                        kit.guarded("If RightCellUp", underHiveParkToLeftAutoPark, 3.8,
+                                                                kit.command("LaunchAll", 1),
+                                                                kit.firstOf("After the RIGHT volley, receive NECTAR until 23.1 s", kit.command("CatchNectar"),
+                                                                        kit.atMatchSeconds(23.1),
+                                                                        kit.when("NectarIn").then(
+                                                                                kit.firstOf("RIGHT still up for the extra shot?",
+                                                                                        kit.when("RightCellUp").then(
+                                                                                                kit.command("LaunchOneAimed", 1.6)),
+                                                                                        kit.afterMs(80)))),
+                                                                kit.path("under hive park to LEFT_AUTO_PARK", underHiveParkToLeftAutoPark, 3.8))))))));
     }
 }
