@@ -512,6 +512,11 @@ public final class LaunchCards {
         return Commands.instant(launcher::spinUp);
     }
 
+    /** Set the normal launch speed for an approaching independent-turret shot. */
+    void spinUpFor(Pose end) {
+        launcher.spinUpFor(end);
+    }
+
     /**
      * {@code LaunchAll}: spin up, wait for speed and a settled robot, feed until the launcher counts
      * {@link #launchAllEndAfterShots} shots or for {@link #launchAllFeedS}, whichever comes first,

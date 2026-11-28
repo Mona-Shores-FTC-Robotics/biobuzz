@@ -126,11 +126,11 @@ public class AutoRegistrationTest {
         java.util.List<String> launches = new java.util.ArrayList<>();
         while (names.find()) {
             String name = names.group(1);
-            if (name.startsWith("Launch") || name.startsWith("Shoot") || name.startsWith("Fire")) launches.add(name);
+            if (name.startsWith("Launch") || name.startsWith("Shoot") || name.startsWith("Fire")
+                    || name.equals("CatchNectarAimed")) launches.add(name);
         }
-        assertEquals("a launch command that is not LaunchAll, LaunchAllAimed, LaunchOne or LaunchOneAimed: all four aim at"
-                        + " the CELL at the robot's end (the Aimed ones with the TurretAimer), and no other CELL can be"
-                        + " scored from there (CLAUDE.md, Hard constraints)",
-                java.util.Arrays.asList("LaunchAll", "LaunchAllAimed", "LaunchOne", "LaunchOneAimed"), launches);
+        assertEquals("every launch must target the CELL at the robot's end",
+                java.util.Arrays.asList("LaunchAll", "LaunchAllAimed", "LaunchOne", "LaunchOneAimed", "CatchNectarAimed"),
+                launches);
     }
 }

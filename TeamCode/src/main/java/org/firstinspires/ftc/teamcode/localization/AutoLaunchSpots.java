@@ -119,8 +119,11 @@ public final class AutoLaunchSpots {
         return frameProblem(x, y, headingRad);
     }
 
-    /** Why the frame at this pose is not inside the field and a quarter inch short of the centre line, or null. */
-    private static String frameProblem(double x, double y, double headingRad) {
+    /** Footprint check for both fixed and independently aimed shots. Coordinates are red. */
+    public static String frameProblem(double x, double y, double headingRad) {
+        if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(headingRad)) {
+            return "has an unknown pose";
+        }
         double half = LaunchSpots.FRAME_HALF_IN, c = Math.cos(headingRad), s = Math.sin(headingRad);
         double[][] local = {{half, half}, {half, -half}, {-half, -half}, {-half, half}};
         for (double[] l : local) {

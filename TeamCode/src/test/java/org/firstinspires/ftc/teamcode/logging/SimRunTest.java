@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * </pre>
  * {@code request.json}:
  * <pre>
- * {"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, …, 10], "alliance": "RED",
+ * {"spec": "RSoloAuto@50", "design": "real robot", "seeds": [1, 2, â€¦, 10], "alliance": "RED",
  *  "partnerSeeds": [1, 2, 3, 4, 5],
  *  "partners": [
  *    {"name": "last shot at 8 s", "partner": "PartnerRLaunchParkAuto", "lastShotS": 8},
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  *    {"name": "a study", "partner": "PartnerLLaunchParkAuto",
  *     "timing": {"startDelayS": 1.5, "speed": 40, "launchS": 0.8, "pickS": 4}}
  *  ],
- *  "metadata": {"SourceCommit": "…"}}
+ *  "metadata": {"SourceCommit": "â€¦"}}
  * </pre>
  * Only {@code spec} is required: our Auto and its drive profile ({@code @50}: top speed in in/s; see
  * {@link AutoStudyTest#profile}). Each {@code partners} entry is one more run of the whole seed list with that
@@ -230,6 +230,7 @@ public class SimRunTest {
         Map<String, Object> partnerPicks;
         /** {@code "ourLaunchS"}: a what-if, seconds between our own shots; null: the design's. */
         Object ourLaunchS;
+        NectarStudy nectar;
 
         Entry(String name, String spec, String partner, RobotDesign partnerDesign, String partnerDesignName, double partnerSpeed,
               AutoStudyTest.PartnerTiming timing, Map<String, Object> timingJson, List<Object> seeds, String folder) {
@@ -262,6 +263,7 @@ public class SimRunTest {
         boolean alone = !ours.contains(",");
         out.add(new Entry(alone ? "alone" : ours.substring(ours.indexOf(',') + 1), spec, null, partner, partnerName, partnerSpeed,
                 null, null, seeds, ""));
+        out.get(0).nectar = NectarStudy.from(request.get("nectarStudy"));
         Object list = request.get("partners");
         if (list == null) return out;
         if (!(list instanceof List)) throw new IllegalArgumentException("\"partners\" must be a list of entries");
@@ -303,6 +305,7 @@ public class SimRunTest {
             // An entry's own "humanAimRolls" replaces the request's for it: "none" is the mid-zone drop (no roll).
             if (e.get("humanAimRolls") instanceof String) made.humanAimRolls = (String) e.get("humanAimRolls");
             made.ourLaunchS = e.get("ourLaunchS");
+            made.nectar = NectarStudy.from(e.containsKey("nectarStudy") ? e.get("nectarStudy") : request.get("nectarStudy"));
             if (e.get("partnerPicks") instanceof Map) made.partnerPicks = (Map<String, Object>) e.get("partnerPicks");
             out.add(made);
         }
@@ -385,10 +388,12 @@ public class SimRunTest {
                     AutoStudyTest.oursFails = entry.oursFails != null ? entry.oursFails
                             : first && request.get("oursFails") instanceof String ? (String) request.get("oursFails") : null;
                     AutoSim.Result r = AutoStudyTest.run(entry.spec, design, entry.partnerDesign, entry.partnerSpeed, entry.timing,
-                            seed, alliance, metadata, new File(folder, log));
+                            seed, alliance, metadata, new File(folder, log), entry.nectar);
                     System.out.println("SIMRUN " + entry.name + " seed " + seed + ": " + r);
                     runs.add(describe(r, seed, log));
-                    rows.add(row(r, seed, log));
+                    Map<String, Object> tableRow = row(r, seed, log);
+                    if (entry.nectar != null) entry.nectar.addLedger(tableRow, r);
+                    rows.add(tableRow);
                     points += r.autoPoints();
                 }
                 done = true;
@@ -548,7 +553,7 @@ public class SimRunTest {
     }
 
     /**
-     * Every "Wait for …" card a robot ran, from its timeline (AutoKit's trace: {@code wait <label>}, then
+     * Every "Wait for â€¦" card a robot ran, from its timeline (AutoKit's trace: {@code wait <label>}, then
      * {@code <label>: <row> after <s> s}): {@code label}, {@code startedAt}, {@code outcome} (the trigger that fired,
      * or "timed out"), {@code fired} (true when a trigger did), {@code after} (seconds waited) and {@code at}
      * (the match second it ended); a wait still open when AUTO ended has no end.
