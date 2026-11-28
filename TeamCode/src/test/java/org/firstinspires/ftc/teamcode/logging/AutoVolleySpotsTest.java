@@ -112,9 +112,12 @@ public class AutoVolleySpotsTest {
                     spot = (String) named;
                     parked = Boolean.TRUE.equals(card.get("park"));
                 } else if ("action".equals(kind) && "LaunchAllAimed".equals(card.get("name"))) {
-                    if (!parked || spot == null || !spot.endsWith("_PARK")) {
-                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed is fired only from a …_PARK spot,"
-                                + " right after the park card that drove there");
+                    // Right after a park card: the parked volley, from a …_PARK spot. Anywhere else it is an
+                    // ordinary aimed volley (AutoKit.commandAwayFromPark), from a named spot fit to aim from.
+                    if (parked && (spot == null || !spot.endsWith("_PARK"))) {
+                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed after a park is fired only from a …_PARK spot");
+                    } else if (spot == null) {
+                        elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed is fired only from a named spot");
                     } else if (aimedProblem() != null) {
                         elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed " + aimedProblem());
                     }

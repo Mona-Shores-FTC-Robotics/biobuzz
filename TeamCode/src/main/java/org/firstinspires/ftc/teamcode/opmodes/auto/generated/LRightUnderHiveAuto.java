@@ -24,7 +24,7 @@ public final class LRightUnderHiveAuto {
     public static final String SAVED = "11-27|11:30PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"CatchNectar", "LaunchAll", "LaunchAllAimed", "LaunchOneAimed", "PickFlower", "SpinUp"};
+    public static final String[] COMMANDS = {"CallNectar", "CatchNectar", "LaunchAll", "LaunchAllAimed", "LaunchOneAimed", "PickFlower", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Always", "CellUp", "NectarIn"};
@@ -211,8 +211,9 @@ public final class LRightUnderHiveAuto {
                                                                 kit.route("FLOWER load", 0, () -> kit.path("Late TIP 1, TIP 2 early: RIGHT_AUTO_OFFSET up the outer lane to L_WALL_PARK", lateTip1Tip2EarlyRightAutoOffsetUpTheOuterLaneToLWallPark, 2.6)),
                                                                 kit.route("FLOWER load", 1, () -> kit.path("Late TIP 1, SURE TIP 2: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK", lateTip1SureTip2RightAutoOffsetUpTheOuterLaneToLeftPark, 3.2))))))),
                         kit.when("CellUp").then(
+                                kit.command("CallNectar"),
                                 kit.path("LEFT_AUTO_OFFSET: turn the intake to the LOADING ZONE", leftAutoOffsetTurnTheIntakeToTheLoadingZone, 0.5, guardAfterLoffTurnLNectarTurnToLeftPark, 1.5),
-                                kit.command("LaunchAllAimed"),
+                                kit.commandAwayFromPark("LaunchAllAimed"),
                                 kit.firstOf("Time for the human player's NECTAR? (a late TIP 1 skips the hold)",
                                         kit.atMatchSeconds(11),
                                         kit.when("Always").then(

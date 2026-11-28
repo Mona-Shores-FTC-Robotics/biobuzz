@@ -2387,6 +2387,8 @@ public final class AutoSim {
                     .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, this::launchOneAimed)
                     // The robot's CatchNectar: the intake on until whoever runs the card ends it.
                     .command("CatchNectar", 2.0, this::catchNectar)
+                    // The robot's CallNectar: the indicator light only; nothing on the field.
+                    .command("CallNectar", 0.1, () -> Commands.instant(() -> { }))
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))

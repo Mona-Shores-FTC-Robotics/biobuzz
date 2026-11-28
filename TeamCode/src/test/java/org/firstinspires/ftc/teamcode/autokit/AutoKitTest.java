@@ -866,6 +866,26 @@ public class AutoKitTest {
         assertTrue("nothing drives", drive.followed.isEmpty());
     }
 
+    /**
+     * The same LaunchAllAimed drawn where the robot has not parked (L-RightUnderHive's preloads from its
+     * NECTAR turn, 28 Nov 2026) is exported as {@code commandAwayFromPark}: an ordinary volley, so on PARK
+     * FIRST at 25 s (last piece out 27.5 s, then a 3.7 s park) the guard parks instead; the parked one fires.
+     */
+    @Test
+    public void anAimedVolleyAwayFromAParkStillLeavesTimeToPark() {
+        AutoRegistry registry = new AutoRegistry()
+                .parkedVolley("LaunchAllAimed", 2.5, 2.5, () -> lasting("LaunchAllAimed", 2.5));
+        AutoKit kit = parkKeepingKit(registry);
+        Path park = line(0, 40);
+        now = 25.0;
+        run(kit.guarded("Away", park, 3.7,
+                kit.commandAwayFromPark("LaunchAllAimed"),
+                kit.path("to LEFT_PARK", park, 3.7)), 10);
+        assertTrue(trace.toString(), traced("no time to park after it, parking now"));
+        assertFalse(log.toString(), log.contains("LaunchAllAimed start"));
+        assertEquals("it parks", java.util.Collections.singletonList(park), drive.followed);
+    }
+
     /** {@link #volleyKit} on PARK FIRST (picked; TIPS FIRST is the default), its LaunchAll 4.0 s long, as on the robot. */
     private AutoKit parkKeepingKit(AutoRegistry registry) {
         return new AutoKit(drive, registry
