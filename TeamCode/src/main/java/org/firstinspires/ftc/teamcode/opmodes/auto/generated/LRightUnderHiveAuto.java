@@ -118,7 +118,9 @@ public final class LRightUnderHiveAuto {
         Pose nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment2Heading = p.of(40.7, 121.1, 0);
         Pose nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment3Start = p.of(40.7, 121.1, 0);
         Pose guardAfterRoffLoff2LeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
-        Pose nectarLeftDownLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
+        Pose lateTip2LeftNotSeenUpReturnToLWallParkControl1 = p.of(36, 116, 0);
+        Pose lateTip2LeftNotSeenUpReturnToLWallParkControl2 = p.of(29, 106, 0);
+        Pose lateTip2LeftNotSeenUpReturnToLWallParkControl3 = p.of(24, 96, 0);
         Pose nectarLeftAutoOffsetToLeftParkControl1 = p.of(28, 121, 0);
         Pose guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallParkControl1 = p.of(30, 40, 0);
         Pose guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallParkControl2 = p.of(17, 62, 0);
@@ -155,7 +157,7 @@ public final class LRightUnderHiveAuto {
         Path guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftPark = Paths.curve(rightAutoOffset, guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftParkControl1, guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftParkControl2, guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftParkControl3, guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftParkControl4, leftPark).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(guardAfterWfRoff2RightAutoOffsetUpTheOuterLaneToLeftParkSegment1Start, leftPark)).until(1, Interpolator.constant(leftPark)));
         Path nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffset = Paths.curve(rightAutoOffset, nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl1, nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl2, nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl3, nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetControl4, leftAutoOffset).heading(Interpolator.piecewise().until(0.25, Interpolator.linear(nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1Start, nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment1End)).until(0.8, Interpolator.constant(nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment2Heading)).until(1, Interpolator.linear(nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffsetSegment3Start, leftAutoOffset)));
         Path guardAfterRoffLoff2LeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, guardAfterRoffLoff2LeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
-        Path nectarLeftDownLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, nectarLeftDownLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
+        Path lateTip2LeftNotSeenUpReturnToLWallPark = Paths.curve(leftAutoOffset, lateTip2LeftNotSeenUpReturnToLWallParkControl1, lateTip2LeftNotSeenUpReturnToLWallParkControl2, lateTip2LeftNotSeenUpReturnToLWallParkControl3, lWallPark).linear(leftAutoOffset, lWallPark);
         Path nectarLeftAutoOffsetToLeftPark = Paths.curve(leftAutoOffset, nectarLeftAutoOffsetToLeftParkControl1, leftPark).linear(leftAutoOffset, leftPark);
         Path rightAutoOffsetTurnTheIntakeToTheLoadingZone = Paths.line(rightAutoOffset, lNectar2Shot).linear(rightAutoOffset, lNectar2Shot);
         Path guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallPark = Paths.curve(lNectar2Shot, guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallParkControl1, guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallParkControl2, guardAfterRoffTurn2LNectar2ShotUpTheOuterLaneToLWallParkControl3, lWallPark).linear(lNectar2Shot, lWallPark);
@@ -167,7 +169,7 @@ public final class LRightUnderHiveAuto {
                 kit.command("SpinUp"),
                 kit.path("LEFT_START straight to LEFT_AUTO_OFFSET", leftStartStraightToLeftAutoOffset, 1.5, guardAfterStartLoffLeftAutoOffsetToLeftPark, 1.5),
                 kit.firstOf("LEFT up? (TIP 1 came; else cross and fix it)",
-                        kit.atMatchSeconds(9.5).then(
+                        kit.atMatchSeconds(10).then(
                                 kit.path("LEFT_AUTO_OFFSET down the outer lane to RIGHT_AUTO_OFFSET", leftAutoOffsetDownTheOuterLaneToRightAutoOffset, 3.2, guardAfterLoffRoffRightAutoOffsetUpTheOuterLaneToLeftPark, 3.2),
                                 kit.firstOf("RIGHT still up? (TIP 1 never came: fix it)",
                                         kit.when("CellUp").then(
@@ -230,8 +232,8 @@ public final class LRightUnderHiveAuto {
                                                 kit.path("NECTAR: RIGHT_AUTO_OFFSET up the outer lane to LEFT_AUTO_OFFSET", nectarRightAutoOffsetUpTheOuterLaneToLeftAutoOffset, 3.2, guardAfterRoffLoff2LeftAutoOffsetToLeftPark, 1.5),
                                                 kit.firstOf("LEFT still up? (TIP 2 is short: add this load)",
                                                         kit.atMatchSeconds(25.6).then(
-                                                                kit.guarded("Timed out", nectarLeftDownLeftAutoOffsetToLeftPark, 1.5,
-                                                                        kit.path("NECTAR, LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK", nectarLeftDownLeftAutoOffsetToLeftPark, 1.5))),
+                                                                kit.guarded("Timed out", lateTip2LeftNotSeenUpReturnToLWallPark, 1.8,
+                                                                        kit.path("Late TIP 2: LEFT not seen up, return to L_WALL_PARK", lateTip2LeftNotSeenUpReturnToLWallPark, 1.8))),
                                                         kit.when("CellUp").then(
                                                                 kit.guarded("If CellUp", nectarLeftAutoOffsetToLeftPark, 1.5,
                                                                         kit.command("LaunchAll"),
@@ -246,6 +248,16 @@ public final class LRightUnderHiveAuto {
                                                                         kit.when("CellUp").then(
                                                                                 kit.guarded("If CellUp", nectar2FiredLNectar2ShotUpTheOuterLaneToLWallPark, 2.6,
                                                                                         kit.command("LaunchOneAimed"),
+                                                                                        kit.firstOf("Own NECTAR still in the lane after the counted shot?",
+                                                                                                kit.when("NectarIn").then(
+                                                                                                        kit.firstOf("RIGHT still up?",
+                                                                                                                kit.when("CellUp").then(
+                                                                                                                        kit.firstOf("Enough time to take a second counted shot before PARK?",
+                                                                                                                                kit.atMatchSeconds(24.8),
+                                                                                                                                kit.when("Always").then(
+                                                                                                                                        kit.command("LaunchOneAimed", 1)))),
+                                                                                                                kit.afterMs(60))),
+                                                                                                kit.afterMs(60)),
                                                                                         kit.path("NECTAR 2 fired: L_NECTAR2_SHOT up the outer lane to L_WALL_PARK", nectar2FiredLNectar2ShotUpTheOuterLaneToLWallPark, 2.6))),
                                                                         kit.afterMs(150).then(
                                                                                 kit.guarded("Timed out", nectar2KeptRightDownLNectar2ShotUpTheOuterLaneToLWallPark, 2.6,

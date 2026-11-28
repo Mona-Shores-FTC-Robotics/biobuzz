@@ -426,6 +426,7 @@ public class AutoStudyTest {
      * {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS} gives them ({@link AutoSim#humanAimRolls}); null leaves the environment's.
      */
     static String requestHumanAimRolls;
+    static boolean requestEightPollenWeights;
 
     /** A spec's Auto may carry {@code :blind}: it runs with its camera down ({@link AutoSim#cameraDown}). */
     static final String BLIND = ":blind";
@@ -514,6 +515,7 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
+        sim.requireEightPollenWeights = requestEightPollenWeights;
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));

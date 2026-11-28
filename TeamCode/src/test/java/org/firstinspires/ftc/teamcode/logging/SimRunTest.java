@@ -147,7 +147,9 @@ public class SimRunTest {
                 // "ourInRate" / "partnerInRate": a robot's share of launched pieces that stay in, in place of Belding's.
                 BeldingCalibration.ourInRate = inRate(request.get("ourInRate"));
                 BeldingCalibration.partnerInRate = inRate(request.get("partnerInRate"));
-                // "feedJamChance": the chance a LaunchAll's feed stalls, its pieces kept (0 until calibrated).
+                AutoStudyTest.requestEightPollenWeights = Boolean.TRUE.equals(request.get("requireEightPollenWeights"));
+            out.put("requireEightPollenWeights", AutoStudyTest.requestEightPollenWeights);
+            // "feedJamChance": the chance a LaunchAll's feed stalls, its pieces kept (0 until calibrated).
                 if (request.get("feedJamChance") instanceof Number) {
                     BeldingCalibration.feedJamChance = ((Number) request.get("feedJamChance")).doubleValue();
                     out.put("feedJamChance", BeldingCalibration.feedJamChance);
@@ -169,6 +171,7 @@ public class SimRunTest {
             AutoSim.launchOneFeedOverrideS = Double.NaN;
             BeldingCalibration.partnerInRate = Double.NaN;
             BeldingCalibration.feedJamChance = 0;
+            AutoStudyTest.requestEightPollenWeights = false;
             if (!fruitportBefore) FruitportCalibration.restore();
             BeldingCalibration.on = beldingBefore;
             BeamBreakSubsystem.throatFitted = throatBefore;
@@ -495,6 +498,7 @@ public class SimRunTest {
         m.put("partnerLaunched", partner == null ? null : (double) partner.launched);
         m.put("launchedAtDownCell", (double) ours.launchedAtDownCell);
         m.put("partnerLaunchedAtDownCell", partner == null ? null : (double) partner.launchedAtDownCell);
+        m.put("lastShotAt", time(ours.lastShotAt));
         m.put("partnerLastShotAt", partner == null ? null : time(partner.lastShotAt));
         List<Object> tips = new ArrayList<>();
         for (double t : r.tipsAt) tips.add(t);

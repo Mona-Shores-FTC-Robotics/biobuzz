@@ -596,13 +596,22 @@ public final class LaunchCards {
      * heading does not aim a locked turret: the robot faces somewhere else (its intake at the LOADING ZONE, for the
      * human player's NECTAR) and the turret alone holds the CELL. It spins up, aims every loop, opens the gate once
      * the launcher is at speed and the turret is on target inside the arc less its margin, and feeds until the first
-     * counted shot or {@link #launchOneAimedFeedS}. A turret that cannot aim (locked forward, a dropped hold) fires
-     * from home only where home points at the CELL; anywhere else, as for any other {@link AimedShot#refusal()}, the
-     * card ends with nothing fed and the piece still in the lane, and it says why. Does not count toward {@code Empty}.
+     * counted shot or {@link #launchOneAimedFeedS}. Loss of the live CELL hold closes the gate that loop.
+     * A locked turret keeps the piece. This single shot does not count toward {@code Empty}.
      */
     public Command launchOneAimed(AimedShot shot) {
-        if (shot == null) throw new IllegalArgumentException("LaunchOneAimed needs a turret to aim");
-        final Volley volley = new Volley("LaunchOneAimed", false, true);
+        return launchAtAimedSpot(shot, false);
+    }
+
+    /** Full volley at an Auto's own aimed spot, with the same live-hold interlock as the extra piece. */
+    public Command launchAllAwayFromPark(AimedShot shot) {
+        return launchAtAimedSpot(shot, true);
+    }
+
+    private Command launchAtAimedSpot(AimedShot shot, boolean fullVolley) {
+        String name = fullVolley ? "LaunchAllAimed" : "LaunchOneAimed";
+        if (shot == null) throw new IllegalArgumentException(name + " needs a turret to aim");
+        final Volley volley = new Volley(name, fullVolley, !fullVolley);
         final boolean[] refused = new boolean[1];
         final double[] startedAt = new double[1];
         return new CommandBuilder()
@@ -612,39 +621,45 @@ public final class LaunchCards {
                     String why = shot.refusal();
                     refused[0] = why != null;
                     if (refused[0]) {
-                        note.accept("LaunchOneAimed: not firing, " + why + "; the piece stays in the lane");
+                        note.accept(name + ": not firing, " + why + "; the piece stays in the lane");
                         return;
                     }
                     launcher.spinUp();
                     shot.start();
                 })
                 .setExecute(() -> {
-                    if (refused[0] || volley.fed()) {
-                        if (!refused[0]) shot.aim();
+                    if (refused[0]) return;
+                    boolean aiming = shot.aim();
+                    if (volley.fed()) {
+                        if (!aiming || !shot.onTarget()) {
+                            feeder.idle();
+                            refused[0] = true;
+                            note.accept(name + " closed the gate: lost the live CELL hold");
+                        }
                         return;
                     }
-                    boolean aiming = shot.aim();
                     String why = shot.refusal();
+                    if (!aiming && why == null) why = "no live turret hold on the CELL";
                     if (why != null) {
                         refused[0] = true;
-                        note.accept(String.format(Locale.US, "LaunchOneAimed: not firing, %s (%.2f s in, the gate never opened);"
-                                + " the piece stays in the lane", why, secondsNow.getAsDouble() - startedAt[0]));
+                        note.accept(String.format(Locale.US, "%s: not firing, %s (%.2f s in, the gate never opened)",
+                                name, why, secondsNow.getAsDouble() - startedAt[0]));
                         return;
                     }
-                    if (!speedReady() || (aiming && !shot.onTarget())) return;
-                    note.accept(String.format(Locale.US, "LaunchOneAimed opened the gate, %s, %.2f s after it started%s",
-                            aiming ? "the turret on target" : "the turret at home, which points at the CELL",
-                            secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
-                    volley.begin(secondsNow.getAsDouble(), false);
+                    if (!speedReady() || !shot.onTarget()) return;
+                    note.accept(String.format(Locale.US, "%s opened the gate, turret on target, %.2f s after it started%s",
+                            name, secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
+                    volley.begin(secondsNow.getAsDouble(), fullVolley && claimFirstVolley());
                 })
                 .setDone(() -> refused[0] || volley.done(secondsNow.getAsDouble()))
                 .setEnd(end -> {
-                    shot.done();
-                    if (!volley.fed()) {
-                        if (!refused[0]) note.accept("LaunchOneAimed ended before the gate opened (" + end + "): nothing fed");
-                        return;
+                    if (volley.fed()) {
+                        volley.end(end);
+                        if (fullVolley && !refused[0] && end == EndCondition.NATURALLY) launchAllsCompleted++;
+                    } else if (!refused[0]) {
+                        note.accept(name + " ended before the gate opened (" + end + "): nothing fed");
                     }
-                    volley.end(end);
+                    shot.done();
                 });
     }
 

@@ -205,6 +205,15 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
         return Math.toDegrees(Math.IEEEremainder(pose.heading() - end.heading(), 2 * Math.PI));
     }
 
+    /** Last drawn endpoint, in the active alliance frame. */
+    Pose endPose() { return end; }
+
+    /** A side-facing shot requires the robot to have reached its named spot. An early path end is insufficient. */
+    boolean atAimedSpot() {
+        Pose pose = motion.pose();
+        return pose != null && end != null && distanceOff(pose) <= 2.0 && settled();
+    }
+
     private double distanceOff(Pose pose) {
         if (end == null || pose == null) return Double.NaN;
         return Math.hypot(pose.x() - end.x(), pose.y() - end.y());

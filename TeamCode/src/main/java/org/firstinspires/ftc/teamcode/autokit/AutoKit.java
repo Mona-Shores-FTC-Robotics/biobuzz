@@ -531,13 +531,13 @@ public final class AutoKit {
 
     /** {@link #command(String, double)}; {@code mayBeParked} false: never a parked volley ({@link #commandAwayFromPark}). */
     private Command command(String name, double timeoutS, boolean mayBeParked) {
-        final Command inner = registry.command(name);
+        final Command inner = mayBeParked ? registry.command(name) : registry.commandAwayFromPark(name);
         final boolean grab = registry.isGrab(name);
         final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
         final boolean volley = registry.isVolley(name);
         final boolean parkedVolley = mayBeParked && registry.isParkedVolley(name);
         final double lastPieceSeconds = volley ? registry.lastPieceSeconds(name) : Double.NaN;
-        final AutoRegistry.Approach approach = registry.approach(name);
+        final AutoRegistry.Approach approach = mayBeParked ? registry.approach(name) : registry.approachAwayFromPark(name);
         final CommandCard card = approach == null ? null : new CommandCard();
         if (card != null) card.before = approach;
         final double[] startedAt = new double[1];

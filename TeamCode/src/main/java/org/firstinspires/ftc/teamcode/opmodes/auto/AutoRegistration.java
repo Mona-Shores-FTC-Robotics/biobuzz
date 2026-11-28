@@ -301,6 +301,7 @@ public final class AutoRegistration {
         final LaunchCards launch = robot == null ? null
                 : LaunchCards.forRobot(robot, settle, note, setup == null ? null : setup::alliance);
         final AutoRegistry registry = new AutoRegistry();
+        final AimedVolley awayAim = robot == null ? null : new AimedVolley(robot, setup, matchSeconds, settle);
         return registry
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
@@ -319,11 +320,12 @@ public final class AutoRegistration {
                 // robot stays parked.
                 .parkedVolley("LaunchAllAimed", LAUNCH_ALL_TYPICAL_S, LAUNCH_ALL_LAST_PIECE_S,
                         () -> launch.launchAllAimed(new AimedVolley(robot, setup, matchSeconds)))
+                .awayFromPark("LaunchAllAimed", () -> launch.launchAllAwayFromPark(awayAim), awayAim)
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 // One piece with the turret aimed at the CELL at the robot's end, from a spot that faces somewhere
                 // else (the LOADING ZONE): ends at its counted shot, never fires from home. See the class comment.
                 .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, () -> launch.launchOneAimed(
-                        new AimedVolley(robot, setup, matchSeconds, AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG)))
+                        new AimedVolley(robot, setup, matchSeconds, settle)))
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract). The

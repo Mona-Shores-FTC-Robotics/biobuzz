@@ -1534,8 +1534,29 @@ final class FieldSim {
         return HiveCalibration.calibratedTipSeconds() / t;
     }
 
+    boolean requireEightPollenWeights;
+
+    /** Gate departure from the raised stop. A swing already in motion can finish as its CELL dumps. */
+    boolean belowStudyTipWeight(Rocker r) {
+        if (!requireEightPollenWeights || r.raisedEnd() == 0) return false;
+        HiveCell raised = r.cell(r.raisedEnd());
+        Kind ownNectar = r.alliance == Alliance.RED ? Kind.RED_NECTAR : Kind.BLUE_NECTAR;
+        // Integer hundredths preserve the exact distinction between 3P + 3N = 7.95 and 8.00.
+        int hundredths = 0;
+        for (Piece p : pieces) if (p.where == Where.FIELD && p.cell == raised) {
+            if (p.kind == Kind.POLLEN) hundredths += 100;
+            else if (p.kind == ownNectar) hundredths += 165;
+        }
+        return hundredths < 800;
+    }
+
     private void stepRocker(Rocker r, double h) {
         if (r.locked) return;
+        if (belowStudyTipWeight(r)) {
+            r.rate = 0;
+            r.dwellFrom = Double.NaN;
+            return;
+        }
         double hold = physics.holdTorque;
         // The empty rocker is top-heavy, so it leans whichever way it already leans; at a stop that
         // is the holding torque, which the pieces in the raised CELL must beat.
@@ -1632,7 +1653,7 @@ final class FieldSim {
      * nothing here ({@link #IMPACT_MIN_IN_PER_S}): its weight is the static torque already.
      */
     private void kick(Rocker r, Piece p, double dvy, double dvz) {
-        if (r.locked || !(impulseScale > 0)) return;
+        if (r.locked || !(impulseScale > 0) || belowStudyTipWeight(r)) return;
         // Past level the rocker is tipping anyway; the pieces it carries are not hits.
         boolean pastLevel = Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12 && Math.signum(r.angle) != Math.signum(r.tipFrom);
         if (pastLevel || r.state() == HiveState.TRANSITION && !r.knockedOff) return;
