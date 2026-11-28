@@ -437,7 +437,7 @@ public final class AutoSim {
     private Bot configuring;
 
     private FieldSim sim;
-    boolean requireEightPollenWeights;
+    Double hiveFieldOverride;
 
     /** The field as the last run left it, or as it is now during one: for working out a plan. */
     FieldSim field() {
@@ -1021,15 +1021,28 @@ public final class AutoSim {
     }
 
     Result write(WpiLog log) throws IOException {
+        double previous = HiveCalibration.tipPointInBand;
+        try {
+            HiveCalibration.tipPointInBand = hiveTipPoint(hiveFieldOverride, seed);
+            return writeMatch(log);
+        } finally {
+            HiveCalibration.tipPointInBand = previous;
+        }
+    }
+
+    static double hiveTipPoint(Double override, long seed) {
+        if (override != null) return override;
+        return BeldingCalibration.on ? BeldingCalibration.tipPoint(seed) : HiveCalibration.tipPointInBand;
+    }
+
+    private Result writeMatch(WpiLog log) throws IOException {
         List<String> names = new ArrayList<>();
         for (Bot b : bots) names.add(name(b.autoClass));
         Result result = new Result(runName(), alliance, names);
         for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
         for (Bot b : bots) result.opponents |= b.alliance != alliance;
-        if (BeldingCalibration.on) HiveCalibration.tipPointInBand = BeldingCalibration.tipPoint(seed);
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
-        sim.requireEightPollenWeights = requireEightPollenWeights;
         boolean red = alliance == Alliance.RED;
         // Every robot on the field, in FieldRobot slot order: the ones running Autos, then a
         // partner that stands still. Logged together each loop so AdvantageScope can show them all.

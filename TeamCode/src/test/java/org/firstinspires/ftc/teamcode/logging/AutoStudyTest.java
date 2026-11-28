@@ -426,7 +426,7 @@ public class AutoStudyTest {
      * {@code BIOBUZZ_AUTO_HUMAN_AIM_ROLLS} gives them ({@link AutoSim#humanAimRolls}); null leaves the environment's.
      */
     static String requestHumanAimRolls;
-    static boolean requestEightPollenWeights;
+    static Double requestHiveField;
 
     /** A spec's Auto may carry {@code :blind}: it runs with its camera down ({@link AutoSim#cameraDown}). */
     static final String BLIND = ":blind";
@@ -515,7 +515,7 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
-        sim.requireEightPollenWeights = requestEightPollenWeights;
+        sim.hiveFieldOverride = requestHiveField;
         sim.loop(loop);
         if (picks != null) sim.picks(picks);
         if (missedVolley(oursFails) > 0) sim.missesVolley(missedVolley(oursFails));
@@ -622,7 +622,7 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_HIVE_FIELD: where the HIVEs tip in the guide's band. "belding1" (about 7.0 POLLEN weights),
         // "belding2" (about 7.95-8.0), "guide" (the middle, the default) or a number 0-1 (HiveCalibration.tipPointInBand).
         String hiveField = System.getenv("BIOBUZZ_AUTO_HIVE_FIELD");
-        if (hiveField != null) HiveCalibration.tipPointInBand = HiveCalibration.tipPointInBand(hiveField);
+        Double previousHiveField = requestHiveField;
         // BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (0: aims at once, as the simulation did before 9 Oct 2026).
         String slew = System.getenv("BIOBUZZ_AUTO_TURRET_DEG_PER_S");
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
@@ -634,6 +634,7 @@ public class AutoStudyTest {
         AutoSim.turretTravelOverrideDeg = travel == null ? Double.NaN : Double.parseDouble(travel);
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }
         try {
+            requestHiveField = hiveField == null ? null : HiveCalibration.tipPointInBand(hiveField);
             studyAll(specs);
         } finally {
             FieldSim.frictionScale = 1;
@@ -644,7 +645,7 @@ public class AutoStudyTest {
             FieldSim.tipSecondsRange = tipRange;
             BeldingCalibration.restore();
             FieldSim.tipDwellRange = dwellRange;
-            HiveCalibration.tipPointInBand = HiveCalibration.GUIDE_MIDDLE;
+            requestHiveField = previousHiveField;
         }
     }
 

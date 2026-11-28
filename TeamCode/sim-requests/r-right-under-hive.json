@@ -223,6 +223,5 @@
       "humanAimRolls": "keep"
     }
   ],
-  "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|24||0.5;keep",
-  "requireEightPollenWeights": true
+  "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|24||0.5;keep"
 }

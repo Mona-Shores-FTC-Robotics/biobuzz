@@ -17,13 +17,10 @@ import java.util.Map;
  *
  * <p><b>Published, so used as is.</b> FIRST has every HIVE at an event calibrated by field staff
  * (2026-2027 <i>Event Field Setup Guide</i> V1.0, §12, "Hive Calibration"): ballast washers are
- * added or removed until each CELL, with pieces gently placed against its back skin,
- * <ul>
- *   <li>tips on {@code [3] NECTAR + [3] POLLEN} and holds on {@code [3] NECTAR + [2] POLLEN};</li>
- *   <li>tips on {@code [8] POLLEN} and holds on {@code [7] POLLEN};</li>
- *   <li>and, "tossed in", still tips on the 3rd and 8th POLLEN and still holds on the 2nd and 7th
- *       (§12.3).</li>
- * </ul>
+ * added or removed to meet the necessary checks in section 12.3. With the preceding pieces
+ * at the back, the tossed seventh POLLEN must hold and the tossed eighth must tip. With three
+ * NECTAR and one POLLEN already in the CELL, the tossed second POLLEN must hold and the tossed
+ * third must tip. A tip when the final POLLEN is gently placed is preferred in both rows.
  * Those are {@link #TIP_CASES}. The weights are AndyMark's specification for the pieces
  * (am-5851 POLLEN 0.055 lb, am-5852 NECTAR 0.091 lb). A match starts with three NECTAR in each raised
  * CELL (§11.1), so from the start of a match the 3rd POLLEN tips it.
