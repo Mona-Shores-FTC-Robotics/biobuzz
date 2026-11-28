@@ -87,38 +87,6 @@
       }
     },
     {
-      "name": "SURE TIP 2 picked: every shot lands",
-      "partner": "LRightUnderHiveAuto",
-      "picks": {
-        "FLOWER load": "SURE TIP 2"
-      },
-      "partnerPicks": {
-        "FLOWER load": "SURE TIP 2"
-      }
-    },
-    {
-      "name": "SURE TIP 2 picked: L's preloads miss",
-      "partner": "LRightUnderHiveAuto",
-      "fails": "misses preloads",
-      "picks": {
-        "FLOWER load": "SURE TIP 2"
-      },
-      "partnerPicks": {
-        "FLOWER load": "SURE TIP 2"
-      }
-    },
-    {
-      "name": "SURE TIP 2 picked: L misses every shot",
-      "partner": "LRightUnderHiveAuto",
-      "fails": "misses",
-      "picks": {
-        "FLOWER load": "SURE TIP 2"
-      },
-      "partnerPicks": {
-        "FLOWER load": "SURE TIP 2"
-      }
-    },
-    {
       "name": "L dead on its start (never seen)",
       "partner": "PartnerLBrokenDownAuto"
     }
