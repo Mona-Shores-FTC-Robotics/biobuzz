@@ -37,7 +37,7 @@
     {
       "name": "NECTAR 1 comes late (released 4 s after TIP 1): it rides to RIGHT in the WALL FLOWER load, or is left",
       "partner": "LRightUnderHiveAuto",
-      "humanAimRolls": "40.2,120.8,215|8,98.3|13||4"
+      "humanAimRolls": "40.2,120.8,215|8,98.3|24||4"
     },
     {
       "name": "NECTAR 1 never comes (the human keeps it): L holds at most 2.5 s, fires nothing",
@@ -110,5 +110,5 @@
     }
   ],
   "scenario": "best",
-  "humanAimRolls": "40.2,120.8,215|8,98.3|13"
+  "humanAimRolls": "40.2,120.8,215|8,98.3|24||0.5"
 }
