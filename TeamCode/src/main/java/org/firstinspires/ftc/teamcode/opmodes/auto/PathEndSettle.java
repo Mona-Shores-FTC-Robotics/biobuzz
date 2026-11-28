@@ -205,6 +205,9 @@ public final class PathEndSettle implements AutoKit.PathWatcher {
         return Math.toDegrees(Math.IEEEremainder(pose.heading() - end.heading(), 2 * Math.PI));
     }
 
+    /** Last drawn endpoint, in the active alliance frame. */
+    Pose endPose() { return end; }
+
     private double distanceOff(Pose pose) {
         if (end == null || pose == null) return Double.NaN;
         return Math.hypot(pose.x() - end.x(), pose.y() - end.y());

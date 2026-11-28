@@ -184,6 +184,11 @@ public final class LaunchCards {
      */
     public static double launchOneAimedFeedS = 1.2;
 
+    /** Allow the measured first ball up to 0.85 s. Keep the backstop at most 1.2 s if its count is lost. */
+    public static double oneAimedBackstopS() {
+        return Double.isFinite(launchOneAimedFeedS) ? Math.max(0.85, Math.min(1.2, launchOneAimedFeedS)) : 1.2;
+    }
+
     /**
      * Whether a {@code LaunchAll} right after a path opens the gate on the approach (see the class
      * comment) rather than only once the robot has settled. On until a robot check shows the hit
@@ -601,9 +606,8 @@ public final class LaunchCards {
      * heading does not aim a locked turret: the robot faces somewhere else (its intake at the LOADING ZONE, for the
      * human player's NECTAR) and the turret alone holds the CELL. It spins up, aims every loop, opens the gate once
      * the launcher is at speed and the turret is on target inside the arc less its margin, and feeds until the first
-     * counted shot or {@link #launchOneAimedFeedS}. A turret that cannot aim (locked forward, a dropped hold) fires
-     * from home only where home points at the CELL; anywhere else, as for any other {@link AimedShot#refusal()}, the
-     * card ends with nothing fed and the piece still in the lane, and it says why. Does not count toward {@code Empty}.
+     * counted shot or {@link #launchOneAimedFeedS}. A lost hold or aim closes the gate that loop.
+     * The card has no home fallback and does not count toward {@code Empty}.
      */
     public Command launchOneAimed(AimedShot shot) {
         if (shot == null) throw new IllegalArgumentException("LaunchOneAimed needs a turret to aim");
@@ -624,32 +628,34 @@ public final class LaunchCards {
                     shot.start();
                 })
                 .setExecute(() -> {
-                    if (refused[0] || volley.fed()) {
-                        if (!refused[0]) shot.aim();
+                    if (refused[0]) return;
+                    boolean aiming = shot.aim();
+                    if (volley.fed()) {
+                        if (!aiming || !shot.onTarget()) {
+                            feeder.idle();
+                            refused[0] = true;
+                            note.accept("LaunchOneAimed closed the gate: lost the CELL hold during feed");
+                        }
                         return;
                     }
-                    boolean aiming = shot.aim();
                     String why = shot.refusal();
+                    if (!aiming && why == null) why = "no live turret aim on the CELL";
                     if (why != null) {
                         refused[0] = true;
                         note.accept(String.format(Locale.US, "LaunchOneAimed: not firing, %s (%.2f s in, the gate never opened);"
                                 + " the piece stays in the lane", why, secondsNow.getAsDouble() - startedAt[0]));
                         return;
                     }
-                    if (!speedReady() || (aiming && !shot.onTarget())) return;
-                    note.accept(String.format(Locale.US, "LaunchOneAimed opened the gate, %s, %.2f s after it started%s",
-                            aiming ? "the turret on target" : "the turret at home, which points at the CELL",
+                    if (!speedReady() || !shot.onTarget()) return;
+                    note.accept(String.format(Locale.US, "LaunchOneAimed opened the gate, the turret on target, %.2f s after it started%s",
                             secondsNow.getAsDouble() - startedAt[0], aheadOfSpeed()));
                     volley.begin(secondsNow.getAsDouble(), false);
                 })
                 .setDone(() -> refused[0] || volley.done(secondsNow.getAsDouble()))
                 .setEnd(end -> {
+                    if (volley.fed()) volley.end(end);
+                    else if (!refused[0]) note.accept("LaunchOneAimed ended before the gate opened (" + end + "): nothing fed");
                     shot.done();
-                    if (!volley.fed()) {
-                        if (!refused[0]) note.accept("LaunchOneAimed ended before the gate opened (" + end + "): nothing fed");
-                        return;
-                    }
-                    volley.end(end);
                 });
     }
 
@@ -764,6 +770,7 @@ public final class LaunchCards {
         private double fedAt = Double.NaN;
         private boolean first;
         private int shotsAtFeed;
+        private int throatAtFeed;
         private boolean allShotsOut;
         private String endWhy = "";
         /** 0 feeding, 1 backing out an unjam, 2 waiting for speed after it. */
@@ -808,6 +815,7 @@ public final class LaunchCards {
             shotsAtFeed = launcher.shots();
             first = firstVolley;
             int balls = launcher.throatBalls();
+            throatAtFeed = balls;
             if (balls >= 0 || launcher.gateClearS() >= 0) watch.start(now, Math.max(balls, 0));
             feed(now);
         }
@@ -827,7 +835,7 @@ public final class LaunchCards {
         }
 
         private double limitS() {
-            if (oneCounted) return nonNegative(launchOneAimedFeedS);
+            if (oneCounted) return oneAimedBackstopS();
             if (!volleyCard) return nonNegative(launchOneFeedS);
             return launcher.throatBalls() >= 0 ? nonNegative(throatBackstopS) : nonNegative(volleyFeedS(first));
         }
@@ -839,6 +847,14 @@ public final class LaunchCards {
         boolean done(double now) {
             if (!fed()) return false;
             int balls = launcher.throatBalls();
+            // Exactly one game piece. A throat before the gate does not count shots. A counting throat
+            // takes precedence over wheel dips. Neither quiet-time nor an unjam may change this window.
+            if (oneCounted) {
+                boolean counted = throatAtFeed >= 0 ? balls > throatAtFeed
+                        : shotsAtFeed >= 0 && launcher.shots() > shotsAtFeed;
+                if (counted) endWhy = ", ended at the first counted shot";
+                return counted || now - fedAt >= limitS();
+            }
             if (phase == 1) {
                 if (now - phaseAt < nonNegative(unjamReverseS)) return false;
                 feeder.idle();
@@ -865,7 +881,7 @@ public final class LaunchCards {
             if (balls < 0) {
                 double enough = endAfter();
                 int shots = launcher.shots();
-                allShotsOut = (volleyCard || oneCounted) && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
+                allShotsOut = volleyCard && enough >= 1 && shots >= 0 && shots - shotsAtFeed >= enough;
                 if (allShotsOut) endWhy = ", ended at the last counted shot";
                 if (allShotsOut || !volleyCard) return allShotsOut;
                 // A beam behind the gate: the volley's last ball has passed the gate once it stays clear

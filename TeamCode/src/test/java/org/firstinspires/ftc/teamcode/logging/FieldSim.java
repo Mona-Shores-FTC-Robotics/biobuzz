@@ -352,6 +352,8 @@ final class FieldSim {
 
     static final class Piece {
         final Kind kind;
+        Alliance firstHalf;
+        boolean crossedEdge, crossedCentre;
         Where where;
         double x, y, z, vx, vy, vz;
         /** Orientation (Pedro frame), so a rolling piece visibly rolls. */
@@ -698,6 +700,41 @@ final class FieldSim {
     boolean requireEightPollenWeights;
     /** Simulated seconds since the start. */
     double time;
+    private Alliance watchedHalf;
+    private double crossingsStartTime, crossingsEndTime;
+    int piecesAcrossEdge, piecesAcrossCentre;
+    double firstPieceEdgeAt = Double.NaN, firstPieceCentreAt = Double.NaN;
+
+    /** Follow pieces originating on this alliance's half, including human entries and later CELL spills. */
+    void watchPieceCrossings(Alliance alliance, double duration) {
+        watchedHalf = alliance;
+        crossingsStartTime = time;
+        crossingsEndTime = time + duration;
+        observePieceCrossings();
+    }
+
+    private void observePieceCrossings() {
+        if (watchedHalf == null || time > crossingsEndTime + 1e-8) return;
+        for (Piece p : pieces) {
+            if (p.where != Where.FIELD) continue;
+            if (p.firstHalf == null) {
+                if (p.x == CENTRE_IN) continue;
+                p.firstHalf = p.x < CENTRE_IN ? Alliance.RED : Alliance.BLUE;
+            }
+            if (p.firstHalf != watchedHalf) continue;
+            double excursion = watchedHalf == Alliance.RED ? p.x - CENTRE_IN : CENTRE_IN - p.x;
+            if (!p.crossedEdge && excursion + p.kind.radius > 1e-8) {
+                p.crossedEdge = true;
+                piecesAcrossEdge++;
+                if (Double.isNaN(firstPieceEdgeAt)) firstPieceEdgeAt = time - crossingsStartTime;
+            }
+            if (!p.crossedCentre && excursion > 1e-8) {
+                p.crossedCentre = true;
+                piecesAcrossCentre++;
+                if (Double.isNaN(firstPieceCentreAt)) firstPieceCentreAt = time - crossingsStartTime;
+            }
+        }
+    }
 
     /** Optional study observers run on the exact substep that took the piece or saw it enter a CELL. */
     java.util.function.BiConsumer<Bot, Piece> onCapture;
@@ -1428,6 +1465,7 @@ final class FieldSim {
     /** Advances everything by {@code dt} seconds (one robot loop). */
     void step(double dt) {
         if (sub.length != bots.size()) sub = new double[bots.size()][3];
+        observePieceCrossings(); // register new releases and shots before advancing their first substep
         double h = dt / SUBSTEPS;
         for (int k = 1; k <= SUBSTEPS; k++) {
             time += h;
@@ -1535,6 +1573,7 @@ final class FieldSim {
                     p.frameBeforeTile = false;
                 }
             }
+            observePieceCrossings();
         }
     }
 

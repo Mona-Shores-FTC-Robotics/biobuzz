@@ -520,7 +520,7 @@ public class AutoStudyTest {
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
         if (nectar != null) {
-            sim.leftNectar(nectar.roll);
+            sim.leftNectar(nectar.roll).secondNectar(nectar.secondRoll, nectar.secondRollToRight);
             nectar.configureRobot(sim, first);
         }
         sim.loop(loop);

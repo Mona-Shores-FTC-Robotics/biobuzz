@@ -529,6 +529,10 @@ public class SimRunTest {
         m.put("tipsBy30", (double) by30);
         m.put("hitHiveAt", time(ours.hitHiveAt));
         m.put("partnerHitHiveAt", partner == null ? null : time(partner.hitHiveAt));
+        m.put("piecesAcrossEdge", r.piecesAcrossEdge);
+        m.put("piecesAcrossCentre", r.piecesAcrossCentre);
+        m.put("firstPieceEdgeAt", time(r.firstPieceEdgeAt));
+        m.put("firstPieceCentreAt", time(r.firstPieceCentreAt));
         m.put("crossedAt", time(ours.crossedAt));
         m.put("partnerCrossedAt", partner == null ? null : time(partner.crossedAt));
         m.put("againstLoopAt", time(ours.againstLoopAt));

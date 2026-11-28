@@ -473,17 +473,15 @@ tipping RIGHT by hand at about 5 s.
       grep "NECTAR in"`, and the Robot page's lane letters), no reject burst. **Stop:** one read as the other
       alliance's or as unknown → the gate stays shut and L carries it, which is safe, but the shot is lost:
       the log's hue and brightness to the PR.
-- [ ] **The one-ball feed is long enough, and the shot is counted.** A two-card test Auto, one NECTAR in the
-      lane, `LaunchOneAimed` at a spot that aims the turret about 80° left; five times, filmed. **Good:** the
-      ball leaves every time, and the log says `LaunchOneAimed fed … (…, ended at the last counted shot): 1
-      shots detected` in under 1.2 s. **Tune:** it ends on its 1.2 s backstop with the ball already gone →
-      the dip detector missed a lone NECTAR (`read_logs.py launcher`); the ball is still in the lane at the
-      backstop → raise `LaunchCards.launchOneAimedFeedS`. `LaunchOne` itself still feeds 0.5 s
-      (`launchOneFeedS`, never measured), shorter than the 0.75 to 0.85 s from gate to first ball: with one
-      piece and a shut gate it probably fires nothing. Try it five times and put the number that works in a PR.
+- [ ] **Time the one-ball feed from gate open to first ball out.** Film five runs of `LaunchOneAimed` with one
+      NECTAR and the turret about 80° left. Allow at least 0.85 s for a ball without a count. Check the gate closes
+      on the first counted shot, or within 1.2 s with the counter unavailable. Record which sensor counted the
+      piece and whether it had actually left. Compare with the ordinary `LaunchOne` feed of 0.5 s. Report a
+      retained piece or a missed count before using the setting on the field.
 - [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed
-      from above the turret. **Good:** `/Turret/…` shows the aim within 2° of the LEFT CELL from the end of
-      the turn to the shot, inside the arc (the shot needs 5° of margin: `AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),
+      from above the turret. Verify the measured angle follows the LEFT CELL throughout the turn and the gate stays
+      closed until it settles. **Good:** `/Turret/…` shows the aim within 2° at the shot, with both the measured
+      direction and requested aim inside the arc by 5° (`AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),
       and the NECTAR goes in. **Stop:** `LaunchOneAimed: not firing, …` in the log (the hold dropped, the aim
       at the arc's edge, the pose not referenced) → the reason to the PR; the robot kept the NECTAR, as it should.
       **Never** run it with the turret locked forward expecting a shot: it refuses, by design, because home at

@@ -82,6 +82,14 @@ public final class AutoRegistry {
         default boolean committed() {
             return false;
         }
+
+        /** A gate-closed aiming approach may run on the drive into a wait that always uses it. */
+        default boolean aimDuringApproachToWait() {
+            return false;
+        }
+
+        /** A receive trigger chose a branch with work to do. Keep its aim until the branch or a new drive releases it. */
+        default void holdThroughWaitBranch() { }
     }
 
     /**

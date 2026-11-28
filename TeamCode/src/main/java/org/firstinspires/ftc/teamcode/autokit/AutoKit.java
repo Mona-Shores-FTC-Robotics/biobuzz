@@ -686,6 +686,10 @@ public final class AutoKit {
         final int[] triggerRow = {-1};
         final boolean[] ownArmed = new boolean[1];
         final CommandBuilder card = new CommandBuilder();
+        // A timing choice can lead to two waits of different lengths for the very same catch.
+        // Only explicitly gate-closed aiming can start on the turn into such a choice.
+        final CommandCard receiver = commonWaitAim(alongside, rows);
+        if (receiver != null) commandCards.put(card, receiver);
         card.setStart(() -> {
             startedAt[0] = secondsSinceStart.getAsDouble();
             chosen[0] = null;
@@ -722,6 +726,10 @@ public final class AutoKit {
                             }
                         }
                         if (alongsideRunning[0]) {
+                            if (receiver != null && rows[i].trigger != null && rows[i].cards.length > 0) {
+                                receiver.before.holdThroughWaitBranch();
+                                armed = receiver.before;
+                            }
                             alongside.end(EndCondition.INTERRUPTED);
                             alongsideRunning[0] = false;
                         }
@@ -749,6 +757,7 @@ public final class AutoKit {
                 if (armed == through[0]) cancelArmed();
             }
             if (chosen[0] != null) chosen[0].end(end);
+            if (receiver != null && armed == receiver.before) cancelArmed();
         });
         Plan plan = waitPlan(alongside, rows);
         if (plan != null) return planned(plan, card);
@@ -768,6 +777,22 @@ public final class AutoKit {
             break;
         }
         return planned(plan, card);
+    }
+
+    private CommandCard commonWaitAim(Command alongside, Row[] rows) {
+        if (alongside != null) {
+            CommandCard command = commandCards.get(alongside);
+            return command != null && command.before.aimDuringApproachToWait() ? command : null;
+        }
+        CommandCard common = null;
+        for (Row row : rows) {
+            if (row.cards.length == 0) return null;
+            CommandCard first = commandCards.get(row.cards[0]);
+            if (first == null || !first.before.aimDuringApproachToWait()) return null;
+            if (common != null && common.before != first.before) return null;
+            common = first;
+        }
+        return common;
     }
 
     /**

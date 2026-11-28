@@ -1334,6 +1334,9 @@ public class AutoKitTest {
 
     /** A grab's approach that records what the kit tells it. */
     private static final class RecordingApproach implements AutoRegistry.Approach {
+        boolean aimOnly;
+        @Override public boolean aimDuringApproachToWait() { return aimOnly; }
+        @Override public void holdThroughWaitBranch() { seen.add("holding through branch"); }
         final List<String> seen = new ArrayList<>();
         double lowestRemaining = Double.NaN;
 
@@ -1441,6 +1444,59 @@ public class AutoKitTest {
                 kit.command("LaunchAll")), 10);
         assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), approach.seen);
         assertEquals("the launch starts when the path ends", 1.0, drive.progressWhen.get("LaunchAll start"), 1e-9);
+    }
+
+    @Test
+    public void aTurnCanAimThroughTwoClocksThatLeadToTheSameCatch() {
+        RecordingApproach aim = new RecordingApproach();
+        aim.aimOnly = true;
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("Catch", 1, () -> lasting("Catch", 1), aim)
+                .trigger("Always", () -> true), () -> now);
+        run(kit.sequence(kit.path("turn", line(0, 20)), kit.firstOf("which clock?",
+                kit.atMatchSeconds(9.5).then(kit.firstOf("late", kit.command("Catch"), kit.afterMs(100))),
+                kit.when("Always").then(kit.firstOf("early", kit.command("Catch"), kit.afterMs(200))))), 8);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching"), aim.seen);
+    }
+
+    @Test
+    public void aWaitWithAFeedingApproachCannotOpenTheGateOnTheTurn() {
+        RecordingApproach feed = new RecordingApproach();
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("Feed", 1, () -> lasting("Feed", 1), feed), () -> now);
+        run(kit.sequence(kit.path("turn", line(0, 20)),
+                kit.firstOf("wait", kit.command("Feed"), kit.afterMs(100))), 8);
+        assertTrue(feed.seen.isEmpty());
+    }
+
+    @Test
+    public void theReceiveHoldsItsAimUntilTheCheckedShotFinishes() {
+        RecordingApproach aim = new RecordingApproach();
+        aim.aimOnly = true;
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("Catch", 1, () -> lasting("Catch", 1), aim)
+                .command("Shoot", 1, () -> lasting("Shoot", 1))
+                .trigger("PieceIn", () -> true).trigger("CellUp", () -> true), () -> now);
+        Command sequence = kit.sequence(kit.path("turn", line(0, 20)),
+                kit.firstOf("receive", kit.command("Catch"), kit.afterMs(500),
+                        kit.when("PieceIn").then(kit.firstOf("still up?", kit.afterMs(100),
+                                kit.when("CellUp").then(kit.command("Shoot"))))));
+        run(sequence, 8);
+        assertEquals(java.util.Arrays.asList("started at (20, 0)", "approaching",
+                "holding through branch", "cancelled"), aim.seen);
+    }
+
+    @Test
+    public void aChoiceWithAnEmptyExitDoesNotAnticipateItsOtherRowsCatch() {
+        RecordingApproach aim = new RecordingApproach();
+        aim.aimOnly = true;
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("Catch", 1, () -> lasting("Catch", 1), aim)
+                .trigger("Always", () -> true), () -> now);
+        run(kit.sequence(kit.path("turn", line(0, 20)), kit.firstOf("choice",
+                kit.atMatchSeconds(0),
+                kit.when("Always").then(kit.firstOf("receive", kit.command("Catch"), kit.afterMs(100))))), 8);
+        assertTrue(aim.seen.isEmpty());
     }
 
     /**

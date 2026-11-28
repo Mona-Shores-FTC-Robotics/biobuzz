@@ -303,6 +303,8 @@ public final class AutoRegistration {
         final CatchNectarAimed nectar = robot == null ? null
                 : new CatchNectarAimed(robot, setup, settle, launch, matchSeconds, note);
         final AutoRegistry registry = new AutoRegistry();
+        final AimedVolley catchAim = robot == null ? null
+                : new AimedVolley(robot, setup, matchSeconds, settle);
         return registry
                 // A step's time limit never cuts a feed: it guards the wait for spin-up only, and the
                 // feed runs LaunchCards' set time (one number to tune, not one per step).
@@ -324,8 +326,8 @@ public final class AutoRegistration {
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 // One piece with the turret aimed at the CELL at the robot's end, from a spot that faces somewhere
                 // else (the LOADING ZONE): ends at its counted shot, never fires from home. See the class comment.
-                .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, () -> launch.launchOneAimed(
-                        new AimedVolley(robot, setup, matchSeconds, AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG)))
+                .command("LaunchOneAimed", LaunchCards.oneAimedBackstopS(), () -> launch.launchOneAimed(
+                        new AimedVolley(robot, setup, matchSeconds, settle)))
                 // Off-axis at the Auto's own named spot. Its approach tracks the near CELL with
                 // the gate shut. Missing the catch or losing independent aim costs only this shot.
                 .volley("CatchNectarAimed", CatchNectarAimed.PLANNED_S, CatchNectarAimed.PLANNED_S,
@@ -359,7 +361,7 @@ public final class AutoRegistration {
                 }))
                 // ---- real: the intake running, for a NECTAR the human player rolls at the robot. It never ends
                 // by itself: a wait runs it alongside (NectarIn, at most until a match second) and ends it.
-                .command("CatchNectar", 2.0, () -> catchNectar(robot))
+                .command("CatchNectar", 2.0, () -> catchNectar(robot, catchAim), catchAim)
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- real: a piece held under the colour sensor (LaneFull), as the full hold and the light.
                 .trigger("IntakeFull", robot == null ? () -> false : robot.colorSensor::full)
@@ -397,11 +399,18 @@ public final class AutoRegistration {
      * its time runs out and the Auto takes the other way.
      */
     /** {@code CatchNectar}: the intake on from the card's start to its end, whoever ends it. */
-    private static Command catchNectar(Robot robot) {
+    private static Command catchNectar(Robot robot, AimedVolley aim) {
         return new CommandBuilder()
-                .setStart(() -> robot.intake.intake())
+                .setStart(() -> {
+                    aim.start();
+                    robot.intake.intake();
+                })
+                .setExecute(aim::aim)
                 .setDone(() -> false)
-                .setEnd(end -> robot.intake.idle());
+                .setEnd(end -> {
+                    robot.intake.idle();
+                    aim.catchEnded();
+                });
     }
 
     /** Whether {@code lane} holds a NECTAR of {@code alliance}'s colour in any slot. No alliance, no lane: false. Pure. */

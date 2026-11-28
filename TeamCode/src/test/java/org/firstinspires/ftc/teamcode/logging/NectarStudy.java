@@ -5,14 +5,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** A request's optional LEFT roll after TIP 1. Both comparison arms use the same release and target. */
+/** A request's optional physical deliveries after TIP 1 and TIP 2. Both comparison arms use the same release and target. */
 final class NectarStudy {
-    final AutoSim.NectarRoll roll;
+    final AutoSim.NectarRoll roll, secondRoll;
+    final boolean secondRollToRight;
     final int missVolley;
     final boolean loseAim;
 
-    private NectarStudy(AutoSim.NectarRoll roll, int missVolley, boolean loseAim) {
+    private NectarStudy(AutoSim.NectarRoll roll, AutoSim.NectarRoll secondRoll, boolean secondRollToRight, int missVolley, boolean loseAim) {
         this.roll = roll;
+        this.secondRoll = secondRoll;
+        this.secondRollToRight = secondRollToRight;
         this.missVolley = missVolley;
         this.loseAim = loseAim;
     }
@@ -21,18 +24,23 @@ final class NectarStudy {
         if (value == null) return null;
         if (!(value instanceof Map)) throw new IllegalArgumentException("nectarStudy must be an object");
         Map<?, ?> study = (Map<?, ?>) value;
-        Object delivery = study.get("roll");
-        AutoSim.NectarRoll roll = null;
-        if (delivery != null) {
-            if (!(delivery instanceof Map)) throw new IllegalArgumentException("roll must be an object or null");
-            Map<?, ?> r = (Map<?, ?>) delivery;
-            roll = new AutoSim.NectarRoll((String) r.get("spot"), number(r, "x"), number(r, "y"),
-                    number(r, "speed"), number(r, "delay"), number(r, "earliest"),
-                    optional(r, "aimBiasDeg"), optional(r, "speedSpread"), optional(r, "aimSpreadDeg"));
+        Object receiver = study.get("secondReceiver");
+        if (receiver != null && !"R".equals(receiver) && !"L".equals(receiver)) {
+            throw new IllegalArgumentException("secondReceiver must be R or L");
         }
         double miss = study.containsKey("missFirstPollenOfRVolley") ? number(study, "missFirstPollenOfRVolley") : 0;
         if (miss < 0 || miss != Math.rint(miss) || miss > 3) throw new IllegalArgumentException("unknown R volley: " + miss);
-        return new NectarStudy(roll, (int) miss, Boolean.TRUE.equals(study.get("loseCatchAim")));
+        return new NectarStudy(roll(study.get("roll")), roll(study.get("secondRoll")), "R".equals(receiver),
+                (int) miss, Boolean.TRUE.equals(study.get("loseCatchAim")));
+    }
+
+    private static AutoSim.NectarRoll roll(Object delivery) {
+        if (delivery == null) return null;
+        if (!(delivery instanceof Map)) throw new IllegalArgumentException("roll must be an object or null");
+        Map<?, ?> r = (Map<?, ?>) delivery;
+        return new AutoSim.NectarRoll((String) r.get("spot"), number(r, "x"), number(r, "y"),
+                number(r, "speed"), number(r, "delay"), number(r, "earliest"),
+                optional(r, "aimBiasDeg"), optional(r, "speedSpread"), optional(r, "aimSpreadDeg"));
     }
 
     private static double number(Map<?, ?> json, String name) {
@@ -70,28 +78,17 @@ final class NectarStudy {
         row.put("extraFeedStart", time(r.extraFeedStart));
         row.put("extraFeedEnd", time(r.extraFeedEnd));
         row.put("extraShotAt", time(r.extraShotAt));
-        AutoSim.HumanReceipt h = r.humanRoll;
-        Map<String, Object> receipt = new LinkedHashMap<>();
-        receipt.put("release", time(h.releaseAt));
-        receipt.put("capture", time(h.captureAt));
-        receipt.put("launch", time(h.launchAt));
-        receipt.put("score", time(h.scoreAt));
-        receipt.put("capturedLoad", h.capturedLoad);
-        receipt.put("captureRobot", h.captureRobot);
-        receipt.put("launchRobot", h.launchRobot);
-        receipt.put("releaseSpeed", time(h.releaseSpeed));
-        receipt.put("releaseHeading", time(h.releaseHeadingDeg));
-        receipt.put("captureX", time(h.captureX));
-        receipt.put("captureY", time(h.captureY));
-        receipt.put("scoreCell", h.scoreCell);
-        receipt.put("retainedAtTip", h.retainedAtTip);
-        row.put("human", receipt);
+        row.put("human", receipt(r.humanRoll));
+        row.put("secondHuman", receipt(r.secondHumanRoll));
+        row.put("piecesOverCentre", r.piecesAcrossEdge);
+        row.put("firstPieceOverCentreAt", time(r.firstPieceEdgeAt));
         List<Object> loads = new ArrayList<>();
         for (int[] load : r.settledLoads) {
             Map<String, Object> pieces = new LinkedHashMap<>();
             pieces.put("pollen", load[0]);
             pieces.put("nectar", load[1]);
             pieces.put("human", load[2] != 0);
+            pieces.put("secondHuman", load[3] != 0);
             loads.add(pieces);
         }
         row.put("settledLoads", loads);
@@ -116,5 +113,23 @@ final class NectarStudy {
             shots.add(shot);
         }
         row.put("shots", shots);
+    }
+
+    private static Map<String, Object> receipt(AutoSim.HumanReceipt h) {
+        Map<String, Object> receipt = new LinkedHashMap<>();
+        receipt.put("release", time(h.releaseAt));
+        receipt.put("capture", time(h.captureAt));
+        receipt.put("launch", time(h.launchAt));
+        receipt.put("score", time(h.scoreAt));
+        receipt.put("capturedLoad", h.capturedLoad);
+        receipt.put("captureRobot", h.captureRobot);
+        receipt.put("launchRobot", h.launchRobot);
+        receipt.put("releaseSpeed", time(h.releaseSpeed));
+        receipt.put("releaseHeading", time(h.releaseHeadingDeg));
+        receipt.put("captureX", time(h.captureX));
+        receipt.put("captureY", time(h.captureY));
+        receipt.put("scoreCell", h.scoreCell);
+        receipt.put("retainedAtTip", h.retainedAtTip);
+        return receipt;
     }
 }
