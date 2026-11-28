@@ -518,6 +518,8 @@ public final class AutoSim {
     private final FieldSim.Piece[] enteredPieces = new FieldSim.Piece[2];
     private final Bot[] catchReceivers = new Bot[2];
     private boolean secondRollToRight;
+    private NectarStudy.LateFirstRoll lateFirstRoll;
+    private Bot lateFirstReceiver;
     private int[] swingLoad;
     private final Map<FieldSim.Piece, Shot> flights = new IdentityHashMap<>();
     private Result activeResult;
@@ -838,6 +840,11 @@ public final class AutoSim {
         return this;
     }
 
+    AutoSim lateFirstNectar(NectarStudy.LateFirstRoll plan) {
+        lateFirstRoll = plan;
+        return this;
+    }
+
     private int humanTip(FieldSim.Piece piece) {
         if (piece == null) return 0;
         if (piece == enteredPieces[0]) return 1;
@@ -852,6 +859,11 @@ public final class AutoSim {
     private void releaseEarnedRoll(Result result, int index) {
         NectarRoll roll = humanRollsToTry[index];
         Bot receiver = catchReceivers[index];
+        if (roll != null && lateFirstRoll != null && !result.tipsAt.isEmpty()
+                && lateFirstRoll.applies(index, result.tipsAt.get(0))) {
+            roll = lateFirstRoll.roll;
+            receiver = lateFirstReceiver;
+        }
         HumanReceipt receipt = receipt(result, index + 1);
         if (roll == null || receiver == null || enteredPieces[index] != null || result.tipsAt.size() <= index || now >= AutoKit.AUTO_LENGTH_S
                 || now < result.tipsAt.get(index) + roll.delay || now < roll.earliest || releaseZoneOccupied(alliance)) return;
@@ -1174,11 +1186,15 @@ public final class AutoSim {
         if (leftNectarStudy) {
             java.util.Arrays.fill(enteredPieces, null);
             java.util.Arrays.fill(catchReceivers, null);
-                    for (Bot b : bots) {
+            lateFirstReceiver = null;
+            for (Bot b : bots) {
                 if (b.alliance != alliance) continue;
                 String auto = name(b.autoClass);
-                if (auto.startsWith("l-right-under-hive")) catchReceivers[0] = b;
-                if (auto.startsWith(secondRollToRight ? "r-right-under-hive" : "l-right-under-hive")) catchReceivers[1] = b;
+                if (auto.startsWith("l-")) catchReceivers[0] = b;
+                if (auto.startsWith(secondRollToRight ? "r-" : "l-")) catchReceivers[1] = b;
+                if (lateFirstRoll != null && auto.startsWith(lateFirstRoll.receiverIsRight ? "r-" : "l-")) {
+                    lateFirstReceiver = b;
+                }
             }
             flights.clear();
             sim.onCapture = (body, piece) -> {

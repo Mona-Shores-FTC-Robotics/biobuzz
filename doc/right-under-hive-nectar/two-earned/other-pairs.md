@@ -19,8 +19,14 @@ Master registers four coordinated pairs in `TeamCode/autos/pairs.json`. The turr
 
 ### LeftUnderHive pilot
 
-A right-end-only receive used L's real GARDEN volley at `RIGHT_AUTO_HIVE`, a 24.5 s park cutoff and a fresh RIGHT-up check. It delivered a distinct second earned NECTAR on a best-case run. Fruitport seeds 1 through 12 gave 1/12 triples on both the pilot and master. Best was 12/12 on both. All 12 parked and stayed clear. The second earned ball often became available too late to affect the result.
+The final optional L draft leaves R on master and ends the LEFT and RIGHT waits by **10.6 s and 23.1 s**. On seeds 1–36 it scored **9/36** qualifying triples, compared with **4/36** for master. Both reached two TIPs on the same 29 seeds. With only R slowed to 40 in/s the counts were 9/36 and 4/36. With only L slowed they were 7/36 and 4/36. Best case was 36/36 for both. Every run in those comparisons parked both robots without contact or a robot crossing. The first NECTAR was present in TIP 2 on 16/36 nominal runs. The second reached a settled TIP 3 once. The sample supports testing the first receive on the robot, particularly its 71° intake approach.
 
-Adding a first receive at L's existing LEFT preload spot gave 2/12 Fruitport triples against 1/12 for master. On held-out seeds 13 through 36 the raw counts were 8/24 and 3/24. The early drawing produced a contact on seed 26 at 20.98 s and four contacts in the first 12 slow-L runs. L's first roll approaches roughly 71° off the intake axis, beyond the previously proposed 35° bench drill. The hardware trial needs that actual angle, roll speed and capture count. The collision and the unmeasured intake behavior preclude a competition rollout from these results.
+[Final paired request](left-under-hive/request.json) · [Conditions and counts](left-under-hive/README.md) · [Per-seed outcomes](left-under-hive/seeds.csv)
+
+An earlier right-end-only receive used L's real GARDEN volley at `RIGHT_AUTO_HIVE`, a 24.5 s park cutoff and a fresh RIGHT-up check. It delivered a distinct second earned NECTAR on a best-case run. Fruitport seeds 1 through 12 gave 1/12 triples on both the pilot and master. Best was 12/12 on both. All 12 parked and stayed clear. The second earned ball often became available too late to affect the result.
+
+Adding a first receive at L's existing LEFT preload spot gave 2/12 Fruitport triples against 1/12 for master. On held-out seeds 13 through 36 the raw counts were 8/24 and 3/24. The early drawing produced a contact on seed 26 at 20.98 s and four contacts in the first 12 slow-L runs. L's first roll approaches roughly 71Â° off the intake axis, beyond the previously proposed 35Â° bench drill. The hardware trial needs that actual angle, roll speed and capture count. Those contacts motivated the shorter waits in the final draft.
 
 As a common starting point, a separate no-human strict-eight study ran the existing matched pairs on Fruitport seeds 1 through 20. LeftUnderHive and Clockwise each produced 1/20 qualifying triples and 16/20 at least two. NoCross produced 0/20 and 10/20. All six robots parked in all of their paired runs without contact or robot crossing. Clockwise used the clockwise loop and R's WALL FLOWER assignment. NoCross used the matching L robot and WAIT FOR PARTNER FIX.
+
+[Control runs for all three other pairs](other-pair-controls.csv)

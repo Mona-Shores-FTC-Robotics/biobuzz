@@ -1,0 +1,785 @@
+{
+  "spec": "RLeftUnderHiveAuto",
+  "pp": "TeamCode/autos/r-left-under-hive.pp",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "alliance": "RED",
+  "calibration": "fruitport",
+  "seeds": [
+    1
+  ],
+  "partners": [
+    {
+      "name": "master / nominal",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "draft / nominal",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "master / R at 40 in per s",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      },
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "draft / R at 40 in per s",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      },
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      }
+    },
+    {
+      "name": "master / L at 40 in per s",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      },
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "draft / L at 40 in per s",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      },
+      "timing": {
+        "speed": 40
+      }
+    },
+    {
+      "name": "master / both NECTAR absent",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": null,
+        "secondReceiver": "L",
+        "secondRoll": null
+      }
+    },
+    {
+      "name": "draft / both NECTAR absent",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": null,
+        "secondReceiver": "L",
+        "secondRoll": null
+      }
+    },
+    {
+      "name": "master / both NECTAR five seconds late",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 6,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 6,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "draft / both NECTAR five seconds late",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 6,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 6,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "master / one R POLLEN misses TIP 2",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        },
+        "missFirstPollenOfRVolley": 2
+      }
+    },
+    {
+      "name": "draft / one R POLLEN misses TIP 2",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        },
+        "missFirstPollenOfRVolley": 2
+      }
+    },
+    {
+      "name": "master / one R POLLEN misses TIP 3",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        },
+        "missFirstPollenOfRVolley": 3
+      }
+    },
+    {
+      "name": "draft / one R POLLEN misses TIP 3",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        },
+        "missFirstPollenOfRVolley": 3
+      }
+    },
+    {
+      "name": "master / second NECTAR absent",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": null
+      }
+    },
+    {
+      "name": "draft / second NECTAR absent",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": null
+      }
+    },
+    {
+      "name": "master / first NECTAR absent",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": null,
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "draft / first NECTAR absent",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "nectarStudy": {
+        "roll": null,
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    }
+  ]
+}

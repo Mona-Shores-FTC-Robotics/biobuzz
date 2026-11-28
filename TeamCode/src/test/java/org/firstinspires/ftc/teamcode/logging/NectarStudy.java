@@ -9,13 +9,16 @@ import java.util.Map;
 final class NectarStudy {
     final AutoSim.NectarRoll roll, secondRoll;
     final boolean secondRollToRight;
+    final LateFirstRoll lateFirstRoll;
     final int missVolley;
     final boolean loseAim;
 
-    private NectarStudy(AutoSim.NectarRoll roll, AutoSim.NectarRoll secondRoll, boolean secondRollToRight, int missVolley, boolean loseAim) {
+    private NectarStudy(AutoSim.NectarRoll roll, AutoSim.NectarRoll secondRoll, boolean secondRollToRight,
+                        LateFirstRoll lateFirstRoll, int missVolley, boolean loseAim) {
         this.roll = roll;
         this.secondRoll = secondRoll;
         this.secondRollToRight = secondRollToRight;
+        this.lateFirstRoll = lateFirstRoll;
         this.missVolley = missVolley;
         this.loseAim = loseAim;
     }
@@ -30,8 +33,43 @@ final class NectarStudy {
         }
         double miss = study.containsKey("missFirstPollenOfRVolley") ? number(study, "missFirstPollenOfRVolley") : 0;
         if (miss < 0 || miss != Math.rint(miss) || miss > 3) throw new IllegalArgumentException("unknown R volley: " + miss);
-        return new NectarStudy(roll(study.get("roll")), roll(study.get("secondRoll")), "R".equals(receiver),
-                (int) miss, Boolean.TRUE.equals(study.get("loseCatchAim")));
+        AutoSim.NectarRoll first = roll(study.get("roll"));
+        return new NectarStudy(first, roll(study.get("secondRoll")), "R".equals(receiver),
+                LateFirstRoll.from(study.get("lateFirstRoll"), first), (int) miss, Boolean.TRUE.equals(study.get("loseCatchAim")));
+    }
+
+    /** The human may aim the same earned piece elsewhere when the observed first TIP settles late. */
+    static final class LateFirstRoll {
+        final double afterTipTime;
+        final boolean receiverIsRight;
+        final AutoSim.NectarRoll roll;
+
+        private LateFirstRoll(double afterTipTime, boolean receiverIsRight, AutoSim.NectarRoll roll) {
+            this.afterTipTime = afterTipTime;
+            this.receiverIsRight = receiverIsRight;
+            this.roll = roll;
+        }
+
+        static LateFirstRoll from(Object value, AutoSim.NectarRoll first) {
+            if (value == null || first == null) return null;
+            if (!(value instanceof Map)) throw new IllegalArgumentException("lateFirstRoll must be an object");
+            Map<?, ?> source = (Map<?, ?>) value;
+            double threshold = number(source, "afterTipTime");
+            if (threshold < 0) throw new IllegalArgumentException("afterTipTime must be nonnegative");
+            Object receiver = source.get("receiver");
+            if (!"R".equals(receiver) && !"L".equals(receiver)) throw new IllegalArgumentException("lateFirstRoll receiver must be R or L");
+            double extraDelay = optional(source, "extraDelay");
+            if (extraDelay < 0) throw new IllegalArgumentException("extraDelay must be nonnegative");
+            // Apply the same delay, release floor and human spread imposed by the current scenario.
+            AutoSim.NectarRoll roll = new AutoSim.NectarRoll((String) source.get("spot"), number(source, "x"),
+                    number(source, "y"), number(source, "speed"), first.delay + extraDelay, first.earliest,
+                    first.headingErrorDeg, first.speedSpread, first.aimSpreadDeg);
+            return new LateFirstRoll(threshold, "R".equals(receiver), roll);
+        }
+
+        boolean applies(int index, double settledAt) {
+            return index == 0 && settledAt > afterTipTime;
+        }
     }
 
     private static AutoSim.NectarRoll roll(Object delivery) {

@@ -1,0 +1,136 @@
+{
+  "spec": "RLeftUnderHiveAuto",
+  "pp": "TeamCode/autos/r-left-under-hive.pp",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "alliance": "RED",
+  "calibration": "fruitport",
+  "seeds": [
+    1
+  ],
+  "scenario": "best",
+  "partners": [
+    {
+      "name": "master / best case",
+      "partner": "LLeftUnderHiveAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    },
+    {
+      "name": "draft / best case",
+      "partner": "LLeftUnderHiveNectarAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "nectarStudy": {
+        "roll": {
+          "spot": "61.4,120.45,268.9",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 1,
+          "earliest": 0
+        },
+        "secondReceiver": "L",
+        "secondRoll": {
+          "spot": "59.2,20.9,96.1",
+          "x": 5.5,
+          "y": 95,
+          "speed": 26,
+          "delay": 1,
+          "earliest": 18.5
+        }
+      }
+    }
+  ]
+}

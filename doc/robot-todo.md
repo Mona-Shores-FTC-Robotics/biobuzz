@@ -458,6 +458,7 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
 
 ## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
+- [ ] **Find the four-piece SCORING FLOWER loss.** On both robots, film the holder and lane at the end of the pick and count the pieces at the gate and launcher. Log intake beam, lane count, first counted shot and remaining FLOWER pieces on the same clock. The Fruitport profile uses the final volley output. This drill distinguishes an empty pick from a downstream transfer loss and shows whether a retry can recover real pieces.
 - [ ] **Two earned rolls and the park split.** Use the two-receive draft with a second robot on the field.
   Video both clocks from PLAY. Mark (8, 98.3) and (5.5, 95) in the LOADING ZONE. Record each settled TIP,
   release, speed, capture, counted shot, last ball out and both parks. The simulated starting settings are
