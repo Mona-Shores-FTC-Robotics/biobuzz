@@ -1483,7 +1483,8 @@
         "LaunchOne",
         "SpinUp",
         "LaunchOneAimed",
-        "CatchNectar"
+        "CatchNectar",
+        "CallNectar"
       ],
       "conditions": [
         "Empty",
@@ -1507,7 +1508,8 @@
         "SpinUp": 0.1,
         "LaunchOneAimed": 1.2,
         "CatchNectar": 0.6,
-        "LaunchAllAimed": 2.5
+        "LaunchAllAimed": 2.5,
+        "CallNectar": 0.1
       }
     },
     "points": {
@@ -1717,6 +1719,11 @@
               "CellUp"
             ],
             "cards": [
+              {
+                "id": "c50-callnectar",
+                "kind": "action",
+                "name": "CallNectar"
+              },
               {
                 "id": "c30-loff-turn",
                 "kind": "path",
