@@ -85,6 +85,22 @@
       },
       "oursFails": "misses preloads",
       "fails": "misses"
+    },
+    {
+      "name": "R's preloads miss",
+      "partner": "LLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "oursFails": "misses preloads"
+    },
+    {
+      "name": "L's preloads miss",
+      "partner": "LLeftUnderHiveAuto",
+      "timing": {
+        "speed": 50
+      },
+      "fails": "misses preloads"
     }
   ],
   "metadata": {
@@ -93,5 +109,6 @@
     "SavedAt": "2026-11-18T22:15:00+00:00",
     "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now"
   },
-  "usual": true
+  "usual": true,
+  "scenario": "best"
 }
