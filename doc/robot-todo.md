@@ -458,6 +458,15 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
 
 ## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
+- [ ] **Two earned rolls and the park split.** Use the two-receive draft with a second robot on the field.
+  Video both clocks from PLAY. Mark (8, 98.3) and (5.5, 95) in the LOADING ZONE. Record each settled TIP,
+  release, speed, capture, counted shot, last ball out and both parks. The simulated starting settings are
+  16 in/s at TIP 1 + 1.0 s and 24 in/s at TIP 2 + 0.5 s. Test a late roll and a withheld roll at each end.
+  Count a ball retained from the spill separately. Measure the approach to the near and far parks with
+  either robot slower, and check the turret holds the intended CELL from the turn through the counted shot.
+  Record the gate-to-ball time of the first piece against the 0.85 s minimum backstop.
+
+
 The draft on `auto/l-right-under-hive-nectar` (PR for `claude/human-nectar-fruitport`; the study is
 `doc/human-nectar-auto.md` § "28 Nov 2026"): after its preloads at `LEFT_AUTO_OFFSET`, L turns on the spot to
 215° (its intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward), holds

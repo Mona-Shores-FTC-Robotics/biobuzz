@@ -1,0 +1,641 @@
+arm,case,condition,seed,tips,three,lastBall,bothParks,robotContact,robotOverCentre,piecesOverCentre,firstPieceOverCentre,g409,n1Release,n1Capture,n1ScoredCell,n1RetainedAtTip,n2Release,n2Capture,n2ScoredCell,n2RetainedAtTip,eightPollenAndN1,eightPollenAndN2,tip1,tip2,tip3,maxHeld,cause
+claude,best,both earned rolls,1,3,1,24.58,1,0,0,17,9.16,0,9.58,11.885999999998852,RED SCORING,2,17.28,,,0,1,0,8.58,16.78,30.54,4,3 TIPs
+claude,best,both earned rolls,2,3,1,24.58,1,0,0,19,8.84,0,8.98,11.05999999999931,RED SCORING,2,18.240000000000002,22.988000000005112,,0,1,0,7.98,17.740000000000002,28.26,4,3 TIPs
+claude,best,both earned rolls,3,3,1,24.58,1,0,0,16,6.5600000000000005,0,7.04,9.096000000000398,RED SCORING,2,17.34,20.90000000000256,,0,1,0,6.04,16.84,29.72,4,3 TIPs
+claude,best,both earned rolls,4,3,1,24.58,1,0,0,15,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.18,21.937000000003827,,0,1,0,7.32,17.68,28.28,4,3 TIPs
+claude,best,both earned rolls,5,3,1,24.58,1,0,0,14,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,17.26,20.757000000002385,,0,1,0,6.140000000000001,16.76,28.560000000000002,4,3 TIPs
+claude,best,both earned rolls,6,3,1,24.58,1,0,0,16,9.78,7,9.66,,,0,20.48,,,0,0,0,8.66,19.98,27.92,4,3 TIPs
+claude,best,both earned rolls,7,3,1,24.58,1,0,0,17,7.04,0,7.2,9.343000000000261,RED SCORING,2,17.22,,,0,1,0,6.2,16.72,29.2,4,3 TIPs
+claude,best,both earned rolls,8,3,1,24.58,1,0,0,15,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,,,0,1,0,6.36,19.68,30.84,4,3 TIPs
+claude,best,both earned rolls,9,3,1,24.58,1,0,0,16,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,,0,1,0,6.5200000000000005,16.72,28.52,4,3 TIPs
+claude,best,both earned rolls,10,3,1,24.58,1,0,0,14,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,30.68,4,3 TIPs
+claude,best,both earned rolls,11,3,1,24.58,1,0,0,18,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,17.38,,,0,1,0,6.36,16.88,30.28,4,3 TIPs
+claude,best,both earned rolls,12,3,1,24.58,1,0,0,16,7.68,0,7.5200000000000005,9.498000000000175,RED SCORING,2,19.8,,,0,1,0,6.5200000000000005,19.3,28.52,4,3 TIPs
+claude,best,both earned rolls,13,3,1,24.58,1,0,0,14,7.2,0,7.28,9.351000000000257,RED SCORING,2,17.26,20.97400000000265,,0,1,0,6.28,16.76,27.46,4,3 TIPs
+claude,best,both earned rolls,14,3,1,24.58,1,0,0,14,7.48,0,7.78,12.550999999998483,RED AUDIENCE,3,19.2,22.908000000005014,,0,0,0,6.78,18.7,30.96,4,3 TIPs
+claude,best,both earned rolls,15,3,1,24.58,1,0,0,12,6.78,0,7.12,9.066000000000415,RED SCORING,2,17.240000000000002,,,0,1,0,6.12,16.740000000000002,28.36,4,3 TIPs
+claude,best,both earned rolls,16,3,1,24.58,1,0,0,14,9.52,0,9.92,,,0,18.94,,,0,0,0,8.92,18.44,28.22,4,3 TIPs
+claude,fruitport120,both earned rolls,1,3,1,24.72,1,0,0,13,9.16,0,9.58,11.885999999998852,RED SCORING,2,19.92,23.605000000005866,,0,0,0,8.58,19.42,30.68,4,3 TIPs
+claude,fruitport120,both earned rolls,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,4,2,0,24.58,1,0,0,13,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.580000000000002,22.36600000000435,,0,0,0,7.32,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,7,3,1,24.58,1,0,0,14,7.04,0,7.2,9.343000000000261,RED SCORING,2,21.26,,,0,0,0,6.2,20.76,29.2,4,3 TIPs
+claude,fruitport120,both earned rolls,8,2,0,21.94,1,0,0,13,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,,,0,1,0,6.36,19.68,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,9,3,1,24.58,1,0,0,16,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,,0,1,0,6.5200000000000005,16.72,28.52,4,3 TIPs
+claude,fruitport120,both earned rolls,10,2,0,24.58,1,0,0,13,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,11,2,0,20.34,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,18.400000000000002,28.070000000011323,,0,0,0,6.36,17.900000000000002,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,12,2,0,24.58,1,0,0,14,7.68,0,7.5200000000000005,9.498000000000175,,0,20.28,,,0,0,0,6.5200000000000005,19.78,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,13,2,0,20.74,1,0,0,11,7.2,0,7.28,9.351000000000257,RED SCORING,2,18.96,,,0,0,0,6.28,18.46,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,14,2,0,27.54,1,0,0,12,7.48,0,7.78,12.550999999998483,RED SCORING,2,,,,0,0,0,6.78,29.64,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,15,2,0,24.58,1,0,0,10,6.78,0,7.12,9.066000000000415,RED SCORING,2,17.240000000000002,,,0,1,0,6.12,16.740000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,16,2,0,27.54,1,0,0,13,9.52,0,9.92,,,0,,,,0,0,0,8.92,29.72,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,17,2,0,24.58,1,0,0,13,6.96,0,7.22,9.478000000000186,RED SCORING,2,17.38,,,0,1,0,6.22,16.88,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,18,3,1,24.58,1,0,0,15,8.52,0,8.96,10.988999999999349,RED SCORING,2,18.72,22.482000000004494,,0,0,0,7.96,18.22,29.16,4,3 TIPs
+claude,fruitport120,both earned rolls,19,2,0,24.58,1,0,0,13,8.94,0,9.24,11.50999999999906,RED SCORING,2,18.2,21.52900000000333,,0,0,0,8.24,17.7,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,20,3,1,24.72,1,0,0,11,9.52,8,9.72,,,0,20.96,,,0,0,0,8.72,20.46,29,4,3 TIPs
+claude,fruitport120,both earned rolls,21,2,0,24.72,1,0,0,13,7.96,0,8.36,10.46499999999964,RED SCORING,2,17.34,,,0,1,0,7.36,16.84,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,22,2,0,27.54,1,0,0,12,9.58,0,9.56,11.682999999998964,RED SCORING,2,,,,0,0,0,8.56,29.48,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,23,2,0,21.48,1,0,0,14,8.18,0,8.34,10.412999999999668,RED SCORING,2,18.38,22.116000000004046,,0,0,0,7.34,17.88,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,24,2,0,26.18,1,0,0,12,4.14,0,18.42,,,0,,,,0,0,0,17.42,29.94,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,25,2,0,21.06,1,0,0,11,7.68,0,7.94,9.964999999999916,RED SCORING,2,17.14,20.816000000002457,,0,1,0,6.94,16.64,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,26,2,0,27.54,1,0,0,14,9.66,0,8.98,10.883999999999407,RED SCORING,2,,,,0,1,0,7.98,31.2,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,27,3,1,24.58,1,0,0,15,7.58,0,7.66,12.436999999998546,RED AUDIENCE,3,19.42,26.353000000009224,,0,0,0,6.66,18.92,28.82,4,3 TIPs
+claude,fruitport120,both earned rolls,28,2,0,21.22,1,0,0,10,7.88,0,8.14,10.149999999999814,RED SCORING,2,17.96,21.352000000003112,,0,1,0,7.140000000000001,17.46,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,29,2,0,20.74,1,0,0,12,7.48,0,7.5,9.677000000000076,RED SCORING,2,17.2,20.67900000000229,,0,1,0,6.5,16.7,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,30,2,0,20.6,1,0,0,11,7.24,0,7.46,9.497000000000176,RED SCORING,2,18.84,,,0,0,0,6.46,18.34,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,31,2,0,26.18,1,0,0,9,5.5200000000000005,0,18.36,,,0,,,,0,0,0,17.36,32.04,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,32,2,0,24.72,1,0,0,12,7.48,0,7.58,9.603000000000117,,0,19.22,,,0,0,0,6.58,18.72,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,33,2,0,20.42,1,0,0,11,7.04,0,7.18,9.373000000000244,RED SCORING,2,17.36,,,0,1,0,6.18,16.86,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,34,2,0,27.54,1,0,0,11,7.38,0,7.58,,,0,,,,0,0,0,6.58,29.52,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,35,3,1,24.58,1,0,0,17,8.56,0,8.34,10.506999999999616,RED SCORING,2,17.28,20.845000000002493,,0,1,0,7.34,16.78,27.66,4,3 TIPs
+claude,fruitport120,both earned rolls,36,1,0,26.18,1,0,0,7,5.46,0,18.5,,,0,,,,0,0,0,17.5,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,37,2,0,24.58,1,0,0,15,8.78,0,8.98,10.852999999999424,RED SCORING,2,18.34,22.834000000004924,,0,0,0,7.98,17.84,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,38,2,0,24.58,1,0,0,7,9.66,0,8.74,10.66099999999953,RED SCORING,2,18.900000000000002,24.088000000006456,,0,1,0,7.74,18.400000000000002,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,39,2,0,23.2,1,0,0,9,7.12,0,7.5200000000000005,9.548000000000147,RED SCORING,2,17.400000000000002,20.690000000002303,,0,1,0,6.5200000000000005,16.9,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,40,2,0,24.58,1,0,0,14,7.34,0,7.62,9.566000000000138,RED SCORING,2,19.04,,,0,1,0,6.62,18.54,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,41,3,1,24.72,1,0,0,13,8.66,0,9,10.930999999999381,RED SCORING,2,19.16,22.55400000000458,,0,0,0,8,18.66,28.080000000000002,4,3 TIPs
+claude,fruitport120,both earned rolls,42,3,1,24.72,1,0,0,16,6.84,0,7.26,9.198000000000341,RED SCORING,2,20.22,,,0,1,0,6.26,19.72,28.38,4,3 TIPs
+claude,fruitport120,both earned rolls,43,2,0,21.72,1,0,0,11,9.3,0,9.74,,,0,19.94,,,0,0,0,8.74,19.44,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,44,2,0,22.14,1,0,0,10,9.02,0,9.26,12.450999999998539,RED AUDIENCE,0,18.98,,,0,0,0,8.26,18.48,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,45,2,0,27.54,1,0,0,13,9.02,0,9.42,11.408999999999116,RED SCORING,2,,,,0,0,0,8.42,29.48,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,46,3,1,24.58,1,0,0,12,7.48,0,7.92,9.88499999999996,RED SCORING,2,20.32,,,0,1,0,6.92,19.82,30.16,4,3 TIPs
+claude,fruitport120,both earned rolls,47,2,0,24.06,1,0,0,10,6.72,0,7.1000000000000005,9.457000000000198,RED SCORING,2,18.36,27.763000000010948,,0,0,0,6.1000000000000005,17.86,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,48,3,1,24.58,1,0,0,13,6.96,0,7.32,,,0,19.56,26.32400000000919,,0,0,0,6.32,19.06,28.26,4,3 TIPs
+claude,fruitport120,both earned rolls,49,2,0,24.58,1,0,0,14,6.96,0,7.4,9.776000000000021,RED SCORING,2,17.26,21.099000000002803,,0,1,0,6.4,16.76,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,50,2,0,24.58,1,0,0,9,7.32,0,7.640000000000001,9.56000000000014,RED SCORING,2,20.06,,,0,1,0,6.640000000000001,19.56,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,51,2,0,24.72,1,0,0,15,7.1000000000000005,0,7.28,9.423000000000217,RED SCORING,2,18.580000000000002,,,0,0,0,6.28,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,52,2,0,22.42,1,0,0,13,7.18,8,7.4,9.333000000000267,RED SCORING,2,20.66,,,0,0,0,6.4,20.16,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,53,2,0,24.58,1,0,0,11,8.02,0,8.08,10.11999999999983,RED SCORING,2,17.22,21.81600000000368,,0,1,0,7.08,16.72,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,54,3,1,24.58,1,0,0,13,7.6000000000000005,0,8.040000000000001,9.967999999999915,RED SCORING,2,17.900000000000002,,,0,1,0,7.04,17.400000000000002,29.1,4,3 TIPs
+claude,fruitport120,both earned rolls,55,2,0,22.08,1,0,0,12,7.42,0,7.82,,,0,18.7,,,0,0,0,6.82,18.2,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,56,3,1,24.72,1,0,0,13,7.3,0,7.5200000000000005,9.511000000000168,RED SCORING,2,17.88,21.370000000003134,,0,1,0,6.5200000000000005,17.38,29.26,4,3 TIPs
+claude,fruitport120,both earned rolls,57,2,0,24.58,1,0,0,12,9.86,0,10.08,,,0,20.1,,,0,0,0,9.08,19.6,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,58,2,0,21.02,1,0,0,11,7.5600000000000005,0,7.96,9.937999999999931,RED SCORING,2,18.48,,,0,0,0,6.96,17.98,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,59,2,0,21.34,1,0,0,12,7.5600000000000005,0,8,10.240999999999763,RED SCORING,2,17.22,,,0,1,0,7,16.72,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,60,3,1,24.72,1,0,0,18,7.62,0,7.6000000000000005,9.586000000000126,RED SCORING,2,19.56,,,0,1,0,6.6000000000000005,19.06,28.3,4,3 TIPs
+claude,fruitport120,both earned rolls,61,2,0,22.06,1,0,0,11,7.5,0,7.78,12.497999999998513,RED AUDIENCE,0,18.44,,,0,0,0,6.78,17.94,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,62,2,0,24.72,1,0,0,14,8.540000000000001,0,8.8,10.98599999999935,RED SCORING,2,19.12,22.890000000004992,,0,1,0,7.8,18.62,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,63,3,1,24.72,1,0,0,16,7.38,0,7.08,9.23600000000032,RED SCORING,2,17.2,21.197000000002923,,0,1,0,6.08,16.7,29.080000000000002,4,3 TIPs
+claude,fruitport120,both earned rolls,64,2,0,22.14,1,0,0,9,9.86,0,10.3,,,0,18.8,,,0,0,0,9.3,18.3,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,65,2,0,22.06,1,0,0,11,9.02,0,8.82,10.970999999999359,RED SCORING,2,17.32,,,0,1,0,7.82,16.82,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,66,2,0,24.58,1,0,0,11,7.1000000000000005,0,7.38,,,0,18.68,22.36600000000435,,0,0,0,6.38,18.18,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,67,2,0,26.18,1,0,0,10,5.5,0,18.28,,,0,,,,0,0,0,17.28,30.14,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,68,2,0,24.58,1,0,0,14,7.3,0,7.68,9.605000000000116,RED SCORING,2,21.580000000000002,,,0,0,0,6.68,21.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,69,3,1,24.72,1,0,0,15,8.9,0,8.96,,,0,17.2,,,0,0,0,7.96,16.7,27.8,4,3 TIPs
+claude,fruitport120,both earned rolls,70,2,0,27.54,1,0,0,11,9.64,0,9.94,,,0,,,,0,0,0,8.94,29.64,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,71,3,1,24.58,1,0,0,14,6.88,0,7.28,9.351000000000257,RED SCORING,2,17.32,20.72900000000235,,0,1,0,6.28,16.82,27.92,4,3 TIPs
+claude,fruitport120,both earned rolls,72,2,0,27.54,1,0,0,13,9.4,0,9.24,11.18499999999924,RED SCORING,2,,,,0,1,0,8.24,30.48,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,73,2,0,24.58,1,0,0,10,6.78,0,7.140000000000001,9.090000000000401,,0,18.44,,,0,0,0,6.140000000000001,17.94,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,74,2,0,24.58,1,0,0,12,7.640000000000001,0,8.06,10.08499999999985,RED SCORING,2,18.080000000000002,21.854000000003726,,0,1,0,7.0600000000000005,17.580000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,75,2,0,26.18,1,0,0,11,5.74,0,18.34,,,0,,,,0,0,0,17.34,30.28,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,76,2,0,27.54,1,0,0,12,7.3,0,7.68,9.691000000000068,RED SCORING,2,,,,0,0,0,6.68,29.5,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,77,2,0,27.54,1,0,0,12,7.5,0,7.28,,,0,,,,0,0,0,6.28,29.46,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,78,2,0,24.58,1,0,0,13,7.24,0,7.5600000000000005,9.955999999999921,RED SCORING,2,18.6,27.338000000010428,,0,0,0,6.5600000000000005,18.1,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,79,1,0,26.18,1,0,0,6,6.42,0,18.26,,,0,,,,0,0,0,17.26,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,80,2,0,21.74,1,0,0,15,6.88,0,7.28,9.391000000000234,RED SCORING,2,19.98,,,0,0,0,6.28,19.48,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,81,2,0,21.22,1,0,0,11,8.06,0,7.9,10.10199999999984,RED SCORING,2,17.32,20.88300000000254,,0,1,0,6.9,16.82,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,82,2,0,24.58,1,0,0,12,7.640000000000001,0,8.02,10.042999999999873,RED SCORING,2,17.84,,,0,1,0,7.0200000000000005,17.34,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,83,2,0,27.54,1,0,0,11,6.94,0,7.28,9.335000000000266,,0,,,,0,0,0,6.28,29.580000000000002,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,84,2,0,24.58,1,0,0,15,8.94,0,9.16,11.136999999999267,RED SCORING,2,19.36,,,0,0,0,8.16,18.86,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,85,1,0,26.18,1,0,0,7,5.1000000000000005,0,18.28,,,0,,,,0,0,0,17.28,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,86,1,0,26.18,1,0,0,7,7.68,0,18.38,,,0,,,,0,0,0,17.38,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,87,2,0,24.58,1,0,0,11,7.46,0,7.24,9.16400000000036,RED SCORING,2,17.36,,,0,1,0,6.24,16.86,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,88,2,0,23.56,1,0,0,13,7.4,0,7.82,9.854999999999977,RED SCORING,2,18.46,,,0,1,0,6.82,17.96,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,89,2,0,24.58,1,0,0,8,9.46,0,9.22,12.559999999998478,RED AUDIENCE,0,21.04,,,0,0,0,8.22,20.54,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,90,2,0,20.56,1,0,0,13,7.04,0,7.38,9.481000000000185,RED SCORING,2,18.28,,,0,1,0,6.38,17.78,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,91,2,0,26.18,1,0,0,13,5.9,0,18.240000000000002,,,0,,,,0,0,0,17.240000000000002,29.48,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,92,2,0,26.18,1,0,0,10,5.42,0,18.52,,,0,,,,0,0,0,17.52,30.86,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,93,2,0,27.54,1,0,0,12,7.08,0,7.1000000000000005,,,0,,,,0,0,0,6.1000000000000005,29.44,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,94,2,0,21.88,1,0,0,12,7.34,0,7.6000000000000005,,,0,19.6,,,0,0,0,6.6000000000000005,19.1,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,95,2,0,27.54,1,0,0,13,7.0200000000000005,0,7.12,9.432000000000212,,0,,,,0,0,0,6.12,29.46,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,96,2,0,24.58,1,0,0,15,7.36,0,7.38,10.564999999999584,RED SCORING,2,19.36,,,0,0,0,6.38,18.86,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,97,2,0,24.58,1,0,0,13,7.5600000000000005,0,7.28,9.185000000000349,RED SCORING,2,18.32,,,0,0,0,6.28,17.82,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,98,3,1,24.58,1,0,0,15,7.36,8,7.640000000000001,9.809000000000003,RED SCORING,2,20.92,,,0,0,0,6.640000000000001,20.42,31.240000000000002,4,3 TIPs
+claude,fruitport120,both earned rolls,99,2,0,24.58,1,0,0,9,6.62,0,7.1000000000000005,9.36200000000025,RED SCORING,2,17.38,20.854000000002504,,0,1,0,6.1000000000000005,16.88,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,100,2,0,27.54,1,0,0,17,7.78,0,7.68,9.692000000000068,,0,,,,0,0,0,6.68,29.2,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,101,2,0,23.32,1,0,0,12,8.24,0,8.26,10.348999999999704,RED SCORING,2,17.240000000000002,21.461000000003246,,0,1,0,7.26,16.740000000000002,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,102,3,1,24.72,1,0,0,15,7.24,0,7.5600000000000005,12.271999999998638,RED AUDIENCE,3,21.26,,,0,0,0,6.5600000000000005,20.76,28.1,4,3 TIPs
+claude,fruitport120,both earned rolls,103,2,0,21.1,1,0,0,12,7.6000000000000005,0,7.66,10.046999999999871,RED SCORING,2,17.18,,,0,1,0,6.66,16.68,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,104,2,0,27.54,1,0,0,14,8.28,0,8.540000000000001,12.580999999998467,RED SCORING,2,,,,0,0,0,7.54,29.48,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,105,2,0,26.18,1,0,0,11,6.24,0,18.34,,,0,,,,0,0,0,17.34,29.5,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,106,1,0,26.18,1,0,0,10,5.22,0,18.36,,,0,,,,0,0,0,17.36,,,4,fewer than 2 TIPs
+claude,fruitport120,both earned rolls,107,3,1,24.72,1,0,0,14,6.88,0,7.2,9.281000000000295,RED SCORING,2,17.22,20.561000000002146,,0,1,0,6.2,16.72,28.32,4,3 TIPs
+claude,fruitport120,both earned rolls,108,2,0,24.72,1,0,0,15,6.9,0,7.34,9.340000000000263,RED SCORING,2,19.82,,,0,0,0,6.34,19.32,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,109,2,0,24.72,1,0,0,12,9.68,0,9.620000000000001,12.509999999998506,,0,18.16,27.630000000010785,,0,0,0,8.620000000000001,17.66,,4,both fired at RIGHT; fewer than 8 POLLEN
+claude,fruitport120,both earned rolls,110,3,1,24.58,1,0,0,13,7.72,7,7.36,9.329000000000269,RED SCORING,2,20.7,,,0,0,0,6.36,20.2,28.04,4,3 TIPs
+claude,fruitport120,both earned rolls,111,2,0,27.54,1,0,0,15,6.58,0,7.0600000000000005,9.172000000000356,,0,,,,0,0,0,6.0600000000000005,29.42,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,112,2,0,27.54,1,0,0,15,7.36,0,7.58,,,0,,,,0,0,0,6.58,29.5,,4,no L POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,113,2,0,24.58,1,0,0,12,6.74,0,7.1000000000000005,,,0,19.12,,,0,0,0,6.1000000000000005,18.62,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,114,3,1,24.58,1,0,0,18,8.16,0,7.74,9.798000000000009,RED SCORING,2,18.34,,,0,1,0,6.74,17.84,30.66,4,3 TIPs
+claude,fruitport120,both earned rolls,115,2,0,21.56,1,0,0,9,8.02,0,8.46,10.496999999999622,RED SCORING,2,18.18,21.79900000000366,,0,0,0,7.46,17.68,,4,no R POLLEN volley at RIGHT
+claude,fruitport120,both earned rolls,116,3,1,24.58,1,0,0,16,9.84,0,9.58,11.630999999998993,RED SCORING,2,18.14,,,0,1,0,8.58,17.64,29.84,4,3 TIPs
+claude,fruitport120,both earned rolls,117,3,1,24.58,1,0,0,13,7.22,0,7.36,9.286000000000293,RED SCORING,2,18.92,,,0,0,0,6.36,18.42,27.98,4,3 TIPs
+claude,fruitport120,both earned rolls,118,3,1,24.58,1,0,0,13,8.86,0,8.9,,,0,18.68,22.92900000000504,,0,0,0,7.9,18.18,28.26,4,3 TIPs
+claude,fruitport120,both earned rolls,119,2,0,24.58,1,0,0,13,7.48,8,7.1000000000000005,9.358000000000253,,0,20.72,,,0,0,0,6.1000000000000005,20.22,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+claude,fruitport120,both earned rolls,120,2,0,22.14,1,0,0,13,7.78,0,8.08,,,0,19.72,,,0,0,0,7.08,19.22,,4,no R POLLEN volley at RIGHT
+guard3,best,both earned rolls,1,3,1,24.94,1,0,0,14,9.16,0,9.58,11.885999999998852,RED SCORING,2,17.28,,,0,1,0,8.58,16.78,30.900000000000002,4,3 TIPs
+guard3,best,both earned rolls,2,3,1,24.94,1,0,0,16,8.84,0,8.98,11.05999999999931,RED SCORING,2,18.240000000000002,26.16000000000899,,0,1,0,7.98,17.740000000000002,28.62,4,3 TIPs
+guard3,best,both earned rolls,3,3,1,24.94,1,0,0,15,6.5600000000000005,0,7.04,9.096000000000398,RED SCORING,2,17.34,20.76000000000239,RED AUDIENCE,3,1,1,6.04,16.84,26.88,4,3 TIPs
+guard3,best,both earned rolls,4,3,1,24.94,1,0,0,15,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.18,21.937000000003827,RED AUDIENCE,3,1,1,7.32,17.68,28.36,4,3 TIPs
+guard3,best,both earned rolls,5,3,1,24.94,1,0,0,15,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,17.26,20.889000000002547,RED AUDIENCE,3,1,1,6.140000000000001,16.76,26.88,4,3 TIPs
+guard3,best,both earned rolls,6,3,1,24.94,1,0,0,17,9.78,7,9.66,,,0,20.48,23.883000000006206,RED AUDIENCE,3,0,0,8.66,19.98,27.26,4,3 TIPs
+guard3,best,both earned rolls,7,3,1,24.94,1,0,0,15,7.04,0,7.2,9.343000000000261,RED SCORING,2,17.22,20.87600000000253,RED AUDIENCE,3,1,1,6.2,16.72,26.92,4,3 TIPs
+guard3,best,both earned rolls,8,3,1,24.94,1,0,0,15,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,23.345000000005548,,0,1,0,6.36,19.68,30.7,4,3 TIPs
+guard3,best,both earned rolls,9,3,1,24.94,1,0,0,15,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,RED AUDIENCE,3,1,1,6.5200000000000005,16.72,27,4,3 TIPs
+guard3,best,both earned rolls,10,3,1,24.94,1,0,0,16,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,31.04,4,3 TIPs
+guard3,best,both earned rolls,11,3,1,24.94,1,0,0,15,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,17.38,26.24400000000909,,0,1,0,6.36,16.88,30.64,4,3 TIPs
+guard3,best,both earned rolls,12,3,1,24.94,1,0,0,17,7.68,0,7.5200000000000005,9.498000000000175,RED SCORING,2,19.8,23.831000000006142,RED AUDIENCE,3,1,1,6.5200000000000005,19.3,27.740000000000002,4,3 TIPs
+guard3,best,both earned rolls,13,3,1,24.94,1,0,0,14,7.2,0,7.28,9.351000000000257,RED SCORING,2,17.26,26.445000000009337,,0,1,0,6.28,16.76,27.82,4,3 TIPs
+guard3,best,both earned rolls,14,3,1,24.94,1,0,0,15,7.48,0,7.78,12.550999999998483,RED AUDIENCE,3,19.2,22.58600000000462,RED AUDIENCE,3,0,0,6.78,18.7,27.68,4,3 TIPs
+guard3,best,both earned rolls,15,3,1,24.94,1,0,0,13,6.78,0,7.12,9.066000000000415,RED SCORING,2,17.240000000000002,20.651000000002256,RED AUDIENCE,3,1,1,6.12,16.740000000000002,26.84,4,3 TIPs
+guard3,best,both earned rolls,16,3,1,24.94,1,0,0,13,9.52,0,9.92,,,0,18.94,,,0,0,0,8.92,18.44,28.580000000000002,4,3 TIPs
+guard3,failure,first never comes,1,2,0,27.54,1,0,0,10,9.16,0,,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+guard3,failure,first never comes,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,failure,first never comes,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,failure,first never comes,4,2,0,27.54,1,0,0,13,8.8,0,,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+guard3,failure,first never comes,5,2,0,26.18,1,0,0,11,5.9,0,,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,failure,first never comes,6,1,0,26.18,1,0,0,8,17.96,0,,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,failure,first never comes,7,2,0,27.54,1,0,0,11,7.04,0,,,,0,,,,0,0,0,6.2,29.400000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,first never comes,8,2,0,23.34,1,0,0,11,8.76,0,,,,0,21.54,26.8250000000098,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+guard3,failure,first never comes,9,3,1,24.94,1,0,0,16,7.5200000000000005,0,,,,0,18.66,22.42200000000442,RED AUDIENCE,3,0,1,6.5200000000000005,18.16,27,4,3 TIPs
+guard3,failure,first never comes,10,3,1,24.94,1,0,0,17,7,8,,,,0,20.54,23.99400000000634,RED AUDIENCE,3,0,0,6.42,20.04,30.68,4,3 TIPs
+guard3,failure,first never comes,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,first never comes,12,2,0,27.54,1,0,0,13,7.68,0,,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+guard3,failure,first five seconds late,1,2,0,27.54,1,0,0,10,9.16,0,14.58,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+guard3,failure,first five seconds late,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,23.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,failure,first five seconds late,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,23.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,failure,first five seconds late,4,2,0,27.54,1,0,0,14,8.8,0,13.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+guard3,failure,first five seconds late,5,2,0,26.18,1,0,0,11,5.9,0,23.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,failure,first five seconds late,6,1,0,26.18,1,0,0,8,17.96,0,23.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,failure,first five seconds late,7,2,0,27.54,1,0,0,9,7.04,0,12.200000000000001,15.721999999996726,,0,,,,0,0,0,6.2,29.400000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,first five seconds late,8,2,0,23.34,1,0,0,11,8.76,0,12.36,,,0,21.54,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+guard3,failure,first five seconds late,9,3,1,24.94,1,0,0,17,7.5200000000000005,0,12.52,,,0,18.66,22.039000000003952,RED AUDIENCE,3,0,1,6.5200000000000005,18.16,27,4,3 TIPs
+guard3,failure,first five seconds late,10,3,1,25.1,1,0,0,17,7,8,12.42,15.933999999996608,RED AUDIENCE,3,20.54,24.217000000006614,RED AUDIENCE,3,0,0,6.42,20.04,30.72,4,3 TIPs
+guard3,failure,first five seconds late,11,2,0,27.54,1,0,0,12,7.0600000000000005,0,12.36,17.03699999999784,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,first five seconds late,12,2,0,27.54,1,0,0,12,7.68,0,12.52,16.806999999997558,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+guard3,failure,second never comes,1,3,1,25.06,1,0,0,14,9.16,0,9.58,11.885999999998852,RED SCORING,2,,,,0,0,0,8.58,19.42,31.02,4,3 TIPs
+guard3,failure,second never comes,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,failure,second never comes,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,failure,second never comes,4,2,0,24.94,1,0,0,13,8.8,0,8.32,10.460999999999641,RED SCORING,2,,,,0,0,0,7.32,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,second never comes,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,failure,second never comes,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,failure,second never comes,7,3,1,24.94,1,0,0,14,7.04,0,7.2,9.343000000000261,RED SCORING,2,,,,0,0,0,6.2,20.76,29.560000000000002,4,3 TIPs
+guard3,failure,second never comes,8,2,0,23.26,1,0,0,13,8.76,0,7.36,9.450000000000202,RED SCORING,2,,,,0,1,0,6.36,19.68,,4,no R POLLEN volley at RIGHT
+guard3,failure,second never comes,9,3,1,24.94,1,0,0,16,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,,,,0,1,0,6.5200000000000005,16.72,28.88,4,3 TIPs
+guard3,failure,second never comes,10,2,0,24.94,1,0,0,14,7,0,7.42,9.552000000000145,RED SCORING,2,,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,second never comes,11,2,0,20.34,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,,,,0,0,0,6.36,17.900000000000002,,4,no R POLLEN volley at RIGHT
+guard3,failure,second never comes,12,2,0,24.94,1,0,0,14,7.68,0,7.5200000000000005,9.498000000000175,,0,,,,0,0,0,6.5200000000000005,19.78,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,second five seconds late,1,3,1,25.06,1,0,0,14,9.16,0,9.58,11.885999999998852,RED SCORING,2,24.92,,,0,0,0,8.58,19.42,31.02,4,3 TIPs
+guard3,failure,second five seconds late,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,failure,second five seconds late,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,failure,second five seconds late,4,2,0,24.94,1,0,0,13,8.8,0,8.32,10.460999999999641,RED SCORING,2,23.580000000000002,,,0,0,0,7.32,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,second five seconds late,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,failure,second five seconds late,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,failure,second five seconds late,7,3,1,24.94,1,0,0,14,7.04,0,7.2,9.343000000000261,RED SCORING,2,26.26,,,0,0,0,6.2,20.76,29.560000000000002,4,3 TIPs
+guard3,failure,second five seconds late,8,2,0,23.26,1,0,0,12,8.76,0,7.36,9.450000000000202,RED SCORING,2,25.18,29.347000000012883,,0,1,0,6.36,19.68,,4,no R POLLEN volley at RIGHT
+guard3,failure,second five seconds late,9,3,1,24.94,1,0,0,16,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,22.22,25.995000000008787,,0,1,0,6.5200000000000005,16.72,28.88,4,3 TIPs
+guard3,failure,second five seconds late,10,2,0,24.94,1,0,0,14,7,0,7.42,9.552000000000145,RED SCORING,2,24.400000000000002,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,second five seconds late,11,2,0,20.34,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,23.400000000000002,26.307000000009168,,0,0,0,6.36,17.900000000000002,,4,no R POLLEN volley at RIGHT
+guard3,failure,second five seconds late,12,2,0,24.94,1,0,0,14,7.68,0,7.5200000000000005,9.498000000000175,,0,25.28,26.918000000009915,,0,0,0,6.5200000000000005,19.78,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,no human rolls,1,2,0,27.54,1,0,0,10,9.16,0,,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+guard3,failure,no human rolls,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,failure,no human rolls,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,failure,no human rolls,4,2,0,27.54,1,0,0,13,8.8,0,,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+guard3,failure,no human rolls,5,2,0,26.18,1,0,0,11,5.9,0,,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,failure,no human rolls,6,1,0,26.18,1,0,0,8,17.96,0,,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,failure,no human rolls,7,2,0,27.54,1,0,0,11,7.04,0,,,,0,,,,0,0,0,6.2,29.400000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,no human rolls,8,2,0,23.34,1,0,0,12,8.76,0,,,,0,,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+guard3,failure,no human rolls,9,3,1,24.94,1,0,0,12,7.5200000000000005,0,,,,0,,,,0,0,0,6.5200000000000005,18.16,28.88,4,3 TIPs
+guard3,failure,no human rolls,10,2,0,24.94,1,0,0,14,7,8,,,,0,,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,failure,no human rolls,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+guard3,failure,no human rolls,12,2,0,27.54,1,0,0,13,7.68,0,,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,1,3,1,25.06,1,0,0,14,9.16,0,9.58,11.885999999998852,RED SCORING,2,19.92,23.31500000000551,RED AUDIENCE,3,0,1,8.58,19.42,27,4,3 TIPs
+guard3,fruitport120,both earned rolls,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,4,3,1,24.94,1,0,0,16,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.580000000000002,21.880000000003758,,0,0,0,7.32,18.080000000000002,28.64,4,3 TIPs
+guard3,fruitport120,both earned rolls,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,7,3,1,25.8,1,0,0,15,7.04,0,7.2,9.343000000000261,RED SCORING,2,21.26,24.916000000007468,RED AUDIENCE,3,0,1,6.2,20.76,28.36,4,3 TIPs
+guard3,fruitport120,both earned rolls,8,2,0,23.26,1,0,0,13,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,23.345000000005548,,0,1,0,6.36,19.68,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,9,3,1,24.94,1,0,0,15,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,RED AUDIENCE,3,1,1,6.5200000000000005,16.72,27,4,3 TIPs
+guard3,fruitport120,both earned rolls,10,2,0,24.94,1,0,0,13,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,11,2,0,22.98,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,18.400000000000002,22.09400000000402,RED AUDIENCE,0,0,0,6.36,17.900000000000002,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,12,3,1,25.2,1,0,0,16,7.68,0,7.5200000000000005,9.498000000000175,,0,20.28,24.31100000000673,RED AUDIENCE,3,0,0,6.5200000000000005,19.78,28.66,4,3 TIPs
+guard3,fruitport120,both earned rolls,13,2,0,23.54,1,0,0,11,7.2,0,7.28,9.351000000000257,RED SCORING,2,18.96,22.645000000004693,,0,0,0,6.28,18.46,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,14,2,0,27.54,1,0,0,12,7.48,0,7.78,12.550999999998483,RED SCORING,2,,,,0,0,0,6.78,29.64,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,15,3,1,24.94,1,0,0,12,6.78,0,7.12,9.066000000000415,RED SCORING,2,17.240000000000002,20.651000000002256,RED AUDIENCE,3,1,0,6.12,16.740000000000002,28.66,4,3 TIPs
+guard3,fruitport120,both earned rolls,16,2,0,27.54,1,0,0,13,9.52,0,9.92,,,0,,,,0,0,0,8.92,29.72,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,17,2,0,24.94,1,0,0,13,6.96,0,7.22,9.478000000000186,RED SCORING,2,17.38,21.31000000000306,,0,1,0,6.22,16.88,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,18,3,1,24.94,1,0,0,14,8.52,0,8.96,10.988999999999349,RED SCORING,2,18.72,22.214000000004166,RED AUDIENCE,3,0,1,7.96,18.22,29.1,4,3 TIPs
+guard3,fruitport120,both earned rolls,19,2,0,24.94,1,0,0,12,8.94,0,9.24,11.50999999999906,RED SCORING,2,18.2,21.52900000000333,RED AUDIENCE,0,0,0,8.24,17.7,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,20,3,1,25.58,1,0,0,11,9.52,8,9.72,,,0,20.96,24.6970000000072,RED AUDIENCE,3,0,1,8.72,20.46,29.46,4,3 TIPs
+guard3,fruitport120,both earned rolls,21,2,0,25.06,1,0,0,13,7.96,0,8.36,10.46499999999964,RED SCORING,2,17.34,,,0,1,0,7.36,16.84,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,22,2,0,27.54,1,0,0,12,9.58,0,9.56,11.682999999998964,RED SCORING,2,,,,0,0,0,8.56,29.48,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,23,2,0,22.8,1,0,0,14,8.18,0,8.34,10.412999999999668,RED SCORING,2,18.38,21.813000000003676,RED AUDIENCE,0,0,0,7.34,17.88,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,24,2,0,26.18,1,0,0,12,4.14,0,18.42,,,0,,,,0,0,0,17.42,29.94,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,25,2,0,22.38,1,0,0,11,7.68,0,7.94,9.964999999999916,RED SCORING,2,17.14,20.816000000002457,RED AUDIENCE,0,1,0,6.94,16.64,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,26,2,0,27.54,1,0,0,14,9.66,0,8.98,10.883999999999407,RED SCORING,2,,,,0,1,0,7.98,31.2,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,27,3,1,24.94,1,0,0,13,7.58,0,7.66,12.436999999998546,RED AUDIENCE,3,19.42,22.854000000004948,RED AUDIENCE,3,0,0,6.66,18.92,26.96,4,3 TIPs
+guard3,fruitport120,both earned rolls,28,2,0,22.54,1,0,0,11,7.88,0,8.14,10.149999999999814,RED SCORING,2,17.96,21.352000000003112,,0,1,0,7.140000000000001,17.46,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,29,2,0,22.08,1,0,0,11,7.48,0,7.5,9.677000000000076,RED SCORING,2,17.2,20.67900000000229,RED AUDIENCE,0,1,0,6.5,16.7,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,30,2,0,22.94,1,0,0,11,7.24,0,7.46,9.497000000000176,RED SCORING,2,18.84,22.052000000003968,RED AUDIENCE,0,0,0,6.46,18.34,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,31,2,0,26.18,1,0,0,9,5.5200000000000005,0,18.36,,,0,,,,0,0,0,17.36,32.04,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,32,3,1,25.06,1,0,0,14,7.48,0,7.58,9.603000000000117,,0,19.22,24.27900000000669,,0,0,0,6.58,18.72,29.18,4,3 TIPs
+guard3,fruitport120,both earned rolls,33,2,0,21.76,1,0,0,12,7.04,0,7.18,9.373000000000244,RED SCORING,2,17.36,20.847000000002495,,0,1,0,6.18,16.86,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,34,2,0,27.54,1,0,0,11,7.38,0,7.58,,,0,,,,0,0,0,6.58,29.52,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,35,3,1,24.94,1,0,0,16,8.56,0,8.34,10.506999999999616,RED SCORING,2,17.28,20.845000000002493,RED AUDIENCE,3,1,1,7.34,16.78,26.94,4,3 TIPs
+guard3,fruitport120,both earned rolls,36,1,0,26.18,1,0,0,7,5.46,0,18.5,,,0,,,,0,0,0,17.5,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,37,2,0,24.94,1,0,0,18,8.78,0,8.98,10.852999999999424,RED SCORING,2,18.34,,,0,0,0,7.98,17.84,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,38,3,1,24.94,1,0,0,11,9.66,0,8.74,10.66099999999953,RED SCORING,2,18.900000000000002,22.401000000004395,RED AUDIENCE,3,1,0,7.74,18.400000000000002,28.240000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,39,2,0,23.56,1,0,0,9,7.12,0,7.5200000000000005,9.548000000000147,RED SCORING,2,17.400000000000002,20.702000000002318,RED AUDIENCE,0,1,0,6.5200000000000005,16.9,,4,both fired at RIGHT; fewer than 8 POLLEN
+guard3,fruitport120,both earned rolls,40,3,1,24.94,1,0,0,18,7.34,0,7.62,9.566000000000138,RED SCORING,2,19.04,22.30700000000428,RED AUDIENCE,3,1,0,6.62,18.54,30.7,4,3 TIPs
+guard3,fruitport120,both earned rolls,41,3,1,25.06,1,0,0,16,8.66,0,9,10.930999999999381,RED SCORING,2,19.16,22.459000000004465,,0,0,0,8,18.66,28.32,4,3 TIPs
+guard3,fruitport120,both earned rolls,42,3,1,25.06,1,0,0,16,6.84,0,7.26,9.198000000000341,RED SCORING,2,20.22,,,0,1,0,6.26,19.72,28.72,4,3 TIPs
+guard3,fruitport120,both earned rolls,43,2,0,24.26,1,0,0,10,9.3,0,9.74,,,0,19.94,23.36300000000557,RED AUDIENCE,0,0,0,8.74,19.44,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,44,2,0,22.14,1,0,0,10,9.02,0,9.26,12.450999999998539,RED AUDIENCE,0,18.98,,,0,0,0,8.26,18.48,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,45,2,0,27.54,1,0,0,13,9.02,0,9.42,11.408999999999116,RED SCORING,2,,,,0,0,0,8.42,29.48,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,46,3,1,24.94,1,0,0,15,7.48,0,7.92,9.88499999999996,RED SCORING,2,20.32,23.77100000000607,RED AUDIENCE,3,1,1,6.92,19.82,28.560000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,47,2,0,24.06,1,0,0,10,6.72,0,7.1000000000000005,9.457000000000198,RED SCORING,2,18.36,21.606000000003423,RED AUDIENCE,0,0,0,6.1000000000000005,17.86,,4,both fired at RIGHT; fewer than 8 POLLEN
+guard3,fruitport120,both earned rolls,48,3,1,25.42,1,0,0,15,6.96,0,7.32,24.523000000006988,RED AUDIENCE,3,19.56,26.84100000000982,,0,0,0,6.32,19.06,28.080000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,49,2,0,24.94,1,0,0,15,6.96,0,7.4,9.776000000000021,RED SCORING,2,17.26,21.099000000002803,,0,1,0,6.4,16.76,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,50,3,1,24.94,1,0,0,13,7.32,0,7.640000000000001,9.56000000000014,RED SCORING,2,20.06,24.006000000006356,RED AUDIENCE,3,1,0,6.640000000000001,19.56,30.82,4,3 TIPs
+guard3,fruitport120,both earned rolls,51,2,0,25.06,1,0,0,14,7.1000000000000005,0,7.28,9.423000000000217,RED SCORING,2,18.580000000000002,21.878000000003755,RED AUDIENCE,0,0,0,6.28,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,52,2,0,22.42,1,0,0,13,7.18,8,7.4,9.333000000000267,RED SCORING,2,20.66,26.205000000009044,,0,0,0,6.4,20.16,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,53,2,0,24.94,1,0,0,11,8.02,0,8.08,10.11999999999983,RED SCORING,2,17.22,25.798000000008546,,0,1,0,7.08,16.72,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,54,3,1,24.94,1,0,0,17,7.6000000000000005,0,8.040000000000001,9.967999999999915,RED SCORING,2,17.900000000000002,21.348000000003108,RED AUDIENCE,3,1,1,7.04,17.400000000000002,28.38,4,3 TIPs
+guard3,fruitport120,both earned rolls,55,2,0,22.08,1,0,0,11,7.42,0,7.82,,,0,18.7,,,0,0,0,6.82,18.2,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,56,3,1,25.06,1,0,0,14,7.3,0,7.5200000000000005,9.511000000000168,RED SCORING,2,17.88,21.116000000002824,RED AUDIENCE,3,1,1,6.5200000000000005,17.38,28.580000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,57,3,1,24.94,1,0,0,18,9.86,0,10.08,,,0,20.1,23.277000000005465,,0,0,0,9.08,19.6,28.64,4,3 TIPs
+guard3,fruitport120,both earned rolls,58,2,0,21.02,1,0,0,11,7.5600000000000005,0,7.96,9.937999999999931,RED SCORING,2,18.48,26.427000000009315,,0,0,0,6.96,17.98,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,59,2,0,21.34,1,0,0,12,7.5600000000000005,0,8,10.240999999999763,RED SCORING,2,17.22,,,0,1,0,7,16.72,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,60,3,1,25.06,1,0,0,16,7.62,0,7.6000000000000005,9.586000000000126,RED SCORING,2,19.56,28.881000000012314,,0,1,0,6.6000000000000005,19.06,28.64,4,3 TIPs
+guard3,fruitport120,both earned rolls,61,2,0,22.06,1,0,0,10,7.5,0,7.78,12.497999999998513,RED AUDIENCE,0,18.44,26.777000000009743,,0,0,0,6.78,17.94,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,62,2,0,25.06,1,0,0,14,8.540000000000001,0,8.8,10.98599999999935,RED SCORING,2,19.12,22.434000000004435,RED AUDIENCE,0,1,0,7.8,18.62,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,63,3,1,25.06,1,0,0,15,7.38,0,7.08,9.23600000000032,RED SCORING,2,17.2,20.833000000002478,RED AUDIENCE,3,1,1,6.08,16.7,27,4,3 TIPs
+guard3,fruitport120,both earned rolls,64,2,0,22.14,1,0,0,9,9.86,0,10.3,,,0,18.8,,,0,0,0,9.3,18.3,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,65,2,0,22.06,1,0,0,11,9.02,0,8.82,10.970999999999359,RED SCORING,2,17.32,26.731000000009686,,0,1,0,7.82,16.82,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,66,2,0,24.94,1,0,0,12,7.1000000000000005,0,7.38,,,0,18.68,21.934000000003824,RED AUDIENCE,0,0,0,6.38,18.18,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,67,2,0,26.18,1,0,0,10,5.5,0,18.28,,,0,,,,0,0,0,17.28,30.14,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,68,2,0,24.94,1,0,0,13,7.3,0,7.68,9.605000000000116,RED SCORING,2,21.580000000000002,,,0,0,0,6.68,21.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,69,3,1,25.06,1,0,0,16,8.9,0,8.96,,,0,17.2,,,0,0,0,7.96,16.7,28.14,4,3 TIPs
+guard3,fruitport120,both earned rolls,70,2,0,27.54,1,0,0,11,9.64,0,9.94,,,0,,,,0,0,0,8.94,29.64,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,71,3,1,24.94,1,0,0,13,6.88,0,7.28,9.351000000000257,RED SCORING,2,17.32,20.59600000000219,RED AUDIENCE,3,1,1,6.28,16.82,26.86,4,3 TIPs
+guard3,fruitport120,both earned rolls,72,2,0,27.54,1,0,0,13,9.4,0,9.24,11.18499999999924,RED SCORING,2,,,,0,1,0,8.24,30.48,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,73,3,1,24.94,1,0,0,14,6.78,0,7.140000000000001,9.090000000000401,,0,18.44,21.90600000000379,RED AUDIENCE,3,0,0,6.140000000000001,17.94,30.1,4,3 TIPs
+guard3,fruitport120,both earned rolls,74,2,0,24.94,1,0,0,12,7.640000000000001,0,8.06,10.08499999999985,RED SCORING,2,18.080000000000002,21.346000000003105,RED AUDIENCE,0,1,0,7.0600000000000005,17.580000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,75,2,0,26.18,1,0,0,11,5.74,0,18.34,,,0,,,,0,0,0,17.34,30.28,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,76,2,0,27.54,1,0,0,12,7.3,0,7.68,9.691000000000068,RED SCORING,2,,,,0,0,0,6.68,29.5,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,77,2,0,27.54,1,0,0,12,7.5,0,7.28,,,0,,,,0,0,0,6.28,29.46,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,78,2,0,24.94,1,0,0,13,7.24,0,7.5600000000000005,9.955999999999921,RED SCORING,2,18.6,26.065000000008872,,0,0,0,6.5600000000000005,18.1,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,79,1,0,26.18,1,0,0,6,6.42,0,18.26,,,0,,,,0,0,0,17.26,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,80,2,0,24.16,1,0,0,15,6.88,0,7.28,9.391000000000234,RED SCORING,2,19.98,23.269000000005455,RED AUDIENCE,0,0,0,6.28,19.48,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,81,2,0,22.54,1,0,0,11,8.06,0,7.9,10.10199999999984,RED SCORING,2,17.32,20.88300000000254,RED AUDIENCE,0,1,0,6.9,16.82,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,82,2,0,24.94,1,0,0,12,7.640000000000001,0,8.02,10.042999999999873,RED SCORING,2,17.84,,,0,1,0,7.0200000000000005,17.34,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,83,2,0,27.54,1,0,0,11,6.94,0,7.28,9.335000000000266,,0,,,,0,0,0,6.28,29.580000000000002,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,84,3,1,24.94,1,0,0,18,8.94,0,9.16,11.136999999999267,RED SCORING,2,19.36,22.671000000004724,,0,0,0,8.16,18.86,28.400000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,85,1,0,26.18,1,0,0,7,5.1000000000000005,0,18.28,,,0,,,,0,0,0,17.28,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,86,1,0,26.18,1,0,0,7,7.68,0,18.38,,,0,,,,0,0,0,17.38,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,87,3,1,24.94,1,0,0,16,7.46,0,7.24,9.16400000000036,RED SCORING,2,17.36,20.846000000002494,RED AUDIENCE,3,1,0,6.24,16.86,30.900000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,88,2,0,23.56,1,0,0,13,7.4,0,7.82,9.854999999999977,RED SCORING,2,18.46,21.778000000003633,RED AUDIENCE,0,1,0,6.82,17.96,,4,both fired at RIGHT; fewer than 8 POLLEN
+guard3,fruitport120,both earned rolls,89,3,1,25.3,1,0,0,10,9.46,0,9.22,12.559999999998478,RED AUDIENCE,3,21.04,24.405000000006844,RED AUDIENCE,3,0,0,8.22,20.54,28.560000000000002,4,3 TIPs
+guard3,fruitport120,both earned rolls,90,2,0,22.62,1,0,0,12,7.04,0,7.38,9.481000000000185,RED SCORING,2,18.28,21.72500000000357,RED AUDIENCE,0,1,0,6.38,17.78,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,91,2,0,26.18,1,0,0,13,5.9,0,18.240000000000002,,,0,,,,0,0,0,17.240000000000002,29.48,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,92,2,0,26.18,1,0,0,10,5.42,0,18.52,,,0,,,,0,0,0,17.52,30.86,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,93,2,0,27.54,1,0,0,12,7.08,0,7.1000000000000005,,,0,,,,0,0,0,6.1000000000000005,29.44,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,94,2,0,21.88,1,0,0,11,7.34,0,7.6000000000000005,,,0,19.6,26.582000000009504,,0,0,0,6.6000000000000005,19.1,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,95,2,0,27.54,1,0,0,13,7.0200000000000005,0,7.12,9.432000000000212,,0,,,,0,0,0,6.12,29.46,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,96,3,1,24.94,1,0,0,21,7.36,0,7.38,10.564999999999584,RED SCORING,2,19.36,22.62500000000467,RED AUDIENCE,3,0,0,6.38,18.86,28.88,4,3 TIPs
+guard3,fruitport120,both earned rolls,97,3,1,24.94,1,0,0,13,7.5600000000000005,0,7.28,9.185000000000349,RED SCORING,2,18.32,21.57900000000339,RED AUDIENCE,3,0,0,6.28,17.82,29.48,4,3 TIPs
+guard3,fruitport120,both earned rolls,98,3,1,24.94,1,0,0,16,7.36,8,7.640000000000001,9.809000000000003,RED SCORING,2,20.92,24.16600000000655,,0,0,0,6.640000000000001,20.42,29.1,4,3 TIPs
+guard3,fruitport120,both earned rolls,99,2,0,24.94,1,0,0,9,6.62,0,7.1000000000000005,9.36200000000025,RED SCORING,2,17.38,20.57300000000216,RED AUDIENCE,0,1,0,6.1000000000000005,16.88,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,100,2,0,27.54,1,0,0,17,7.78,0,7.68,9.692000000000068,,0,,,,0,0,0,6.68,29.2,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,101,2,0,23.68,1,0,0,12,8.24,0,8.26,10.348999999999704,RED SCORING,2,17.240000000000002,21.461000000003246,RED AUDIENCE,0,1,0,7.26,16.740000000000002,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,102,3,1,25.42,1,0,0,15,7.24,0,7.5600000000000005,12.271999999998638,RED AUDIENCE,3,21.26,24.532000000007,RED AUDIENCE,3,0,0,6.5600000000000005,20.76,28.34,4,3 TIPs
+guard3,fruitport120,both earned rolls,103,2,0,21.1,1,0,0,11,7.6000000000000005,0,7.66,10.046999999999871,RED SCORING,2,17.18,,,0,1,0,6.66,16.68,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,104,2,0,27.54,1,0,0,14,8.28,0,8.540000000000001,12.580999999998467,RED SCORING,2,,,,0,0,0,7.54,29.48,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,105,2,0,26.18,1,0,0,11,6.24,0,18.34,,,0,,,,0,0,0,17.34,29.5,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,106,1,0,26.18,1,0,0,10,5.22,0,18.36,,,0,,,,0,0,0,17.36,,,4,fewer than 2 TIPs
+guard3,fruitport120,both earned rolls,107,3,1,25.06,1,0,0,17,6.88,0,7.2,9.281000000000295,RED SCORING,2,17.22,20.57200000000216,RED AUDIENCE,3,1,1,6.2,16.72,27.14,4,3 TIPs
+guard3,fruitport120,both earned rolls,108,2,0,25.06,1,0,0,15,6.9,0,7.34,9.340000000000263,RED SCORING,2,19.82,23.16600000000533,RED AUDIENCE,0,0,0,6.34,19.32,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,109,2,0,25.06,1,0,0,13,9.68,0,9.620000000000001,12.509999999998506,,0,18.16,,,0,0,0,8.620000000000001,17.66,,4,both fired at RIGHT; fewer than 8 POLLEN
+guard3,fruitport120,both earned rolls,110,3,1,25.78,1,0,0,13,7.72,7,7.36,9.329000000000269,RED SCORING,2,20.7,24.899000000007447,RED AUDIENCE,3,0,1,6.36,20.2,28.86,4,3 TIPs
+guard3,fruitport120,both earned rolls,111,2,0,27.54,1,0,0,15,6.58,0,7.0600000000000005,9.172000000000356,,0,,,,0,0,0,6.0600000000000005,29.42,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,112,2,0,27.54,1,0,0,15,7.36,0,7.58,,,0,,,,0,0,0,6.58,29.5,,4,no L POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,113,2,0,24.94,1,0,0,12,6.74,0,7.1000000000000005,29.612000000013207,,0,19.12,22.510000000004528,,0,0,0,6.1000000000000005,18.62,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,fruitport120,both earned rolls,114,3,1,24.94,1,0,0,16,8.16,0,7.74,9.798000000000009,RED SCORING,2,18.34,26.314000000009177,,0,1,0,6.74,17.84,31.02,4,3 TIPs
+guard3,fruitport120,both earned rolls,115,2,0,22.88,1,0,0,8,8.02,0,8.46,10.496999999999622,RED SCORING,2,18.18,21.79900000000366,RED AUDIENCE,0,0,0,7.46,17.68,,4,no R POLLEN volley at RIGHT
+guard3,fruitport120,both earned rolls,116,3,1,24.94,1,0,0,14,9.84,0,9.58,11.630999999998993,RED SCORING,2,18.14,,,0,1,0,8.58,17.64,30.2,4,3 TIPs
+guard3,fruitport120,both earned rolls,117,3,1,24.94,1,0,0,15,7.22,0,7.36,9.286000000000293,RED SCORING,2,18.92,22.808000000004892,RED AUDIENCE,3,0,1,6.36,18.42,26.98,4,3 TIPs
+guard3,fruitport120,both earned rolls,118,3,1,24.94,1,0,0,15,8.86,0,8.9,,,0,18.68,26.037000000008838,,0,0,0,7.9,18.18,28.62,4,3 TIPs
+guard3,fruitport120,both earned rolls,119,3,1,25.32,1,0,0,15,7.48,8,7.1000000000000005,9.358000000000253,,0,20.72,24.424000000006867,RED AUDIENCE,3,0,0,6.1000000000000005,20.22,28.64,4,3 TIPs
+guard3,fruitport120,both earned rolls,120,2,0,23.84,1,0,0,12,7.78,0,8.08,,,0,19.72,22.95400000000507,RED AUDIENCE,0,0,0,7.08,19.22,,4,no R POLLEN volley at RIGHT
+guard3,misses,R misses one POLLEN volley 2,1,3,1,24.94,1,0,0,15,9.16,0,9.58,11.885999999998852,RED SCORING,2,19.92,23.31500000000551,RED AUDIENCE,3,0,1,8.58,19.42,26.86,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,2,3,1,24.94,1,0,0,15,8.84,0,8.98,11.05999999999931,RED SCORING,2,18.68,26.462000000009358,,0,0,0,7.98,18.18,28.62,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,3,3,1,24.94,1,0,0,13,6.5600000000000005,0,7.04,9.096000000000398,RED SCORING,2,18.34,21.76000000000361,RED AUDIENCE,3,0,1,6.04,17.84,26.900000000000002,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,4,3,1,24.94,1,0,0,16,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.580000000000002,21.880000000003758,RED AUDIENCE,3,0,1,7.32,18.080000000000002,28.36,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,5,3,1,24.94,1,0,0,13,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,18.48,22.109000000004038,RED AUDIENCE,3,0,1,6.140000000000001,17.98,26.88,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,6,2,0,27.54,1,0,0,13,9.78,0,9.66,,,0,,,,0,0,0,8.66,29.580000000000002,,4,no L POLLEN volley at RIGHT
+guard3,misses,R misses one POLLEN volley 2,7,3,1,25.8,1,0,0,16,7.04,0,7.2,9.343000000000261,RED SCORING,2,21.26,24.916000000007468,RED AUDIENCE,3,0,1,6.2,20.76,28.36,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,8,3,1,24.94,1,0,0,13,8.76,0,7.36,9.450000000000202,RED SCORING,2,21.22,24.38500000000682,,0,0,0,6.36,20.72,29.84,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,9,3,1,24.94,1,0,0,15,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,18.6,21.97900000000388,RED AUDIENCE,3,0,1,6.5200000000000005,18.1,27,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,10,3,1,24.94,1,0,0,15,7,0,7.42,9.552000000000145,RED SCORING,2,20.18,23.857000000006174,RED AUDIENCE,3,0,1,6.42,19.68,28.82,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,11,3,1,24.94,1,0,0,17,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,18.400000000000002,22.09400000000402,RED AUDIENCE,3,0,1,6.36,17.900000000000002,26.900000000000002,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 2,12,3,1,24.94,1,0,0,17,7.68,0,7.5200000000000005,9.498000000000175,RED SCORING,2,19.96,26.03100000000883,,0,0,0,6.5200000000000005,19.46,28.88,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,1,2,0,24.94,1,0,0,10,9.16,0,9.58,11.885999999998852,RED SCORING,2,17.28,,,0,1,0,8.58,16.78,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,misses,R misses one POLLEN volley 3,2,2,0,24.94,1,0,0,14,8.84,0,8.98,11.05999999999931,RED SCORING,2,18.240000000000002,26.16000000000899,,0,1,0,7.98,17.740000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,misses,R misses one POLLEN volley 3,3,3,1,24.94,1,0,0,16,6.5600000000000005,0,7.04,9.096000000000398,RED SCORING,2,17.34,20.76000000000239,RED AUDIENCE,3,1,0,6.04,16.84,30,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,4,3,1,24.94,1,0,0,16,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.18,21.937000000003827,RED AUDIENCE,3,1,0,7.32,17.68,28.44,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,5,3,1,24.94,1,0,0,15,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,17.26,20.889000000002547,RED AUDIENCE,3,1,0,6.140000000000001,16.76,28.86,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,6,3,1,24.94,1,0,0,16,9.78,7,9.66,,,0,20.48,23.883000000006206,RED AUDIENCE,3,0,0,8.66,19.98,28.16,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,7,3,1,24.94,1,0,0,18,7.04,0,7.2,9.343000000000261,RED SCORING,2,17.22,20.87600000000253,RED AUDIENCE,3,1,0,6.2,16.72,29.48,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,8,3,1,24.94,1,0,0,14,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,23.345000000005548,,0,1,0,6.36,19.68,30.84,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,9,3,1,24.94,1,0,0,14,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,RED AUDIENCE,3,1,0,6.5200000000000005,16.72,28.78,4,3 TIPs
+guard3,misses,R misses one POLLEN volley 3,10,2,0,24.94,1,0,0,12,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,misses,R misses one POLLEN volley 3,11,2,0,24.94,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,17.38,26.24400000000909,,0,1,0,6.36,16.88,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,misses,R misses one POLLEN volley 3,12,3,1,24.94,1,0,0,15,7.68,0,7.5200000000000005,9.498000000000175,RED SCORING,2,19.8,23.831000000006142,RED AUDIENCE,3,1,0,6.5200000000000005,19.3,28.46,4,3 TIPs
+guard3,slowfruit,R drive slower,1,2,0,28.04,1,0,0,11,9.24,0,9.66,,,0,,,,0,0,0,8.66,29.98,,4,no L POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,2,2,0,27.4,1,0,0,9,5.6000000000000005,0,19.26,,,0,,,,0,0,0,18.26,31.16,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,3,2,0,27.4,1,0,0,11,7.140000000000001,0,18.88,,,0,,,,0,0,0,17.88,30.560000000000002,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,4,2,0,23.8,1,0,0,13,8.88,0,8.4,10.540999999999597,RED SCORING,2,19.62,22.92000000000503,,0,0,0,7.4,19.12,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,5,2,0,27.4,1,0,0,12,5.98,0,18.92,,,0,,,,0,0,0,17.92,30.66,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,6,1,0,27.4,1,0,0,7,18.54,0,19.14,,,0,,,,0,0,0,18.14,,,4,fewer than 2 TIPs
+guard3,slowfruit,R drive slower,7,2,0,15.82,1,0,0,9,7.12,8,7.28,9.423000000000217,RED SCORING,2,22.3,,,0,0,0,6.28,21.8,,4,no L POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,8,2,0,25.2,1,0,0,10,8.84,0,7.44,9.530000000000157,RED SCORING,2,21.14,24.30500000000672,,0,1,0,6.44,20.64,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,9,2,0,21.4,1,0,0,11,7.6000000000000005,0,7.6000000000000005,9.601000000000118,RED SCORING,2,18.26,,,0,1,0,6.6000000000000005,17.76,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,10,2,0,24.94,1,0,0,12,7.08,0,7.5,9.632000000000101,RED SCORING,2,20.38,24.05700000000642,,0,1,0,6.5,19.88,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,11,2,0,24.02,1,0,0,10,7.140000000000001,0,7.44,9.359000000000252,RED SCORING,2,19.44,23.13400000000529,RED AUDIENCE,0,0,0,6.44,18.94,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,12,2,0,23.08,1,0,0,10,7.76,0,7.6000000000000005,9.57800000000013,,0,21.32,,,0,0,0,6.6000000000000005,20.82,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,13,2,0,24.28,1,0,0,12,7.28,0,7.36,9.431000000000212,RED SCORING,2,20,23.383000000005595,RED AUDIENCE,0,0,0,6.36,19.5,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,14,2,0,28.04,1,0,0,14,7.5600000000000005,0,7.86,12.724999999998387,RED SCORING,2,,,,0,0,0,6.86,30.14,,4,no L POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,15,2,0,22.58,1,0,0,13,6.86,0,7.2,9.14600000000037,RED SCORING,2,18.28,21.691000000003527,RED AUDIENCE,0,1,0,6.2,17.78,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,R drive slower,16,2,0,28.04,1,0,0,12,9.6,0,10,,,0,,,,0,0,0,9,30.22,,4,no L POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,1,3,1,25.06,1,0,0,13,9.16,0,9.58,11.885999999998852,RED SCORING,2,19.92,23.58500000000584,RED AUDIENCE,3,0,1,8.58,19.42,26.96,4,3 TIPs
+guard3,slowfruit,L drive slower,2,2,0,27.4,1,0,0,9,5.5200000000000005,0,19.26,,,0,,,,0,0,0,18.26,31.16,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,3,2,0,27.4,1,0,0,11,7.0600000000000005,0,18.88,,,0,,,,0,0,0,17.88,30.560000000000002,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,4,3,1,24.94,1,0,0,18,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.580000000000002,22.337000000004316,RED AUDIENCE,3,0,0,7.32,18.080000000000002,28.42,4,3 TIPs
+guard3,slowfruit,L drive slower,5,2,0,27.4,1,0,0,12,5.9,0,18.92,,,0,,,,0,0,0,17.92,30.66,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,6,1,0,27.4,1,0,0,8,18.54,0,19.14,,,0,,,,0,0,0,18.14,,,4,fewer than 2 TIPs
+guard3,slowfruit,L drive slower,7,3,1,25.8,1,0,0,14,7.04,0,7.2,9.343000000000261,RED SCORING,2,21.26,24.916000000007468,RED AUDIENCE,3,0,0,6.2,20.76,27.72,4,3 TIPs
+guard3,slowfruit,L drive slower,8,2,0,23.26,1,0,0,12,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,23.345000000005548,,0,1,0,6.36,19.68,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,9,3,1,24.94,1,0,0,15,7.5200000000000005,0,7.5200000000000005,9.521000000000162,RED SCORING,2,17.22,21.078000000002778,RED AUDIENCE,3,1,1,6.5200000000000005,16.72,27,4,3 TIPs
+guard3,slowfruit,L drive slower,10,2,0,24.94,1,0,0,11,7,0,7.42,9.552000000000145,RED SCORING,2,19.400000000000002,,,0,1,0,6.42,18.900000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,slowfruit,L drive slower,11,2,0,22.98,1,0,0,13,7.0600000000000005,0,7.36,9.279000000000297,RED SCORING,2,18.400000000000002,22.09400000000402,RED AUDIENCE,0,0,0,6.36,17.900000000000002,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,12,3,1,25.2,1,0,0,16,7.68,0,7.5200000000000005,9.498000000000175,,0,20.28,24.31100000000673,RED AUDIENCE,3,0,0,6.5200000000000005,19.78,28.66,4,3 TIPs
+guard3,slowfruit,L drive slower,13,2,0,23.54,1,0,0,11,7.2,0,7.28,9.351000000000257,RED SCORING,2,18.96,22.645000000004693,,0,0,0,6.28,18.46,,4,no R POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,14,2,0,28.04,1,0,0,12,7.48,0,7.78,12.624999999998442,RED SCORING,2,,,,0,0,0,6.78,30.14,,4,no L POLLEN volley at RIGHT
+guard3,slowfruit,L drive slower,15,2,0,24.94,1,0,0,10,6.78,0,7.12,9.066000000000415,RED SCORING,2,17.240000000000002,,,0,1,0,6.12,16.740000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+guard3,slowfruit,L drive slower,16,2,0,28.04,1,0,0,13,9.52,0,9.92,,,0,,,,0,0,0,8.92,30.22,,4,no L POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,1,2,0,26.18,1,0,0,9,20.88,0,20.82,,,0,,,,0,0,0,19.82,30.900000000000002,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,2,2,0,26.18,1,0,0,8,7.24,0,21.12,,,0,,,,0,0,0,20.12,29.96,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,3,2,0,26.18,1,0,0,6,18.66,0,18.84,,,0,,,,0,0,0,17.84,29.34,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,4,2,0,26.18,1,0,0,10,20.080000000000002,0,20.46,,,0,,,,0,0,0,19.46,29.78,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,5,2,0,26.18,1,0,0,12,12.780000000000001,0,19.34,,,0,,,,0,0,0,18.34,29.44,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,6,2,0,26.18,1,0,0,7,21.62,0,21.78,,,0,,,,0,0,0,20.78,31.38,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,7,2,0,26.18,1,0,0,9,18.72,0,19.12,,,0,,,,0,0,0,18.12,32.22,,4,no R POLLEN volley at RIGHT
+guard3,timing,R preload volley misses,8,2,0,26.18,1,0,0,8,7.5,0,19.52,,,0,,,,0,0,0,18.52,32.42,,4,no R POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,1,2,0,27.54,1,0,0,13,9.16,0,9.58,12.28599999999863,RED SCORING,2,,,,0,0,0,8.58,32.160000000000004,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,2,2,0,27.54,1,0,0,15,8.84,0,8.98,11.05999999999931,RED SCORING,2,,,,0,1,0,7.98,30.5,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,3,2,0,27.54,1,0,0,13,6.5600000000000005,0,7.04,,,0,,,,0,0,0,6.04,30.7,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,4,2,0,27.54,1,0,0,14,8.68,0,8.32,10.460999999999641,RED SCORING,2,,,,0,1,0,7.32,30.42,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,5,2,0,27.54,1,0,0,14,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,,,,0,1,0,6.140000000000001,29.52,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,6,2,0,27.54,1,0,0,12,9.78,0,9.66,,,0,,,,0,0,0,8.66,32.74,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,7,2,0,27.54,1,0,0,15,7.04,0,7.2,9.343000000000261,RED SCORING,2,,,,0,1,0,6.2,29.46,,4,no L POLLEN volley at RIGHT
+guard3,timing,L preload volley misses,8,2,0,27.54,1,0,0,12,7.72,0,7.36,9.450000000000202,RED SCORING,2,,,,0,1,0,6.36,33.36,,4,no L POLLEN volley at RIGHT
+guard3,timing,R drive slower,1,2,0,22.84,1,0,0,12,9.24,0,9.66,,,0,21.04,26.27600000000913,,0,0,0,8.66,20.54,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,2,2,0,22.9,1,0,0,12,8.92,0,9.06,11.139999999999265,RED SCORING,2,19.28,,,0,1,0,8.06,18.78,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,3,2,0,22.68,1,0,0,10,6.640000000000001,0,7.12,9.176000000000354,RED SCORING,2,18.38,21.80000000000366,RED AUDIENCE,0,1,0,6.12,17.88,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,4,2,0,23.66,1,0,0,11,8.88,0,8.4,10.540999999999597,RED SCORING,2,19.240000000000002,22.54400000000457,RED AUDIENCE,0,1,0,7.4,18.740000000000002,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,5,2,0,22.82,1,0,0,12,6.74,0,7.22,9.229000000000324,RED SCORING,2,18.3,21.929000000003818,RED AUDIENCE,0,1,0,6.22,17.8,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,6,2,0,25.82,1,0,0,12,9.86,0,9.74,,,0,21.52,24.923000000007477,,0,0,0,8.74,21.02,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,7,2,0,22.8,1,0,0,11,7.12,0,7.28,9.423000000000217,RED SCORING,2,18.26,21.9160000000038,RED AUDIENCE,0,1,0,6.28,17.76,,4,no R POLLEN volley at RIGHT
+guard3,timing,R drive slower,8,2,0,22.9,1,0,0,8,8.84,0,7.44,9.530000000000157,RED SCORING,2,21.14,26.57000000000949,,0,1,0,6.44,20.64,,4,no R POLLEN volley at RIGHT
+guard3,timing,L drive slower,1,3,1,24.94,1,0,0,12,9.16,0,9.58,11.885999999998852,RED SCORING,2,17.28,,,0,1,0,8.58,16.78,30.86,4,3 TIPs
+guard3,timing,L drive slower,2,3,1,24.94,1,0,0,15,8.84,0,8.98,11.05999999999931,RED SCORING,2,18.240000000000002,26.16000000000899,,0,1,0,7.98,17.740000000000002,28.62,4,3 TIPs
+guard3,timing,L drive slower,3,3,1,24.94,1,0,0,17,6.5600000000000005,0,7.04,9.096000000000398,RED SCORING,2,17.34,20.806000000002445,RED AUDIENCE,3,1,1,6.04,16.84,26.900000000000002,4,3 TIPs
+guard3,timing,L drive slower,4,3,1,24.94,1,0,0,17,8.8,0,8.32,10.460999999999641,RED SCORING,2,18.18,21.937000000003827,RED AUDIENCE,3,1,1,7.32,17.68,28.1,4,3 TIPs
+guard3,timing,L drive slower,5,3,1,24.94,1,0,0,16,6.66,0,7.140000000000001,9.149000000000369,RED SCORING,2,17.26,21.04800000000274,RED AUDIENCE,3,1,1,6.140000000000001,16.76,26.88,4,3 TIPs
+guard3,timing,L drive slower,6,3,1,24.94,1,0,0,13,9.78,7,9.66,,,0,20.48,23.883000000006206,RED AUDIENCE,3,0,0,8.66,19.98,27.26,4,3 TIPs
+guard3,timing,L drive slower,7,3,1,24.94,1,0,0,17,7.04,0,7.2,9.343000000000261,RED SCORING,2,17.22,,,0,1,0,6.2,16.72,29.48,4,3 TIPs
+guard3,timing,L drive slower,8,3,1,24.94,1,0,0,16,8.76,0,7.36,9.450000000000202,RED SCORING,2,20.18,23.345000000005548,,0,1,0,6.36,19.68,30.7,4,3 TIPs
+master,best,both earned rolls,1,3,1,24.58,1,0,0,15,9.16,0,9.58,,,0,20,,,0,0,0,8.58,19.5,30.54,4,3 TIPs
+master,best,both earned rolls,2,3,1,24.58,1,0,0,14,8.84,0,8.98,24.92700000000748,,0,19.04,,,0,0,0,7.98,18.54,28.26,4,3 TIPs
+master,best,both earned rolls,3,3,1,24.58,1,0,0,12,6.5600000000000005,0,7.04,,,0,18.46,,,0,0,0,6.04,17.96,29.72,4,3 TIPs
+master,best,both earned rolls,4,3,1,24.58,1,0,0,12,8.8,0,8.32,,,0,18.900000000000002,,,0,0,0,7.32,18.400000000000002,28.18,4,3 TIPs
+master,best,both earned rolls,5,3,1,24.58,1,0,0,13,6.66,0,7.140000000000001,,,0,18.56,,,0,0,0,6.140000000000001,18.06,28.560000000000002,4,3 TIPs
+master,best,both earned rolls,6,3,1,24.58,1,0,0,17,9.78,7,9.66,,,0,20.48,,,0,0,0,8.66,19.98,27.92,4,3 TIPs
+master,best,both earned rolls,7,3,1,24.58,1,0,0,16,7.04,0,7.2,,,0,21.34,,,0,0,0,6.2,20.84,29.2,4,3 TIPs
+master,best,both earned rolls,8,3,1,24.58,1,0,0,13,8.76,0,7.36,,,0,21.54,,,0,0,0,6.36,21.04,30.64,4,3 TIPs
+master,best,both earned rolls,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,7.5200000000000005,26.19500000000903,,0,18.66,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,best,both earned rolls,10,3,1,24.58,1,0,0,12,7,8,7.42,,,0,20.54,,,0,0,0,6.42,20.04,30.68,4,3 TIPs
+master,best,both earned rolls,11,3,1,24.58,1,0,0,16,7.0600000000000005,0,7.36,25.33400000000798,,0,18.52,,,0,0,0,6.36,18.02,30.28,4,3 TIPs
+master,best,both earned rolls,12,3,1,24.58,1,0,0,18,7.68,0,7.5200000000000005,,,0,20.28,,,0,0,0,6.5200000000000005,19.78,28.52,4,3 TIPs
+master,best,both earned rolls,13,3,1,24.58,1,0,0,15,7.2,0,7.28,,,0,19.04,,,0,0,0,6.28,18.54,27.46,4,3 TIPs
+master,best,both earned rolls,14,3,1,24.58,1,0,0,13,7.48,0,7.78,26.10400000000892,,0,19.2,,,0,0,0,6.78,18.7,31.32,4,3 TIPs
+master,best,both earned rolls,15,3,1,24.58,1,0,0,15,6.78,0,7.12,,,0,19.68,,,0,0,0,6.12,19.18,28.36,4,3 TIPs
+master,best,both earned rolls,16,3,1,24.58,1,0,0,13,9.52,0,9.92,27.179000000010234,,0,18.94,,,0,0,0,8.92,18.44,28.22,4,3 TIPs
+master,failure,first never comes,1,2,0,27.54,1,0,0,11,9.16,0,,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,failure,first never comes,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,failure,first never comes,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,failure,first never comes,4,2,0,27.54,1,0,0,13,8.8,0,,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,failure,first never comes,5,2,0,26.18,1,0,0,11,5.9,0,,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,failure,first never comes,6,1,0,26.18,1,0,0,8,17.96,0,,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,failure,first never comes,7,2,0,27.54,1,0,0,12,7.04,0,,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,failure,first never comes,8,2,0,23.34,1,0,0,12,8.76,0,,,,0,21.54,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,failure,first never comes,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,,,,0,18.66,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,failure,first never comes,10,2,0,24.58,1,0,0,11,7,8,,,,0,20.54,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,failure,first never comes,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,failure,first never comes,12,2,0,27.54,1,0,0,14,7.68,0,,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,failure,first five seconds late,1,2,0,27.54,1,0,0,11,9.16,0,14.58,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,failure,first five seconds late,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,23.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,failure,first five seconds late,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,23.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,failure,first five seconds late,4,2,0,27.54,1,0,0,14,8.8,0,13.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,failure,first five seconds late,5,2,0,26.18,1,0,0,11,5.9,0,23.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,failure,first five seconds late,6,1,0,26.18,1,0,0,8,17.96,0,23.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,failure,first five seconds late,7,2,0,27.54,1,0,0,14,7.04,0,12.200000000000001,15.721999999996726,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,failure,first five seconds late,8,2,0,23.34,1,0,0,11,8.76,0,12.36,16.081999999996672,RED AUDIENCE,0,21.54,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,failure,first five seconds late,9,3,1,24.58,1,0,0,13,7.5200000000000005,0,12.52,15.710999999996732,RED AUDIENCE,3,18.66,,,0,0,0,6.5200000000000005,18.16,28.42,4,3 TIPs
+master,failure,first five seconds late,10,2,0,24.58,1,0,0,12,7,8,12.42,15.933999999996608,RED AUDIENCE,0,20.54,,,0,0,0,6.42,20.04,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,failure,first five seconds late,11,2,0,27.54,1,0,0,12,7.0600000000000005,0,12.36,17.03699999999784,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,failure,first five seconds late,12,2,0,27.54,1,0,0,13,7.68,0,12.52,16.806999999997558,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,failure,second never comes,1,2,0,27.54,1,0,0,12,9.16,0,9.58,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,failure,second never comes,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,failure,second never comes,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,failure,second never comes,4,2,0,27.54,1,0,0,13,8.8,0,8.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,failure,second never comes,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,failure,second never comes,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,failure,second never comes,7,2,0,27.54,1,0,0,12,7.04,0,7.2,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,failure,second never comes,8,2,0,23.34,1,0,0,12,8.76,0,7.36,,,0,,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,failure,second never comes,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,failure,second never comes,10,2,0,24.58,1,0,0,11,7,8,7.42,,,0,,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,failure,second never comes,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,7.36,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,failure,second never comes,12,2,0,27.54,1,0,0,14,7.68,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,failure,second five seconds late,1,2,0,27.54,1,0,0,12,9.16,0,9.58,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,failure,second five seconds late,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,failure,second five seconds late,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,failure,second five seconds late,4,2,0,27.54,1,0,0,13,8.8,0,8.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,failure,second five seconds late,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,failure,second five seconds late,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,failure,second five seconds late,7,2,0,27.54,1,0,0,12,7.04,0,7.2,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,failure,second five seconds late,8,2,0,23.34,1,0,0,12,8.76,0,7.36,,,0,,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,failure,second five seconds late,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,failure,second five seconds late,10,2,0,24.58,1,0,0,11,7,8,7.42,,,0,,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,failure,second five seconds late,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,7.36,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,failure,second five seconds late,12,2,0,27.54,1,0,0,14,7.68,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,failure,no human rolls,1,2,0,27.54,1,0,0,11,9.16,0,,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,failure,no human rolls,2,2,0,26.18,1,0,0,14,5.5200000000000005,0,,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,failure,no human rolls,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,failure,no human rolls,4,2,0,27.54,1,0,0,13,8.8,0,,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,failure,no human rolls,5,2,0,26.18,1,0,0,11,5.9,0,,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,failure,no human rolls,6,1,0,26.18,1,0,0,8,17.96,0,,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,failure,no human rolls,7,2,0,27.54,1,0,0,12,7.04,0,,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,failure,no human rolls,8,2,0,23.34,1,0,0,12,8.76,0,,,,0,,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,failure,no human rolls,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,,,,0,,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,failure,no human rolls,10,2,0,24.58,1,0,0,11,7,8,,,,0,,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,failure,no human rolls,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,failure,no human rolls,12,2,0,27.54,1,0,0,14,7.68,0,,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,1,2,0,27.54,1,0,0,12,9.16,0,9.58,,,0,,,,0,0,0,8.58,29.48,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,2,2,0,26.18,1,0,0,12,5.5200000000000005,0,18.68,,,0,,,,0,0,0,17.68,29.94,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,3,2,0,26.18,1,0,0,11,7.0600000000000005,0,18.3,,,0,,,,0,0,0,17.3,29.34,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,4,2,0,27.54,1,0,0,13,8.8,0,8.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,5,2,0,26.18,1,0,0,12,5.9,0,18.34,,,0,,,,0,0,0,17.34,29.44,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,6,1,0,26.18,1,0,0,8,17.96,0,18.56,,,0,,,,0,0,0,17.56,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,7,2,0,27.54,1,0,0,12,7.04,0,7.2,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,8,2,0,23.34,1,0,0,12,8.76,0,7.36,,,0,21.54,,,0,0,0,6.36,21.04,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,9,3,1,24.58,1,0,0,12,7.5200000000000005,0,7.5200000000000005,,,0,18.66,,,0,0,0,6.5200000000000005,18.16,28.52,4,3 TIPs
+master,fruitport120,both earned rolls,10,2,0,24.58,1,0,0,11,7,8,7.42,,,0,20.54,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,11,2,0,27.54,1,0,0,10,7.0600000000000005,0,7.36,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,12,2,0,27.54,1,0,0,14,7.68,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,29.7,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,13,2,0,27.54,1,0,0,11,7.2,0,7.28,,,0,,,,0,0,0,6.28,29.46,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,14,2,0,27.54,1,0,0,12,7.48,0,7.78,,,0,,,,0,0,0,6.78,29.68,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,15,2,0,24.58,1,0,0,13,6.78,0,7.12,,,0,19.68,,,0,0,0,6.12,19.18,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,16,2,0,27.54,1,0,0,13,9.52,0,9.92,,,0,,,,0,0,0,8.92,29.72,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,17,2,0,24.58,1,0,0,12,6.96,7,7.22,,,0,20.900000000000002,,,0,0,0,6.22,20.400000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,18,2,0,27.54,1,0,0,11,8.52,0,8.96,,,0,,,,0,0,0,7.96,29.64,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,19,2,0,27.54,1,0,0,12,8.94,0,9.24,,,0,,,,0,0,0,8.24,29.44,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,20,3,1,24.72,1,0,0,10,9.52,8,9.72,,,0,20.96,,,0,0,0,8.72,20.46,29,4,3 TIPs
+master,fruitport120,both earned rolls,21,2,0,24.72,1,0,0,10,7.96,0,8.36,,,0,19.32,,,0,0,0,7.36,18.82,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,22,2,0,27.54,1,0,0,12,9.58,0,9.56,,,0,,,,0,0,0,8.56,29.54,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,23,2,0,27.54,1,0,0,12,8.18,0,8.34,,,0,,,,0,0,0,7.34,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,24,2,0,26.18,1,0,0,12,4.14,0,18.42,,,0,,,,0,0,0,17.42,29.94,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,25,2,0,21.8,1,0,0,10,7.68,0,7.94,,,0,20.02,,,0,0,0,6.94,19.52,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,26,2,0,27.54,1,0,0,13,9.66,0,8.98,,,0,,,,0,0,0,7.98,31.060000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,27,3,1,24.58,1,0,0,14,7.58,0,7.66,,,0,19.42,27.742000000010922,,0,0,0,6.66,18.92,28.92,4,3 TIPs
+master,fruitport120,both earned rolls,28,2,0,20.26,1,0,0,13,7.88,0,8.14,,,0,18.5,,,0,0,0,7.140000000000001,18,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,29,2,0,21.48,1,0,0,12,7.48,0,7.5,,,0,19.7,,,0,0,0,6.5,19.2,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,30,2,0,27.54,1,0,0,13,7.24,0,7.46,,,0,,,,0,0,0,6.46,29.62,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,31,2,0,26.18,1,0,0,9,5.5200000000000005,0,18.36,,,0,,,,0,0,0,17.36,32.04,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,32,2,0,27.54,1,0,0,12,7.48,0,7.58,,,0,,,,0,0,0,6.58,29.76,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,33,2,0,20.88,1,0,0,10,7.04,0,7.18,,,0,19.080000000000002,,,0,0,0,6.18,18.580000000000002,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,34,2,0,27.54,1,0,0,9,7.38,0,7.58,,,0,,,,0,0,0,6.58,29.52,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,35,3,1,24.58,1,0,0,13,8.56,0,8.34,,,0,20.34,,,0,0,0,7.34,19.84,27.62,4,3 TIPs
+master,fruitport120,both earned rolls,36,1,0,26.18,1,0,0,7,5.46,0,18.5,,,0,,,,0,0,0,17.5,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,37,2,0,27.54,1,0,0,15,8.78,0,8.98,,,0,,,,0,0,0,7.98,29.36,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,38,2,0,24.58,1,0,0,8,9.66,0,8.74,,,0,19.8,,,0,0,0,7.74,19.3,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,fruitport120,both earned rolls,39,2,0,23.2,1,0,0,9,7.12,0,7.5200000000000005,,,0,18.72,,,0,0,0,6.5200000000000005,18.22,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,fruitport120,both earned rolls,40,2,0,24.58,1,0,0,9,7.34,0,7.62,,,0,20.04,,,0,0,0,6.62,19.54,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,fruitport120,both earned rolls,41,2,0,27.54,1,0,0,10,8.66,0,9,,,0,,,,0,0,0,8,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,42,3,1,24.72,1,0,0,18,6.84,7,7.26,,,0,20.64,,,0,0,0,6.26,20.14,28.38,4,3 TIPs
+master,fruitport120,both earned rolls,43,2,0,21.72,1,0,0,11,9.3,0,9.74,,,0,19.94,,,0,0,0,8.74,19.44,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,44,2,0,21.08,1,0,0,13,9.02,0,9.26,,,0,18.98,,,0,0,0,8.26,18.48,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,45,2,0,27.54,1,0,0,13,9.02,0,9.42,,,0,,,,0,0,0,8.42,31.02,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,46,3,1,24.58,1,0,0,10,7.48,0,7.92,,,0,21.64,,,0,0,0,6.92,21.14,30.16,4,3 TIPs
+master,fruitport120,both earned rolls,47,2,0,27.54,1,0,0,12,6.72,0,7.1000000000000005,,,0,,,,0,0,0,6.1000000000000005,29.46,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,48,3,1,24.58,1,0,0,13,6.96,0,7.32,25.349000000007997,,0,19.56,,,0,0,0,6.32,19.06,28.26,4,3 TIPs
+master,fruitport120,both earned rolls,49,2,0,24.58,1,0,0,12,6.96,0,7.4,,,0,18.44,,,0,0,0,6.4,17.94,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,50,2,0,24.58,1,0,0,10,7.32,0,7.640000000000001,,,0,21.36,,,0,0,0,6.640000000000001,20.86,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,51,2,0,27.54,1,0,0,12,7.1000000000000005,0,7.28,,,0,,,,0,0,0,6.28,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,52,2,0,27.54,1,0,0,12,7.18,0,7.4,,,0,,,,0,0,0,6.4,29.62,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,53,2,0,24.58,1,0,0,12,8.02,0,8.08,22.572000000004603,,0,19.6,,,0,0,0,7.08,19.1,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,54,3,1,24.58,1,0,0,16,7.6000000000000005,0,8.040000000000001,,,0,18.7,,,0,0,0,7.04,18.2,29.1,4,3 TIPs
+master,fruitport120,both earned rolls,55,2,0,20.48,1,0,0,12,7.42,0,7.82,,,0,18.7,,,0,0,0,6.82,18.2,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,56,3,1,24.72,1,0,0,16,7.3,0,7.5200000000000005,23.10900000000526,,0,18.68,,,0,0,0,6.5200000000000005,18.18,29.26,4,3 TIPs
+master,fruitport120,both earned rolls,57,2,0,24.58,1,0,0,13,9.86,0,10.08,,,0,20.1,,,0,0,0,9.08,19.6,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,58,2,0,27.54,1,0,0,12,7.5600000000000005,0,7.96,,,0,,,,0,0,0,6.96,29.54,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,59,2,0,20.52,1,0,0,9,7.5600000000000005,0,8,,,0,18.740000000000002,26.85600000000984,,0,0,0,7,18.240000000000002,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,60,3,1,24.72,1,0,0,17,7.62,8,7.6000000000000005,,,0,20.7,,,0,0,0,6.6000000000000005,20.2,28.3,4,3 TIPs
+master,fruitport120,both earned rolls,61,2,0,20.22,1,0,0,11,7.5,0,7.78,,,0,18.44,,,0,0,0,6.78,17.94,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,62,2,0,24.72,1,0,0,11,8.540000000000001,0,8.8,,,0,20.240000000000002,,,0,0,0,7.8,19.740000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,63,3,1,24.72,1,0,0,13,7.38,0,7.08,27.74000000001092,,0,20,26.859000000009843,,0,0,0,6.08,19.5,29.080000000000002,4,3 TIPs
+master,fruitport120,both earned rolls,64,2,0,22.1,1,0,0,9,9.86,0,10.3,,,0,18.8,26.8250000000098,,0,0,0,9.3,18.3,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,65,2,0,22.8,1,0,0,10,9.02,0,8.82,,,0,21.02,,,0,0,0,7.82,20.52,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,66,2,0,24.58,1,0,0,10,7.1000000000000005,0,7.38,25.746000000008483,,0,18.68,,,0,0,0,6.38,18.18,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,67,2,0,26.18,1,0,0,10,5.5,0,18.28,,,0,,,,0,0,0,17.28,30.14,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,68,2,0,27.54,1,0,0,11,7.3,0,7.68,,,0,,,,0,0,0,6.68,29.6,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,69,3,1,24.72,1,0,0,15,8.9,0,8.96,,,0,19.900000000000002,26.484000000009384,,0,0,0,7.96,19.400000000000002,27.8,4,3 TIPs
+master,fruitport120,both earned rolls,70,2,0,27.54,1,0,0,12,9.64,0,9.94,,,0,,,,0,0,0,8.94,29.64,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,71,3,1,24.58,1,0,0,13,6.88,0,7.28,,,0,18.44,,,0,0,0,6.28,17.94,27.86,4,3 TIPs
+master,fruitport120,both earned rolls,72,2,0,27.54,1,0,0,14,9.4,0,9.24,,,0,,,,0,0,0,8.24,29.82,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,73,2,0,27.54,1,0,0,9,6.78,0,7.140000000000001,,,0,,,,0,0,0,6.140000000000001,29.36,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,74,2,0,24.58,1,0,0,12,7.640000000000001,0,8.06,24.86700000000741,,0,18.68,,,0,0,0,7.0600000000000005,18.18,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,75,2,0,26.18,1,0,0,11,5.74,0,18.34,,,0,,,,0,0,0,17.34,30.28,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,76,2,0,27.54,1,0,0,10,7.3,0,7.68,,,0,,,,0,0,0,6.68,32.54,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,77,2,0,27.54,1,0,0,12,7.5,0,7.28,,,0,,,,0,0,0,6.28,29.46,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,78,2,0,27.54,1,0,0,10,7.24,0,7.5600000000000005,,,0,,,,0,0,0,6.5600000000000005,29.68,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,79,1,0,26.18,1,0,0,6,6.42,0,18.26,,,0,,,,0,0,0,17.26,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,80,2,0,27.54,1,0,0,15,6.88,0,7.28,26.706000000009656,,0,,,,0,0,0,6.28,29.16,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,81,2,0,20.24,1,0,0,10,8.06,0,7.9,,,0,18.48,,,0,0,0,6.9,17.98,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,82,2,0,24.58,1,0,0,12,7.640000000000001,0,8.02,,,0,18.580000000000002,,,0,0,0,7.0200000000000005,18.080000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,83,2,0,27.54,1,0,0,13,6.94,0,7.28,,,0,,,,0,0,0,6.28,30.88,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,84,2,0,27.54,1,0,0,11,8.94,0,9.16,,,0,,,,0,0,0,8.16,29.72,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,85,1,0,26.18,1,0,0,7,5.1000000000000005,0,18.28,,,0,,,,0,0,0,17.28,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,86,1,0,26.18,1,0,0,7,7.68,0,18.38,,,0,,,,0,0,0,17.38,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,87,2,0,24.58,1,0,0,8,7.46,8,7.24,,,0,20.92,,,0,0,0,6.24,20.42,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,88,2,0,21.08,1,0,0,10,7.4,0,7.82,,,0,19.3,,,0,0,0,6.82,18.8,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,89,2,0,24.58,1,0,0,9,9.46,0,9.22,,,0,21.04,,,0,0,0,8.22,20.54,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,90,2,0,20.74,1,0,0,10,7.04,0,7.38,,,0,18.96,26.411000000009295,,0,0,0,6.38,18.46,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,91,2,0,26.18,1,0,0,13,5.9,0,18.240000000000002,,,0,,,,0,0,0,17.240000000000002,29.48,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,92,2,0,26.18,1,0,0,10,5.42,0,18.52,,,0,,,,0,0,0,17.52,30.86,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,93,2,0,27.54,1,0,0,13,7.08,0,7.1000000000000005,,,0,,,,0,0,0,6.1000000000000005,29.44,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,94,2,0,21.38,1,0,0,13,7.34,0,7.6000000000000005,,,0,19.6,,,0,0,0,6.6000000000000005,19.1,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,95,2,0,27.54,1,0,0,13,7.0200000000000005,0,7.12,,,0,,,,0,0,0,6.12,29.5,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,96,2,0,24.58,1,0,0,13,7.36,0,7.38,27.293000000010373,,0,20.06,,,0,0,0,6.38,19.56,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,97,2,0,27.54,1,0,0,10,7.5600000000000005,0,7.28,,,0,,,,0,0,0,6.28,29.5,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,98,2,0,27.54,1,0,0,13,7.36,0,7.640000000000001,,,0,,,,0,0,0,6.640000000000001,29.5,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,99,2,0,24.58,1,0,0,9,6.62,0,7.1000000000000005,,,0,18.84,,,0,0,0,6.1000000000000005,18.34,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,100,2,0,27.54,1,0,0,12,7.78,0,7.68,,,0,,,,0,0,0,6.68,29.68,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,101,2,0,23.32,1,0,0,12,8.24,0,8.26,,,0,19.96,,,0,0,0,7.26,19.46,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,102,2,0,24.72,1,0,0,8,7.24,0,7.5600000000000005,,,0,21.26,26.670000000009612,,0,0,0,6.5600000000000005,20.76,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,103,2,0,20.34,1,0,0,12,7.6000000000000005,0,7.66,,,0,18.54,,,0,0,0,6.66,18.04,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,104,2,0,27.54,1,0,0,15,8.28,0,8.540000000000001,,,0,,,,0,0,0,7.54,29.52,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,105,2,0,26.18,1,0,0,11,6.24,0,18.34,,,0,,,,0,0,0,17.34,29.5,,4,no R POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,106,1,0,26.18,1,0,0,10,5.22,0,18.36,,,0,,,,0,0,0,17.36,,,4,fewer than 2 TIPs
+master,fruitport120,both earned rolls,107,3,1,24.72,1,0,0,14,6.88,0,7.2,,,0,18.3,,,0,0,0,6.2,17.8,28.32,4,3 TIPs
+master,fruitport120,both earned rolls,108,2,0,27.54,1,0,0,15,6.9,0,7.34,,,0,,,,0,0,0,6.34,31.04,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,109,2,0,24.72,1,0,0,13,9.68,0,9.620000000000001,,,0,18.16,,,0,0,0,8.620000000000001,17.66,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,110,2,0,27.54,1,0,0,14,7.72,0,7.36,27.084000000010118,,0,,,,0,0,0,6.36,29.64,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,111,2,0,27.54,1,0,0,14,6.58,0,7.0600000000000005,,,0,,,,0,0,0,6.0600000000000005,29.44,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,112,2,0,27.54,1,0,0,11,7.36,0,7.58,,,0,,,,0,0,0,6.58,29.52,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,113,2,0,24.58,1,0,0,10,6.74,0,7.1000000000000005,,,0,19.12,,,0,0,0,6.1000000000000005,18.62,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,fruitport120,both earned rolls,114,3,1,24.58,1,0,0,13,8.16,0,7.74,,,0,19.04,,,0,0,0,6.74,18.54,30.34,4,3 TIPs
+master,fruitport120,both earned rolls,115,2,0,27.54,1,0,0,10,8.02,0,8.46,,,0,,,,0,0,0,7.46,29.400000000000002,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,116,3,1,24.58,1,0,0,11,9.84,0,9.58,21.872000000003748,,0,18.76,,,0,0,0,8.58,18.26,29.52,4,3 TIPs
+master,fruitport120,both earned rolls,117,2,0,24.58,1,0,0,12,7.22,0,7.36,23.3060000000055,,0,19.46,,,0,0,0,6.36,18.96,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,fruitport120,both earned rolls,118,3,1,24.58,1,0,0,15,8.86,0,8.9,,,0,18.68,,,0,0,0,7.9,18.18,28.26,4,3 TIPs
+master,fruitport120,both earned rolls,119,2,0,27.54,1,0,0,13,7.48,0,7.1000000000000005,,,0,,,,0,0,0,6.1000000000000005,29.44,,4,no L POLLEN volley at RIGHT
+master,fruitport120,both earned rolls,120,2,0,21.52,1,0,0,12,7.78,0,8.08,,,0,19.72,,,0,0,0,7.08,19.22,,4,no R POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,1,2,0,27.54,1,0,0,12,9.16,0,9.58,,,0,,,,0,0,0,8.58,29.46,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,2,2,0,27.54,1,0,0,11,8.84,0,8.98,,,0,,,,0,0,0,7.98,29.7,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,3,2,0,27.54,1,0,0,14,6.5600000000000005,0,7.04,,,0,,,,0,0,0,6.04,29.52,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,4,2,0,27.54,1,0,0,12,8.8,0,8.32,,,0,,,,0,0,0,7.32,29.6,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,5,2,0,27.54,1,0,0,11,6.66,0,7.140000000000001,,,0,,,,0,0,0,6.140000000000001,29.46,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,6,2,0,27.54,1,0,0,13,9.78,0,9.66,,,0,,,,0,0,0,8.66,29.580000000000002,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,7,2,0,27.54,1,0,0,12,7.04,0,7.2,,,0,,,,0,0,0,6.2,29.42,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,8,2,0,27.54,1,0,0,14,8.76,0,7.36,,,0,,,,0,0,0,6.36,29.62,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,9,2,0,27.54,1,0,0,13,7.5200000000000005,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,29.42,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,10,2,0,27.54,1,0,0,11,7,0,7.42,,,0,,,,0,0,0,6.42,29.68,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,11,2,0,27.54,1,0,0,13,7.0600000000000005,0,7.36,,,0,,,,0,0,0,6.36,29.560000000000002,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 2,12,2,0,27.54,1,0,0,11,7.68,0,7.5200000000000005,,,0,,,,0,0,0,6.5200000000000005,29.64,,4,no L POLLEN volley at RIGHT
+master,misses,R misses one POLLEN volley 3,1,2,0,24.58,1,0,0,11,9.16,0,9.58,,,0,20,,,0,0,0,8.58,19.5,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,2,2,0,24.58,1,0,0,10,8.84,0,8.98,24.92700000000748,,0,19.04,,,0,0,0,7.98,18.54,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,3,2,0,24.58,1,0,0,10,6.5600000000000005,0,7.04,,,0,18.46,,,0,0,0,6.04,17.96,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,4,2,0,24.58,1,0,0,9,8.8,0,8.32,,,0,18.900000000000002,,,0,0,0,7.32,18.400000000000002,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,5,2,0,24.58,1,0,0,11,6.66,0,7.140000000000001,,,0,18.56,,,0,0,0,6.140000000000001,18.06,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,6,2,0,24.58,1,0,0,13,9.78,7,9.66,,,0,20.48,,,0,0,0,8.66,19.98,,4,both fired at RIGHT; fewer than 8 POLLEN
+master,misses,R misses one POLLEN volley 3,7,2,0,24.58,1,0,0,13,7.04,0,7.2,,,0,21.34,,,0,0,0,6.2,20.84,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,8,2,0,24.58,1,0,0,12,8.76,0,7.36,,,0,21.54,,,0,0,0,6.36,21.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,9,2,0,24.58,1,0,0,9,7.5200000000000005,0,7.5200000000000005,26.19500000000903,,0,18.66,,,0,0,0,6.5200000000000005,18.16,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,10,2,0,24.58,1,0,0,10,7,8,7.42,,,0,20.54,,,0,0,0,6.42,20.04,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,11,2,0,24.58,1,0,0,11,7.0600000000000005,0,7.36,25.33400000000798,,0,18.52,,,0,0,0,6.36,18.02,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
+master,misses,R misses one POLLEN volley 3,12,2,0,24.58,1,0,0,13,7.68,0,7.5200000000000005,,,0,20.28,,,0,0,0,6.5200000000000005,19.78,,4,8+ POLLEN fired at RIGHT; short of a settled TIP
