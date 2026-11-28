@@ -2,34 +2,150 @@
   "pp": "TeamCode/autos/r-no-cross.pp",
   "spec": "RNoCrossAuto",
   "design": "real robot",
-  "partnerDesign": null,
+  "partnerDesign": "real robot",
   "partnerSpeed": null,
   "seeds": [
     1,
     2,
     3,
     4,
-    5
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
   ],
   "partnerSeeds": [
     1,
     2,
     3,
     4,
-    5
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
   ],
   "alliance": "RED",
-  "calibration": "belding",
+  "calibration": "fruitport",
   "partners": [
     {
-      "name": "Everything goes smoothly",
+      "name": "Candidate: N1 on time, L waits for partner repair",
       "partner": "LNoCrossAuto",
       "partnerPicks": {
         "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
     },
     {
-      "name": "Everything goes smoothly, R on CROSS AND FIX IT",
+      "name": "Control: N1 on time, L waits for partner repair",
+      "partner": "LNoCrossControlAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: N1 withheld",
+      "partner": "LNoCrossAuto",
+      "humanAimRolls": "none",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "Control: N1 withheld",
+      "partner": "LNoCrossControlAuto",
+      "humanAimRolls": "none",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: N1 late by 4 seconds",
+      "partner": "LNoCrossAuto",
+      "humanAimRolls": "47.3,119.2,215|8,98.3|24||4",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "Control: N1 late by 4 seconds",
+      "partner": "LNoCrossControlAuto",
+      "humanAimRolls": "47.3,119.2,215|8,98.3|24||4",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: R slow only",
+      "partner": "LNoCrossAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      },
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "Control: R slow only",
+      "partner": "LNoCrossControlAuto",
+      "ourSpeed": 40,
+      "timing": {
+        "speed": 50
+      },
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: L slow only",
+      "partner": "LNoCrossAuto",
+      "timing": {
+        "speed": 40
+      },
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      }
+    },
+    {
+      "name": "Control: L slow only",
+      "partner": "LNoCrossControlAuto",
+      "timing": {
+        "speed": 40
+      },
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: Everything goes smoothly, R on CROSS AND FIX IT",
       "partner": "LNoCrossAuto",
       "partnerPicks": {
         "if no TIP 1": "WAIT FOR PARTNER FIX"
@@ -39,7 +155,18 @@
       }
     },
     {
-      "name": "R's preloads miss",
+      "name": "Control: Everything goes smoothly, R on CROSS AND FIX IT",
+      "partner": "LNoCrossControlAuto",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: R's preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads",
       "partnerPicks": {
@@ -47,12 +174,27 @@
       }
     },
     {
-      "name": "Beside L-NoCross, our preloads miss",
+      "name": "Control: R's preloads miss",
+      "partner": "LNoCrossControlAuto",
+      "oursFails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: Beside L-NoCross, our preloads miss",
       "partner": "LNoCrossAuto",
       "oursFails": "misses preloads"
     },
     {
-      "name": "L's preloads miss, we CROSS AND FIX IT",
+      "name": "Control: Beside L-NoCross, our preloads miss",
+      "partner": "LNoCrossControlAuto",
+      "oursFails": "misses preloads",
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: L's preloads miss, we CROSS AND FIX IT",
       "partner": "LNoCrossAuto",
       "fails": "misses preloads",
       "partnerPicks": {
@@ -63,12 +205,33 @@
       }
     },
     {
-      "name": "L's preloads miss, we WAIT FOR PARTNER",
+      "name": "Control: L's preloads miss, we CROSS AND FIX IT",
+      "partner": "LNoCrossControlAuto",
+      "fails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "picks": {
+        "if no TIP 2": "CROSS AND FIX IT"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
+    },
+    {
+      "name": "Candidate: L's preloads miss, we WAIT FOR PARTNER",
       "partner": "LNoCrossAuto",
       "fails": "misses preloads",
       "partnerPicks": {
         "if no TIP 1": "WAIT FOR PARTNER FIX"
       }
+    },
+    {
+      "name": "Control: L's preloads miss, we WAIT FOR PARTNER",
+      "partner": "LNoCrossControlAuto",
+      "fails": "misses preloads",
+      "partnerPicks": {
+        "if no TIP 1": "WAIT FOR PARTNER FIX"
+      },
+      "partnerSource": "drafts/l-no-cross-control.pp"
     },
     {
       "name": "L dead on LEFT_START, we CROSS AND FIX IT",
@@ -84,10 +247,10 @@
   ],
   "metadata": {
     "AutoSource": "r-no-cross.pp",
-    "SavedBy": "dustinhans; LEFT_AUTO_HIVE 0.5 in off the centre line",
-    "SavedAt": "2026-11-18T19:45:00+00:00",
-    "SimNote": "27 Nov 2026: pared to one row per partner kind, best case (mentor)"
+    "SimNote": "Near-FLOWER NoCross N1 candidate and unmodified50046252 L control, same R, rolls, seeds, speed and failures. L sees TIP1 at290 beforeturning215. After normalpreloads, boundedextraN1, thenfullscoringFLOWER load. N2 notsupported. Control is a temporary draft withoutOpMode. No measuredhumanpolicy claim.",
+    "Exporter": "Visualizer 7456193de284abcbac5e018c4d081b2d8f74424d (PR217 preserves guards around CatchNectar)"
   },
   "usual": true,
-  "scenario": "best"
+  "folder": "no-cross-nectar-candidate",
+  "humanAimRolls": "47.3,119.2,215|8,98.3|24|facing"
 }
