@@ -796,474 +796,6 @@
       }
     },
     {
-      "id": "link-8",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 298.7
-      }
-    },
-    {
-      "id": "loff-wf",
-      "color": "#76b7b2",
-      "name": "LEFT_AUTO_OFFSET down the outer lane to WALL_FLOWER_STAGING",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [
-        {
-          "x": 32,
-          "y": 105
-        },
-        {
-          "x": 30,
-          "y": 80
-        },
-        {
-          "x": 27,
-          "y": 62
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 180
-      }
-    },
-    {
-      "id": "wf-park",
-      "color": "#edc948",
-      "name": "guard after loff-wf: WALL_FLOWER_STAGING to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 75
-        },
-        {
-          "x": 30,
-          "y": 105
-        },
-        {
-          "x": 22,
-          "y": 115
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-9",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 23.1,
-        "y": 47.2
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 180
-      }
-    },
-    {
-      "id": "wf-roff",
-      "color": "#b07aa1",
-      "name": "WALL_FLOWER_STAGING to RIGHT_AUTO_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 32.1,
-        "y": 16.4
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 30
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 180,
-        "endDeg": 61
-      }
-    },
-    {
-      "id": "roff-park",
-      "color": "#ff9da7",
-      "name": "guard after wf-roff: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 40
-        },
-        {
-          "x": 33,
-          "y": 80
-        },
-        {
-          "x": 33,
-          "y": 105
-        },
-        {
-          "x": 22,
-          "y": 116
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 61,
-        "endDeg": 0,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "link-10",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 32.1,
-        "y": 16.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 61
-      }
-    },
-    {
-      "id": "roff-loff",
-      "color": "#4e79a7",
-      "name": "RIGHT_AUTO_OFFSET up the outer lane to LEFT_AUTO_OFFSET",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 30
-        },
-        {
-          "x": 33,
-          "y": 50
-        },
-        {
-          "x": 33,
-          "y": 80
-        },
-        {
-          "x": 33,
-          "y": 105
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 61,
-        "endDeg": -61.3,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.25,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.25,
-              "endProgress": 0.8,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            },
-            {
-              "startProgress": 0.8,
-              "endProgress": 1,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 0,
-                "endDeg": -61.3
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "loff-park",
-      "color": "#f28e2b",
-      "name": "guard after roff-loff: LEFT_AUTO_OFFSET to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 28,
-          "y": 121
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-11",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -61.3
-      }
-    },
-    {
-      "id": "loff-park-3",
-      "color": "#e15759",
-      "name": "LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 28,
-          "y": 121
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-12",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40.7,
-        "y": 121.1
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": -61.3
-      }
-    },
-    {
-      "id": "loff-park-2",
-      "color": "#59a14f",
-      "name": "LEFT_AUTO_OFFSET to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 28,
-          "y": 121
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 298.7,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-13",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 32.1,
-        "y": 16.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 61
-      }
-    },
-    {
-      "id": "roff-park-2",
-      "color": "#9c755f",
-      "name": "RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 40
-        },
-        {
-          "x": 33,
-          "y": 80
-        },
-        {
-          "x": 33,
-          "y": 105
-        },
-        {
-          "x": 22,
-          "y": 116
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "startDeg": 61,
-        "endDeg": 0,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
       "id": "link-14",
       "name": "Link (never driven)",
       "color": "#6b7280",
@@ -1868,66 +1400,6 @@
     },
     {
       "kind": "path",
-      "lineId": "link-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "loff-wf"
-    },
-    {
-      "kind": "path",
-      "lineId": "wf-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-9"
-    },
-    {
-      "kind": "path",
-      "lineId": "wf-roff"
-    },
-    {
-      "kind": "path",
-      "lineId": "roff-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-10"
-    },
-    {
-      "kind": "path",
-      "lineId": "roff-loff"
-    },
-    {
-      "kind": "path",
-      "lineId": "loff-park"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-11"
-    },
-    {
-      "kind": "path",
-      "lineId": "loff-park-3"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-12"
-    },
-    {
-      "kind": "path",
-      "lineId": "loff-park-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-13"
-    },
-    {
-      "kind": "path",
-      "lineId": "roff-park-2"
-    },
-    {
-      "kind": "path",
       "lineId": "link-14"
     },
     {
@@ -2005,6 +1477,7 @@
     "registry": {
       "actions": [
         "LaunchAll",
+        "LaunchAllAimed",
         "PickFlower",
         "GardenGather",
         "LaunchOne",
@@ -2033,7 +1506,8 @@
         "LaunchOne": 0.5,
         "SpinUp": 0.1,
         "LaunchOneAimed": 1.2,
-        "CatchNectar": 0.6
+        "CatchNectar": 0.6,
+        "LaunchAllAimed": 2.5
       }
     },
     "points": {
@@ -2069,15 +1543,6 @@
       ]
     },
     "pathEnds": {
-      "roff-loff": "LEFT_AUTO_OFFSET",
-      "loff-park": "LEFT_PARK",
-      "loff-park-2": "LEFT_PARK",
-      "loff-park-3": "LEFT_PARK",
-      "loff-wf": "WALL_FLOWER_STAGING",
-      "wf-park": "LEFT_PARK",
-      "wf-roff": "RIGHT_AUTO_OFFSET",
-      "roff-park": "LEFT_PARK",
-      "roff-park-2": "LEFT_PARK",
       "loff-roff": "RIGHT_AUTO_OFFSET",
       "roff-park-3": "LEFT_PARK",
       "roff-wf": "WALL_FLOWER_STAGING",
@@ -2253,124 +1718,31 @@
             ],
             "cards": [
               {
-                "id": "c6-launchall",
+                "id": "c30-loff-turn",
+                "kind": "path",
+                "lineId": "loff-turn",
+                "park": false
+              },
+              {
+                "id": "c6-launchallaimed",
                 "kind": "action",
-                "name": "LaunchAll"
+                "name": "LaunchAllAimed"
               },
               {
                 "id": "c43-check",
                 "kind": "firstOf",
-                "label": "Time for the human player's NECTAR? (a late TIP 1 skips it)",
+                "label": "Time for the human player's NECTAR? (a late TIP 1 skips the hold)",
                 "rows": [
                   {
                     "afterMs": 11000,
                     "matchClock": true,
-                    "cards": [
-                      {
-                        "id": "c7-loff-wf",
-                        "kind": "path",
-                        "lineId": "loff-wf",
-                        "park": false
-                      },
-                      {
-                        "id": "c8-pickflower",
-                        "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 8
-                      },
-                      {
-                        "id": "c9-wf-roff",
-                        "kind": "path",
-                        "lineId": "wf-roff",
-                        "park": false
-                      },
-                      {
-                        "id": "c12-check",
-                        "kind": "firstOf",
-                        "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
-                        "rows": [
-                          {
-                            "afterMs": 21500,
-                            "cards": [
-                              {
-                                "id": "c1-roff-loff",
-                                "kind": "path",
-                                "lineId": "roff-loff",
-                                "park": false
-                              },
-                              {
-                                "id": "c5-check",
-                                "kind": "firstOf",
-                                "label": "LEFT still up? (TIP 2 is short: add this load)",
-                                "rows": [
-                                  {
-                                    "afterMs": 25600,
-                                    "cards": [
-                                      {
-                                        "id": "c4-loff-park",
-                                        "kind": "path",
-                                        "lineId": "loff-park-3",
-                                        "park": true
-                                      }
-                                    ],
-                                    "matchClock": true
-                                  },
-                                  {
-                                    "when": [
-                                      "CellUp"
-                                    ],
-                                    "cards": [
-                                      {
-                                        "id": "c2-launchall",
-                                        "kind": "action",
-                                        "name": "LaunchAll"
-                                      },
-                                      {
-                                        "id": "c3-loff-park",
-                                        "kind": "path",
-                                        "lineId": "loff-park-2",
-                                        "park": true
-                                      }
-                                    ]
-                                  }
-                                ]
-                              }
-                            ],
-                            "matchClock": true
-                          },
-                          {
-                            "when": [
-                              "CellUp"
-                            ],
-                            "cards": [
-                              {
-                                "id": "c10-launchall",
-                                "kind": "action",
-                                "name": "LaunchAll"
-                              },
-                              {
-                                "id": "c11-roff-park",
-                                "kind": "path",
-                                "lineId": "roff-park-2",
-                                "park": true
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
+                    "cards": []
                   },
                   {
                     "when": [
                       "Always"
                     ],
                     "cards": [
-                      {
-                        "id": "c30-loff-turn",
-                        "kind": "path",
-                        "lineId": "loff-turn",
-                        "park": false
-                      },
                       {
                         "id": "c44-check",
                         "kind": "firstOf",
@@ -2477,76 +1849,58 @@
                             ]
                           }
                         ]
-                      },
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "c32-turn-wf",
+                "kind": "path",
+                "lineId": "turn-wf",
+                "park": false
+              },
+              {
+                "id": "c33-pickflower",
+                "kind": "action",
+                "name": "PickFlower",
+                "timeoutS": 8
+              },
+              {
+                "id": "c34-wf-roff",
+                "kind": "path",
+                "lineId": "wf-roff-2",
+                "park": false
+              },
+              {
+                "id": "c40-check",
+                "kind": "firstOf",
+                "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
+                "rows": [
+                  {
+                    "afterMs": 21500,
+                    "matchClock": true,
+                    "cards": [
                       {
-                        "id": "c32-turn-wf",
+                        "id": "c35-roff-loff",
                         "kind": "path",
-                        "lineId": "turn-wf",
+                        "lineId": "roff-loff-2",
                         "park": false
                       },
                       {
-                        "id": "c33-pickflower",
-                        "kind": "action",
-                        "name": "PickFlower",
-                        "timeoutS": 8
-                      },
-                      {
-                        "id": "c34-wf-roff",
-                        "kind": "path",
-                        "lineId": "wf-roff-2",
-                        "park": false
-                      },
-                      {
-                        "id": "c40-check",
+                        "id": "c38-check",
                         "kind": "firstOf",
-                        "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
+                        "label": "LEFT still up? (TIP 2 is short: add this load)",
                         "rows": [
                           {
-                            "afterMs": 21500,
+                            "afterMs": 25600,
                             "matchClock": true,
                             "cards": [
                               {
-                                "id": "c35-roff-loff",
+                                "id": "c36-loff-park",
                                 "kind": "path",
-                                "lineId": "roff-loff-2",
-                                "park": false
-                              },
-                              {
-                                "id": "c38-check",
-                                "kind": "firstOf",
-                                "label": "LEFT still up? (TIP 2 is short: add this load)",
-                                "rows": [
-                                  {
-                                    "afterMs": 25600,
-                                    "matchClock": true,
-                                    "cards": [
-                                      {
-                                        "id": "c36-loff-park",
-                                        "kind": "path",
-                                        "lineId": "loff-park-9",
-                                        "park": true
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "when": [
-                                      "CellUp"
-                                    ],
-                                    "cards": [
-                                      {
-                                        "id": "c37-launchall",
-                                        "kind": "action",
-                                        "name": "LaunchAll"
-                                      },
-                                      {
-                                        "id": "c39-loff-park",
-                                        "kind": "path",
-                                        "lineId": "loff-park-10",
-                                        "park": true
-                                      }
-                                    ]
-                                  }
-                                ]
+                                "lineId": "loff-park-9",
+                                "park": true
                               }
                             ]
                           },
@@ -2556,19 +1910,37 @@
                             ],
                             "cards": [
                               {
-                                "id": "c41-launchall",
+                                "id": "c37-launchall",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c42-roff-park",
+                                "id": "c39-loff-park",
                                 "kind": "path",
-                                "lineId": "roff-park-7",
+                                "lineId": "loff-park-10",
                                 "park": true
                               }
                             ]
                           }
                         ]
+                      }
+                    ]
+                  },
+                  {
+                    "when": [
+                      "CellUp"
+                    ],
+                    "cards": [
+                      {
+                        "id": "c41-launchall",
+                        "kind": "action",
+                        "name": "LaunchAll"
+                      },
+                      {
+                        "id": "c42-roff-park",
+                        "kind": "path",
+                        "lineId": "roff-park-7",
+                        "park": true
                       }
                     ]
                   }
