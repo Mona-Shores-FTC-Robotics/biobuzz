@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-27T18:36:21.000Z",
+  "timestamp": "2026-11-28T01:55:30.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -1119,7 +1119,7 @@
     {
       "id": "loff-park-3",
       "color": "#e15759",
-      "name": "LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "name": "Late TIP 2: LEFT not seen up to L_NEAR_PARK loff-park-3",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1128,18 +1128,26 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 28,
-          "y": 121
+          "x": 36,
+          "y": 116
+        },
+        {
+          "x": 29,
+          "y": 106
+        },
+        {
+          "x": 24,
+          "y": 96
         }
       ],
       "heading": {
         "type": "linear",
         "startDeg": 298.7,
-        "endDeg": 0
+        "endDeg": 90
       }
     },
     {
@@ -1199,9 +1207,294 @@
       }
     },
     {
+      "id": "right-turn-a",
+      "color": "#59a14f",
+      "name": "RIGHT_AUTO_OFFSET turn to receive the second NECTAR a",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 108
+      }
+    },
+    {
+      "id": "right-turn-park-a",
+      "color": "#9c755f",
+      "name": "Guard at RIGHT to L_NEAR_PARK a",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-right-a",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 108
+      }
+    },
+    {
       "id": "roff-park-2",
       "color": "#9c755f",
-      "name": "RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
+      "name": "RIGHT receive to L_NEAR_PARK a",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-14",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 298.7
+      }
+    },
+    {
+      "id": "loff-turn",
+      "color": "#59a14f",
+      "name": "LEFT_AUTO_OFFSET: turn the intake to the LOADING ZONE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.2,
+        "y": 120.8
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 215.0
+      }
+    },
+    {
+      "id": "turn-park",
+      "color": "#f28e2b",
+      "name": "guard after loff-turn: L_NECTAR_TURN to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 215.0,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-15",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.2,
+        "y": 120.8
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 215.0
+      }
+    },
+    {
+      "id": "turn-wf",
+      "color": "#76b7b2",
+      "name": "L_NECTAR_TURN down the outer lane to WALL_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 105
+        },
+        {
+          "x": 30,
+          "y": 80
+        },
+        {
+          "x": 27,
+          "y": 62
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 215.0,
+        "endDeg": 180
+      }
+    },
+    {
+      "id": "wf-park-3",
+      "color": "#edc948",
+      "name": "guard after turn-wf: WALL_FLOWER_STAGING to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 75
+        },
+        {
+          "x": 30,
+          "y": 105
+        },
+        {
+          "x": 22,
+          "y": 115
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-16",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 23.1,
+        "y": 47.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 180
+      }
+    },
+    {
+      "id": "wf-roff-2",
+      "color": "#b07aa1",
+      "name": "NECTAR: WALL_FLOWER_STAGING to RIGHT_AUTO_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [
+        {
+          "x": 26,
+          "y": 30
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 180,
+        "endDeg": 61
+      }
+    },
+    {
+      "id": "roff-park-6",
+      "color": "#ff9da7",
+      "name": "guard after wf-roff-2: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1261,6 +1554,332 @@
             }
           ]
         }
+      }
+    },
+    {
+      "id": "link-17",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "roff-loff-2",
+      "color": "#4e79a7",
+      "name": "NECTAR: RIGHT_AUTO_OFFSET up the outer lane to LEFT_AUTO_OFFSET",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 30
+        },
+        {
+          "x": 33,
+          "y": 50
+        },
+        {
+          "x": 33,
+          "y": 80
+        },
+        {
+          "x": 33,
+          "y": 105
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 61,
+        "endDeg": -61.3,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.25,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 61,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.25,
+              "endProgress": 0.8,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 0
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 0,
+                "endDeg": -61.3
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "loff-park-8",
+      "color": "#f28e2b",
+      "name": "guard after roff-loff-2: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 121
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-18",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": -61.3
+      }
+    },
+    {
+      "id": "loff-park-9",
+      "color": "#e15759",
+      "name": "Late TIP 2: LEFT not seen up to L_NEAR_PARK loff-park-9",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 36,
+          "y": 116
+        },
+        {
+          "x": 29,
+          "y": 106
+        },
+        {
+          "x": 24,
+          "y": 96
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-19",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.7,
+        "y": 121.1
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": -61.3
+      }
+    },
+    {
+      "id": "loff-park-10",
+      "color": "#59a14f",
+      "name": "NECTAR: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 121
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 298.7,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-20",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "right-turn-b",
+      "color": "#59a14f",
+      "name": "RIGHT_AUTO_OFFSET turn to receive the second NECTAR b",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 108
+      }
+    },
+    {
+      "id": "right-turn-park-b",
+      "color": "#9c755f",
+      "name": "Guard at RIGHT to L_NEAR_PARK b",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-right-b",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 108
+      }
+    },
+    {
+      "id": "roff-park-7",
+      "color": "#9c755f",
+      "name": "RIGHT receive to L_NEAR_PARK b",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
       }
     }
   ],
@@ -1399,7 +2018,103 @@
     },
     {
       "kind": "path",
+      "lineId": "right-turn-a"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-park-a"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-right-a"
+    },
+    {
+      "kind": "path",
       "lineId": "roff-park-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-14"
+    },
+    {
+      "kind": "path",
+      "lineId": "loff-turn"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-15"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn-wf"
+    },
+    {
+      "kind": "path",
+      "lineId": "wf-park-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "wf-roff-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-park-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-loff-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "loff-park-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-18"
+    },
+    {
+      "kind": "path",
+      "lineId": "loff-park-9"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-19"
+    },
+    {
+      "kind": "path",
+      "lineId": "loff-park-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-20"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-park-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-right-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-park-7"
     }
   ],
   "auto": {
@@ -1411,7 +2126,9 @@
         "PickFlower",
         "GardenGather",
         "LaunchOne",
-        "SpinUp"
+        "SpinUp",
+        "LaunchOneAimed",
+        "CatchNectar"
       ],
       "conditions": [
         "Empty",
@@ -1421,7 +2138,8 @@
         "CellUp",
         "Tip",
         "CameraBlind",
-        "Always"
+        "Always",
+        "NectarIn"
       ],
       "events": [
         "Tip"
@@ -1431,7 +2149,9 @@
         "PickFlower": 4,
         "GardenGather": 3,
         "LaunchOne": 0.5,
-        "SpinUp": 0.1
+        "SpinUp": 0.1,
+        "LaunchOneAimed": 1.2,
+        "CatchNectar": 0.6
       }
     },
     "points": {
@@ -1459,18 +2179,33 @@
         23.1,
         47.2,
         180
+      ],
+      "L_NECTAR_TURN": [
+        40.2,
+        120.8,
+        215.0
+      ],
+      "L_RIGHT_NECTAR": [
+        32,
+        16.9,
+        108
+      ],
+      "L_NEAR_PARK": [
+        14.5,
+        92.5,
+        90
       ]
     },
     "pathEnds": {
       "roff-loff": "LEFT_AUTO_OFFSET",
       "loff-park": "LEFT_PARK",
       "loff-park-2": "LEFT_PARK",
-      "loff-park-3": "LEFT_PARK",
+      "loff-park-3": "L_NEAR_PARK",
       "loff-wf": "WALL_FLOWER_STAGING",
       "wf-park": "LEFT_PARK",
       "wf-roff": "RIGHT_AUTO_OFFSET",
       "roff-park": "LEFT_PARK",
-      "roff-park-2": "LEFT_PARK",
+      "roff-park-2": "L_NEAR_PARK",
       "loff-roff": "RIGHT_AUTO_OFFSET",
       "roff-park-3": "LEFT_PARK",
       "roff-wf": "WALL_FLOWER_STAGING",
@@ -1482,7 +2217,22 @@
       "roff-park-4": "LEFT_PARK",
       "roff-park-5": "LEFT_PARK",
       "start-loff": "LEFT_AUTO_OFFSET",
-      "loff-park-7": "LEFT_PARK"
+      "loff-park-7": "LEFT_PARK",
+      "loff-turn": "L_NECTAR_TURN",
+      "turn-park": "LEFT_PARK",
+      "turn-wf": "WALL_FLOWER_STAGING",
+      "wf-park-3": "LEFT_PARK",
+      "wf-roff-2": "RIGHT_AUTO_OFFSET",
+      "roff-park-6": "LEFT_PARK",
+      "roff-loff-2": "LEFT_AUTO_OFFSET",
+      "loff-park-8": "LEFT_PARK",
+      "loff-park-9": "L_NEAR_PARK",
+      "loff-park-10": "LEFT_PARK",
+      "roff-park-7": "L_NEAR_PARK",
+      "right-turn-a": "L_RIGHT_NECTAR",
+      "right-turn-park-a": "L_NEAR_PARK",
+      "right-turn-b": "L_RIGHT_NECTAR",
+      "right-turn-park-b": "L_NEAR_PARK"
     },
     "cards": [
       {
@@ -1640,50 +2390,82 @@
                 "name": "LaunchAll"
               },
               {
-                "id": "c7-loff-wf",
-                "kind": "path",
-                "lineId": "loff-wf",
-                "park": false
-              },
-              {
-                "id": "c8-pickflower",
-                "kind": "action",
-                "name": "PickFlower",
-                "timeoutS": 8
-              },
-              {
-                "id": "c9-wf-roff",
-                "kind": "path",
-                "lineId": "wf-roff",
-                "park": false
-              },
-              {
-                "id": "c12-check",
+                "id": "c43-check",
                 "kind": "firstOf",
-                "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
+                "label": "Time for the human player's NECTAR? (a late TIP 1 skips it)",
                 "rows": [
                   {
-                    "afterMs": 21500,
+                    "afterMs": 11000,
+                    "matchClock": true,
                     "cards": [
                       {
-                        "id": "c1-roff-loff",
+                        "id": "c7-loff-wf",
                         "kind": "path",
-                        "lineId": "roff-loff",
+                        "lineId": "loff-wf",
                         "park": false
                       },
                       {
-                        "id": "c5-check",
+                        "id": "c8-pickflower",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c9-wf-roff",
+                        "kind": "path",
+                        "lineId": "wf-roff",
+                        "park": false
+                      },
+                      {
+                        "id": "c12-check",
                         "kind": "firstOf",
-                        "label": "LEFT still up? (TIP 2 is short: add this load)",
+                        "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
                         "rows": [
                           {
-                            "afterMs": 25600,
+                            "afterMs": 21500,
                             "cards": [
                               {
-                                "id": "c4-loff-park",
+                                "id": "c1-roff-loff",
                                 "kind": "path",
-                                "lineId": "loff-park-3",
-                                "park": true
+                                "lineId": "roff-loff",
+                                "park": false
+                              },
+                              {
+                                "id": "c5-check",
+                                "kind": "firstOf",
+                                "label": "LEFT still up? (TIP 2 is short: add this load)",
+                                "rows": [
+                                  {
+                                    "afterMs": 25600,
+                                    "cards": [
+                                      {
+                                        "id": "c4-loff-park",
+                                        "kind": "path",
+                                        "lineId": "loff-park-3",
+                                        "park": true
+                                      }
+                                    ],
+                                    "matchClock": true
+                                  },
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c2-launchall",
+                                        "kind": "action",
+                                        "name": "LaunchAll"
+                                      },
+                                      {
+                                        "id": "c3-loff-park",
+                                        "kind": "path",
+                                        "lineId": "loff-park-2",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
                               }
                             ],
                             "matchClock": true
@@ -1694,38 +2476,331 @@
                             ],
                             "cards": [
                               {
-                                "id": "c2-launchall",
+                                "id": "c10-launchall",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c3-loff-park",
+                                "id": "ta",
                                 "kind": "path",
-                                "lineId": "loff-park-2",
+                                "lineId": "right-turn-a",
+                                "park": false
+                              },
+                              {
+                                "id": "hold-a",
+                                "kind": "firstOf",
+                                "label": "Receive TIP 2 NECTAR until park departure a",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 25500,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "seen-a",
+                                        "kind": "firstOf",
+                                        "label": "RIGHT still up before park departure a",
+                                        "rows": [
+                                          {
+                                            "afterMs": 25500,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "fire-a",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "c11-roff-park",
+                                "kind": "path",
+                                "lineId": "roff-park-2",
                                 "park": true
                               }
                             ]
                           }
                         ]
                       }
-                    ],
-                    "matchClock": true
+                    ]
                   },
                   {
                     "when": [
-                      "CellUp"
+                      "Always"
                     ],
                     "cards": [
                       {
-                        "id": "c10-launchall",
-                        "kind": "action",
-                        "name": "LaunchAll"
+                        "id": "c30-loff-turn",
+                        "kind": "path",
+                        "lineId": "loff-turn",
+                        "park": false
                       },
                       {
-                        "id": "c11-roff-park",
+                        "id": "c44-check",
+                        "kind": "firstOf",
+                        "label": "TIP 1 early? (then hold at most 2.5 s; else only to 12 s)",
+                        "rows": [
+                          {
+                            "afterMs": 9500,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "c31-hold",
+                                "kind": "firstOf",
+                                "label": "Hold for the human player's NECTAR, intake on: until it is in, or 12 s",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 12000,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c45-check",
+                                        "kind": "firstOf",
+                                        "label": "LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                        "rows": [
+                                          {
+                                            "afterMs": 12000,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c46-launchoneaimed",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "when": [
+                              "Always"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c47-hold",
+                                "kind": "firstOf",
+                                "label": "Hold for the human player's NECTAR, intake on: until it is in, at most 2.5 s",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 2500,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c48-check",
+                                        "kind": "firstOf",
+                                        "label": "LEFT up, and before 12 s? (fire the NECTAR at LEFT: R may then miss one)",
+                                        "rows": [
+                                          {
+                                            "afterMs": 12000,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c49-launchoneaimed",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "c32-turn-wf",
                         "kind": "path",
-                        "lineId": "roff-park-2",
-                        "park": true
+                        "lineId": "turn-wf",
+                        "park": false
+                      },
+                      {
+                        "id": "c33-pickflower",
+                        "kind": "action",
+                        "name": "PickFlower",
+                        "timeoutS": 8
+                      },
+                      {
+                        "id": "c34-wf-roff",
+                        "kind": "path",
+                        "lineId": "wf-roff-2",
+                        "park": false
+                      },
+                      {
+                        "id": "c40-check",
+                        "kind": "firstOf",
+                        "label": "RIGHT up? (TIP 2 came; else take this load to LEFT)",
+                        "rows": [
+                          {
+                            "afterMs": 21500,
+                            "matchClock": true,
+                            "cards": [
+                              {
+                                "id": "c35-roff-loff",
+                                "kind": "path",
+                                "lineId": "roff-loff-2",
+                                "park": false
+                              },
+                              {
+                                "id": "c38-check",
+                                "kind": "firstOf",
+                                "label": "LEFT still up? (TIP 2 is short: add this load)",
+                                "rows": [
+                                  {
+                                    "afterMs": 25600,
+                                    "matchClock": true,
+                                    "cards": [
+                                      {
+                                        "id": "c36-loff-park",
+                                        "kind": "path",
+                                        "lineId": "loff-park-9",
+                                        "park": true
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c37-launchall",
+                                        "kind": "action",
+                                        "name": "LaunchAll"
+                                      },
+                                      {
+                                        "id": "c39-loff-park",
+                                        "kind": "path",
+                                        "lineId": "loff-park-10",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "when": [
+                              "CellUp"
+                            ],
+                            "cards": [
+                              {
+                                "id": "c41-launchall",
+                                "kind": "action",
+                                "name": "LaunchAll"
+                              },
+                              {
+                                "id": "tb",
+                                "kind": "path",
+                                "lineId": "right-turn-b",
+                                "park": false
+                              },
+                              {
+                                "id": "hold-b",
+                                "kind": "firstOf",
+                                "label": "Receive TIP 2 NECTAR until park departure b",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 25500,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "seen-b",
+                                        "kind": "firstOf",
+                                        "label": "RIGHT still up before park departure b",
+                                        "rows": [
+                                          {
+                                            "afterMs": 25500,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "fire-b",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "c42-roff-park",
+                                "kind": "path",
+                                "lineId": "roff-park-7",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }
@@ -1743,7 +2818,13 @@
       "c13-loff-roff": "roff-park-3",
       "c15-roff-wf": "wf-park-2",
       "c17-wf-loff": "loff-park-4",
-      "c28-start-loff": "loff-park-7"
+      "c28-start-loff": "loff-park-7",
+      "c30-loff-turn": "turn-park",
+      "c32-turn-wf": "wf-park-3",
+      "c34-wf-roff": "roff-park-6",
+      "c35-roff-loff": "loff-park-8",
+      "ta": "right-turn-park-a",
+      "tb": "right-turn-park-b"
     },
     "startAt": "LEFT_START",
     "linkPaths": [
@@ -1759,7 +2840,16 @@
       "link-10",
       "link-11",
       "link-12",
-      "link-13"
+      "link-13",
+      "link-14",
+      "link-15",
+      "link-16",
+      "link-17",
+      "link-18",
+      "link-19",
+      "link-20",
+      "link-right-a",
+      "link-right-b"
     ],
     "teamSpots": [
       "LEFT_AUTO_OFFSET",

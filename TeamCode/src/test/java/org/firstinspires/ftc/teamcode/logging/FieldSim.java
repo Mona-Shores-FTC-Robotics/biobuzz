@@ -352,6 +352,8 @@ final class FieldSim {
 
     static final class Piece {
         final Kind kind;
+        Alliance firstHalf;
+        boolean crossedEdge, crossedCentre;
         Where where;
         double x, y, z, vx, vy, vz;
         /** Orientation (Pedro frame), so a rolling piece visibly rolls. */
@@ -694,8 +696,49 @@ final class FieldSim {
     }
 
     final Physics physics;
+    /** Optional study premise, additional to the calibrated torque, dwell and swing on this field. */
+    boolean requireEightPollenWeights;
     /** Simulated seconds since the start. */
     double time;
+    private Alliance watchedHalf;
+    private double crossingsStartTime, crossingsEndTime;
+    int piecesAcrossEdge, piecesAcrossCentre;
+    double firstPieceEdgeAt = Double.NaN, firstPieceCentreAt = Double.NaN;
+
+    /** Follow pieces originating on this alliance's half, including human entries and later CELL spills. */
+    void watchPieceCrossings(Alliance alliance, double duration) {
+        watchedHalf = alliance;
+        crossingsStartTime = time;
+        crossingsEndTime = time + duration;
+        observePieceCrossings();
+    }
+
+    private void observePieceCrossings() {
+        if (watchedHalf == null || time > crossingsEndTime + 1e-8) return;
+        for (Piece p : pieces) {
+            if (p.where != Where.FIELD) continue;
+            if (p.firstHalf == null) {
+                if (p.x == CENTRE_IN) continue;
+                p.firstHalf = p.x < CENTRE_IN ? Alliance.RED : Alliance.BLUE;
+            }
+            if (p.firstHalf != watchedHalf) continue;
+            double excursion = watchedHalf == Alliance.RED ? p.x - CENTRE_IN : CENTRE_IN - p.x;
+            if (!p.crossedEdge && excursion + p.kind.radius > 1e-8) {
+                p.crossedEdge = true;
+                piecesAcrossEdge++;
+                if (Double.isNaN(firstPieceEdgeAt)) firstPieceEdgeAt = time - crossingsStartTime;
+            }
+            if (!p.crossedCentre && excursion > 1e-8) {
+                p.crossedCentre = true;
+                piecesAcrossCentre++;
+                if (Double.isNaN(firstPieceCentreAt)) firstPieceCentreAt = time - crossingsStartTime;
+            }
+        }
+    }
+
+    /** Optional study observers run on the exact substep that took the piece or saw it enter a CELL. */
+    java.util.function.BiConsumer<Bot, Piece> onCapture;
+    java.util.function.BiConsumer<Piece, HiveCell> onShotInCell;
 
     /** The field as it starts, fitted to the current {@link HiveCalibration}. */
     FieldSim(List<HiveAssets.StagedPiece> staged, long seed) {
@@ -1090,6 +1133,11 @@ final class FieldSim {
      * resistance and meets whatever is on its line. Returns false once all 5 are in.
      */
     boolean enterNectarAimed(Alliance alliance, double[] from, double headingRad, double speedInPerS) {
+        return rollFromZone(alliance, from, headingRad, speedInPerS) != null;
+    }
+
+    /** Returns the physical piece so a study can distinguish this delivery from a TIP spill. */
+    Piece rollFromZone(Alliance alliance, double[] from, double headingRad, double speedInPerS) {
         Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
         for (Piece p : pieces) {
             if (p.where != Where.OUTSIDE || p.kind != kind) continue;
@@ -1106,9 +1154,9 @@ final class FieldSim {
             p.wz = 0;
             events.add(String.format(Locale.ROOT, "human: %s rolled from (%.1f, %.1f) at %.0f in/s, heading %.1f deg",
                     name(kind), p.x, p.y, speedInPerS, Math.toDegrees(headingRad)));
-            return true;
+            return p;
         }
-        return false;
+        return null;
     }
 
     /** Messages since the last call: shots scored, tips, spills. */
@@ -1417,6 +1465,7 @@ final class FieldSim {
     /** Advances everything by {@code dt} seconds (one robot loop). */
     void step(double dt) {
         if (sub.length != bots.size()) sub = new double[bots.size()][3];
+        observePieceCrossings(); // register new releases and shots before advancing their first substep
         double h = dt / SUBSTEPS;
         for (int k = 1; k <= SUBSTEPS; k++) {
             time += h;
@@ -1524,6 +1573,7 @@ final class FieldSim {
                     p.frameBeforeTile = false;
                 }
             }
+            observePieceCrossings();
         }
     }
 
@@ -1536,6 +1586,11 @@ final class FieldSim {
 
     private void stepRocker(Rocker r, double h) {
         if (r.locked) return;
+        if (belowStudyTipWeight(r)) {
+            r.rate = 0;
+            r.dwellFrom = Double.NaN;
+            return;
+        }
         double hold = physics.holdTorque;
         // The empty rocker is top-heavy, so it leans whichever way it already leans; at a stop that
         // is the holding torque, which the pieces in the raised CELL must beat.
@@ -1632,7 +1687,7 @@ final class FieldSim {
      * nothing here ({@link #IMPACT_MIN_IN_PER_S}): its weight is the static torque already.
      */
     private void kick(Rocker r, Piece p, double dvy, double dvz) {
-        if (r.locked || !(impulseScale > 0)) return;
+        if (r.locked || !(impulseScale > 0) || belowStudyTipWeight(r)) return;
         // Past level the rocker is tipping anyway; the pieces it carries are not hits.
         boolean pastLevel = Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12 && Math.signum(r.angle) != Math.signum(r.tipFrom);
         if (pastLevel || r.state() == HiveState.TRANSITION && !r.knockedOff) return;
@@ -1655,6 +1710,20 @@ final class FieldSim {
             r.knockedUnder = tippingTorque(r) < physics.holdTorque - 1e-9;
         }
         r.kickedRad = Math.max(r.kickedRad, Math.abs(after - before));
+    }
+
+    /** Gate departure from the raised stop. A swing already in motion can finish as its CELL dumps. */
+    boolean belowStudyTipWeight(Rocker r) {
+        if (!requireEightPollenWeights || r.raisedEnd() == 0) return false;
+        HiveCell raised = r.cell(r.raisedEnd());
+        Kind ownNectar = r.alliance == Alliance.RED ? Kind.RED_NECTAR : Kind.BLUE_NECTAR;
+        // Integer hundredths preserve the exact distinction between 3P + 3N = 7.95 and 8.00.
+        int hundredths = 0;
+        for (Piece p : pieces) if (p.where == Where.FIELD && p.cell == raised) {
+            if (p.kind == Kind.POLLEN) hundredths += 100;
+            else if (p.kind == ownNectar) hundredths += 165;
+        }
+        return hundredths < 800;
     }
 
     /**
@@ -2371,7 +2440,25 @@ final class FieldSim {
         p.vx = p.vy = p.vz = 0;
         p.wx = p.wy = p.wz = 0;
         stored.add(p);
+        if (onCapture != null) onCapture.accept(bot, p);
         events.add("intake: " + name(p.kind) + " (" + stored.size() + " held)");
+    }
+
+    /**
+     * Fruitport counted POLLEN gained from a FLOWER; a carried ball was removed from the observed
+     * total. Only trim newly collected POLLEN. The physical mouth already enforced the lane limit.
+     */
+    static int limitFlowerPickup(List<Piece> stored, List<Piece> carried, int pickedPollen) {
+        int kept = 0, lost = 0;
+        for (java.util.Iterator<Piece> it = stored.iterator(); it.hasNext();) {
+            Piece piece = it.next();
+            if (piece.kind != Kind.POLLEN || carried.contains(piece) || kept++ < pickedPollen) continue;
+            it.remove();
+            piece.where = Where.OUTSIDE;
+            piece.x = -1000;
+            lost++;
+        }
+        return lost;
     }
 
     private void updateCell(Piece p) {
@@ -2383,6 +2470,7 @@ final class FieldSim {
         if (now != p.cell) {
             if (now != null && p.cell == null) {
                 events.add("score: " + name(p.kind) + " into " + now.clusterName());
+                if (p.shotBy != null && onShotInCell != null) onShotInCell.accept(p, now);
                 p.shotBy = null;
             }
             if (now == null && p.cell != null) {

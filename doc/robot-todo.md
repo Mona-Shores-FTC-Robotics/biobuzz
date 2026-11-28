@@ -246,6 +246,21 @@ so back-right's log is the whole cost; back-left is never used (20245's reads 0)
 On the Autonomous menu since 27 Nov 2026 and never driven ([the Auto README](../TeamCode/autos/README.md)). Push the logs
 after each run.
 
+For the [left-end NECTAR draft, #781](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/781), film
+the intake, turret and both robots on one clock. Record all times from our PLAY.
+
+- [ ] Film the four ordinary preloads and L turning from its LEFT shot heading to 210°. Verify the
+      turret tracks the near CELL through the turn. On a dry run with the turret
+      locked, its hold lost, or the pose unreferenced, verify the gate stays closed. Interrupt an active
+      feed on the bench and check the gate closes as soon as the hold drops.
+- [ ] With one own NECTAR in the lane and confirmed aim, measure gate-open to counted shot. Allow at least
+      0.85 s for the ball to leave. Verify the first count closes the gate, an empty lane skips the feed,
+      and a missing count reaches the backstop. Check an unspent piece is still available on the next leg.
+- [ ] Have the human roll once after TIP 1 settles and both frames clear the entire LOADING ZONE. Mark
+      release, arrival at the intake, first counted extra shot and L leaving the spot against the 12.5 s
+      decision. Repeat with an intentionally late roll and a withheld roll. Count captures, retained
+      POLLEN from the WALL FLOWER, contact with R, and both robots parked by 30 s.
+
 - [ ] Every shot in, both robots: three TIPs; R backward up and down the corridor, nothing over the centre line
       (x 70.75), R's turret swinging onto its CELL after passing under the HIVE (the simulator gives the first ball
       1.1 s after R arrives). **Stop:** R's frame touches the centre line or the HIVE → move the corridor path in the
@@ -443,6 +458,16 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
 
 ## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
+- [ ] **Find the four-piece SCORING FLOWER loss.** On both robots, film the holder and lane at the end of the pick and count the pieces at the gate and launcher. Log intake beam, lane count, first counted shot and remaining FLOWER pieces on the same clock. The Fruitport profile uses the final volley output. This drill distinguishes an empty pick from a downstream transfer loss and shows whether a retry can recover real pieces.
+- [ ] **Two earned rolls and the park split.** Use the two-receive draft with a second robot on the field.
+  Video both clocks from PLAY. Mark (8, 98.3) and (5.5, 95) in the LOADING ZONE. Record each settled TIP,
+  release, speed, capture, counted shot, last ball out and both parks. The simulated starting settings are
+  16 in/s at TIP 1 + 1.0 s and 24 in/s at TIP 2 + 0.5 s. Test a late roll and a withheld roll at each end.
+  Count a ball retained from the spill separately. Measure the approach to the near and far parks with
+  either robot slower, and check the turret holds the intended CELL from the turn through the counted shot.
+  Record the gate-to-ball time of the first piece against the 0.85 s minimum backstop.
+
+
 The draft on `auto/l-right-under-hive-nectar` (PR for `claude/human-nectar-fruitport`; the study is
 `doc/human-nectar-auto.md` § "28 Nov 2026"): after its preloads at `LEFT_AUTO_OFFSET`, L turns on the spot to
 215° (its intake at the LOADING ZONE, the turret left on the LEFT CELL, about 84° left of forward), holds
@@ -458,14 +483,11 @@ tipping RIGHT by hand at about 5 s.
       grep "NECTAR in"`, and the Robot page's lane letters), no reject burst. **Stop:** one read as the other
       alliance's or as unknown → the gate stays shut and L carries it, which is safe, but the shot is lost:
       the log's hue and brightness to the PR.
-- [ ] **The one-ball feed is long enough, and the shot is counted.** A two-card test Auto, one NECTAR in the
-      lane, `LaunchOneAimed` at a spot that aims the turret about 80° left; five times, filmed. **Good:** the
-      ball leaves every time, and the log says `LaunchOneAimed fed … (…, ended at the last counted shot): 1
-      shots detected` in under 1.2 s. **Tune:** it ends on its 1.2 s backstop with the ball already gone →
-      the dip detector missed a lone NECTAR (`read_logs.py launcher`); the ball is still in the lane at the
-      backstop → raise `LaunchCards.launchOneAimedFeedS`. `LaunchOne` itself still feeds 0.5 s
-      (`launchOneFeedS`, never measured), shorter than the 0.75 to 0.85 s from gate to first ball: with one
-      piece and a shut gate it probably fires nothing. Try it five times and put the number that works in a PR.
+- [ ] **Time the one-ball feed from gate open to first ball out.** Film five runs of `LaunchOneAimed` with one
+      NECTAR and the turret about 80° left. Allow at least 0.85 s for a ball without a count. Check the gate closes
+      on the first counted shot, or within 1.2 s with the counter unavailable. Record which sensor counted the
+      piece and whether it had actually left. Compare with the ordinary `LaunchOne` feed of 0.5 s. Report a
+      retained piece or a missed count before using the setting on the field.
 - [ ] **The light tells the human player when to roll** (`claude/nectar-light`). The draft L alone, five runs,
       the human player at the LOADING ZONE. **Good:** as L starts its turn to 215° (`CallNectar`) the light
       flashes the alliance's colour at 2 Hz, through the volley, flashes faster (4 Hz) from 1.5 s into the hold
@@ -473,8 +495,9 @@ tipping RIGHT by hand at about 5 s.
       the human player can see it from the zone and rolls on it. **Tune:** the fast flash comes too late to act
       on → lower `NECTAR_FAST_AFTER_MS` in Panels; nobody can tell the two rates apart → note it in the PR.
 - [ ] **The turret holds the CELL through the turn, at about 84° left.** The draft L alone, five runs, filmed
-      from above the turret. **Good:** `/Turret/…` shows the aim within 2° of the LEFT CELL from the end of
-      the turn to the shot, inside the arc (the shot needs 5° of margin: `AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),
+      from above the turret. Verify the measured angle follows the LEFT CELL throughout the turn and the gate stays
+      closed until it settles. **Good:** `/Turret/…` shows the aim within 2° at the shot, with both the measured
+      direction and requested aim inside the arc by 5° (`AutoLaunchSpots.AIMED_SHOT_ARC_MARGIN_DEG`),
       and the NECTAR goes in. **Stop:** `LaunchOneAimed: not firing, …` in the log (the hold dropped, the aim
       at the arc's edge, the pose not referenced) → the reason to the PR; the robot kept the NECTAR, as it should.
       **Never** run it with the turret locked forward expecting a shot: it refuses, by design, because home at

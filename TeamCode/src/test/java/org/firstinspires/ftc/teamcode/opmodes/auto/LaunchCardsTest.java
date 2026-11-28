@@ -36,6 +36,7 @@ public class LaunchCardsTest {
     private boolean settled;
     /** The launcher's shot count; -1: a launcher with no detector. */
     private int shots;
+    private int countingThroat = -1;
     /** What the approach check ({@code PathEndSettle.readyOnApproach}) says. */
     private boolean readyOnApproach;
     private final List<String> notes = new ArrayList<>();
@@ -64,6 +65,7 @@ public class LaunchCardsTest {
                     @Override public void spinUp() { spinning = true; log.add("spinUp"); }
                     @Override public boolean atSpeed() { return atSpeed; }
                     @Override public int shots() { return shots; }
+                    @Override public int throatBalls() { return countingThroat; }
                     @Override public double secondsToSpeed() {
                         if (atSpeed) return 0.0;
                         return Double.isNaN(toSpeedS) ? Double.POSITIVE_INFINITY : toSpeedS;
@@ -205,6 +207,7 @@ public class LaunchCardsTest {
         FakeShot shot = new FakeShot();
         shot.onTarget = true;
         atSpeed = true;
+        shots = 0;
         Command card = cards.launchOneAimed(shot);
         card.schedule();
         step(0.8);
@@ -217,6 +220,49 @@ public class LaunchCardsTest {
     }
 
     @Test
+    public void theOneBallShotCannotUseTheParkShotsHomeFallback() {
+        FakeShot shot = new FakeShot();
+        shot.canAim = false;
+        shot.onTarget = true;
+        atSpeed = true;
+        run(cards.launchOneAimed(shot), 0.3);
+        assertEquals(null, first("feed"));
+    }
+
+    @Test
+    public void losingAlignmentClosesTheOneBallGateThatLoop() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        Command one = cards.launchOneAimed(shot);
+        one.schedule();
+        step(0.20);
+        assertTrue(cards.feeding());
+        shot.onTarget = false;
+        double lostAt = now;
+        finish(one, 0.10);
+        assertEquals(lostAt, timeOf(first("idle")), LOOP_S);
+        assertFalse(cards.feeding());
+    }
+
+    @Test
+    public void theCountingThroatEndsTheOneBallShotEvenWhenTheWheelsDipFirst() {
+        FakeShot shot = new FakeShot();
+        shot.onTarget = true;
+        atSpeed = true;
+        countingThroat = 3;
+        Command one = cards.launchOneAimed(shot);
+        one.schedule();
+        step(0.2);
+        shots++;
+        step(0.2);
+        assertTrue(cards.feeding());
+        countingThroat++;
+        finish(one, 0.1);
+        assertFalse(cards.feeding());
+    }
+
+    @Test
     public void aOneBallAimedLaunchWithNoShotCountedEndsAtItsBackstop() {
         FakeShot shot = new FakeShot();
         shot.onTarget = true;
@@ -225,6 +271,21 @@ public class LaunchCardsTest {
         assertEquals(LaunchCards.launchOneAimedFeedS, timeOf(first("idle")) - timeOf(first("feed")), 0.05);
         assertTrue("longer than LaunchOne's feed, which ends before the first ball",
                 LaunchCards.launchOneAimedFeedS > LaunchCards.launchOneFeedS + 0.3);
+    }
+
+    @Test
+    public void theOneBallFeedBackstopStaysWithinItsFlightWindow() {
+        double previous = LaunchCards.launchOneAimedFeedS;
+        try {
+            LaunchCards.launchOneAimedFeedS = 0.5;
+            assertEquals(0.85, LaunchCards.oneAimedBackstopS(), EPS);
+            LaunchCards.launchOneAimedFeedS = 10;
+            assertEquals(1.2, LaunchCards.oneAimedBackstopS(), EPS);
+            LaunchCards.launchOneAimedFeedS = Double.NaN;
+            assertEquals(1.2, LaunchCards.oneAimedBackstopS(), EPS);
+        } finally {
+            LaunchCards.launchOneAimedFeedS = previous;
+        }
     }
 
     @Test

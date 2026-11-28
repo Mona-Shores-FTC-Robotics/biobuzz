@@ -1,10 +1,18 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.localization.AutoLaunchSpots;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
+import org.firstinspires.ftc.teamcode.localization.TeamSpot;
+import org.firstinspires.ftc.teamcode.localization.generated.TeamSpots;
+import org.firstinspires.ftc.teamcode.opmodes.auto.CatchNectarAimed;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.junit.Test;
 
@@ -24,7 +32,7 @@ import java.util.Map;
  * <p>Read from each Auto's source, {@code TeamCode/autos/*.pp}: its cards are walked in order and
  * every {@code LaunchAll} is placed where the path card before it ends (the start, with none). Every
  * row of a branching block is walked from where the block begins. Drafts and partner stand-ins
- * ({@code drafts/}, {@code partners/}) are not held to it.
+ * ({@code drafts/}, {@code partners/}) can use other poses for ordinary volleys.
  *
  * <p>One exception, narrow (mentor, 19 Nov 2026): {@code LaunchAllAimed}, the turret aimed from where the robot stands at the
  * CELL at its end ({@code AimedVolley}), is fired from a park spot (a team spot or the Auto's own, named {@code …_PARK}) right
@@ -32,6 +40,7 @@ import java.util.Map;
  * CELL only. A second exception is {@code LaunchOneAimed} (mentor, 28 Nov 2026): one piece, turret-aimed, from a
  * named spot whose heading need not aim a locked turret, as long as the aim is inside the firing arc with margin
  * ({@code AutoLaunchSpots.aimedShotProblem}).
+ * CatchNectarAimed requires a named receiving pose belonging to the Auto and a valid near-CELL bearing.
  */
 public class AutoVolleySpotsTest {
 
@@ -40,10 +49,15 @@ public class AutoVolleySpotsTest {
 
     @Test
     public void everyVolleyIsFromAStartOrASpotFitToLaunchFrom() throws Exception {
-        File[] sources = new File(TeamCodeDir.get(), "autos").listFiles((dir, name) -> name.endsWith(".pp"));
-        assertTrue("no Auto sources found in TeamCode/autos", sources != null && sources.length > 0);
+        checkSources("autos", false);
+        checkSources("autos/drafts", true);
+    }
+
+    private static void checkSources(String directory, boolean catchesOnly) throws Exception {
+        File[] sources = new File(TeamCodeDir.get(), directory).listFiles((dir, name) -> name.endsWith(".pp"));
+        assertTrue("missing Auto sources in " + directory, sources != null && (catchesOnly || sources.length > 0));
         for (File source : sources) {
-            List<String> elsewhere = volleysElsewhere(source);
+            List<String> elsewhere = volleysElsewhere(source, catchesOnly);
             assertTrue(source.getName() + " launches from " + elsewhere + ": an Auto launches from its start"
                     + " or a named spot aimed at its CELL (AutoLaunchSpots.launchSpotProblem)", elsewhere.isEmpty());
         }
@@ -51,14 +65,28 @@ public class AutoVolleySpotsTest {
 
     /** The places {@code source}'s volleys are fired from that are neither its start nor a spot fit to launch from, and why. */
     @SuppressWarnings("unchecked")
-    private static List<String> volleysElsewhere(File source) throws Exception {
+    private static List<String> volleysElsewhere(File source, boolean catchesOnly) throws Exception {
         Map<String, Object> doc = (Map<String, Object>) MiniJson.parse(
                 new String(Files.readAllBytes(source.toPath()), StandardCharsets.UTF_8));
         Map<String, Object> auto = (Map<String, Object>) doc.get("auto");
         assertTrue(source.getName() + " has no Auto (cards) to read", auto != null && auto.get("cards") != null);
-        Walk walk = new Walk(doc, auto);
+        Walk walk = new Walk(doc, auto, catchesOnly);
         walk.cards((List<Object>) auto.get("cards"));
         return walk.elsewhere;
+    }
+
+    @Test
+    public void catchNeedsTheNearCellInsideTheArcAndTheFrameInsideTheField() {
+        assertNull(receivingPoseProblem(40.7, 120.5, Math.toRadians(210)));
+        assertNotNull(receivingPoseProblem(40.7, 120.5, Math.toRadians(200)));
+        assertNotNull(receivingPoseProblem(FieldFrame.FIELD_CENTRE_INCHES - 1, 120.5, Math.toRadians(210)));
+    }
+
+    private static String receivingPoseProblem(double x, double y, double h) {
+        String frame = AutoLaunchSpots.frameProblem(x, y, h);
+        if (frame != null) return frame;
+        double angle = CatchNectarAimed.spotBearing(new Pose(x, y, h), Alliance.RED);
+        return CatchNectarAimed.insideArc(angle) ? null : "near CELL outside the usable firing arc at " + angle;
     }
 
     private static final class Walk {
@@ -67,6 +95,7 @@ public class AutoVolleySpotsTest {
         private final Map<String, Object> points;
         /** The Auto is drawn for blue: its poses are turned half a turn to red's before they are checked. */
         private final boolean blue;
+        private final boolean catchesOnly;
         /** Where the robot is: x, y, what to call it, and the named spot it is on (null: none). */
         private double x, y;
         private String name, spot;
@@ -75,7 +104,8 @@ public class AutoVolleySpotsTest {
         final List<String> elsewhere = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
-        Walk(Map<String, Object> doc, Map<String, Object> auto) {
+        Walk(Map<String, Object> doc, Map<String, Object> auto, boolean catchesOnly) {
+            this.catchesOnly = catchesOnly;
             for (Object line : (List<Object>) doc.get("lines")) {
                 lines.put((String) ((Map<String, Object>) line).get("id"), line);
             }
@@ -111,7 +141,10 @@ public class AutoVolleySpotsTest {
                     name = named != null ? (String) named : String.valueOf(line.get("name"));
                     spot = (String) named;
                     parked = Boolean.TRUE.equals(card.get("park"));
-                } else if ("action".equals(kind) && "LaunchAllAimed".equals(card.get("name"))) {
+                } else if ("action".equals(kind) && "CatchNectarAimed".equals(card.get("name"))) {
+                    String problem = catchProblem();
+                    if (problem != null) elsewhere.add("CatchNectarAimed at " + name + ": " + problem);
+                } else if (!catchesOnly && "action".equals(kind) && "LaunchAllAimed".equals(card.get("name"))) {
                     // Right after a park card: the parked volley, from a …_PARK spot. Anywhere else it is an
                     // ordinary aimed volley (AutoKit.commandAwayFromPark), from a named spot fit to aim from.
                     if (parked && (spot == null || !spot.endsWith("_PARK"))) {
@@ -121,10 +154,10 @@ public class AutoVolleySpotsTest {
                     } else if (aimedProblem() != null) {
                         elsewhere.add(name + " (" + x + ", " + y + ") LaunchAllAimed " + aimedProblem());
                     }
-                } else if ("action".equals(kind) && "LaunchOneAimed".equals(card.get("name"))) {
+                } else if (!catchesOnly && "action".equals(kind) && "LaunchOneAimed".equals(card.get("name"))) {
                     String problem = aimedProblem();
                     if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") LaunchOneAimed " + problem);
-                } else if ("action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
+                } else if (!catchesOnly && "action".equals(kind) && "LaunchAll".equals(card.get("name"))) {
                     String problem = problem();
                     if (problem != null) elsewhere.add(name + " (" + x + ", " + y + ") " + problem);
                 } else if ("firstOf".equals(kind) && card.get("rows") != null) {
@@ -142,6 +175,23 @@ public class AutoVolleySpotsTest {
                     }
                 }
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        private String catchProblem() {
+            for (TeamSpot shared : TeamSpots.all()) {
+                if (shared.name.equals(spot)) return "requires an Auto's own named receiving pose";
+            }
+            List<Object> pose = spot == null ? null : (List<Object>) points.get(spot);
+            if (pose == null || pose.size() < 3 || !(pose.get(2) instanceof Number)) {
+                return "missing receiving pose or chassis heading";
+            }
+            if (Math.hypot(((Number) pose.get(0)).doubleValue() - x,
+                    ((Number) pose.get(1)).doubleValue() - y) > SAME_IN) return "path ends off the receiving pose";
+            double rx = blue ? FieldFrame.FIELD_SIZE_INCHES - x : x;
+            double ry = blue ? FieldFrame.FIELD_SIZE_INCHES - y : y;
+            double h = Math.toRadians(((Number) pose.get(2)).doubleValue() + (blue ? 180 : 0));
+            return receivingPoseProblem(rx, ry, h);
         }
 
         /** Why a LaunchOneAimed from where the robot is breaks its rule, or null: a named spot with a heading, the aim inside the arc with margin. */

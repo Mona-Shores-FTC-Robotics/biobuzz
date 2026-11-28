@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.GardenGather;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoRegistration;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
+import org.firstinspires.ftc.teamcode.opmodes.auto.CatchNectarAimed;
 import org.firstinspires.ftc.teamcode.opmodes.auto.PathEndSettle;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -34,6 +35,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * Runs an Autonomous exported by the Auto Builder, unchanged, against {@link FieldSim}, and writes
@@ -48,7 +51,7 @@ import java.util.Locale;
  *       uses. The real follower carries speed through joins, so real timing differs a little.</li>
  *   <li><b>Commands and triggers</b> ({@code Bot.registry}): every name a generated Auto may use, backed
  *       by the simulation. The robot starts holding its 4 preloaded POLLEN (Competition Manual
- *       §10.3.4) and never holds more than 4 (G407). The intake runs whenever the robot has room,
+ *       Ã‚Â§10.3.4) and never holds more than 4 (G407). The intake runs whenever the robot has room,
  *       unless the Auto turns it off. A launch aims at the alliance's raised CELL from wherever the
  *       robot is (as if the robot aims); whether it goes in is up to the physics. {@code Tip} is
  *       true once the alliance's HIVE has started to tip since the wait began, as the robot's
@@ -61,7 +64,7 @@ import java.util.Locale;
  *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d} and both
  *       robots together as {@link FieldRobot#ALL_3D}. A partner that stands still
  *       ({@link #partner}) is logged the same way. Both are
- *       judged for LEAVE and AUTO PARK when AUTO ends (§10.5.4), and the run notes it if they ever
+ *       judged for LEAVE and AUTO PARK when AUTO ends (Ã‚Â§10.5.4), and the run notes it if they ever
  *       overlap or one reaches into the other alliance's half (G402).</li>
  * </ul>
  * An Auto that needs a name not simulated here fails at the start and lists it, as the robot
@@ -74,8 +77,8 @@ public final class AutoSim {
 
     static final double LOOP_S = 0.020;
     /**
-     * Logged past the end of the Auto: the 8 s between AUTO and TELEOP (Competition Manual §10.1).
-     * A TIP that completes in it still counts for AUTO (§10.5 B), so a shot launched just before
+     * Logged past the end of the Auto: the 8 s between AUTO and TELEOP (Competition Manual Ã‚Â§10.1).
+     * A TIP that completes in it still counts for AUTO (Ã‚Â§10.5 B), so a shot launched just before
      * 30 s can still score its TIP.
      */
     static final double AFTER_S = 8.0;
@@ -93,7 +96,7 @@ public final class AutoSim {
 
     // Drivetrain profile, from the Belding match logs (7 Nov 2026, both robots, 70 Auto drives; the
     // table is in the PR that set these, and doc/robot-todo.md lists the timed run that would
-    // check them). The default is a request's "@50" (SimRunTest): 50 in/s, 45 in/s² up and down. On
+    // check them). The default is a request's "@50" (SimRunTest): 50 in/s, 45 in/sÃ‚Â² up and down. On
     // its own that is a fair fit for a drive that barely turns while it goes (39 to 98 in: within
     // about 0.3 s of the logs) but far too quick for one that turns all the way, so the wheels are
     // shared between driving and turning ({@link #TURN_SHARE_RAD_PER_S}).
@@ -103,9 +106,9 @@ public final class AutoSim {
      * A mecanum drive's wheels do both jobs: driving at {@code v} while turning at {@code w} needs
      * {@code v / maxSpeed + w / TURN_SHARE_RAD_PER_S <= 1}, so a path whose heading changes by
      * {@code k} rad per inch is driven at most {@code maxSpeed / (1 + maxSpeed * k / TURN_SHARE)}.
-     * Belding: the 90 in curves that turn 270° on the way (WALL_FLOWER_STAGING to the left launch
+     * Belding: the 90 in curves that turn 270Ã‚Â° on the way (WALL_FLOWER_STAGING to the left launch
      * spots) were driven at 20 to 30 in/s the whole way, 3.6 to 4.6 s (drawn 2.9 s); a drive that
-     * does not turn reached 55 to 63 in/s. 130°/s fits the 24 kinds of drive best (a median error
+     * does not turn reached 55 to 63 in/s. 130Ã‚Â°/s fits the 24 kinds of drive best (a median error
      * of 0.15 s on 19429, 0.26 s on 20245; 0.5 to 0.6 s with no sharing).
      */
     static final double TURN_SHARE_RAD_PER_S = Math.toRadians(130);
@@ -143,8 +146,8 @@ public final class AutoSim {
      * set (the human times the release off the robot's drive, not its stop), aimed at the intake mouth of a robot on
      * {@link #humanAimSpot} ({@link RobotDesign#frameIn} / 2 ahead of the spot along its heading), at
      * {@link #humanAimSpeedInPerS}. Every number is a placeholder until the long-roll drill measures it (PR #424's
-     * doc: the first five rolls decide whether the idea lives); the spread is the drill's target, ±2° (1 sigma).
-     * BIOBUZZ_AUTO_HUMAN_AIM_SPOT (a spots.json name, or "x,y,heading°"), _AIM_FROM ("x,y"), _AIM_SPEED (in/s),
+     * doc: the first five rolls decide whether the idea lives); the spread is the drill's target, Ã‚Â±2Ã‚Â° (1 sigma).
+     * BIOBUZZ_AUTO_HUMAN_AIM_SPOT (a spots.json name, or "x,y,headingÃ‚Â°"), _AIM_FROM ("x,y"), _AIM_SPEED (in/s),
      * _AIM_SPREAD_DEG and _AIM_AT_S set them; BIOBUZZ_AUTO_HUMAN_BANK=N banks them as for the wall roll.
      */
     static boolean humanAims = false;
@@ -157,8 +160,8 @@ public final class AutoSim {
     static double humanAimSpreadDeg = 2;
     static double humanAimReleaseAtS = Double.NaN;
     /**
-     * The aimed roll, one setting per NECTAR (the first TIP's, the second's, ...; the last repeats), each
-     * {@code spot | from | speed | facing | after}: where the robot waits ("x,y,heading°" or a team spot), where on the zone's
+     * The aimed roll or "keep" (the human holds that earned piece), one setting per NECTAR (the first TIP's, the second's, ...; the last repeats), each
+     * {@code spot | from | speed | facing | after}: where the robot waits ("x,y,headingÃ‚Â°" or a team spot), where on the zone's
      * tile it is released ("x,y"), its speed (in/s), and "facing" when the human holds it until one of our robots
      * stands within {@link #HUMAN_AIM_AT_SPOT_IN} of that spot with its intake within {@link #HUMAN_AIM_FACING_DEG}
      * of the spot's heading, and then {@link #humanAimReactS} more (the human watches the robot turn; nobody signals
@@ -251,9 +254,9 @@ public final class AutoSim {
         final List<double[]> poses = new ArrayList<>();
         /** Pieces at this robot's intake that were not taken, by why (FieldSim "miss: ..." events, one per piece per 0.3 s). */
         final java.util.Map<String, Integer> misses = new java.util.TreeMap<>();
-        /** LEAVE (Competition Manual §10.5.4): not touching the perimeter wall when AUTO ends. */
+        /** LEAVE (Competition Manual Ã‚Â§10.5.4): not touching the perimeter wall when AUTO ends. */
         boolean leave;
-        /** AUTO PARK (§10.5.4): at least partly in the alliance's LOADING ZONE when AUTO ends. */
+        /** AUTO PARK (Ã‚Â§10.5.4): at least partly in the alliance's LOADING ZONE when AUTO ends. */
         boolean park;
         /**
          * When the robot first reached into the other alliance's half, which G402 calls risky in
@@ -312,12 +315,63 @@ public final class AutoSim {
         }
     }
 
+    /** A physical roll earned by its corresponding settled TIP. Times are seconds, coordinates are drawn for RED. */
+    static final class NectarRoll {
+        final double[] spot, from;
+        final double speed, delay, earliest, headingErrorDeg, speedSpread, aimSpreadDeg;
+
+        NectarRoll(String spot, double fromX, double fromY, double speed, double delay, double earliest,
+                   double headingErrorDeg, double speedSpread, double aimSpreadDeg) {
+            this.spot = aimSpot(spot);
+            this.from = new double[] {fromX, fromY};
+            this.speed = speed;
+            this.delay = delay;
+            this.earliest = earliest;
+            this.headingErrorDeg = headingErrorDeg;
+            this.speedSpread = speedSpread;
+            this.aimSpreadDeg = aimSpreadDeg;
+            double[] zone = FieldSim.loadingZone(Alliance.RED);
+            if (!(fromX > zone[0] && fromX < zone[1] && fromY > zone[2] && fromY < zone[3]
+                    && Double.isFinite(this.spot[2]) && Double.isFinite(speed) && speed > 0
+                    && Double.isFinite(delay) && delay >= 0 && Double.isFinite(earliest) && earliest >= 0
+                    && Double.isFinite(headingErrorDeg) && Double.isFinite(speedSpread) && speedSpread >= 0
+                    && Double.isFinite(aimSpreadDeg) && aimSpreadDeg >= 0)) {
+                throw new IllegalArgumentException("A roll needs a zone release, a facing, a positive speed and finite times");
+            }
+        }
+    }
+
+    /** First release, capture, launch and CELL entry of this physical human piece. Robot numbers start at one. */
+    static final class HumanReceipt {
+        double releaseAt = Double.NaN, captureAt = Double.NaN, launchAt = Double.NaN, scoreAt = Double.NaN;
+        double captureX = Double.NaN, captureY = Double.NaN, launchX = Double.NaN, launchY = Double.NaN;
+        int captureRobot, launchRobot, capturedLoad, retainedAtTip;
+        double releaseSpeed = Double.NaN, releaseHeadingDeg = Double.NaN;
+        String scoreCell = "";
+    }
+
+    static final class Shot {
+        double t, x, y, headingDeg, turretDeg, scoreAt = Double.NaN;
+        int robot, volley, number, humanTip;
+        boolean pollen, aimedLeft, down, extra;
+        String scoreCell = "";
+    }
+
     /** What one run did, for a test or a person to read. */
     static final class Result {
         final String auto;
         final Alliance alliance;
         int launched;
         int scored;
+        int piecesAcrossEdge, piecesAcrossCentre;
+        double firstPieceEdgeAt = Double.NaN, firstPieceCentreAt = Double.NaN;
+        final HumanReceipt humanRoll = new HumanReceipt();
+        final HumanReceipt secondHumanRoll = new HumanReceipt();
+        final List<Shot> shots = new ArrayList<>();
+        final int[] maxLoad;
+        /** At the start of each completed swing, pieces in its falling CELL: POLLEN, all NECTAR, first and second human pieces (each 0/1). */
+        final List<int[]> settledLoads = new ArrayList<>();
+        double extraFeedStart = Double.NaN, extraFeedEnd = Double.NaN, extraShotAt = Double.NaN;
         /** When each TIP completed, including in the transition after AUTO, where they still count. */
         final List<Double> tipsAt = new ArrayList<>();
         /** The other alliance's TIPs, when opponents run ({@link #alsoRunOpponent}); empty otherwise. */
@@ -368,12 +422,13 @@ public final class AutoSim {
             this.auto = auto;
             this.alliance = alliance;
             for (String a : autos) robots.add(new RobotResult(a));
+            maxLoad = new int[robots.size()];
             decisions = robots.get(0).decisions;
             timeline = robots.get(0).timeline;
             poses = robots.get(0).poses;
         }
 
-        /** TIPs that count for AUTO: complete before TELEOP starts (§10.5 B). */
+        /** TIPs that count for AUTO: complete before TELEOP starts (Ã‚Â§10.5 B). */
         int autoTips() {
             int n = 0;
             for (double t : tipsAt) if (t < AutoKit.AUTO_LENGTH_S + AFTER_S) n++;
@@ -458,6 +513,16 @@ public final class AutoSim {
     private double[][] partnerSpots;
     /** On by default: the team's reading of G426/G427 (lab, 10 Oct 2026) is that the human player enters NECTAR during AUTO. */
     private boolean humanNectar = true;
+    private boolean leftNectarStudy;
+    private final NectarRoll[] humanRollsToTry = new NectarRoll[2];
+    private final FieldSim.Piece[] enteredPieces = new FieldSim.Piece[2];
+    private final Bot[] catchReceivers = new Bot[2];
+    private boolean secondRollToRight;
+    private NectarStudy.LateFirstRoll lateFirstRoll;
+    private Bot lateFirstReceiver;
+    private int[] swingLoad;
+    private final Map<FieldSim.Piece, Shot> flights = new IdentityHashMap<>();
+    private Result activeResult;
     private final List<Double> nectarDueAt = new ArrayList<>();
     private final List<Double> theirNectarDueAt = new ArrayList<>();
     /** Whether the first bank has gone in: ours, theirs. */
@@ -551,21 +616,21 @@ public final class AutoSim {
 
     /**
      * This robot sets its 4 preloaded POLLEN on the tiles at {@code spots} (RED-drawn), touching its
-     * front, instead of carrying them (G304, §10.3.4): a partner leaving them for us to collect.
+     * front, instead of carrying them (G304, Ã‚Â§10.3.4): a partner leaving them for us to collect.
      */
     AutoSim stagesPreloads(double[][] spots) {
         configuring.stagedPreloads = spots;
         return this;
     }
 
-    /** Sets the drivetrain's top speed and acceleration, in/s and in/s²; it brakes as hard as it accelerates. */
+    /** Sets the drivetrain's top speed and acceleration, in/s and in/sÃ‚Â²; it brakes as hard as it accelerates. */
     AutoSim speed(double maxInPerS, double accelInPerS2) {
         return speed(maxInPerS, accelInPerS2, accelInPerS2);
     }
 
     /**
      * As {@link #speed(double, double)}, braking at {@code decelInPerS2}: the 25 Oct 2026 logs of 20245 (light
-     * chassis) show about 63 to 71 in/s² from rest and 48 to 76 in/s² braking at a 77 in/s peak (doc/real-vs-sim-25-oct.md).
+     * chassis) show about 63 to 71 in/sÃ‚Â² from rest and 48 to 76 in/sÃ‚Â² braking at a 77 in/s peak (doc/real-vs-sim-25-oct.md).
      */
     AutoSim speed(double maxInPerS, double accelInPerS2, double decelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;
@@ -652,6 +717,19 @@ public final class AutoSim {
     AutoSim missesVolley(int n) {
         if (n < 1) throw new IllegalArgumentException("volleys are counted from 1: " + n);
         configuring.missesVolley = n;
+        return this;
+    }
+
+    /** One ordinary POLLEN in the named LaunchAll volley misses, preserving the other shots. */
+    AutoSim missPollen(int volley, int ordinal) {
+        if (volley < 1 || ordinal < 1) throw new IllegalArgumentException("Volley and POLLEN counts start at 1");
+        configuring.missPollenVolley = volley;
+        configuring.missPollenNumber = ordinal;
+        return this;
+    }
+
+    AutoSim loseCatchAim() {
+        configuring.catchAimLost = true;
         return this;
     }
 
@@ -748,6 +826,105 @@ public final class AutoSim {
         return this;
     }
 
+    /** Aim the single human delivery at L's LEFT receiving pose. A null roll withholds it. */
+    AutoSim leftNectar(NectarRoll roll) {
+        leftNectarStudy = true;
+        humanRollsToTry[0] = roll;
+        return this;
+    }
+
+    /** The second roll can target either robot and is earned only when TIP 2 settles. */
+    AutoSim secondNectar(NectarRoll roll, boolean receiverIsRight) {
+        humanRollsToTry[1] = roll;
+        secondRollToRight = receiverIsRight;
+        return this;
+    }
+
+    AutoSim lateFirstNectar(NectarStudy.LateFirstRoll plan) {
+        lateFirstRoll = plan;
+        return this;
+    }
+
+    private int humanTip(FieldSim.Piece piece) {
+        if (piece == null) return 0;
+        if (piece == enteredPieces[0]) return 1;
+        if (piece == enteredPieces[1]) return 2;
+        return 0;
+    }
+
+    private HumanReceipt receipt(Result result, int tip) {
+        return tip == 1 ? result.humanRoll : result.secondHumanRoll;
+    }
+
+    private void releaseEarnedRoll(Result result, int index) {
+        NectarRoll roll = humanRollsToTry[index];
+        Bot receiver = catchReceivers[index];
+        if (roll != null && lateFirstRoll != null && !result.tipsAt.isEmpty()
+                && lateFirstRoll.applies(index, result.tipsAt.get(0))) {
+            roll = lateFirstRoll.roll;
+            receiver = lateFirstReceiver;
+        }
+        HumanReceipt receipt = receipt(result, index + 1);
+        if (roll == null || receiver == null || enteredPieces[index] != null || result.tipsAt.size() <= index || now >= AutoKit.AUTO_LENGTH_S
+                || now < result.tipsAt.get(index) + roll.delay || now < roll.earliest || releaseZoneOccupied(alliance)) return;
+        boolean red = alliance == Alliance.RED;
+        double[] from = forAlliance(roll.from, red), target = forAlliance(roll.spot, red);
+        double reach = receiver.design.frameIn / 2;
+        double dx = target[0] + reach * Math.cos(target[2]) - from[0];
+        double dy = target[1] + reach * Math.sin(target[2]) - from[1];
+        // Isolate human variation from the draw for every pickup, flight and TIP on this seed.
+        java.util.Random human = new java.util.Random((index == 0 ? 0x524f4c4cL : 0x4e454354L) + seed);
+        double direction = Math.atan2(dy, dx) + Math.toRadians(roll.headingErrorDeg + human.nextGaussian() * roll.aimSpreadDeg);
+        double speed = Math.max(1, roll.speed + human.nextGaussian() * roll.speedSpread);
+        enteredPieces[index] = sim.rollFromZone(alliance, from, direction, speed);
+        if (enteredPieces[index] != null) {
+            receipt.releaseAt = now;
+            receipt.releaseSpeed = speed;
+            receipt.releaseHeadingDeg = Math.toDegrees(direction);
+        }
+    }
+
+    /** Aimed releases wait for the entire LOADING ZONE to clear, including extensions and fixed partners. */
+    private boolean releaseZoneOccupied(Alliance a) {
+        if (robotInZone(a)) return true;
+        double[] zone = FieldSim.loadingZone(a);
+        for (Bot b : bots) {
+            // Enclose the complete rotated frame and any modeled extensions. The box can delay a corner release.
+            double xmin = Double.POSITIVE_INFINITY, ymin = Double.POSITIVE_INFINITY;
+            double xmax = Double.NEGATIVE_INFINITY, ymax = Double.NEGATIVE_INFINITY;
+            for (double[] p : outline(pedro(b.drive.pose), b.design, now, b.body.wallsOut, b.body.flapsOnly,
+                    b.body.slideOut, b.body.flapsFolded)) {
+                xmin = Math.min(xmin, p[0]);
+                xmax = Math.max(xmax, p[0]);
+                ymin = Math.min(ymin, p[1]);
+                ymax = Math.max(ymax, p[1]);
+            }
+            if (xmax >= zone[0] && xmin <= zone[1] && ymax >= zone[2] && ymin <= zone[3]) return true;
+        }
+        // A fixed stand-in's drawn frame uses the full 18-inch starting square.
+        for (double[] parked : sim.parkedRobots) {
+            double r = 9 * (Math.abs(Math.cos(parked[2])) + Math.abs(Math.sin(parked[2])));
+            if (parked[0] + r >= zone[0] && parked[0] - r <= zone[1] && parked[1] + r >= zone[2] && parked[1] - r <= zone[3]) return true;
+        }
+        return false;
+    }
+
+    /** Seconds after the earning TIP settles. Older requests use the original one-second aimed-roll delay. */
+    static double entryDelayS(int tip) {
+        if (!humanAims) return humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S;
+        String[] roll = rollForTip(tip);
+        if (roll.length == 0 || roll[0].trim().equals("keep")) return HUMAN_ROLL_DELAY_S;
+        if (roll.length < 5 || roll[4].trim().isEmpty()) return HUMAN_ROLL_DELAY_S;
+        double seconds = Double.parseDouble(roll[4].trim());
+        if (!Double.isFinite(seconds) || seconds < 0) throw new IllegalArgumentException("Invalid human release delay: " + roll[4]);
+        return seconds;
+    }
+
+    private static String[] rollForTip(int tip) {
+        if (humanAimRolls == null || humanAimRolls.length == 0) return new String[0];
+        return humanAimRolls[Math.min(tip, humanAimRolls.length) - 1].split("\\|");
+    }
+
     /** One loop's human-player entries for an alliance: {@code due} holds when each owed NECTAR may go in. */
     private void humanEntries(Alliance a, List<Double> due, int side, Result result) {
         if (due.isEmpty() || now < due.get(0)) return;
@@ -786,15 +963,19 @@ public final class AutoSim {
         double[] fromRed = humanAimFrom;
         double rollSpeed = humanAimSpeedInPerS;
         boolean whenFacing = false;
-        if (humanAimRolls != null && humanAimRolls.length > 0) {
-            String[] roll = humanAimRolls[Math.min(aimedEntries[side], humanAimRolls.length - 1)].split("\\|");
+        if (now >= AutoKit.AUTO_LENGTH_S) return;
+        String[] roll = rollForTip(aimedEntries[side] + 1);
+        if (roll.length > 0) {
+            if (roll[0].trim().equals("keep")) {
+                due.remove(0);
+                aimedEntries[side]++;
+                return;
+            }
             spotName = roll[0].trim();
             if (roll.length > 1) fromRed = new double[] {Double.parseDouble(roll[1].split(",")[0].trim()), Double.parseDouble(roll[1].split(",")[1].trim())};
             if (roll.length > 2) rollSpeed = Double.parseDouble(roll[2].trim());
             whenFacing = roll.length > 3 && "facing".equals(roll[3].trim());
-            // A fifth field: released no sooner than this long after the TIP (a slow human: the NECTAR comes late).
-            if (roll.length > 4 && !roll[4].trim().isEmpty()
-                    && now < due.get(0) - HUMAN_ROLL_DELAY_S + Double.parseDouble(roll[4].trim())) return;
+
         }
         if (whenFacing) {
             double[] want = forAlliance(aimSpot(spotName), a == Alliance.RED);
@@ -814,6 +995,11 @@ public final class AutoSim {
             if (now - aimFacingSince[side] < humanAimReactS) return;
         }
         double[] from = forAlliance(fromRed, a == Alliance.RED);
+        double[] zone = FieldSim.loadingZone(a);
+        if (!(from[0] >= zone[0] && from[0] <= zone[1] && from[1] >= zone[2] && from[1] <= zone[3])) {
+            throw new IllegalArgumentException("Human release point must lie inside the LOADING ZONE");
+        }
+        if (releaseZoneOccupied(a)) return;
         for (Bot b : bots) {
             double[] pose = pedro(b.drive.pose);
             if (Math.hypot(pose[0] - from[0], pose[1] - from[1]) < HUMAN_AIM_CLEAR_IN) return;  // the human waits
@@ -990,11 +1176,54 @@ public final class AutoSim {
         List<String> names = new ArrayList<>();
         for (Bot b : bots) names.add(name(b.autoClass));
         Result result = new Result(runName(), alliance, names);
+        activeResult = result;
         for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
         for (Bot b : bots) result.opponents |= b.alliance != alliance;
         if (BeldingCalibration.on) HiveCalibration.tipPointInBand = BeldingCalibration.tipPoint(seed);
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
+        sim.requireEightPollenWeights = leftNectarStudy;
+        if (leftNectarStudy) {
+            java.util.Arrays.fill(enteredPieces, null);
+            java.util.Arrays.fill(catchReceivers, null);
+            lateFirstReceiver = null;
+            for (Bot b : bots) {
+                if (b.alliance != alliance) continue;
+                String auto = name(b.autoClass);
+                if (auto.startsWith("l-")) catchReceivers[0] = b;
+                if (auto.startsWith(secondRollToRight ? "r-" : "l-")) catchReceivers[1] = b;
+                if (lateFirstRoll != null && auto.startsWith(lateFirstRoll.receiverIsRight ? "r-" : "l-")) {
+                    lateFirstReceiver = b;
+                }
+            }
+            flights.clear();
+            sim.onCapture = (body, piece) -> {
+                for (Bot bot : bots) if (bot.body == body) {
+                    result.maxLoad[bot.index] = Math.max(result.maxLoad[bot.index], body.stored.size());
+                    int tip = humanTip(piece);
+                    if (tip == 0) return;
+                    HumanReceipt receipt = receipt(result, tip);
+                    if (!Double.isNaN(receipt.captureAt)) return;
+                    receipt.captureAt = sim.time;
+                    receipt.captureRobot = bot.index + 1;
+                    receipt.capturedLoad = body.stored.size();
+                    receipt.captureX = bot.drive.pose.x();
+                    receipt.captureY = bot.drive.pose.y();
+                }
+            };
+            sim.onShotInCell = (piece, cell) -> {
+                Shot shot = flights.remove(piece);
+                if (shot == null) return;
+                shot.scoreAt = sim.time;
+                shot.scoreCell = cell.clusterName();
+                if (shot.humanTip != 0) {
+                    HumanReceipt receipt = receipt(result, shot.humanTip);
+                    if (!Double.isNaN(receipt.scoreAt)) return;
+                    receipt.scoreAt = sim.time;
+                    receipt.scoreCell = shot.scoreCell;
+                }
+            };
+        }
         boolean red = alliance == Alliance.RED;
         // Every robot on the field, in FieldRobot slot order: the ones running Autos, then a
         // partner that stands still. Logged together each loop so AdvantageScope can show them all.
@@ -1029,6 +1258,7 @@ public final class AutoSim {
 
         Scheduler.reset();
         for (Bot b : bots) b.start(log, result.robots.get(b.index));
+        for (Bot b : bots) result.maxLoad[b.index] = b.body.stored.size();
 
         FieldSimLog fieldLog = new FieldSimLog();
         // The robot's insides (held pieces on the transfer's path, the CAD model's moving parts): drawn by
@@ -1058,6 +1288,7 @@ public final class AutoSim {
         List<Object[]> spills = new ArrayList<>();
         // ... and every TIP's pieces, to count who picks them up: {FieldSim time, pieces, counted, Result#tipKeeps row}.
         List<Object[]> keeps = new ArrayList<>();
+        if (leftNectarStudy) sim.watchPieceCrossings(alliance, AutoKit.AUTO_LENGTH_S + AFTER_S);
         boolean scored = false;
         for (long step = 0; step * LOOP_S <= AutoKit.AUTO_LENGTH_S + AFTER_S; step++) {
             now = step * LOOP_S;
@@ -1078,7 +1309,7 @@ public final class AutoSim {
                 if (any) Scheduler.execute();
             }
             if (!running && !scored) {
-                // LEAVE and AUTO PARK are judged where the robots are when AUTO ends (§10.5 F).
+                // LEAVE and AUTO PARK are judged where the robots are when AUTO ends (Ã‚Â§10.5 F).
                 scored = true;
                 for (Bot b : bots) b.judge(result.robots.get(b.index));
             }
@@ -1137,6 +1368,14 @@ public final class AutoSim {
                 for (FieldSim.Piece p : sim.pieces) {
                     if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == alliance) inCell.add(p);
                 }
+                if (leftNectarStudy) {
+                    swingLoad = new int[4];
+                    for (FieldSim.Piece p : inCell) if (p.cell == ours.cell(ours.fallingEnd())) {
+                        swingLoad[p.kind == FieldSim.Kind.POLLEN ? 0 : 1]++;
+                        int tip = humanTip(p);
+                        if (tip != 0) swingLoad[tip + 1] = 1;
+                    }
+                }
                 spills.add(new Object[] {now + SPILL_LOOK_S, inCell});
                 keeps.add(new Object[] {sim.time, inCell, new java.util.HashSet<FieldSim.Piece>(), new double[] {
                         now, inCell.size(), 0, 0, Double.NaN}});
@@ -1174,14 +1413,26 @@ public final class AutoSim {
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
-                if (humanNectar) nectarDueAt.add(now + (humanRolls || humanAims ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
+                if (leftNectarStudy) {
+                    if (swingLoad == null) throw new IllegalStateException("Settled TIP without load snapshot");
+                    result.settledLoads.add(swingLoad);
+                    for (int i = 0; i < enteredPieces.length; i++) {
+                        HumanReceipt receipt = receipt(result, i + 1);
+                        if (swingLoad[i + 2] != 0 && receipt.retainedAtTip == 0) receipt.retainedAtTip = tipsSeen;
+                    }
+                    swingLoad = null;
+                }
+                if (humanNectar && !leftNectarStudy) nectarDueAt.add(now + entryDelayS(ours.tips));
             }
-            humanEntries(alliance, nectarDueAt, 0, result);
+            if (leftNectarStudy) {
+                for (int i = 0; i < enteredPieces.length; i++) releaseEarnedRoll(result, i);
+            }
+            else humanEntries(alliance, nectarDueAt, 0, result);
             if (result.opponents) {
                 FieldSim.Rocker theirs = sim.rocker(opponent(alliance));
                 if (theirs.tips > result.theirTipsAt.size()) {
                     result.theirTipsAt.add(now);
-                    if (humanNectar) theirNectarDueAt.add(now + (humanRolls || humanAims ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
+                    if (humanNectar) theirNectarDueAt.add(now + entryDelayS(theirs.tips));
                 }
                 humanEntries(opponent(alliance), theirNectarDueAt, 1, result);
             }
@@ -1210,6 +1461,10 @@ public final class AutoSim {
         fieldLog.write(log, sim, lastUs);
         for (Bot b : bots) internals.record(b.index, false, false, b.turretYaw, lastUs);
         internals.write(log);
+        result.piecesAcrossEdge = sim.piecesAcrossEdge;
+        result.piecesAcrossCentre = sim.piecesAcrossCentre;
+        result.firstPieceEdgeAt = sim.firstPieceEdgeAt;
+        result.firstPieceCentreAt = sim.firstPieceCentreAt;
         putClock(log, last);
         Scheduler.reset();
         return result;
@@ -1403,6 +1658,10 @@ public final class AutoSim {
         boolean missesWide;
         /** The launch volley that goes wide, counted from 1 ({@link AutoSim#missesVolley}); 0: none. */
         int missesVolley;
+        int missPollenVolley, missPollenNumber, pollenInVolley;
+        boolean catchAimLost, catchFeeding, catchSawCellGoDown;
+        Pose catchTurnEnd;
+        double catchBearing = Double.NaN;
         /** Volleys (LaunchAll) this robot has started. */
         int volleysStarted;
         /** The running volley goes wide: {@link #missesWide}, or the one of {@link #missesVolley}. */
@@ -1649,8 +1908,8 @@ public final class AutoSim {
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
             trackTurret();
-            // A LaunchAll with nothing to fire still opens its gate and feeds, where the calibration says so
-            // (BeldingCalibration.shortVolleysRunTheFeed): the robot has no way to know it is empty.
+            if (catchFeeding && !strictCatchAim()) return;
+            // An empty LaunchAll still feeds until its backstop in the measured Fruitport profile.
             if (firing && feedingAll && body.stored.isEmpty() && shortVolleyRunsFeed() && launcherReady()
                     && Double.isNaN(activeFeedAt) && drive.speedNow <= SimDrive.FIRE_SPEED_IN_PER_S) {
                 gateOpenAt = now;
@@ -1746,13 +2005,46 @@ public final class AutoSim {
                 }
                 double[] from = body.exitPoint(side);
                 double shotYaw = yawError;
-                if (missesWide || wideNow || preloadsMiss()) {
+                FieldSim.Piece piece = body.stored.get(0);
+                boolean pollen = piece.kind == FieldSim.Kind.POLLEN;
+                boolean forceOne = pollen && !catchFeeding && volleysStarted == missPollenVolley
+                        && pollenInVolley + 1 == missPollenNumber;
+                if (missesWide || wideNow || preloadsMiss() || forceOne) {
                     // A missing partner: its shot leaves MISS_WIDE_IN to the side of the CELL at that range.
                     double range = Math.max(1, Math.hypot(aim[0] - from[0], aim[1] - from[1]));
                     shotYaw += Math.atan2(MISS_WIDE_IN, range);
                 }
                 double[] v = sim.launch(body, aim, shotYaw, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);
                 if (v == null) break;
+                if (pollen && !catchFeeding) pollenInVolley++;
+                if (leftNectarStudy) {
+                    Shot shot = new Shot();
+                    shot.t = now;
+                    shot.robot = index + 1;
+                    shot.volley = volleysStarted;
+                    shot.number = shotsFired - shotsAtStep + 1;
+                    shot.extra = catchFeeding;
+                    shot.pollen = pollen;
+                    shot.humanTip = humanTip(piece);
+                    shot.x = here[0];
+                    shot.y = here[1];
+                    shot.headingDeg = Math.toDegrees(here[2]);
+                    shot.turretDeg = Math.toDegrees(turretYaw);
+                    shot.aimedLeft = aimedLeft(alliance, here[1]);
+                    shot.down = cellDown;
+                    flights.put(piece, shot);
+                    result.shots.add(shot);
+                    if (catchFeeding) result.extraShotAt = now;
+                    if (shot.humanTip != 0) {
+                        HumanReceipt receipt = receipt(result, shot.humanTip);
+                        if (Double.isNaN(receipt.launchAt)) {
+                            receipt.launchAt = now;
+                            receipt.launchRobot = shot.robot;
+                            receipt.launchX = here[0];
+                            receipt.launchY = here[1];
+                        }
+                    }
+                }
                 RobotResult rr = result.robots.get(index);
                 rr.launched++;
                 rr.lastShotAt = now;
@@ -2382,11 +2674,23 @@ public final class AutoSim {
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
                     // The robot's LaunchOneAimed: one piece with the turret on the CELL at the robot's end, ending at its
-                    // counted shot with LaunchCards.launchOneAimedFeedS its backstop. A robot whose turret cannot aim
+                    // counted shot with LaunchCards.oneAimedBackstopS() its backstop. A robot whose turret cannot aim
                     // (the locked designs) refuses, as the robot's does, and keeps the piece.
-                    .command("LaunchOneAimed", LaunchCards.launchOneAimedFeedS, this::launchOneAimed)
+                    .command("LaunchOneAimed", LaunchCards.oneAimedBackstopS(), this::launchOneAimed)
                     // The robot's CatchNectar: the intake on until whoever runs the card ends it.
                     .command("CatchNectar", 2.0, this::catchNectar)
+                    .volley("CatchNectarAimed", CatchNectarAimed.PLANNED_S, CatchNectarAimed.PLANNED_S,
+                            this::catchNectarAimed, new AutoRegistry.Approach() {
+                                public void started(Pose end) {
+                                    catchTurnEnd = end;
+                                    catchBearing = CatchNectarAimed.spotBearing(end, alliance);
+                                    catchSawCellGoDown = false;
+                                    observeCatchCell();
+                                    spinUp();
+                                }
+                                public void approaching(Pose pose, double remainingIn) { observeCatchCell(); }
+                                public void cancel() { catchTurnEnd = null; }
+                            })
                     // The robot's CallNectar: the indicator light only; nothing on the field.
                     .command("CallNectar", 0.1, () -> Commands.instant(() -> { }))
                     .command("CollectSeen", 2.0, this::collectSeen)
@@ -2522,7 +2826,7 @@ public final class AutoSim {
          * {@code firstBallWithinS} after the gate with no ball at all.
          */
         private boolean emptyStepOver() {
-            if (shortVolleyRunsFeed() && feedingAll) return false;  // the set feed time ends it, as on the robot
+            if (shortVolleyRunsFeed() && feedingAll) return false;
             if (!BeamBreakSubsystem.throatFitted || Double.isNaN(activeFeedAt)) return true;
             if (shotsFired == shotsAtStep) return now - activeFeedAt >= BeamBreakSubsystem.firstBallWithinS;
             return now - lastShotFiredAt >= BeamBreakSubsystem.quietS;
@@ -2573,14 +2877,8 @@ public final class AutoSim {
 
         private final LaunchApproach launchApproach = new LaunchApproach();
 
-        /** Whether the fire step under way is a LaunchAll (not a LaunchOne). */
         private boolean feedingAll;
 
-        /**
-         * Whether a LaunchAll that holds fewer than four, or nothing, runs its whole set feed instead of ending at its
-         * last ball: the robot without a throat beam ({@link BeldingCalibration#shortVolleysRunTheFeed}, measured at
-         * Fruitport). Never with the beam fitted, which sees the lane run dry, and never in the best case.
-         */
         private boolean shortVolleyRunsFeed() {
             return BeldingCalibration.on && BeldingCalibration.shortVolleysRunTheFeed && !BeldingCalibration.bestCase
                     && !BeamBreakSubsystem.throatFitted;
@@ -2590,9 +2888,11 @@ public final class AutoSim {
         private void beginLaunch(int count) {
             feedingAll = count == Integer.MAX_VALUE;
             wideNow = missesVolley > 0 && count == Integer.MAX_VALUE && volleysStarted == missesVolley - 1;
-            if (count == Integer.MAX_VALUE) volleysStarted++;
+            if (count == Integer.MAX_VALUE) {
+                volleysStarted++;
+                pollenInVolley = 0;
+            }
             // The Belding counter missed 4th shots and ran the whole feed; a throat beam counts every ball.
-            // An event that measured how often the counter missed a ball draws it a volley (BeldingCalibration.wholeFeedChance).
             if (feedLuck == null) feedLuck = new java.util.Random((seed + 7) * 0xD1B54A32D192ED03L + index);
             boolean wholeFeed = BeldingCalibration.on && count == Integer.MAX_VALUE
                     && launchAllsStarted++ > 0 && !BeamBreakSubsystem.throatFitted && BeldingCalibration.wholeFeed(feedLuck);
@@ -2602,7 +2902,7 @@ public final class AutoSim {
             firing = true;
             activeFeedAt = Double.NaN;
             activeFeedLimit = count == Integer.MAX_VALUE ? launchAllFeedS(launchAllFeeds++ == 0)
-                    : aimedOne ? LaunchCards.launchOneAimedFeedS : launchOneFeedS();
+                    : aimedOne ? LaunchCards.oneAimedBackstopS() : launchOneFeedS();
             nextShotAt = Math.max(nextShotAt, now);
             shotTarget = count == Integer.MAX_VALUE
                     ? (!wholeFeed && Double.isFinite(LaunchCards.launchAllEndAfterShots) && LaunchCards.launchAllEndAfterShots > 0
@@ -2658,6 +2958,58 @@ public final class AutoSim {
                     .setEnd(end -> {
                         firing = false;
                         gateOpenAt = Double.NaN;
+                    });
+        }
+
+        /** As with the simulator's CellUp trigger, a working camera observes the current rocker state. */
+        private void observeCatchCell() {
+            if (!cameraDown && catchTurnEnd != null) catchSawCellGoDown |= CatchNectarAimed.oppositeSettled(
+                    sim.rocker(alliance).state(), aimedLeft(alliance, catchTurnEnd.y()));
+        }
+
+        private boolean strictCatchAim() {
+            observeCatchCell();
+            if (catchAimLost || catchSawCellGoDown || design.launcher != RobotDesign.Launcher.TURRET || alliance == Alliance.UNKNOWN) return false;
+            if (!CatchNectarAimed.atReceiveSpot(drive.pose, catchTurnEnd)
+                    || body.speed() > PathEndSettle.slowSpeedInPerSec
+                    || Math.toDegrees(body.spin()) > PathEndSettle.stillTurnDegPerSec) return false;
+            double[] aim = sim.rocker(alliance).aimPointFor(aimedEnd());
+            if (aim == null) return false;
+            double demand = turretTarget(aim);
+            double actual = Math.toDegrees(AdvantageScopeFrame.wrap(turretYaw));
+            double requested = Math.toDegrees(demand);
+            return CatchNectarAimed.aligned(actual, requested, catchBearing);
+        }
+
+        /** Turn and receive with the ordinary position-based near CELL aim. The gate has no home fallback. */
+        private Command catchNectarAimed() {
+            CatchNectarAimed.Decision decision = new CatchNectarAimed.Decision();
+            CatchNectarAimed.Phase[] phase = {CatchNectarAimed.Phase.DONE};
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        spinUp();
+                        decision.reset(now);
+                        phase[0] = CatchNectarAimed.Phase.WAIT;
+                        catchFeeding = false;
+                    })
+                    .setExecute(() -> {
+                        boolean allowed = true;
+                        FieldSim.Kind wrong = alliance == Alliance.RED ? FieldSim.Kind.BLUE_NECTAR : FieldSim.Kind.RED_NECTAR;
+                        for (FieldSim.Piece p : body.stored) if (p.kind == wrong) allowed = false;
+                        phase[0] = decision.step(now, allowed && strictCatchAim(), !body.stored.isEmpty() && launcherReady(), shotsFired);
+                        if (phase[0] == CatchNectarAimed.Phase.FEED && !catchFeeding) {
+                            beginLaunch(1);
+                            catchFeeding = true;
+                            gateOpenAt = activeFeedAt = now;
+                            activeResult.extraFeedStart = now;
+                        }
+                    })
+                    .setDone(() -> phase[0] == CatchNectarAimed.Phase.DONE)
+                    .setEnd(end -> {
+                        if (catchFeeding) activeResult.extraFeedEnd = now;
+                        catchFeeding = false;
+                        firing = false;
+                        gateOpenAt = activeFeedAt = Double.NaN;
                     });
         }
 
@@ -2757,7 +3109,6 @@ public final class AutoSim {
          */
         /** Its own stream, so the calibration's short picks leave every other draw as it was. */
         private final java.util.Random pickLuck = new java.util.Random((seed + 1) * 0x9E3779B97F4A7C15L);
-        /** Its own stream too: which volleys the shot counter misses a ball of ({@link BeldingCalibration#wholeFeedChance}). */
         private java.util.Random feedLuck;
 
         /**
@@ -2782,10 +3133,15 @@ public final class AutoSim {
             final double[] pickFlowerAt = new double[2];
             final boolean[] reachedDwell = new boolean[1];
             final int[] heldAtStart = new int[1];
+            final List<FieldSim.Piece> carried = new ArrayList<>();
             final double flip = design.intakeAtBack ? Math.PI : 0.0;
             return new CommandBuilder()
                     .setStart(() -> {
                         heldAtStart[0] = body.stored.size();
+                        if (leftNectarStudy && FruitportCalibration.on) {
+                            carried.clear();
+                            carried.addAll(body.stored);
+                        }
                         double[] at = pedro(drive.pose);
                         Pose here = new Pose(at[0], at[1], at[2] + flip); // the intake's heading
                         FlowerFieldPoints.Flower flower = null;
@@ -2871,18 +3227,19 @@ public final class AutoSim {
                                         + (full ? "a full load (best case)" : "the roller stick fills the lane"));
                             }
                         } else if (BeldingCalibration.on && end == EndCondition.NATURALLY) {
-                            // The draw is what the pick brought to the launcher; a piece held before it (a NECTAR taken
-                            // on the way, PickNectar) is kept, and the two together are the lane's four at most.
-                            int reach = Math.min(FieldSim.ROBOT_CAPACITY, heldAtStart[0]
-                                    + BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck));
-                            int lost = 0;
-                            while (body.stored.size() > reach) {
+                            // A Fruitport study draw caps newly collected POLLEN. A carried or newly caught
+                            // NECTAR is independently tracked through this pick.
+                            int drawn = BeldingCalibration.load(BeldingCalibration.robotFor(index), pickAtScoringFlower[0], pickLuck);
+                            int reach = Math.min(FieldSim.ROBOT_CAPACITY, heldAtStart[0] + drawn);
+                            boolean limitNewPollen = leftNectarStudy && FruitportCalibration.on;
+                            int lost = limitNewPollen ? FieldSim.limitFlowerPickup(body.stored, carried, drawn) : 0;
+                            while (!limitNewPollen && body.stored.size() > reach) {
                                 FieldSim.Piece gone = body.stored.remove(body.stored.size() - 1);
                                 gone.where = FieldSim.Where.OUTSIDE;
                                 gone.x = -1000;
                                 lost++;
                             }
-                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (the calibration's draw)");
+                            if (lost > 0) pending.add("PickFlower: " + lost + " of the load never reach the launcher (Belding calibration)");
                         }
                         intakeEnabled = intakeBefore[0];
                         if (end != EndCondition.NATURALLY) drive.hold(drive.pose);
@@ -2903,7 +3260,7 @@ public final class AutoSim {
          * <p>Checked (19 Nov 2026) against 19429's button gathers of 18 Nov with these values: the routine takes 2.0
          * to 2.2 s here (in 1.3, dwell 0.16, back 0.68) against the robot's 2.26 to 2.50 s without its line-up (in 1.35
          * to 1.60, dwell 0.15 to 0.18, back 0.67 to 0.73). By touch it takes 3 POLLEN where 19429 took 4 every time:
-         * the square frame, turned 15° and stopped by both walls, leaves the mouth about 0.9 in short of the corner
+         * the square frame, turned 15Ã‚Â° and stopped by both walls, leaves the mouth about 0.9 in short of the corner
          * piece. 19429's roller FLOWER stick, which the simulator does not model in the GARDEN, takes the rest: with
          * the Belding calibration, a gather of 19429's that ran to its end fills the lane
          * ({@link BeldingCalibration#rollerStick}, the mentor's 19 Nov observation); 20245, with the passive stick,
@@ -3531,7 +3888,7 @@ public final class AutoSim {
          * far FLOWER and lost LEAVE on the wall). The real CollectSeen needs the same rule.
          */
         private boolean approachHitsFrame(FieldSim.Piece p, double[] at, double originHeading) {
-            // Touching the wall costs LEAVE only if the robot still touches it when AUTO ends (§10.5.4):
+            // Touching the wall costs LEAVE only if the robot still touches it when AUTO ends (Ã‚Â§10.5.4):
             // it may drive up to the wall for a piece until the last WALL_CLEAR_S, then stays 1 in off.
             double wall = now < AutoKit.AUTO_LENGTH_S - WALL_CLEAR_S ? 0 : 1;
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
@@ -3828,7 +4185,7 @@ public final class AutoSim {
         Path current;
         double maxSpeed = MAX_SPEED_IN_PER_S;
         double accel = ACCEL_IN_PER_S2;
-        /** Braking, in/s²: the same as {@link #accel} unless {@link AutoSim#speed(double, double, double)} says otherwise. */
+        /** Braking, in/sÃ‚Â²: the same as {@link #accel} unless {@link AutoSim#speed(double, double, double)} says otherwise. */
         double decel = ACCEL_IN_PER_S2;
         /** Turning is rate-limited too: a path ends when the robot is there and facing its way. */
         double maxTurn = RobotDesign.real().maxTurnRadPerS;
@@ -4004,7 +4361,7 @@ public final class AutoSim {
                 goal = current.get(clamp01(current.curve.parameter(clamp01(completion))));
             }
             // In the last JOIN_IN the robot turns the rest of the way to the end's heading, at its own turn
-            // rate, as Pedro does: Belding's short 180° hops reached their end still turning at 130 to 190°/s.
+            // rate, as Pedro does: Belding's short 180Ã‚Â° hops reached their end still turning at 130 to 190Ã‚Â°/s.
             double want = total - s <= JOIN_IN ? current.get(1).heading() : goal.heading();
             double heading = turned(pose.heading(), want, maxTurn * LOOP_S);
             pose = new Pose(goal.x(), goal.y(), heading);

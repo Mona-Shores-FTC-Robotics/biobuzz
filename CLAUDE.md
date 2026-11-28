@@ -171,16 +171,19 @@ is made or moved). **Turret-aimed** (`LaunchAllAimed`, `LaunchOneAimed`; `AimedV
 `TurretAimer`, at the near CELL only): any named spot whose heading keeps that CELL inside the firing arc
 (`TurretArc`) by 5 degrees, the frame inside the field and short of the centre line
 (`AutoLaunchSpots.aimedShotProblem`). Never from one of the drivers' Square spots (`LaunchSpots`, the TeleOp's
-alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. An aimed shot keeps two safeguards:
-with no referenced pose it does not fire, and a turret locked forward or that dropped its hold fires from home
-only where home points at the CELL within 3 degrees (a spot that also aims a locked turret); anywhere else the
-robot keeps its load, never a shot from home at a heading nobody aimed. `LaunchAllAimed` right after a park card
-(no drive since) is the volley after a park: fired from a `…_PARK` spot, behind a CELL check, so the guard
-adds no park after it (`AutoRegistry.parkedVolley`), but its last piece is out by 30 s or it does not fire and
-the robot stays parked. Drawn anywhere else it is an ordinary aimed volley the guard parks after, exported as
-`kit.commandAwayFromPark` (L-RightUnderHive's preloads from its NECTAR turn; mentor, 28 Nov 2026). `LaunchOneAimed` is one piece, ended at its counted shot: L-RightUnderHive's NECTAR,
-fired at LEFT from `LEFT_AUTO_OFFSET`'s place with the robot's intake turned to the LOADING ZONE. Every volley
-after an Auto's first still sits behind a CELL check, locked or aimed. The team's launch spots are `AutoLaunchSpots.all()` (every team
+alone); `AutoVolleySpotsTest` fails an Auto that launches anywhere else. Aimed cards require a referenced pose.
+A full `LaunchAllAimed` volley may fire from home only when home points within 3 degrees of its CELL. Immediately
+after a park card it is a parked volley at a named `…_PARK` spot, with no additional park. At another named
+scoring spot the exporter uses `kit.commandAwayFromPark` so the guard still reserves park time. The last piece
+must leave by 30 s. `LaunchOneAimed` fires one piece at the near CELL from an Auto's own named
+receiving spot. The footprint must clear the field boundary and centre line. During the turn into a
+`CatchNectar` wait the turret tracks the CELL with the gate closed, including when a timing choice
+leads to the same catch on both branches. The zeroed turret must hold the CELL with both its measured
+angle and its demand at least 5 degrees inside the arc. Loss of hold closes the gate. The first
+counted shot ends the feed, with an absolute backstop of 0.85 to 1.2 s. `CatchNectarAimed` uses
+the same referenced, independent aim at its own receive pose and waits until its match-clock cutoff
+before a bounded one-piece feed. Every volley after the first still requires a CELL check.
+The team's launch spots are `AutoLaunchSpots.all()` (every team
 spot named `…_AUTO_…`); `AutoLaunchSpots.Spot` names the five placed by hand, `LEFT_AUTO_HIVE`,
 `LEFT_AUTO_OFFSET`, their RIGHT twins, and `RIGHT_AUTO_FIX_TIP` for a left-start Auto that crossed to
 tip RIGHT itself, and `AutoLaunchSpotsTest` checks every one and the five's own placement. HIVE and OFFSET at
