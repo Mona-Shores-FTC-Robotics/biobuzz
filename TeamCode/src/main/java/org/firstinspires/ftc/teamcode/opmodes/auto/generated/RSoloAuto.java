@@ -129,43 +129,46 @@ public final class RSoloAuto {
         Path toRightParkWallPath = Paths.curve(rightAutoHive, toRightParkWall_2Control1, toRightParkWall_2Control2, toRightParkWall_2Control3, rightParkWall).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(toRightParkWall_2Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
 
         return kit.sequence(
-                kit.command("SpinUp"),
-                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHivePark, 2.8),
-                kit.command("LaunchAll"),
-                kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2),
-                kit.command("PickFlower", 4.5),
-                kit.path("BACKWARD to LEFT_AUTO_HIVE", backwardToLeftAutoHive, 2.9, leftAutoHivePark, 2.8),
-                kit.firstOf("Wait for TIP or CELL up",
-                        kit.when("CellUp").then(
-                                kit.command("LaunchAll"),
-                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 2.9),
-                                kit.command("PickFlower", 4.5),
-                                kit.command("CallNectar"),
-                                kit.path("to R_NECTAR_TURN", toRNectarTurn, 1),
-                                kit.firstOf("LEFT CELL still up?",
-                                        kit.when("CellUp").then(
-                                                kit.guarded("If CellUp", rNectarTurnToRightParkWall, 2.8,
-                                                        kit.commandAwayFromPark("LaunchAllAimed"),
-                                                        kit.firstOf("Hold for the human player's NECTAR, intake on: until it is in, at most 1.5 s", kit.command("CatchNectar"),
-                                                                kit.afterMs(1500),
-                                                                kit.when("NectarIn").then(
-                                                                        kit.firstOf("LEFT still up? (fire the NECTAR at LEFT)",
-                                                                                kit.when("CellUp").then(
-                                                                                        kit.command("LaunchOneAimed")),
-                                                                                kit.afterMs(750)))),
-                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWall, 2.8))),
-                                        kit.afterMs(750).then(
-                                                kit.guarded("Timed out", rNectarTurnToRightParkWallPath, 2.8,
-                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWallPath, 2.8))))),
-                        kit.afterMs(750).then(
-                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 3.3),
-                                kit.firstOf("RIGHT CELL still up?",
-                                        kit.when("CellUp").then(
-                                                kit.guarded("If CellUp", toRightParkWall, 2.9,
-                                                        kit.command("LaunchAll"),
-                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWall, 2.9))),
-                                        kit.afterMs(750).then(
-                                                kit.guarded("Timed out", toRightParkWallPath, 2.9,
-                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath, 2.9)))))));
+                kit.guarded("Auto", leftAutoHivePark, 2.8,
+                        kit.command("SpinUp"),
+                        kit.path("to RIGHT_AUTO_HIVE", toRightAutoHive, 1.1, rightAutoHivePark, 2.8),
+                        kit.command("LaunchAll"),
+                        kit.path("to WALL_FLOWER_STAGING", toWallFlowerStaging, 1.9, wallFlowerStagingPark, 2),
+                        kit.command("PickFlower", 4.5),
+                        kit.path("BACKWARD to LEFT_AUTO_HIVE", backwardToLeftAutoHive, 2.9, leftAutoHivePark, 2.8),
+                        kit.firstOf("Wait for TIP or CELL up",
+                                kit.when("CellUp").then(
+                                        kit.guarded("If CellUp", rNectarTurnToRightParkWallPath, 2.8,
+                                                kit.command("LaunchAll"),
+                                                kit.path("to SCORING_FLOWER_STAGING", toScoringFlowerStaging, 1.3, scoringFlowerStagingPark, 2.9),
+                                                kit.command("PickFlower", 4.5),
+                                                kit.command("CallNectar"),
+                                                kit.path("to R_NECTAR_TURN", toRNectarTurn, 1),
+                                                kit.firstOf("LEFT CELL still up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", rNectarTurnToRightParkWall, 2.8,
+                                                                        kit.commandAwayFromPark("LaunchAllAimed"),
+                                                                        kit.firstOf("Hold for the human player's NECTAR, intake on: until it is in, at most 1.5 s", kit.command("CatchNectar"),
+                                                                                kit.afterMs(1500),
+                                                                                kit.when("NectarIn").then(
+                                                                                        kit.firstOf("LEFT still up? (fire the NECTAR at LEFT)",
+                                                                                                kit.when("CellUp").then(
+                                                                                                        kit.command("LaunchOneAimed")),
+                                                                                                kit.afterMs(750)))),
+                                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWall, 2.8))),
+                                                        kit.afterMs(750).then(
+                                                                kit.guarded("Timed out", rNectarTurnToRightParkWallPath, 2.8,
+                                                                        kit.path("R_NECTAR_TURN to RIGHT_PARK_WALL", rNectarTurnToRightParkWallPath, 2.8)))))),
+                                kit.afterMs(750).then(
+                                        kit.guarded("Timed out", toRightParkWallPath, 2.9,
+                                                kit.path("to RIGHT_AUTO_HIVE", toRightAutoHivePath, 3.3),
+                                                kit.firstOf("RIGHT CELL still up?",
+                                                        kit.when("CellUp").then(
+                                                                kit.guarded("If CellUp", toRightParkWall, 2.9,
+                                                                        kit.command("LaunchAll"),
+                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWall, 2.9))),
+                                                        kit.afterMs(750).then(
+                                                                kit.guarded("Timed out", toRightParkWallPath, 2.9,
+                                                                        kit.path("to RIGHT_PARK_WALL", toRightParkWallPath, 2.9)))))))));
     }
 }
