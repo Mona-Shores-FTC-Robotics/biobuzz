@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-28T01:55:30.000Z",
+  "timestamp": "2026-11-28T04:30:00.000Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -1319,6 +1319,367 @@
           ]
         }
       }
+    },
+    {
+      "id": "link-21",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "roff-turn2-b",
+      "color": "#59a14f",
+      "name": "RIGHT_AUTO_OFFSET: turn the intake to the LOADING ZONE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 17.0
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 106.5
+      }
+    },
+    {
+      "id": "link-22",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 17.0
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 106.5
+      }
+    },
+    {
+      "id": "turn2-guard-b",
+      "color": "#9c755f",
+      "name": "guard after roff-turn2: L_NECTAR2_SHOT up the outer lane to L_WALL_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 17,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 106.5,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-23",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 17.0
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 106.5
+      }
+    },
+    {
+      "id": "turn2-park-b-1",
+      "color": "#9c755f",
+      "name": "NECTAR 2 fired: L_NECTAR2_SHOT up the outer lane to L_WALL_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 17,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 106.5,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-24",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 17.0
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 106.5
+      }
+    },
+    {
+      "id": "turn2-park-b-2",
+      "color": "#9c755f",
+      "name": "NECTAR 2 kept (RIGHT down): L_NECTAR2_SHOT up the outer lane to L_WALL_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 17,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 106.5,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-25",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 17.0
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 106.5
+      }
+    },
+    {
+      "id": "turn2-park-b-3",
+      "color": "#9c755f",
+      "name": "No NECTAR 2: L_NECTAR2_SHOT up the outer lane to L_WALL_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 17,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 106.5,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-26",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "roff-wall-park",
+      "color": "#9c755f",
+      "name": "Late TIP 1, TIP 2 early: RIGHT_AUTO_OFFSET up the outer lane to L_WALL_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 17,
+          "y": 62
+        },
+        {
+          "x": 14.5,
+          "y": 74
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-27",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32.1,
+        "y": 16.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 61
+      }
+    },
+    {
+      "id": "roff-park-sure",
+      "color": "#9c755f",
+      "name": "Late TIP 1, SURE TIP 2: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 40
+        },
+        {
+          "x": 33,
+          "y": 80
+        },
+        {
+          "x": 33,
+          "y": 105
+        },
+        {
+          "x": 22,
+          "y": 116
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 61,
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 61,
+                "endDeg": 0
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "degrees": 0
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "sequence": [
@@ -1469,6 +1830,62 @@
     {
       "kind": "path",
       "lineId": "roff-park-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-21"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-turn2-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-22"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn2-guard-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-23"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn2-park-b-1"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-24"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn2-park-b-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-25"
+    },
+    {
+      "kind": "path",
+      "lineId": "turn2-park-b-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-26"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-wall-park"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-27"
+    },
+    {
+      "kind": "path",
+      "lineId": "roff-park-sure"
     }
   ],
   "auto": {
@@ -1540,6 +1957,16 @@
         40.2,
         120.8,
         215.0
+      ],
+      "L_NECTAR2_SHOT": [
+        32.1,
+        17.0,
+        106.5
+      ],
+      "L_WALL_PARK": [
+        14.5,
+        92.5,
+        90
       ]
     },
     "pathEnds": {
@@ -1565,7 +1992,14 @@
       "loff-park-8": "LEFT_PARK",
       "loff-park-9": "LEFT_PARK",
       "loff-park-10": "LEFT_PARK",
-      "roff-park-7": "LEFT_PARK"
+      "roff-park-7": "LEFT_PARK",
+      "roff-turn2-b": "L_NECTAR2_SHOT",
+      "turn2-guard-b": "L_WALL_PARK",
+      "turn2-park-b-1": "L_WALL_PARK",
+      "turn2-park-b-2": "L_WALL_PARK",
+      "turn2-park-b-3": "L_WALL_PARK",
+      "roff-wall-park": "L_WALL_PARK",
+      "roff-park-sure": "LEFT_PARK"
     },
     "cards": [
       {
@@ -1669,21 +2103,52 @@
                     "afterMs": 750,
                     "cards": [
                       {
-                        "id": "c25-check",
+                        "id": "c212-check",
                         "kind": "firstOf",
-                        "label": "RIGHT up? (TIP 1 came late; now TIP 2)",
+                        "label": "RIGHT up by 22.4 s? (then R parks left: park by the wall)",
                         "rows": [
                           {
-                            "afterMs": 24600,
+                            "afterMs": 22400,
+                            "matchClock": true,
                             "cards": [
                               {
-                                "id": "c24-roff-park",
-                                "kind": "path",
-                                "lineId": "roff-park-5",
-                                "park": true
+                                "id": "c25-check",
+                                "kind": "firstOf",
+                                "label": "RIGHT up? (TIP 1 came late; now TIP 2)",
+                                "rows": [
+                                  {
+                                    "afterMs": 24600,
+                                    "cards": [
+                                      {
+                                        "id": "c24-roff-park",
+                                        "kind": "path",
+                                        "lineId": "roff-park-5",
+                                        "park": true
+                                      }
+                                    ],
+                                    "matchClock": true
+                                  },
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c22-launchall",
+                                        "kind": "action",
+                                        "name": "LaunchAll"
+                                      },
+                                      {
+                                        "id": "c23-roff-park",
+                                        "kind": "path",
+                                        "lineId": "roff-park-4",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
                               }
-                            ],
-                            "matchClock": true
+                            ]
                           },
                           {
                             "when": [
@@ -1691,15 +2156,43 @@
                             ],
                             "cards": [
                               {
-                                "id": "c22-launchall",
+                                "id": "c213-launchall",
                                 "kind": "action",
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c23-roff-park",
-                                "kind": "path",
-                                "lineId": "roff-park-4",
-                                "park": true
+                                "id": "c210-choice",
+                                "kind": "firstOf",
+                                "label": "R's FLOWER load pick, set the same here: with TIP 3 R parks left, so park by the wall",
+                                "choice": "FLOWER load",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "FLOWER load"
+                                    ],
+                                    "label": "TIP 3",
+                                    "cards": [
+                                      {
+                                        "id": "c209-roff-wall-park",
+                                        "kind": "path",
+                                        "lineId": "roff-wall-park",
+                                        "park": true
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "afterMs": 0,
+                                    "label": "SURE TIP 2",
+                                    "cards": [
+                                      {
+                                        "id": "c211-roff-park-sure",
+                                        "kind": "path",
+                                        "lineId": "roff-park-sure",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
                               }
                             ]
                           }
@@ -1937,10 +2430,101 @@
                         "name": "LaunchAll"
                       },
                       {
-                        "id": "c42-roff-park",
-                        "kind": "path",
-                        "lineId": "roff-park-7",
-                        "park": true
+                        "id": "c208-choice",
+                        "kind": "firstOf",
+                        "label": "R's FLOWER load pick, set the same here: TIP 3 takes NECTAR 2; SURE TIP 2 parks at once (R comes round to this end)",
+                        "choice": "FLOWER load",
+                        "rows": [
+                          {
+                            "when": [
+                              "FLOWER load"
+                            ],
+                            "label": "TIP 3",
+                            "cards": [
+                              {
+                                "id": "c201-roff-turn2",
+                                "kind": "path",
+                                "lineId": "roff-turn2-b",
+                                "park": false
+                              },
+                              {
+                                "id": "c207-hold",
+                                "kind": "firstOf",
+                                "label": "Hold for NECTAR 2 (TIP 2 earned it), intake on: until it is in, or 26.0 s",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "c202-check",
+                                        "kind": "firstOf",
+                                        "label": "RIGHT still up? (fire NECTAR 2 at RIGHT: TIP 3's spare)",
+                                        "rows": [
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "c203-launchoneaimed",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              },
+                                              {
+                                                "id": "c204-turn2-park",
+                                                "kind": "path",
+                                                "lineId": "turn2-park-b-1",
+                                                "park": true
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "afterMs": 150,
+                                            "cards": [
+                                              {
+                                                "id": "c205-turn2-park",
+                                                "kind": "path",
+                                                "lineId": "turn2-park-b-2",
+                                                "park": true
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "afterMs": 26000,
+                                    "matchClock": true,
+                                    "cards": [
+                                      {
+                                        "id": "c206-turn2-park",
+                                        "kind": "path",
+                                        "lineId": "turn2-park-b-3",
+                                        "park": true
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "afterMs": 0,
+                            "label": "SURE TIP 2",
+                            "cards": [
+                              {
+                                "id": "c42-roff-park",
+                                "kind": "path",
+                                "lineId": "roff-park-7",
+                                "park": true
+                              }
+                            ]
+                          }
+                        ]
                       }
                     ]
                   }
@@ -1962,7 +2546,8 @@
       "c30-loff-turn": "turn-park",
       "c32-turn-wf": "wf-park-3",
       "c34-wf-roff": "roff-park-6",
-      "c35-roff-loff": "loff-park-8"
+      "c35-roff-loff": "loff-park-8",
+      "c201-roff-turn2": "turn2-guard-b"
     },
     "startAt": "LEFT_START",
     "linkPaths": [
@@ -1985,7 +2570,14 @@
       "link-17",
       "link-18",
       "link-19",
-      "link-20"
+      "link-20",
+      "link-21",
+      "link-22",
+      "link-23",
+      "link-24",
+      "link-25",
+      "link-26",
+      "link-27"
     ],
     "teamSpots": [
       "LEFT_AUTO_OFFSET",

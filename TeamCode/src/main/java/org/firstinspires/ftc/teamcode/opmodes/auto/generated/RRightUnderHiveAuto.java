@@ -21,7 +21,7 @@ public final class RRightUnderHiveAuto {
     public static final String SOURCE = "r-right-under-hive.pp";
 
     /** When the .pp was saved, Michigan time (empty if unknown); the OpMode's name on the Driver Station ends with it. */
-    public static final String SAVED = "11-27|1:36PM";
+    public static final String SAVED = "11-27|11:30PM";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
     public static final String[] COMMANDS = {"GardenGather", "LaunchAll", "PickFlower", "SpinUp"};
@@ -58,6 +58,7 @@ public final class RRightUnderHiveAuto {
         Pose rUnderExit = p.of(60, 34, 270);
         Pose rightStart = p.of(55.6, 7.7, 90);
         Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
+        Pose leftPark = p.of(14.5, 117.4, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose guardAfterStartGardenGardenToRightParkWallControl1 = p.of(30, 30, 0);
@@ -120,6 +121,16 @@ public final class RRightUnderHiveAuto {
         Pose outerLaneRRightCatchNoseFirstToTheParkControl1 = p.of(30, 40, 0);
         Pose outerLaneRRightCatchNoseFirstToTheParkControl2 = p.of(16, 62, 0);
         Pose outerLaneRRightCatchNoseFirstToTheParkControl3 = p.of(14, 72, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl1 = p.of(59.5, 40, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl2 = p.of(60, 70, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl3 = p.of(61, 100, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl4 = p.of(62, 118, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl5 = p.of(58, 112, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl6 = p.of(40, 106, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl7 = p.of(28, 112, 0);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1Start = p.of(14.5, 117.4, 95.7);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1End = p.of(14.5, 117.4, 90);
+        Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment2Start = p.of(14.5, 117.4, 90);
         Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl1 = p.of(38, 121, 0);
         Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl2 = p.of(32.5, 106, 0);
         Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl3 = p.of(32.5, 86, 0);
@@ -263,6 +274,7 @@ public final class RRightUnderHiveAuto {
         Path guardAfterSfDownOuterLaneRRightCatchNoseFirstToThePark = Paths.curve(rRightCatch, guardAfterSfDownOuterLaneRRightCatchNoseFirstToTheParkControl1, guardAfterSfDownOuterLaneRRightCatchNoseFirstToTheParkControl2, guardAfterSfDownOuterLaneRRightCatchNoseFirstToTheParkControl3, rParkNoseIn).linear(rRightCatch, rParkNoseIn);
         Path rightNotUpOuterLaneRRightCatchNoseFirstToThePark = Paths.curve(rRightCatch, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl1, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl2, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl3, rParkNoseIn).linear(rRightCatch, rParkNoseIn);
         Path outerLaneRRightCatchNoseFirstToThePark = Paths.curve(rRightCatch, outerLaneRRightCatchNoseFirstToTheParkControl1, outerLaneRRightCatchNoseFirstToTheParkControl2, outerLaneRRightCatchNoseFirstToTheParkControl3, rParkNoseIn).linear(rRightCatch, rParkNoseIn);
+        Path nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark = Paths.curve(rRightCatch, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl1, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl2, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl3, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl4, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl5, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl6, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.55, Interpolator.linear(nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1Start, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1End)).until(1, Interpolator.linear(nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment2Start, leftPark)));
         Path sureTip2RLeftCatchToScoringFlowerStaging = Paths.line(rLeftCatch, scoringFlowerStaging).linear(rLeftCatch, scoringFlowerStaging);
         Path sureTip2GuardScoringFlowerStagingToRightParkWall = Paths.curve(scoringFlowerStaging, sureTip2GuardScoringFlowerStagingToRightParkWallControl1, sureTip2GuardScoringFlowerStagingToRightParkWallControl2, sureTip2GuardScoringFlowerStagingToRightParkWallControl3, sureTip2GuardScoringFlowerStagingToRightParkWallControl4, sureTip2GuardScoringFlowerStagingToRightParkWallControl5, sureTip2GuardScoringFlowerStagingToRightParkWallControl6, sureTip2GuardScoringFlowerStagingToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(rParkNoseIn, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path sureTip2ScoringFlowerStagingToRLeftCatch = Paths.line(scoringFlowerStaging, rLeftCatch).linear(scoringFlowerStaging, rLeftCatch);
@@ -328,14 +340,21 @@ public final class RRightUnderHiveAuto {
                                                                                         kit.route("FLOWER load", 0, () -> kit.path("R_LEFT_CATCH to SCORING_FLOWER_STAGING", rLeftCatchToScoringFlowerStaging, 1.3, guardAfterLeftSfScoringFlowerStagingToRightParkWall, 2.9)),
                                                                                         kit.route("FLOWER load", 0, () -> kit.command("PickFlower", 8)),
                                                                                         kit.route("FLOWER load", 0, () -> kit.path("SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH", scoringFlowerBackwardDownTheCorridorUnderTheHiveToRRightCatch, 3.2, guardAfterSfDownOuterLaneRRightCatchNoseFirstToThePark, 2.9)),
-                                                                                        kit.route("FLOWER load", 0, () -> kit.firstOf("RIGHT up? (TIP 2 came)",
-                                                                                                kit.atMatchSeconds(24.2).then(
+                                                                                        kit.route("FLOWER load", 0, () -> kit.firstOf("RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+                                                                                                kit.afterMs(300).then(
                                                                                                         kit.guarded("Timed out", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9,
-                                                                                                                kit.path("RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9))),
+                                                                                                                kit.firstOf("RIGHT up? (TIP 2 came)",
+                                                                                                                        kit.atMatchSeconds(24.2).then(
+                                                                                                                                kit.guarded("Timed out", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9,
+                                                                                                                                        kit.path("RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9))),
+                                                                                                                        kit.when("RightCellUp").then(
+                                                                                                                                kit.guarded("If RightCellUp", outerLaneRRightCatchNoseFirstToThePark, 2.9,
+                                                                                                                                        kit.command("LaunchAll"),
+                                                                                                                                        kit.path("Outer lane: R_RIGHT_CATCH nose first to the park", outerLaneRRightCatchNoseFirstToThePark, 2.9)))))),
                                                                                                 kit.when("RightCellUp").then(
-                                                                                                        kit.guarded("If RightCellUp", outerLaneRRightCatchNoseFirstToThePark, 2.9,
+                                                                                                        kit.guarded("If RightCellUp", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7,
                                                                                                                 kit.command("LaunchAll"),
-                                                                                                                kit.path("Outer lane: R_RIGHT_CATCH nose first to the park", outerLaneRRightCatchNoseFirstToThePark, 2.9))))),
+                                                                                                                kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7))))),
                                                                                         kit.route("FLOWER load", 1, () -> kit.path("SURE TIP 2: R_LEFT_CATCH to SCORING_FLOWER_STAGING", sureTip2RLeftCatchToScoringFlowerStaging, 1.3, sureTip2GuardScoringFlowerStagingToRightParkWall, 2.9)),
                                                                                         kit.route("FLOWER load", 1, () -> kit.command("PickFlower", 8)),
                                                                                         kit.route("FLOWER load", 1, () -> kit.path("SURE TIP 2: SCORING_FLOWER_STAGING to R_LEFT_CATCH", sureTip2ScoringFlowerStagingToRLeftCatch, 1.3, sureTip2GuardRLeftCatchToRightParkWall, 2.8)),

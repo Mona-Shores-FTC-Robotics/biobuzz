@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-27T18:36:20.000Z",
+  "timestamp": "2026-11-28T04:30:00.000Z",
   "startPoint": {
     "x": 55.6,
     "y": 7.7,
@@ -2479,6 +2479,99 @@
         "type": "constant",
         "degrees": 270
       }
+    },
+    {
+      "id": "link-31",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59.2,
+        "y": 18.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 95.7
+      }
+    },
+    {
+      "id": "right-left-park",
+      "color": "#9c755f",
+      "name": "NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [
+        {
+          "x": 59.5,
+          "y": 40
+        },
+        {
+          "x": 60,
+          "y": 70
+        },
+        {
+          "x": 61,
+          "y": 100
+        },
+        {
+          "x": 62,
+          "y": 118
+        },
+        {
+          "x": 58,
+          "y": 112
+        },
+        {
+          "x": 40,
+          "y": 106
+        },
+        {
+          "x": 28,
+          "y": 112
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "startDeg": 95.7,
+        "endDeg": 0,
+        "degrees": 0,
+        "reverse": false,
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.55,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 95.7,
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.55,
+              "endProgress": 1,
+              "interpolationType": "linear",
+              "reversed": false,
+              "continueFromPrevious": false,
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "shapes": [
@@ -2967,6 +3060,14 @@
     {
       "kind": "path",
       "lineId": "exit-park-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-31"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-left-park"
     }
   ],
   "fieldPoints": [],
@@ -3073,6 +3174,11 @@
         59.2,
         20.9,
         96.1
+      ],
+      "LEFT_PARK": [
+        14.5,
+        117.4,
+        0
       ]
     },
     "pathEnds": {
@@ -3126,7 +3232,8 @@
       "left-down-10": "R_UNDER_EXIT",
       "exit-park-19": "RIGHT_PARK_WALL",
       "exit-park-20": "RIGHT_PARK_WALL",
-      "start-hive": "RIGHT_AUTO_HIVE"
+      "start-hive": "RIGHT_AUTO_HIVE",
+      "right-left-park": "LEFT_PARK"
     },
     "cards": [
       {
@@ -3291,21 +3398,51 @@
                                         "park": false
                                       },
                                       {
-                                        "id": "c11-check",
+                                        "id": "c202-check",
                                         "kind": "firstOf",
-                                        "label": "RIGHT up? (TIP 2 came)",
+                                        "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
                                         "rows": [
                                           {
-                                            "afterMs": 24200,
+                                            "afterMs": 300,
                                             "cards": [
                                               {
-                                                "id": "c10-right-park",
-                                                "kind": "path",
-                                                "lineId": "right-park-3",
-                                                "park": true
+                                                "id": "c11-check",
+                                                "kind": "firstOf",
+                                                "label": "RIGHT up? (TIP 2 came)",
+                                                "rows": [
+                                                  {
+                                                    "afterMs": 24200,
+                                                    "cards": [
+                                                      {
+                                                        "id": "c10-right-park",
+                                                        "kind": "path",
+                                                        "lineId": "right-park-3",
+                                                        "park": true
+                                                      }
+                                                    ],
+                                                    "matchClock": true
+                                                  },
+                                                  {
+                                                    "when": [
+                                                      "RightCellUp"
+                                                    ],
+                                                    "cards": [
+                                                      {
+                                                        "id": "c8-launchall",
+                                                        "kind": "action",
+                                                        "name": "LaunchAll"
+                                                      },
+                                                      {
+                                                        "id": "c9-right-park",
+                                                        "kind": "path",
+                                                        "lineId": "right-park-2",
+                                                        "park": true
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
                                               }
-                                            ],
-                                            "matchClock": true
+                                            ]
                                           },
                                           {
                                             "when": [
@@ -3313,14 +3450,14 @@
                                             ],
                                             "cards": [
                                               {
-                                                "id": "c8-launchall",
+                                                "id": "c203-launchall",
                                                 "kind": "action",
                                                 "name": "LaunchAll"
                                               },
                                               {
-                                                "id": "c9-right-park",
+                                                "id": "c201-right-left-park",
                                                 "kind": "path",
-                                                "lineId": "right-park-2",
+                                                "lineId": "right-left-park",
                                                 "park": true
                                               }
                                             ]
@@ -3785,7 +3922,8 @@
       "link-27",
       "link-28",
       "link-29",
-      "link-30"
+      "link-30",
+      "link-31"
     ],
     "parkFrom": {
       "c3-start-garden": "garden-park",
@@ -3810,9 +3948,10 @@
     },
     "teamSpots": [
       "GARDEN_STAGING",
-      "SCORING_FLOWER_STAGING",
+      "LEFT_PARK",
+      "RIGHT_AUTO_HIVE",
       "RIGHT_START",
-      "RIGHT_AUTO_HIVE"
+      "SCORING_FLOWER_STAGING"
     ],
     "exportName": "R-RightUnderHive"
   }
