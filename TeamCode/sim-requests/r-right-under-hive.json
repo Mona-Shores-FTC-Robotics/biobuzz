@@ -1,20 +1,12 @@
 {
-  "pp": "TeamCode/autos/r-right-under-hive.pp",
   "spec": "RRightUnderHiveAuto",
+  "pp": "TeamCode/autos/r-right-under-hive.pp",
   "design": "real robot",
   "partnerDesign": "real robot",
   "calibration": "fruitport",
+  "alliance": "RED",
   "seeds": [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10
+    1
   ],
   "partnerSeeds": [
     1,
@@ -26,67 +18,486 @@
     7,
     8,
     9,
-    10
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120
   ],
-  "alliance": "RED",
+  "nectarStudy": {
+    "roll": {
+      "spot": "40.2,120.8,215",
+      "x": 8,
+      "y": 98.3,
+      "speed": 16,
+      "delay": 1,
+      "earliest": 0,
+      "aimSpreadDeg": 2
+    },
+    "secondRoll": {
+      "spot": "32,16.9,108",
+      "x": 5.5,
+      "y": 95,
+      "speed": 24,
+      "delay": 0.5,
+      "earliest": 0,
+      "aimSpreadDeg": 2
+    },
+    "secondReceiver": "L"
+  },
   "partners": [
     {
-      "name": "pair: every shot lands",
+      "name": "both earned rolls",
       "partner": "LRightUnderHiveAuto"
     },
     {
-      "name": "NECTAR 1 comes late (released 4 s after TIP 1): it rides to RIGHT in the WALL FLOWER load, or is left",
+      "name": "first never comes",
       "partner": "LRightUnderHiveAuto",
-      "humanAimRolls": "40.2,120.8,215|8,98.3|24||4"
+      "nectarStudy": {
+        "roll": null,
+        "secondRoll": {
+          "spot": "32,16.9,108",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 0.5,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondReceiver": "L"
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
     },
     {
-      "name": "NECTAR 1 never comes (the human keeps it): L holds at most 2.5 s, fires nothing",
+      "name": "first five seconds late",
       "partner": "LRightUnderHiveAuto",
-      "humanAimRolls": "none"
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.2,120.8,215",
+          "x": 8,
+          "y": 98.3,
+          "speed": 16,
+          "delay": 6,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondRoll": {
+          "spot": "32,16.9,108",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 0.5,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondReceiver": "L"
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "second never comes",
+      "partner": "LRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.2,120.8,215",
+          "x": 8,
+          "y": 98.3,
+          "speed": 16,
+          "delay": 1,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondRoll": null,
+        "secondReceiver": "L"
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "second five seconds late",
+      "partner": "LRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.2,120.8,215",
+          "x": 8,
+          "y": 98.3,
+          "speed": 16,
+          "delay": 1,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondRoll": {
+          "spot": "32,16.9,108",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 5.5,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondReceiver": "L"
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "no human rolls",
+      "partner": "LRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": null,
+        "secondRoll": null,
+        "secondReceiver": "L"
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "R misses one POLLEN in volley 2",
+      "partner": "LRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.2,120.8,215",
+          "x": 8,
+          "y": 98.3,
+          "speed": 16,
+          "delay": 1,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondRoll": {
+          "spot": "32,16.9,108",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 0.5,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondReceiver": "L",
+        "missFirstPollenOfRVolley": 2
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "name": "R misses one POLLEN in volley 3",
+      "partner": "LRightUnderHiveAuto",
+      "nectarStudy": {
+        "roll": {
+          "spot": "40.2,120.8,215",
+          "x": 8,
+          "y": 98.3,
+          "speed": 16,
+          "delay": 1,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondRoll": {
+          "spot": "32,16.9,108",
+          "x": 5.5,
+          "y": 95,
+          "speed": 24,
+          "delay": 0.5,
+          "earliest": 0,
+          "aimSpreadDeg": 2
+        },
+        "secondReceiver": "L",
+        "missFirstPollenOfRVolley": 3
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
     },
     {
       "name": "R's preloads miss (L crosses and fixes TIP 1)",
       "partner": "LRightUnderHiveAuto",
-      "oursFails": "misses preloads"
+      "oursFails": "misses preloads",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "L's preloads miss (L takes its WALL FLOWER load to LEFT)",
       "partner": "LRightUnderHiveAuto",
-      "fails": "misses preloads"
+      "fails": "misses preloads",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "R's GARDEN volley misses",
       "partner": "LRightUnderHiveAuto",
-      "oursFails": "misses volley 2"
+      "oursFails": "misses volley 2",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "L's WALL FLOWER volley misses",
       "partner": "LRightUnderHiveAuto",
-      "fails": "misses volley 2"
+      "fails": "misses volley 2",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "R's SCORING FLOWER volley misses",
       "partner": "LRightUnderHiveAuto",
-      "oursFails": "misses volley 3"
+      "oursFails": "misses volley 3",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "R 20% slow",
       "partner": "LRightUnderHiveAuto",
-      "ourSpeed": 40
+      "ourSpeed": 40,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "L 20% slow",
       "partner": "LRightUnderHiveAuto",
       "timing": {
         "speed": 40
-      }
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
-      "name": "SURE TIP 2 picked: every shot lands",
+      "name": "SURE TIP 2 picked: Fruitport shots",
       "partner": "LRightUnderHiveAuto",
       "picks": {
         "FLOWER load": "SURE TIP 2"
-      }
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "SURE TIP 2 picked: L's preloads miss",
@@ -94,7 +505,14 @@
       "fails": "misses preloads",
       "picks": {
         "FLOWER load": "SURE TIP 2"
-      }
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "SURE TIP 2 picked: L misses every shot",
@@ -102,13 +520,25 @@
       "fails": "misses",
       "picks": {
         "FLOWER load": "SURE TIP 2"
-      }
+      },
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     },
     {
       "name": "L dead on its start (never seen)",
-      "partner": "PartnerLBrokenDownAuto"
+      "partner": "PartnerLBrokenDownAuto",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
     }
-  ],
-  "scenario": "best",
-  "humanAimRolls": "40.2,120.8,215|8,98.3|24||0.5"
+  ]
 }

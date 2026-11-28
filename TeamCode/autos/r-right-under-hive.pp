@@ -787,7 +787,7 @@
     {
       "id": "right-park-2",
       "color": "#b07aa1",
-      "name": "Outer lane: R_RIGHT_CATCH nose first to the park",
+      "name": "Under the HIVE to R_FAR_PARK right-park-2",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -796,20 +796,32 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 92.5
+        "y": 117.4
       },
       "controlPoints": [
         {
+          "x": 59,
+          "y": 54
+        },
+        {
+          "x": 60,
+          "y": 85
+        },
+        {
+          "x": 60,
+          "y": 120
+        },
+        {
+          "x": 54,
+          "y": 119
+        },
+        {
+          "x": 46,
+          "y": 117
+        },
+        {
           "x": 30,
-          "y": 40
-        },
-        {
-          "x": 16,
-          "y": 62
-        },
-        {
-          "x": 14,
-          "y": 72
+          "y": 117
         }
       ],
       "heading": {
@@ -3073,6 +3085,11 @@
         59.2,
         20.9,
         96.1
+      ],
+      "R_FAR_PARK": [
+        14.5,
+        117.4,
+        90
       ]
     },
     "pathEnds": {
@@ -3082,7 +3099,7 @@
       "sf-park": "RIGHT_PARK_WALL",
       "sf-down": "R_RIGHT_CATCH",
       "right-park": "R_PARK_NOSE_IN",
-      "right-park-2": "R_PARK_NOSE_IN",
+      "right-park-2": "R_FAR_PARK",
       "right-park-3": "R_PARK_NOSE_IN",
       "left-down": "R_UNDER_EXIT",
       "exit-park": "RIGHT_PARK_WALL",
@@ -3296,7 +3313,7 @@
                                         "label": "RIGHT up? (TIP 2 came)",
                                         "rows": [
                                           {
-                                            "afterMs": 24200,
+                                            "afterMs": 25000,
                                             "cards": [
                                               {
                                                 "id": "c10-right-park",
@@ -3313,15 +3330,41 @@
                                             ],
                                             "cards": [
                                               {
-                                                "id": "c8-launchall",
-                                                "kind": "action",
-                                                "name": "LaunchAll"
-                                              },
-                                              {
-                                                "id": "c9-right-park",
-                                                "kind": "path",
-                                                "lineId": "right-park-2",
-                                                "park": true
+                                                "id": "budget-far-park",
+                                                "kind": "firstOf",
+                                                "label": "Time for the RIGHT volley and the far PARK?",
+                                                "rows": [
+                                                  {
+                                                    "afterMs": 23200,
+                                                    "matchClock": true,
+                                                    "cards": [
+                                                      {
+                                                        "id": "far-late-park",
+                                                        "kind": "path",
+                                                        "lineId": "right-park-2",
+                                                        "park": true
+                                                      }
+                                                    ]
+                                                  },
+                                                  {
+                                                    "when": [
+                                                      "Always"
+                                                    ],
+                                                    "cards": [
+                                                      {
+                                                        "id": "c8-launchall",
+                                                        "kind": "action",
+                                                        "name": "LaunchAll"
+                                                      },
+                                                      {
+                                                        "id": "c9-right-park",
+                                                        "kind": "path",
+                                                        "lineId": "right-park-2",
+                                                        "park": true
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
                                               }
                                             ]
                                           }

@@ -1119,7 +1119,7 @@
     {
       "id": "loff-park-3",
       "color": "#e15759",
-      "name": "LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "name": "Late TIP 2: LEFT not seen up to L_NEAR_PARK loff-park-3",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1128,18 +1128,26 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 28,
-          "y": 121
+          "x": 36,
+          "y": 116
+        },
+        {
+          "x": 29,
+          "y": 106
+        },
+        {
+          "x": 24,
+          "y": 96
         }
       ],
       "heading": {
         "type": "linear",
         "startDeg": 298.7,
-        "endDeg": 0
+        "endDeg": 90
       }
     },
     {
@@ -1199,9 +1207,30 @@
       }
     },
     {
-      "id": "roff-park-2",
+      "id": "right-turn-a",
+      "color": "#59a14f",
+      "name": "RIGHT_AUTO_OFFSET turn to receive the second NECTAR a",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 108
+      }
+    },
+    {
+      "id": "right-turn-park-a",
       "color": "#9c755f",
-      "name": "RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
+      "name": "Guard at RIGHT to L_NEAR_PARK a",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1210,57 +1239,75 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 40
+          "x": 31,
+          "y": 38
         },
         {
-          "x": 33,
-          "y": 80
+          "x": 24,
+          "y": 62
         },
         {
-          "x": 33,
-          "y": 105
-        },
-        {
-          "x": 22,
-          "y": 116
+          "x": 17,
+          "y": 72
         }
       ],
       "heading": {
-        "type": "piecewise",
-        "startDeg": 61,
-        "endDeg": 0,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-right-a",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 108
+      }
+    },
+    {
+      "id": "roff-park-2",
+      "color": "#9c755f",
+      "name": "RIGHT receive to L_NEAR_PARK a",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
         }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
       }
     },
     {
@@ -1644,7 +1691,7 @@
     {
       "id": "loff-park-9",
       "color": "#e15759",
-      "name": "NECTAR, LEFT down: LEFT_AUTO_OFFSET to LEFT_PARK",
+      "name": "Late TIP 2: LEFT not seen up to L_NEAR_PARK loff-park-9",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1653,18 +1700,26 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 28,
-          "y": 121
+          "x": 36,
+          "y": 116
+        },
+        {
+          "x": 29,
+          "y": 106
+        },
+        {
+          "x": 24,
+          "y": 96
         }
       ],
       "heading": {
         "type": "linear",
         "startDeg": 298.7,
-        "endDeg": 0
+        "endDeg": 90
       }
     },
     {
@@ -1724,9 +1779,30 @@
       }
     },
     {
-      "id": "roff-park-7",
+      "id": "right-turn-b",
+      "color": "#59a14f",
+      "name": "RIGHT_AUTO_OFFSET turn to receive the second NECTAR b",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 61,
+        "endDeg": 108
+      }
+    },
+    {
+      "id": "right-turn-park-b",
       "color": "#9c755f",
-      "name": "NECTAR: RIGHT_AUTO_OFFSET up the outer lane to LEFT_PARK",
+      "name": "Guard at RIGHT to L_NEAR_PARK b",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -1735,57 +1811,75 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.5,
-        "y": 117.4
+        "y": 92.5
       },
       "controlPoints": [
         {
-          "x": 30,
-          "y": 40
+          "x": 31,
+          "y": 38
         },
         {
-          "x": 33,
-          "y": 80
+          "x": 24,
+          "y": 62
         },
         {
-          "x": 33,
-          "y": 105
-        },
-        {
-          "x": 22,
-          "y": 116
+          "x": 17,
+          "y": 72
         }
       ],
       "heading": {
-        "type": "piecewise",
-        "startDeg": 61,
-        "endDeg": 0,
-        "degrees": 0,
-        "reverse": false,
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "linear",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "startDeg": 61,
-                "endDeg": 0
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "reversed": false,
-              "continueFromPrevious": false,
-              "parameters": {
-                "degrees": 0
-              }
-            }
-          ]
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-right-b",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 32,
+        "y": 16.9
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 108
+      }
+    },
+    {
+      "id": "roff-park-7",
+      "color": "#9c755f",
+      "name": "RIGHT receive to L_NEAR_PARK b",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 92.5
+      },
+      "controlPoints": [
+        {
+          "x": 31,
+          "y": 38
+        },
+        {
+          "x": 24,
+          "y": 62
+        },
+        {
+          "x": 17,
+          "y": 72
         }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 108,
+        "endDeg": 90
       }
     }
   ],
@@ -1924,6 +2018,18 @@
     },
     {
       "kind": "path",
+      "lineId": "right-turn-a"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-park-a"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-right-a"
+    },
+    {
+      "kind": "path",
       "lineId": "roff-park-2"
     },
     {
@@ -1993,6 +2099,18 @@
     {
       "kind": "path",
       "lineId": "link-20"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "right-turn-park-b"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-right-b"
     },
     {
       "kind": "path",
@@ -2066,18 +2184,28 @@
         40.2,
         120.8,
         215.0
+      ],
+      "L_RIGHT_NECTAR": [
+        32,
+        16.9,
+        108
+      ],
+      "L_NEAR_PARK": [
+        14.5,
+        92.5,
+        90
       ]
     },
     "pathEnds": {
       "roff-loff": "LEFT_AUTO_OFFSET",
       "loff-park": "LEFT_PARK",
       "loff-park-2": "LEFT_PARK",
-      "loff-park-3": "LEFT_PARK",
+      "loff-park-3": "L_NEAR_PARK",
       "loff-wf": "WALL_FLOWER_STAGING",
       "wf-park": "LEFT_PARK",
       "wf-roff": "RIGHT_AUTO_OFFSET",
       "roff-park": "LEFT_PARK",
-      "roff-park-2": "LEFT_PARK",
+      "roff-park-2": "L_NEAR_PARK",
       "loff-roff": "RIGHT_AUTO_OFFSET",
       "roff-park-3": "LEFT_PARK",
       "roff-wf": "WALL_FLOWER_STAGING",
@@ -2098,9 +2226,13 @@
       "roff-park-6": "LEFT_PARK",
       "roff-loff-2": "LEFT_AUTO_OFFSET",
       "loff-park-8": "LEFT_PARK",
-      "loff-park-9": "LEFT_PARK",
+      "loff-park-9": "L_NEAR_PARK",
       "loff-park-10": "LEFT_PARK",
-      "roff-park-7": "LEFT_PARK"
+      "roff-park-7": "L_NEAR_PARK",
+      "right-turn-a": "L_RIGHT_NECTAR",
+      "right-turn-park-a": "L_NEAR_PARK",
+      "right-turn-b": "L_RIGHT_NECTAR",
+      "right-turn-park-b": "L_NEAR_PARK"
     },
     "cards": [
       {
@@ -2349,6 +2481,56 @@
                                 "name": "LaunchAll"
                               },
                               {
+                                "id": "ta",
+                                "kind": "path",
+                                "lineId": "right-turn-a",
+                                "park": false
+                              },
+                              {
+                                "id": "hold-a",
+                                "kind": "firstOf",
+                                "label": "Receive TIP 2 NECTAR until park departure a",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 25500,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "seen-a",
+                                        "kind": "firstOf",
+                                        "label": "RIGHT still up before park departure a",
+                                        "rows": [
+                                          {
+                                            "afterMs": 25500,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "fire-a",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
                                 "id": "c11-roff-park",
                                 "kind": "path",
                                 "lineId": "roff-park-2",
@@ -2561,6 +2743,56 @@
                                 "name": "LaunchAll"
                               },
                               {
+                                "id": "tb",
+                                "kind": "path",
+                                "lineId": "right-turn-b",
+                                "park": false
+                              },
+                              {
+                                "id": "hold-b",
+                                "kind": "firstOf",
+                                "label": "Receive TIP 2 NECTAR until park departure b",
+                                "alongside": "CatchNectar",
+                                "rows": [
+                                  {
+                                    "afterMs": 25500,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "NectarIn"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "seen-b",
+                                        "kind": "firstOf",
+                                        "label": "RIGHT still up before park departure b",
+                                        "rows": [
+                                          {
+                                            "afterMs": 25500,
+                                            "matchClock": true,
+                                            "cards": []
+                                          },
+                                          {
+                                            "when": [
+                                              "CellUp"
+                                            ],
+                                            "cards": [
+                                              {
+                                                "id": "fire-b",
+                                                "kind": "action",
+                                                "name": "LaunchOneAimed"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
                                 "id": "c42-roff-park",
                                 "kind": "path",
                                 "lineId": "roff-park-7",
@@ -2590,7 +2822,9 @@
       "c30-loff-turn": "turn-park",
       "c32-turn-wf": "wf-park-3",
       "c34-wf-roff": "roff-park-6",
-      "c35-roff-loff": "loff-park-8"
+      "c35-roff-loff": "loff-park-8",
+      "ta": "right-turn-park-a",
+      "tb": "right-turn-park-b"
     },
     "startAt": "LEFT_START",
     "linkPaths": [
@@ -2613,7 +2847,9 @@
       "link-17",
       "link-18",
       "link-19",
-      "link-20"
+      "link-20",
+      "link-right-a",
+      "link-right-b"
     ],
     "teamSpots": [
       "LEFT_AUTO_OFFSET",
