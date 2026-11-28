@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "timestamp": "2026-11-25T14:41:00.441Z",
+  "timestamp": "2026-11-28T11:19:49.725Z",
   "startPoint": {
     "x": 62.3,
     "y": 133.8,
@@ -11,7 +11,7 @@
     {
       "id": "line-mw0c4s2s-i6yeu6",
       "color": "#76b7b2",
-      "name": "to LEFT_AUTO_HIVE",
+      "name": "LEFT_START to L_NOCROSS_OBSERVE: camera toward LEFT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -19,20 +19,20 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
-        "y": 120.45
+        "x": 47.4,
+        "y": 119.3
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 268.9
+        "endDeg": 290
       }
     },
     {
-      "id": "line-mw0c4s32-8noomj",
-      "color": "#9c755f",
-      "name": "LEFT_AUTO_HIVE park",
+      "id": "lnc-observe-park",
+      "color": "#59a14f",
+      "name": "L_NOCROSS_OBSERVE to LEFT_PARK",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -46,7 +46,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.1,
+        "startDeg": 290,
         "endDeg": 0
       }
     },
@@ -56,19 +56,76 @@
       "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
-        "y": 120.45
+        "x": 47.4,
+        "y": 119.3
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 268.9
+        "degrees": 290
       }
     },
     {
-      "id": "line-mw0c4s2t-ne8h5h",
-      "color": "#f28e2b",
-      "name": "to SCORING_FLOWER_STAGING",
+      "id": "lnc-observe-receive",
+      "color": "#59a14f",
+      "name": "TIP 1 seen: turn to L_NOCROSS_FLOWER_SHOT for the roll",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.3,
+        "y": 119.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 290,
+        "endDeg": 215
+      }
+    },
+    {
+      "id": "lnc-shot-park",
+      "color": "#59a14f",
+      "name": "L_NOCROSS_FLOWER_SHOT to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 215,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-2",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.3,
+        "y": 119.2
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 215
+      }
+    },
+    {
+      "id": "lnc-shot-flower",
+      "color": "#59a14f",
+      "name": "Turn to the SCORING FLOWER from L_NOCROSS_FLOWER_SHOT",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -82,7 +139,7 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 215,
         "endDeg": 90
       }
     },
@@ -108,7 +165,7 @@
       }
     },
     {
-      "id": "link-2",
+      "id": "link-3",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -123,9 +180,9 @@
       }
     },
     {
-      "id": "line-mw0c4s2t-m8fs6x",
-      "color": "#f28e2b",
-      "name": "to LEFT_AUTO_HIVE",
+      "id": "lnc-flower-shot",
+      "color": "#59a14f",
+      "name": "After the pick: turn camera toward LEFT at L_NOCROSS_OBSERVE",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -133,41 +190,25 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 61.4,
-        "y": 120.45
+        "x": 47.4,
+        "y": 119.3
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 268.9
+        "endDeg": 290
       }
     },
     {
-      "id": "line-mw0c4s2u-8wbzmf",
-      "color": "#9c755f",
-      "name": "to LEFT_PARK",
+      "id": "lnc-restore-hive",
+      "color": "#59a14f",
+      "name": "No TIP 1: restore the existing LEFT_AUTO_HIVE repair entry",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-3",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
       "kind": "atomic",
       "endPoint": {
         "x": 61.4,
@@ -175,14 +216,15 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 268.9
+        "type": "linear",
+        "startDeg": 290,
+        "endDeg": 268.9
       }
     },
     {
-      "id": "line-mwdn0a03-lnp3c",
+      "id": "line-mw0c4s32-8noomj",
       "color": "#9c755f",
-      "name": "to LEFT_PARK",
+      "name": "LEFT_AUTO_HIVE park",
       "locked": false,
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
@@ -196,48 +238,12 @@
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 268.9,
+        "startDeg": 268.1,
         "endDeg": 0
       }
     },
     {
       "id": "link-4",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61.4,
-        "y": 120.45
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 268.9
-      }
-    },
-    {
-      "id": "line-mwdn0a03-lnp2c",
-      "color": "#9c755f",
-      "name": "to LEFT_PARK",
-      "locked": false,
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 14.5,
-        "y": 117.4
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 268.9,
-        "endDeg": 0
-      }
-    },
-    {
-      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -395,7 +401,7 @@
       }
     },
     {
-      "id": "link-6",
+      "id": "link-5",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -443,9 +449,14 @@
       }
     },
     {
-      "id": "link-7",
-      "name": "Link (never driven)",
-      "color": "#6b7280",
+      "id": "line-mw0c4s2t-m8fs6x",
+      "color": "#f28e2b",
+      "name": "to LEFT_AUTO_HIVE",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
         "x": 61.4,
@@ -453,8 +464,9 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 268.9
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 268.9
       }
     },
     {
@@ -479,7 +491,7 @@
       }
     },
     {
-      "id": "link-8",
+      "id": "link-6",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -515,7 +527,7 @@
       }
     },
     {
-      "id": "link-9",
+      "id": "link-7",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -603,6 +615,42 @@
       }
     },
     {
+      "id": "line-mw0c4s2t-ne8h5h",
+      "color": "#f28e2b",
+      "name": "to SCORING_FLOWER_STAGING",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.2,
+        "y": 119.3
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "link-8",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 268.9
+      }
+    },
+    {
       "id": "line-lnc-park-3",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
@@ -624,7 +672,7 @@
       }
     },
     {
-      "id": "link-10",
+      "id": "link-9",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -660,7 +708,7 @@
       }
     },
     {
-      "id": "link-11",
+      "id": "link-10",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -696,7 +744,7 @@
       }
     },
     {
-      "id": "link-12",
+      "id": "link-11",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -732,7 +780,7 @@
       }
     },
     {
-      "id": "link-13",
+      "id": "link-12",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -768,7 +816,7 @@
       }
     },
     {
-      "id": "link-14",
+      "id": "link-13",
       "name": "Link (never driven)",
       "color": "#6b7280",
       "kind": "atomic",
@@ -784,6 +832,114 @@
     },
     {
       "id": "line-lnc-park-8",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-14",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 360
+      }
+    },
+    {
+      "id": "line-mw0c4s2u-8wbzmf",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-15",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 360
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp3c",
+      "color": "#9c755f",
+      "name": "to LEFT_PARK",
+      "locked": false,
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14.5,
+        "y": 117.4
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 268.9,
+        "endDeg": 0
+      }
+    },
+    {
+      "id": "link-16",
+      "name": "Link (never driven)",
+      "color": "#6b7280",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 61.4,
+        "y": 120.45
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 360
+      }
+    },
+    {
+      "id": "line-mwdn0a03-lnp2c",
       "color": "#9c755f",
       "name": "to LEFT_PARK",
       "locked": false,
@@ -973,7 +1129,7 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0c4s32-8noomj"
+      "lineId": "lnc-observe-park"
     },
     {
       "kind": "path",
@@ -981,11 +1137,11 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0c4s2t-ne8h5h"
+      "lineId": "lnc-observe-receive"
     },
     {
       "kind": "path",
-      "lineId": "line-mw0c4s32-ave4gg"
+      "lineId": "lnc-shot-park"
     },
     {
       "kind": "path",
@@ -993,11 +1149,11 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mw0c4s2t-m8fs6x"
+      "lineId": "lnc-shot-flower"
     },
     {
       "kind": "path",
-      "lineId": "line-mw0c4s2u-8wbzmf"
+      "lineId": "line-mw0c4s32-ave4gg"
     },
     {
       "kind": "path",
@@ -1005,19 +1161,19 @@
     },
     {
       "kind": "path",
-      "lineId": "line-mwdn0a03-lnp3c"
+      "lineId": "lnc-flower-shot"
+    },
+    {
+      "kind": "path",
+      "lineId": "lnc-restore-hive"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw0c4s32-8noomj"
     },
     {
       "kind": "path",
       "lineId": "link-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "line-mwdn0a03-lnp2c"
-    },
-    {
-      "kind": "path",
-      "lineId": "link-5"
     },
     {
       "kind": "path",
@@ -1029,7 +1185,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-6"
+      "lineId": "link-5"
     },
     {
       "kind": "path",
@@ -1037,7 +1193,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-7"
+      "lineId": "line-mw0c4s2t-m8fs6x"
     },
     {
       "kind": "path",
@@ -1045,7 +1201,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-8"
+      "lineId": "link-6"
     },
     {
       "kind": "path",
@@ -1053,7 +1209,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-9"
+      "lineId": "link-7"
     },
     {
       "kind": "path",
@@ -1061,11 +1217,19 @@
     },
     {
       "kind": "path",
+      "lineId": "line-mw0c4s2t-ne8h5h"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-8"
+    },
+    {
+      "kind": "path",
       "lineId": "line-lnc-park-3"
     },
     {
       "kind": "path",
-      "lineId": "link-10"
+      "lineId": "link-9"
     },
     {
       "kind": "path",
@@ -1073,7 +1237,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-11"
+      "lineId": "link-10"
     },
     {
       "kind": "path",
@@ -1081,7 +1245,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-12"
+      "lineId": "link-11"
     },
     {
       "kind": "path",
@@ -1089,7 +1253,7 @@
     },
     {
       "kind": "path",
-      "lineId": "link-13"
+      "lineId": "link-12"
     },
     {
       "kind": "path",
@@ -1097,11 +1261,35 @@
     },
     {
       "kind": "path",
-      "lineId": "link-14"
+      "lineId": "link-13"
     },
     {
       "kind": "path",
       "lineId": "line-lnc-park-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-14"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mw0c4s2u-8wbzmf"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-15"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwdn0a03-lnp3c"
+    },
+    {
+      "kind": "path",
+      "lineId": "link-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "line-mwdn0a03-lnp2c"
     }
   ],
   "fieldPoints": [],
@@ -1135,10 +1323,14 @@
     "registry": {
       "actions": [
         "LaunchAll",
+        "LaunchAllAimed",
         "PickFlower",
         "GardenGather",
         "LaunchOne",
-        "SpinUp"
+        "SpinUp",
+        "LaunchOneAimed",
+        "CatchNectar",
+        "CallNectar"
       ],
       "conditions": [
         "Empty",
@@ -1148,7 +1340,8 @@
         "CellUp",
         "Tip",
         "CameraBlind",
-        "Always"
+        "Always",
+        "NectarIn"
       ],
       "events": [
         "Tip"
@@ -1158,7 +1351,11 @@
         "PickFlower": 4,
         "GardenGather": 3,
         "LaunchOne": 0.5,
-        "SpinUp": 0.1
+        "SpinUp": 0.1,
+        "LaunchOneAimed": 1.2,
+        "CatchNectar": 0.6,
+        "LaunchAllAimed": 2.5,
+        "CallNectar": 0.1
       }
     },
     "points": {
@@ -1186,10 +1383,20 @@
         55.3,
         25.7,
         90
+      ],
+      "L_NOCROSS_FLOWER_SHOT": [
+        47.3,
+        119.2,
+        215
+      ],
+      "L_NOCROSS_OBSERVE": [
+        47.4,
+        119.3,
+        290
       ]
     },
     "pathEnds": {
-      "line-mw0c4s2s-i6yeu6": "LEFT_AUTO_HIVE",
+      "line-mw0c4s2s-i6yeu6": "L_NOCROSS_OBSERVE",
       "line-mw0c4s2t-ne8h5h": "SCORING_FLOWER_STAGING",
       "line-mw0c4s2t-m8fs6x": "LEFT_AUTO_HIVE",
       "line-mw0c4s2u-8wbzmf": "LEFT_PARK",
@@ -1208,7 +1415,13 @@
       "line-lnc-park-5": "LEFT_PARK",
       "line-lnc-park-6": "LEFT_PARK",
       "line-lnc-park-7": "LEFT_PARK",
-      "line-lnc-park-8": "LEFT_PARK"
+      "line-lnc-park-8": "LEFT_PARK",
+      "lnc-shot-park": "LEFT_PARK",
+      "lnc-shot-flower": "SCORING_FLOWER_STAGING",
+      "lnc-flower-shot": "L_NOCROSS_OBSERVE",
+      "lnc-restore-hive": "LEFT_AUTO_HIVE",
+      "lnc-observe-receive": "L_NOCROSS_FLOWER_SHOT",
+      "lnc-observe-park": "LEFT_PARK"
     },
     "cards": [
       {
@@ -1243,32 +1456,87 @@
                     ],
                     "cards": [
                       {
-                        "id": "c-mw0c4s2t-8epji",
+                        "id": "lnc-call-nectar",
                         "kind": "action",
-                        "name": "LaunchAll"
+                        "name": "CallNectar"
                       },
                       {
-                        "id": "c-mw0c4s2t-jqsjs",
+                        "id": "lnc-observe-receive",
                         "kind": "path",
-                        "lineId": "line-mw0c4s2t-ne8h5h",
+                        "lineId": "lnc-observe-receive",
                         "park": false
                       },
                       {
-                        "id": "c-mw0c4s2t-sfdhk",
+                        "id": "lnc-preloads-aimed",
+                        "kind": "action",
+                        "name": "LaunchAllAimed"
+                      },
+                      {
+                        "id": "lnc-nectar-catch",
+                        "kind": "firstOf",
+                        "label": "Earned NECTAR 1 by 11.3 s? (otherwise take the SCORING FLOWER)",
+                        "rows": [
+                          {
+                            "afterMs": 11300,
+                            "matchClock": true,
+                            "cards": []
+                          },
+                          {
+                            "when": [
+                              "NectarIn"
+                            ],
+                            "cards": [
+                              {
+                                "id": "lnc-nectar-cell",
+                                "kind": "firstOf",
+                                "label": "LEFT still up, before 11.3 s? (one extra for TIP 2)",
+                                "rows": [
+                                  {
+                                    "afterMs": 11300,
+                                    "matchClock": true,
+                                    "cards": []
+                                  },
+                                  {
+                                    "when": [
+                                      "CellUp"
+                                    ],
+                                    "cards": [
+                                      {
+                                        "id": "lnc-nectar-shot",
+                                        "kind": "action",
+                                        "name": "LaunchOneAimed"
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "alongside": "CatchNectar"
+                      },
+                      {
+                        "id": "lnc-turn-flower",
+                        "kind": "path",
+                        "lineId": "lnc-shot-flower",
+                        "park": false
+                      },
+                      {
+                        "id": "lnc-pick-flower",
                         "kind": "action",
                         "name": "PickFlower",
                         "timeoutS": 8
                       },
                       {
-                        "id": "c-mw0c4s2t-lhsjw",
+                        "id": "lnc-turn-shot",
                         "kind": "path",
-                        "lineId": "line-mw0c4s2t-m8fs6x",
+                        "lineId": "lnc-flower-shot",
                         "park": false
                       },
                       {
-                        "id": "c-mwdn0a03-lnv3c",
+                        "id": "lnc-final-cell",
                         "kind": "firstOf",
-                        "label": "LEFT CELL back up?",
+                        "label": "LEFT still up by 23 s? (the SCORING FLOWER's four)",
                         "rows": [
                           {
                             "when": [
@@ -1276,14 +1544,14 @@
                             ],
                             "cards": [
                               {
-                                "id": "c-mw0c4s2u-axth1",
+                                "id": "lnc-flower-aimed",
                                 "kind": "action",
-                                "name": "LaunchAll"
+                                "name": "LaunchAllAimed"
                               },
                               {
-                                "id": "c-mw0c4s2u-u2yl0",
+                                "id": "lnc-park-shot",
                                 "kind": "path",
-                                "lineId": "line-mw0c4s2u-8wbzmf",
+                                "lineId": "lnc-observe-park",
                                 "park": true
                               }
                             ]
@@ -1293,9 +1561,9 @@
                             "matchClock": true,
                             "cards": [
                               {
-                                "id": "c-mwdn0a03-lnp3c",
+                                "id": "lnc-park-timeout",
                                 "kind": "path",
-                                "lineId": "line-mwdn0a03-lnp3c",
+                                "lineId": "lnc-observe-park",
                                 "park": true
                               }
                             ]
@@ -1311,7 +1579,7 @@
                       {
                         "id": "c-mwdn0a03-lnp2c",
                         "kind": "path",
-                        "lineId": "line-mwdn0a03-lnp2c",
+                        "lineId": "lnc-observe-park",
                         "park": true
                       }
                     ]
@@ -1326,6 +1594,12 @@
             "adjustable": true,
             "tip": 1,
             "cards": [
+              {
+                "id": "lnc-restore-hive",
+                "kind": "path",
+                "lineId": "lnc-restore-hive",
+                "park": false
+              },
               {
                 "id": "c-lnc-then",
                 "kind": "firstOf",
@@ -1633,10 +1907,12 @@
       "link-11",
       "link-12",
       "link-13",
-      "link-14"
+      "link-14",
+      "link-15",
+      "link-16"
     ],
     "parkFrom": {
-      "c-mw0c4s2s-oo8yq": "line-mw0c4s32-8noomj",
+      "c-mw0c4s2s-oo8yq": "lnc-observe-park",
       "c-mw0c4s2t-jqsjs": "line-mw0c4s32-ave4gg",
       "c-mw0eq8bt-2vuzy": "line-mw0rkae5-kh7tv8",
       "c-mwbksy73-u5fhh": "line-mw0c4s32-8noomj",
@@ -1645,7 +1921,11 @@
       "c-mw0c4s2t-lhsjw-late": "line-mw0c4s32-8noomj",
       "c-lnc-fixtip-sf": "line-mw0c4s32-ave4gg",
       "c-lnc-fixtip-left": "line-mw0c4s32-8noomj",
-      "c-mw0c4s2t-lhsjw-keep": "line-mw0c4s32-8noomj"
+      "c-mw0c4s2t-lhsjw-keep": "line-mw0c4s32-8noomj",
+      "lnc-turn-flower": "line-mw0c4s32-ave4gg",
+      "lnc-turn-shot": "lnc-observe-park",
+      "lnc-restore-hive": "line-mw0c4s32-8noomj",
+      "lnc-observe-receive": "lnc-shot-park"
     },
     "teamSpots": [
       "LEFT_AUTO_HIVE",
