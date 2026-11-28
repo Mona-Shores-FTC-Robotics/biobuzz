@@ -1,0 +1,2623 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "RRightUnderHiveAuto,PartnerLBrokenDownAuto",
+ "design": "real robot",
+ "partnerDesign": "real robot",
+ "alliance": "RED",
+ "entry": {
+  "name": "L dead on its start (never seen)",
+  "folder": "partner-l-broken-down/l-dead-on-its-start-never-seen",
+  "spec": "RRightUnderHiveAuto,PartnerLBrokenDownAuto",
+  "partner": "PartnerLBrokenDownAuto",
+  "partnerSource": "partner-l-broken-down.pp",
+  "timing": null,
+  "timingSlug": "default",
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "oursFails": null,
+  "picks": null,
+  "partnerPicks": null,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     7.74
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     6.58
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     6.0600000000000005
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 4,
+    "log": "seed-4.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     6.5600000000000005
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 5,
+    "log": "seed-5.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     6.3
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 6,
+    "log": "seed-6.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     8.32
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 7,
+    "log": "seed-7.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     9.26
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 8,
+    "log": "seed-8.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     8.96
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 9,
+    "log": "seed-9.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     6.640000000000001
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 10,
+    "log": "seed-10.wpilog",
+    "points": 28,
+    "launched": 8,
+    "partnerLaunched": 0,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     7.9
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+     "startedAt": 8.66,
+     "outcome": null,
+     "fired": null,
+     "after": null,
+     "at": null
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": false,
+    "waits": [
+     {
+      "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+      "startedAt": 8.66,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+      "startedAt": 12.24,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 12.26
+     },
+     {
+      "label": "Time for the SCORING FLOWER?",
+      "startedAt": 14.8,
+      "outcome": "Always",
+      "fired": true,
+      "after": 0.02,
+      "at": 14.82
+     },
+     {
+      "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+      "startedAt": 22.42,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     },
+     {
+      "label": "RIGHT up? (TIP 2 came)",
+      "startedAt": 22.74,
+      "outcome": "24.2 s on the match clock",
+      "fired": false,
+      "after": 1.46,
+      "at": 24.2
+     }
+    ],
+    "robotsCollidedAt": 12.14,
+    "parked": true,
+    "partnerParked": false,
+    "partnerLeave": false,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 26.94,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   }
+  ],
+  "partnerDelayS": null,
+  "partnerLaunchS": null,
+  "runs": 10,
+  "meanPoints": 28
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    7.74
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5693966896567917,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 7.7 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 57% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    6.58
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5228419399429055,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 5.88 turret: the long way round, 223 deg in 0.9 s, to stay inside its 720 deg window (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 6.6 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 52% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    6.0600000000000005
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5790643566899965,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 5.82 turret: the long way round, 236 deg in 1.0 s, to stay inside its 720 deg window (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 6.1 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 58% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    6.5600000000000005
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5228419399429055,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 5.96 turret: the long way round, 204 deg in 0.9 s, to stay inside its 720 deg window (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "15.66 miss: beside red NECTAR robot 1",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.18 miss: beside red NECTAR robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.48 miss: beside red NECTAR robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.78 miss: beside red NECTAR robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.08 miss: beside red NECTAR robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.38 miss: beside red NECTAR robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 6.6 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 52% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    6.3
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5790643566899965,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.02 turret: the long way round, 190 deg in 0.8 s, to stay inside its 720 deg window (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 6.3 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 58% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 6,
+   "log": "seed-6.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    8.32
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5228419399429055,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 8.3 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 52% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 7,
+   "log": "seed-7.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    9.26
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5693966896567917,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 9.3 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 57% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 8,
+   "log": "seed-8.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    8.96
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5228419399429055,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 9.0 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 52% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 9,
+   "log": "seed-9.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    6.640000000000001
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5790643566899965,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 6.6 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 58% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  },
+  {
+   "seed": 10,
+   "log": "seed-10.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    7.9
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5228419399429055,
+   "held": 8,
+   "robotsCollidedAt": 12.14,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "r-right-under-hive",
+     "launched": 8,
+     "finishedAt": 26.94,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 17.080000000000002,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Lane full after the gather? (short: LEFT will need the FLOWER load)",
+       "startedAt": 8.66,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up? (TIP 1 came; else wait for L's fix)",
+       "startedAt": 12.24,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 12.26
+      },
+      {
+       "label": "Time for the SCORING FLOWER?",
+       "startedAt": 14.8,
+       "outcome": "Always",
+       "fired": true,
+       "after": 0.02,
+       "at": 14.82
+      },
+      {
+       "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+       "startedAt": 22.42,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "RIGHT up? (TIP 2 came)",
+       "startedAt": 22.74,
+       "outcome": "24.2 s on the match clock",
+       "fired": false,
+       "after": 1.46,
+       "at": 24.2
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path RIGHT_START to RIGHT_AUTO_HIVE (holds 4)",
+      " 0.70 command LaunchAll (holds 4)",
+      " 1.88 turret: on target when the fire step began (firing from (59, 21) at the low-end CELL) (holds 3)",
+      " 1.90 miss: height POLLEN robot 1",
+      " 2.38 miss: height POLLEN robot 1",
+      " 2.84 miss: height POLLEN robot 1",
+      " 3.28 path RIGHT_AUTO_HIVE straight to GARDEN_STAGING (holds 0)",
+      " 3.30 miss: height POLLEN robot 1",
+      " 5.46 turret: the long way round, 351 deg in 1.5 s, to stay inside its 720 deg window (holds 0)",
+      " 5.66 command GardenGather (holds 0)",
+      " 6.38 miss: beside POLLEN robot 1",
+      " 7.64 GardenGather: took 4 in 2.0 s (routine: in 1.24, dwell 0.02, back 0.72), 1 off the corner wheels, holds 4; 4 left in the GARDENs (holds 4)",
+      " 8.66 wait Lane full after the gather? (short: LEFT will need the FLOWER load) (holds 4)",
+      " 8.68 Lane full after the gather? (short: LEFT will need the FLOWER load): IntakeFull after 0.02 s (holds 4)",
+      " 8.68 path GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH (holds 4)",
+      "11.50 turret: switched to the high-end CELL at y 91.3 (holds 4)",
+      "12.14 ROBOTS COLLIDE: at (61.2, 117.5, 269 deg), robot 2 (RED) at (62.3, 133.8, 270 deg)",
+      "12.24 wait LEFT up? (TIP 1 came; else wait for L's fix) (holds 4)",
+      "12.26 LEFT up? (TIP 1 came; else wait for L's fix): LeftCellUp after 0.02 s (holds 4)",
+      "12.26 command LaunchAll (holds 4)",
+      "12.26 turret: the fire step began 0.8 s after the side switch (holds 4)",
+      "13.40 turret: on target when the fire step began (firing from (61, 123) at the high-end CELL) (holds 3)",
+      "13.40 miss: height POLLEN robot 1",
+      "13.88 miss: height POLLEN robot 1",
+      "14.34 miss: height POLLEN robot 1",
+      "14.80 wait Time for the SCORING FLOWER? (holds 0)",
+      "14.80 miss: height POLLEN robot 1",
+      "14.82 Time for the SCORING FLOWER?: Always after 0.02 s (holds 0)",
+      "14.82 path R_LEFT_CATCH to SCORING_FLOWER_STAGING (holds 0)",
+      "16.30 command PickFlower (holds 0)",
+      "17.08 drives into a FLOWER at (47.4, 128.4) heading 90",
+      "17.08 miss: interval POLLEN robot 1",
+      "17.14 miss: interval POLLEN robot 1",
+      "17.38 miss: interval POLLEN robot 1",
+      "17.44 miss: interval POLLEN robot 1",
+      "17.64 miss: interval POLLEN robot 1",
+      "17.74 miss: interval POLLEN robot 1",
+      "17.94 miss: interval POLLEN robot 1",
+      "18.04 miss: interval POLLEN robot 1",
+      "18.24 miss: interval POLLEN robot 1",
+      "18.54 miss: interval POLLEN robot 1",
+      "19.48 path SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH (holds 4)",
+      "21.68 turret: switched to the low-end CELL at y 50.2 (holds 4)",
+      "21.74 turret: on target 0.06 s after the side switch (holds 4)",
+      "22.42 wait RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left) (holds 4)",
+      "22.74 RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left): 300 ms passed after 0.32 s (holds 4)",
+      "22.74 wait RIGHT up? (TIP 2 came) (holds 4)",
+      "24.20 RIGHT up? (TIP 2 came): 24.2 s on the match clock after 1.46 s (holds 4)",
+      "24.20 path RIGHT not up: Outer lane: R_RIGHT_CATCH nose first to the park (holds 4)",
+      "26.86 turret: switched to the high-end CELL at y 90.5 (holds 4)",
+      "26.98 turret: on target 0.12 s after the side switch (holds 4)"
+     ]
+    },
+    {
+     "auto": "partner-l-broken-down",
+     "launched": 0,
+     "finishedAt": null,
+     "leave": false,
+     "park": false,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Broken down on the start",
+       "startedAt": 0,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 wait Broken down on the start (holds 4)"
+     ]
+    }
+   ],
+   "summary": "r-right-under-hive + partner-l-broken-down RED: launched 8, scored 8, HIVE tipped at 7.9 s; r-right-under-hive launched 8, finished at 26.9 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 17.1 s; partner-l-broken-down launched 0, still running at 30 s, LEAVE no, PARK no; 28 AUTO points; TELEOP starts with the raised CELL 52% loaded and 8 held; ROBOTS COLLIDE at 12.1 s"
+  }
+ ],
+ "auto": "r-right-under-hive",
+ "commit": "c04b4a7f86badad66c09d9b8624b38dd1e5421db",
+ "branch": "auto/r-right-under-hive-nectar2",
+ "pp": "TeamCode/autos/r-right-under-hive.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/46104366099",
+ "finishedAt": "2026-11-28T03:49:09.960113+00:00",
+ "request": {
+  "pp": "TeamCode/autos/r-right-under-hive.pp",
+  "spec": "RRightUnderHiveAuto",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "calibration": "fruitport",
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "alliance": "RED",
+  "partners": [
+   {
+    "name": "pair: every shot lands",
+    "partner": "LRightUnderHiveAuto"
+   },
+   {
+    "name": "NECTAR 1 comes late (released 4 s after TIP 1): it rides to RIGHT in the WALL FLOWER load, or is left",
+    "partner": "LRightUnderHiveAuto",
+    "humanAimRolls": "40.2,120.8,215|8,98.3|24||4;32.1,17.0,106.5|8,98.3|24||0.5"
+   },
+   {
+    "name": "NECTAR 1 never comes (the human keeps it): L holds at most 2.5 s, fires nothing",
+    "partner": "LRightUnderHiveAuto",
+    "humanAimRolls": "none"
+   },
+   {
+    "name": "NECTAR 2 rolled slowly (18 in/s, released 1.5 s after TIP 2): L holds to 26.0 s at most, then parks",
+    "partner": "LRightUnderHiveAuto",
+    "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|18||1.5"
+   },
+   {
+    "name": "R's preloads miss (L crosses and fixes TIP 1)",
+    "partner": "LRightUnderHiveAuto",
+    "oursFails": "misses preloads"
+   },
+   {
+    "name": "L's preloads miss (L takes its WALL FLOWER load to LEFT)",
+    "partner": "LRightUnderHiveAuto",
+    "fails": "misses preloads"
+   },
+   {
+    "name": "R's GARDEN volley misses",
+    "partner": "LRightUnderHiveAuto",
+    "oursFails": "misses volley 2"
+   },
+   {
+    "name": "L's WALL FLOWER volley misses",
+    "partner": "LRightUnderHiveAuto",
+    "fails": "misses volley 2"
+   },
+   {
+    "name": "R's SCORING FLOWER volley misses",
+    "partner": "LRightUnderHiveAuto",
+    "oursFails": "misses volley 3"
+   },
+   {
+    "name": "R 20% slow",
+    "partner": "LRightUnderHiveAuto",
+    "ourSpeed": 40
+   },
+   {
+    "name": "L 20% slow",
+    "partner": "LRightUnderHiveAuto",
+    "timing": {
+     "speed": 40
+    }
+   },
+   {
+    "name": "SURE TIP 2 picked: every shot lands",
+    "partner": "LRightUnderHiveAuto",
+    "picks": {
+     "FLOWER load": "SURE TIP 2"
+    },
+    "partnerPicks": {
+     "FLOWER load": "SURE TIP 2"
+    }
+   },
+   {
+    "name": "SURE TIP 2 picked: L's preloads miss",
+    "partner": "LRightUnderHiveAuto",
+    "fails": "misses preloads",
+    "picks": {
+     "FLOWER load": "SURE TIP 2"
+    },
+    "partnerPicks": {
+     "FLOWER load": "SURE TIP 2"
+    }
+   },
+   {
+    "name": "SURE TIP 2 picked: L misses every shot",
+    "partner": "LRightUnderHiveAuto",
+    "fails": "misses",
+    "picks": {
+     "FLOWER load": "SURE TIP 2"
+    },
+    "partnerPicks": {
+     "FLOWER load": "SURE TIP 2"
+    }
+   },
+   {
+    "name": "L dead on its start (never seen)",
+    "partner": "PartnerLBrokenDownAuto"
+   }
+  ],
+  "scenario": "best",
+  "humanAimRolls": "40.2,120.8,215|8,98.3|24|facing;32.1,17.0,106.5|8,98.3|24||0.5",
+  "metadata": {
+   "SourceCommit": "c04b4a7f86badad66c09d9b8624b38dd1e5421db",
+   "SourceBranch": "auto/r-right-under-hive-nectar2",
+   "SourcePath": "TeamCode/autos/r-right-under-hive.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/46104366099"
+  }
+ },
+ "typicalSeed": 5,
+ "bestSeed": 3,
+ "logs": {
+  "3": "r-right-under-hive-c04b4a7-partner-l-broken-down-l-dead-on-its-start-never-seen-seed-3.wpilog",
+  "5": "r-right-under-hive-c04b4a7-partner-l-broken-down-l-dead-on-its-start-never-seen-seed-5.wpilog"
+ },
+ "folder": "partner-l-broken-down/l-dead-on-its-start-never-seen"
+}

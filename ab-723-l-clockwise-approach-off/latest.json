@@ -1,0 +1,574 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "launchOnApproach": false,
+ "calibration": "belding",
+ "spec": "LClockwiseAuto@50",
+ "design": "real robot",
+ "partnerDesign": "real robot",
+ "alliance": "RED",
+ "entry": {
+  "name": "alone",
+  "folder": "",
+  "spec": "LClockwiseAuto@50",
+  "partner": null,
+  "partnerSource": null,
+  "timing": null,
+  "timingSlug": null,
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "oursFails": null,
+  "picks": null,
+  "partnerPicks": null,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 28,
+    "launched": 4,
+    "partnerLaunched": null,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": null,
+    "partnerLastShotAt": null,
+    "tipsAt": [
+     21.86
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "L1 LEFT up by",
+     "startedAt": 0.7,
+     "outcome": "9.5 s on the match clock",
+     "fired": false,
+     "after": 8.8,
+     "at": 9.5
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "L1 LEFT up by",
+      "startedAt": 0.7,
+      "outcome": "9.5 s on the match clock",
+      "fired": false,
+      "after": 8.8,
+      "at": 9.5
+     },
+     {
+      "label": "R has parked from the left spot: park at 22.5 s",
+      "startedAt": 16.48,
+      "outcome": null,
+      "fired": null,
+      "after": null,
+      "at": null
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": null,
+    "partnerLeave": null,
+    "autoLeaveParkPoints": 8,
+    "swarm": "needs both end PARKs",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 27,
+    "partnerFinishedAt": null,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   }
+  ],
+  "runs": 1,
+  "meanPoints": 28
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 28,
+   "autoTips": 1,
+   "tipsAt": [
+    21.86
+   ],
+   "launched": 4,
+   "scored": 3,
+   "cellLoad": 0,
+   "held": 1,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-clockwise",
+     "launched": 4,
+     "finishedAt": 27,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "L1 LEFT up by",
+       "startedAt": 0.7,
+       "outcome": "9.5 s on the match clock",
+       "fired": false,
+       "after": 8.8,
+       "at": 9.5
+      },
+      {
+       "label": "R has parked from the left spot: park at 22.5 s",
+       "startedAt": 16.48,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path open to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait L1 LEFT up by (holds 4)",
+      " 9.50 L1 LEFT up by: 9.5 s on the match clock after 8.80 s (holds 4)",
+      " 9.50 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "11.62 turret: switched to the low-end CELL at y 50.9 (holds 4)",
+      "11.70 turret: on target 0.08 s after the side switch (holds 4)",
+      "13.92 command LaunchAll (holds 4)",
+      "13.92 turret: the fire step began 2.3 s after the side switch (holds 4)",
+      "15.08 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "15.10 miss: height POLLEN robot 1",
+      "15.58 miss: height POLLEN robot 1",
+      "15.96 miss: shot-long POLLEN robot 1",
+      "16.04 miss: height POLLEN robot 1",
+      "16.48 wait R has parked from the left spot: park at 22.5 s (holds 0)",
+      "16.50 miss: height POLLEN robot 1",
+      "22.38 miss: speed POLLEN robot 1",
+      "22.40 miss: height red NECTAR robot 1",
+      "22.40 miss: height red NECTAR robot 1",
+      "22.42 miss: height red NECTAR robot 1",
+      "22.50 R has parked from the left spot: park at 22.5 s: 22.5 s on the match clock after 6.02 s (holds 0)",
+      "22.52 path right catch park to LEFT_AIMED_PARK (holds 0)",
+      "24.72 turret: switched to the high-end CELL at y 90.8 (holds 1)",
+      "24.86 turret: on target 0.14 s after the side switch (holds 1)"
+     ]
+    }
+   ],
+   "summary": "l-clockwise RED: launched 4, scored 3, HIVE tipped at 21.9 s; finished at 27.0 s; LEAVE yes, PARK yes; TELEOP starts with the raised CELL 0% loaded and 1 held"
+  }
+ ],
+ "entries": [
+  {
+   "name": "alone",
+   "folder": "",
+   "spec": "LClockwiseAuto@50",
+   "partner": null,
+   "partnerSource": null,
+   "timing": null,
+   "timingSlug": null,
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "oursFails": null,
+   "picks": null,
+   "partnerPicks": null,
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 28,
+     "launched": 4,
+     "partnerLaunched": null,
+     "launchedAtDownCell": 0,
+     "partnerLaunchedAtDownCell": null,
+     "partnerLastShotAt": null,
+     "tipsAt": [
+      21.86
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "L1 LEFT up by",
+      "startedAt": 0.7,
+      "outcome": "9.5 s on the match clock",
+      "fired": false,
+      "after": 8.8,
+      "at": 9.5
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": true,
+     "waits": [
+      {
+       "label": "L1 LEFT up by",
+       "startedAt": 0.7,
+       "outcome": "9.5 s on the match clock",
+       "fired": false,
+       "after": 8.8,
+       "at": 9.5
+      },
+      {
+       "label": "R has parked from the left spot: park at 22.5 s",
+       "startedAt": 16.48,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": null,
+     "partnerLeave": null,
+     "autoLeaveParkPoints": 8,
+     "swarm": "needs both end PARKs",
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 27,
+     "partnerFinishedAt": null,
+     "g409": 0,
+     "tipsBy30": 1,
+     "hitHiveAt": null,
+     "partnerHitHiveAt": null,
+     "crossedAt": null,
+     "partnerCrossedAt": null,
+     "againstLoopAt": null,
+     "againstLoopLane": null,
+     "partnerAgainstLoopAt": null,
+     "partnerAgainstLoopLane": null
+    }
+   ],
+   "runs": 1,
+   "meanPoints": 28
+  },
+  {
+   "name": "R takes the WALL FLOWER: normal",
+   "folder": "r-clockwise/r-takes-the-wall-flower-normal",
+   "spec": "LClockwiseAuto,RClockwiseAuto@50",
+   "partner": "RClockwiseAuto",
+   "partnerSource": "r-clockwise.pp",
+   "timing": {
+    "speed": 50
+   },
+   "timingSlug": "speed50.0",
+   "lastShotS": null,
+   "partnerWaitUntilS": null,
+   "fails": null,
+   "pushable": false,
+   "oursFails": null,
+   "picks": {
+    "Pickup": "GARDEN"
+   },
+   "partnerPicks": {
+    "Pickup": "WALL_FLOWER"
+   },
+   "rows": [
+    {
+     "seed": 1,
+     "log": "seed-1.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 12,
+     "launchedAtDownCell": 4,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 25.5,
+     "tipsAt": [
+      7.74,
+      27.46
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "L1 LEFT up by",
+      "startedAt": 0.7,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 7.06,
+      "at": 7.76
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": true,
+     "waits": [
+      {
+       "label": "L1 LEFT up by",
+       "startedAt": 0.7,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 7.06,
+       "at": 7.76
+      },
+      {
+       "label": "L2: RIGHT up by 22 s, otherwise park, then fire at LEFT from the park if it is up",
+       "startedAt": 18.24,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "Park for the shot: go at 22.0 s",
+       "startedAt": 22,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up before 27.5 s, otherwise stay parked",
+       "startedAt": 26.54,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 26.56
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "autoLeaveParkPoints": 16,
+     "swarm": "safe with one end PARK missed",
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 29.18,
+     "partnerFinishedAt": 29.28,
+     "g409": 7,
+     "tipsBy30": 2,
+     "hitHiveAt": null,
+     "partnerHitHiveAt": null,
+     "crossedAt": null,
+     "partnerCrossedAt": null,
+     "againstLoopAt": null,
+     "againstLoopLane": null,
+     "partnerAgainstLoopAt": null,
+     "partnerAgainstLoopLane": null
+    },
+    {
+     "seed": 2,
+     "log": "seed-2.wpilog",
+     "points": 36,
+     "launched": 4,
+     "partnerLaunched": 8,
+     "launchedAtDownCell": 0,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 22.400000000000002,
+     "tipsAt": [
+      20.12
+     ],
+     "autoTips": 1,
+     "wait": {
+      "label": "L1 LEFT up by",
+      "startedAt": 0.7,
+      "outcome": "9.5 s on the match clock",
+      "fired": false,
+      "after": 8.8,
+      "at": 9.5
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": true,
+     "waits": [
+      {
+       "label": "L1 LEFT up by",
+       "startedAt": 0.7,
+       "outcome": "9.5 s on the match clock",
+       "fired": false,
+       "after": 8.8,
+       "at": 9.5
+      },
+      {
+       "label": "R has parked from the left spot: park at 22.5 s",
+       "startedAt": 16.48,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "autoLeaveParkPoints": 16,
+     "swarm": "safe with one end PARK missed",
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 27,
+     "partnerFinishedAt": 29.2,
+     "g409": 0,
+     "tipsBy30": 1,
+     "hitHiveAt": null,
+     "partnerHitHiveAt": null,
+     "crossedAt": null,
+     "partnerCrossedAt": null,
+     "againstLoopAt": null,
+     "againstLoopLane": null,
+     "partnerAgainstLoopAt": null,
+     "partnerAgainstLoopLane": null
+    },
+    {
+     "seed": 3,
+     "log": "seed-3.wpilog",
+     "points": 56,
+     "launched": 8,
+     "partnerLaunched": 9,
+     "launchedAtDownCell": 3,
+     "partnerLaunchedAtDownCell": 0,
+     "partnerLastShotAt": 25.5,
+     "tipsAt": [
+      5.74,
+      28.5
+     ],
+     "autoTips": 2,
+     "wait": {
+      "label": "L1 LEFT up by",
+      "startedAt": 0.7,
+      "outcome": "LeftCellUp",
+      "fired": true,
+      "after": 5.06,
+      "at": 5.76
+     },
+     "firstCellUpAt": null,
+     "hasPartnerWait": true,
+     "waits": [
+      {
+       "label": "L1 LEFT up by",
+       "startedAt": 0.7,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 5.06,
+       "at": 5.76
+      },
+      {
+       "label": "L2: RIGHT up by 22 s, otherwise park, then fire at LEFT from the park if it is up",
+       "startedAt": 16.2,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "Park for the shot: go at 22.0 s",
+       "startedAt": 22,
+       "outcome": null,
+       "fired": null,
+       "after": null,
+       "at": null
+      },
+      {
+       "label": "LEFT up before 27.5 s, otherwise stay parked",
+       "startedAt": 26.54,
+       "outcome": "LeftCellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 26.56
+      }
+     ],
+     "robotsCollidedAt": null,
+     "parked": true,
+     "partnerParked": true,
+     "partnerLeave": true,
+     "autoLeaveParkPoints": 16,
+     "swarm": "safe with one end PARK missed",
+     "partnerPushedIn": null,
+     "pushingS": null,
+     "finishedAt": 29.18,
+     "partnerFinishedAt": 29.28,
+     "g409": 0,
+     "tipsBy30": 2,
+     "hitHiveAt": null,
+     "partnerHitHiveAt": null,
+     "crossedAt": null,
+     "partnerCrossedAt": null,
+     "againstLoopAt": null,
+     "againstLoopLane": null,
+     "partnerAgainstLoopAt": null,
+     "partnerAgainstLoopLane": null
+    }
+   ],
+   "partnerDelayS": null,
+   "partnerLaunchS": null,
+   "runs": 3,
+   "meanPoints": 49.333333333333336,
+   "typicalSeed": 1,
+   "bestSeed": 3,
+   "logs": {
+    "3": "ab-723-l-clockwise-approach-off-42b2865-r-clockwise-r-takes-the-wall-flower-normal-seed-3.wpilog",
+    "1": "ab-723-l-clockwise-approach-off-42b2865-r-clockwise-r-takes-the-wall-flower-normal-seed-1.wpilog"
+   }
+  }
+ ],
+ "auto": "ab-723-l-clockwise-approach-off",
+ "commit": "42b2865c63e08e436a1bf8a4d03f0997c0a0f229",
+ "branch": "claude/auto-time-check-approach",
+ "pp": "TeamCode/autos/l-clockwise.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/45199233399",
+ "finishedAt": "2026-11-23T14:56:13.171508+00:00",
+ "request": {
+  "pp": "TeamCode/autos/l-clockwise.pp",
+  "spec": "LClockwiseAuto@50",
+  "design": "real robot",
+  "partnerDesign": "real robot",
+  "partnerSpeed": null,
+  "calibration": "belding",
+  "loop": "clockwise",
+  "seeds": [
+   1
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3
+  ],
+  "alliance": "RED",
+  "partners": [
+   {
+    "name": "R takes the WALL FLOWER: normal",
+    "partner": "RClockwiseAuto",
+    "timing": {
+     "speed": 50
+    },
+    "picks": {
+     "Pickup": "GARDEN"
+    },
+    "partnerPicks": {
+     "Pickup": "WALL_FLOWER"
+    }
+   }
+  ],
+  "metadata": {
+   "AutoSource": "l-clockwise.pp",
+   "SavedBy": "Clockwise pair, from L's side: both pickup choices, normal, either robot 20% slow, either robot's preloads missed; LEFT_AUTO_HIVE 0.5 in off the centre line",
+   "SavedAt": "2026-11-18T19:45:00+00:00",
+   "SimNote": "PR #723 A/B: LaunchAll approach through the CELL check off; temporary, removed before merge",
+   "SourceCommit": "42b2865c63e08e436a1bf8a4d03f0997c0a0f229",
+   "SourceBranch": "claude/auto-time-check-approach",
+   "SourcePath": "TeamCode/autos/l-clockwise.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/45199233399"
+  },
+  "folder": "ab-723-l-clockwise-approach-off",
+  "launchOnApproach": false
+ },
+ "typicalSeed": 1,
+ "bestSeed": 1,
+ "logs": {
+  "1": "ab-723-l-clockwise-approach-off-42b2865-seed-1.wpilog"
+ },
+ "designFolder": "designs/real-robot",
+ "namedLogs": {
+  "best": "ab-723-l-clockwise-approach-off_RealRobot_2026-11-23_best.wpilog",
+  "typical": "ab-723-l-clockwise-approach-off_RealRobot_2026-11-23_typical.wpilog"
+ }
+}

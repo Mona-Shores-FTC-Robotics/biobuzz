@@ -1,0 +1,1217 @@
+{
+ "designs": [
+  "real robot",
+  "real robot, turret locked forward",
+  "real robot, POLLEN only",
+  "real robot, turret locked forward, POLLEN only"
+ ],
+ "spec": "LNoCrossAuto,PartnerRLaunchParkAuto",
+ "design": "real robot",
+ "partnerDesign": null,
+ "alliance": "RED",
+ "entry": {
+  "name": "late: starts 4 s late, wait left as drawn",
+  "folder": "partner-r-launch-park/late-starts-4-s-late-wait-left-as-drawn",
+  "spec": "LNoCrossAuto,PartnerRLaunchParkAuto",
+  "partner": "PartnerRLaunchParkAuto",
+  "partnerSource": "partner-r-launch-park.pp",
+  "timing": {
+   "startDelayS": 4
+  },
+  "timingSlug": "start4s",
+  "lastShotS": null,
+  "partnerWaitUntilS": null,
+  "fails": null,
+  "pushable": false,
+  "oursFails": null,
+  "picks": null,
+  "partnerPicks": null,
+  "rows": [
+   {
+    "seed": 1,
+    "log": "seed-1.wpilog",
+    "points": 36,
+    "launched": 4,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 7.24,
+    "tipsAt": [
+     10.9
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "timed out",
+      "fired": false,
+      "after": 0.76,
+      "at": 13.86
+     },
+     {
+      "label": "LEFT CELL up?",
+      "startedAt": 18.04,
+      "outcome": "CellUp (gate opened on the approach)",
+      "fired": true,
+      "after": 0.02,
+      "at": 18.06
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "autoLeaveParkPoints": 16,
+    "swarm": "safe with one end PARK missed",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 22.26,
+    "partnerFinishedAt": 10.38,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 2,
+    "log": "seed-2.wpilog",
+    "points": 36,
+    "launched": 5,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 7.24,
+    "tipsAt": [
+     18.56
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": 22.54,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "RightCellUp (gate opened on the approach)",
+      "fired": true,
+      "after": 0.02,
+      "at": 13.12
+     },
+     {
+      "label": "LEFT CELL up?",
+      "startedAt": 22.52,
+      "outcome": "CellUp",
+      "fired": true,
+      "after": 0.02,
+      "at": 22.54
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "autoLeaveParkPoints": 16,
+    "swarm": "safe with one end PARK missed",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 25.6,
+    "partnerFinishedAt": 10.38,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 3,
+    "log": "seed-3.wpilog",
+    "points": 36,
+    "launched": 4,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 7.24,
+    "tipsAt": [
+     9.68
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "timed out",
+      "fired": false,
+      "after": 0.76,
+      "at": 13.86
+     },
+     {
+      "label": "LEFT CELL up?",
+      "startedAt": 18.04,
+      "outcome": "CellUp (gate opened on the approach)",
+      "fired": true,
+      "after": 0.02,
+      "at": 18.06
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "autoLeaveParkPoints": 16,
+    "swarm": "safe with one end PARK missed",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 22.26,
+    "partnerFinishedAt": 10.38,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 4,
+    "log": "seed-4.wpilog",
+    "points": 36,
+    "launched": 4,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 7.24,
+    "tipsAt": [
+     10.78
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "timed out",
+      "fired": false,
+      "after": 0.76,
+      "at": 13.86
+     },
+     {
+      "label": "LEFT CELL up?",
+      "startedAt": 18.04,
+      "outcome": "CellUp (gate opened on the approach)",
+      "fired": true,
+      "after": 0.02,
+      "at": 18.06
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "autoLeaveParkPoints": 16,
+    "swarm": "safe with one end PARK missed",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 22.26,
+    "partnerFinishedAt": 10.38,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   },
+   {
+    "seed": 5,
+    "log": "seed-5.wpilog",
+    "points": 36,
+    "launched": 4,
+    "partnerLaunched": 4,
+    "launchedAtDownCell": 0,
+    "partnerLaunchedAtDownCell": 0,
+    "partnerLastShotAt": 7.24,
+    "tipsAt": [
+     9.96
+    ],
+    "autoTips": 1,
+    "wait": {
+     "label": "Wait for TIP or CELL up",
+     "startedAt": 0.7,
+     "outcome": "9.0 s on the match clock",
+     "fired": false,
+     "after": 8.3,
+     "at": 9
+    },
+    "firstCellUpAt": null,
+    "hasPartnerWait": true,
+    "waits": [
+     {
+      "label": "Wait for TIP or CELL up",
+      "startedAt": 0.7,
+      "outcome": "9.0 s on the match clock",
+      "fired": false,
+      "after": 8.3,
+      "at": 9
+     },
+     {
+      "label": "RIGHT CELL up?",
+      "startedAt": 13.1,
+      "outcome": "timed out",
+      "fired": false,
+      "after": 0.76,
+      "at": 13.86
+     },
+     {
+      "label": "LEFT CELL up?",
+      "startedAt": 18.04,
+      "outcome": "CellUp (gate opened on the approach)",
+      "fired": true,
+      "after": 0.02,
+      "at": 18.06
+     }
+    ],
+    "robotsCollidedAt": null,
+    "parked": true,
+    "partnerParked": true,
+    "partnerLeave": true,
+    "autoLeaveParkPoints": 16,
+    "swarm": "safe with one end PARK missed",
+    "partnerPushedIn": null,
+    "pushingS": null,
+    "finishedAt": 22.26,
+    "partnerFinishedAt": 10.38,
+    "g409": 0,
+    "tipsBy30": 1,
+    "hitHiveAt": null,
+    "partnerHitHiveAt": null,
+    "crossedAt": null,
+    "partnerCrossedAt": null,
+    "againstLoopAt": null,
+    "againstLoopLane": null,
+    "partnerAgainstLoopAt": null,
+    "partnerAgainstLoopLane": null
+   }
+  ],
+  "partnerDelayS": null,
+  "partnerLaunchS": null,
+  "runs": 5,
+  "meanPoints": 36
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "log": "seed-1.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    10.9
+   ],
+   "launched": 8,
+   "scored": 8,
+   "cellLoad": 0.5693966896567917,
+   "held": 2,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 4,
+     "finishedAt": 22.26,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "timed out",
+       "fired": false,
+       "after": 0.76,
+       "at": 13.86
+      },
+      {
+       "label": "LEFT CELL up?",
+       "startedAt": 18.04,
+       "outcome": "CellUp (gate opened on the approach)",
+       "fired": true,
+       "after": 0.02,
+       "at": 18.06
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait Wait for TIP or CELL up (holds 4)",
+      " 0.70 command SpinUp (holds 4)",
+      " 9.00 Wait for TIP or CELL up: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.48 turret: switched to the low-end CELL at y 50.6 (holds 4)",
+      "12.56 turret: on target 0.08 s after the side switch (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.86 RIGHT CELL up?: 750 ms passed after 0.76 s (holds 4)",
+      "13.86 path to LEFT_AUTO_HIVE (holds 4)",
+      "15.98 turret: switched to the high-end CELL at y 90.7 (holds 4)",
+      "16.12 turret: on target 0.14 s after the side switch (holds 4)",
+      "17.94 turret: the fire step began 2.0 s after the side switch (holds 4)",
+      "17.94 LaunchAll opened the gate on the approach, 5.9 in from the path end (holds 4)",
+      "18.04 wait LEFT CELL up? (holds 4)",
+      "18.06 LEFT CELL up?: CellUp (gate opened on the approach) after 0.02 s (holds 4)",
+      "18.06 command LaunchAll (holds 4)",
+      "18.82 turret: on target when the fire step began (firing from (61, 120) at the high-end CELL) (holds 3)",
+      "18.84 miss: height POLLEN robot 1",
+      "19.30 miss: height POLLEN robot 1",
+      "19.78 miss: height POLLEN robot 1",
+      "20.24 If CellUp: 6.6 s of cards to the next volley, its last piece out 2.5 s in, and the park (2.0 s) end at 31.3 s: no time to park after it, parking now (holds 0)",
+      "20.24 parking from the spot the robot is on (holds 0)",
+      "20.24 path to LEFT_AUTO_HIVE park (holds 0)",
+      "20.26 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 10.38,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 4,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 4.02
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 4.0 s after PLAY before its first card (partner timing) (holds 4)",
+      " 4.00 command SpinUp (holds 4)",
+      " 4.00 wait Wait for its CELL up (holds 4)",
+      " 4.02 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 4.04 command LaunchAll (holds 4)",
+      " 5.88 turret: on target when the fire step began (firing from (56, 8) at the low-end CELL) (holds 3)",
+      " 5.88 miss: height POLLEN robot 2",
+      " 6.34 miss: height POLLEN robot 2",
+      " 6.80 miss: height POLLEN robot 2",
+      " 7.26 path to PARTNER_PARK (holds 0)",
+      " 7.26 miss: height POLLEN robot 2",
+      "10.30 turret: switched to the high-end CELL at y 90.9 (holds 0)",
+      "10.44 turret: on target 0.14 s after the side switch (holds 0)",
+      "21.92 miss: beside red NECTAR robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 8, scored 8, HIVE tipped at 10.9 s; l-no-cross launched 4, finished at 22.3 s, LEAVE yes, PARK yes; partner-r-launch-park launched 4, finished at 10.4 s, LEAVE yes, PARK yes; 36 AUTO points; TELEOP starts with the raised CELL 57% loaded and 2 held"
+  },
+  {
+   "seed": 2,
+   "log": "seed-2.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    18.56
+   ],
+   "launched": 9,
+   "scored": 5,
+   "cellLoad": 0.13071048498572638,
+   "held": 1,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 5,
+     "finishedAt": 25.6,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": 18.86,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "RightCellUp (gate opened on the approach)",
+       "fired": true,
+       "after": 0.02,
+       "at": 13.12
+      },
+      {
+       "label": "LEFT CELL up?",
+       "startedAt": 22.52,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 22.54
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait Wait for TIP or CELL up (holds 4)",
+      " 0.70 command SpinUp (holds 4)",
+      " 9.00 Wait for TIP or CELL up: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.48 turret: switched to the low-end CELL at y 50.6 (holds 4)",
+      "12.52 turret: on target 0.04 s after the side switch (holds 4)",
+      "13.00 turret: the fire step began 0.5 s after the side switch (holds 4)",
+      "13.00 LaunchAll opened the gate on the approach, 5.9 in from the path end (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.12 RIGHT CELL up?: RightCellUp (gate opened on the approach) after 0.02 s (holds 4)",
+      "13.12 command LaunchAll (holds 4)",
+      "13.88 turret: on target when the fire step began (firing from (55, 26) at the low-end CELL) (holds 3)",
+      "13.90 miss: height POLLEN robot 1",
+      "14.36 miss: height POLLEN robot 1",
+      "14.76 miss: shot-long POLLEN robot 1",
+      "14.82 miss: height POLLEN robot 1",
+      "15.22 miss: shot-long POLLEN robot 1",
+      "15.28 path under the HIVE to SCORING_FLOWER_STAGING (holds 0)",
+      "15.30 miss: height POLLEN robot 1",
+      "16.32 miss: beside POLLEN robot 1",
+      "16.36 miss: beside red NECTAR robot 1",
+      "16.36 miss: height red NECTAR robot 1",
+      "16.38 miss: beside POLLEN robot 1",
+      "16.38 miss: height POLLEN robot 1",
+      "16.38 miss: height POLLEN robot 1",
+      "17.20 turret: switched to the high-end CELL at y 91.3 (holds 0)",
+      "17.30 turret: on target 0.10 s after the side switch (holds 0)",
+      "17.44 miss: beside POLLEN robot 1",
+      "17.92 command PickFlower (holds 0)",
+      "18.84 miss: interval POLLEN robot 1",
+      "18.86 drives into a FLOWER at (47.4, 128.5) heading 90",
+      "18.92 miss: interval POLLEN robot 1",
+      "19.14 miss: interval POLLEN robot 1",
+      "19.22 miss: interval POLLEN robot 1",
+      "19.42 miss: interval POLLEN robot 1",
+      "19.52 miss: interval POLLEN robot 1",
+      "19.72 miss: interval POLLEN robot 1",
+      "19.82 miss: interval POLLEN robot 1",
+      "20.02 miss: interval POLLEN robot 1",
+      "20.32 miss: interval POLLEN robot 1",
+      "21.06 PickFlower: 3 of the load never reach the launcher (Belding calibration) (holds 1)",
+      "21.06 path to LEFT_AUTO_HIVE (holds 1)",
+      "22.52 wait LEFT CELL up? (holds 1)",
+      "22.54 LEFT CELL up?: CellUp after 0.02 s (holds 1)",
+      "22.54 command LaunchAll (holds 1)",
+      "22.54 turret: the fire step began 5.4 s after the side switch (holds 1)",
+      "23.58 turret: the fire step waited 0.02 s for the turret (firing from (61, 120) at the high-end CELL) (holds 0)",
+      "23.58 path to LEFT_PARK (holds 0)",
+      "23.60 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 10.38,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 4,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 4.02
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 4.0 s after PLAY before its first card (partner timing) (holds 4)",
+      " 4.00 command SpinUp (holds 4)",
+      " 4.00 wait Wait for its CELL up (holds 4)",
+      " 4.02 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 4.04 command LaunchAll (holds 4)",
+      " 5.88 turret: on target when the fire step began (firing from (56, 8) at the low-end CELL) (holds 3)",
+      " 5.88 miss: height POLLEN robot 2",
+      " 6.34 miss: height POLLEN robot 2",
+      " 6.80 miss: height POLLEN robot 2",
+      " 7.20 miss: shot-long POLLEN robot 2",
+      " 7.26 path to PARTNER_PARK (holds 0)",
+      " 7.26 miss: height POLLEN robot 2",
+      " 7.66 miss: shot-long POLLEN robot 2",
+      "10.30 turret: switched to the high-end CELL at y 90.9 (holds 0)",
+      "10.44 turret: on target 0.14 s after the side switch (holds 1)",
+      "25.26 miss: beside red NECTAR robot 2",
+      "25.78 miss: beside red NECTAR robot 2",
+      "26.08 miss: beside red NECTAR robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 9, scored 5, HIVE tipped at 18.6 s; l-no-cross launched 5, finished at 25.6 s, LEAVE yes, PARK yes, DRIVES INTO A FLOWER at 18.9 s; partner-r-launch-park launched 4, finished at 10.4 s, LEAVE yes, PARK yes; 36 AUTO points; TELEOP starts with the raised CELL 13% loaded and 1 held"
+  },
+  {
+   "seed": 3,
+   "log": "seed-3.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    9.68
+   ],
+   "launched": 8,
+   "scored": 7,
+   "cellLoad": 0.5790643566899965,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 4,
+     "finishedAt": 22.26,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "timed out",
+       "fired": false,
+       "after": 0.76,
+       "at": 13.86
+      },
+      {
+       "label": "LEFT CELL up?",
+       "startedAt": 18.04,
+       "outcome": "CellUp (gate opened on the approach)",
+       "fired": true,
+       "after": 0.02,
+       "at": 18.06
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait Wait for TIP or CELL up (holds 4)",
+      " 0.70 command SpinUp (holds 4)",
+      " 9.00 Wait for TIP or CELL up: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.48 turret: switched to the low-end CELL at y 50.6 (holds 4)",
+      "12.56 turret: on target 0.08 s after the side switch (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.86 RIGHT CELL up?: 750 ms passed after 0.76 s (holds 4)",
+      "13.86 path to LEFT_AUTO_HIVE (holds 4)",
+      "15.98 turret: switched to the high-end CELL at y 90.7 (holds 4)",
+      "16.12 turret: on target 0.14 s after the side switch (holds 4)",
+      "17.94 turret: the fire step began 2.0 s after the side switch (holds 4)",
+      "17.94 LaunchAll opened the gate on the approach, 5.9 in from the path end (holds 4)",
+      "18.04 wait LEFT CELL up? (holds 4)",
+      "18.06 LEFT CELL up?: CellUp (gate opened on the approach) after 0.02 s (holds 4)",
+      "18.06 command LaunchAll (holds 4)",
+      "18.82 turret: on target when the fire step began (firing from (61, 120) at the high-end CELL) (holds 3)",
+      "18.84 miss: height POLLEN robot 1",
+      "19.30 miss: height POLLEN robot 1",
+      "19.78 miss: height POLLEN robot 1",
+      "20.24 If CellUp: 6.6 s of cards to the next volley, its last piece out 2.5 s in, and the park (2.0 s) end at 31.3 s: no time to park after it, parking now (holds 0)",
+      "20.24 parking from the spot the robot is on (holds 0)",
+      "20.24 path to LEFT_AUTO_HIVE park (holds 0)",
+      "20.26 miss: height POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 10.38,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 4,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 4.02
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 4.0 s after PLAY before its first card (partner timing) (holds 4)",
+      " 4.00 command SpinUp (holds 4)",
+      " 4.00 wait Wait for its CELL up (holds 4)",
+      " 4.02 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 4.04 command LaunchAll (holds 4)",
+      " 5.88 turret: on target when the fire step began (firing from (56, 8) at the low-end CELL) (holds 3)",
+      " 5.88 miss: height POLLEN robot 2",
+      " 6.34 miss: height POLLEN robot 2",
+      " 6.80 miss: height POLLEN robot 2",
+      " 7.26 path to PARTNER_PARK (holds 0)",
+      " 7.26 miss: height POLLEN robot 2",
+      " 8.12 miss: shot-long POLLEN robot 2",
+      "10.30 turret: switched to the high-end CELL at y 90.9 (holds 0)",
+      "10.42 turret: on target 0.12 s after the side switch (holds 0)"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 8, scored 7, HIVE tipped at 9.7 s; l-no-cross launched 4, finished at 22.3 s, LEAVE yes, PARK yes; partner-r-launch-park launched 4, finished at 10.4 s, LEAVE yes, PARK yes; 36 AUTO points; TELEOP starts with the raised CELL 58% loaded and 0 held"
+  },
+  {
+   "seed": 4,
+   "log": "seed-4.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    10.78
+   ],
+   "launched": 8,
+   "scored": 5,
+   "cellLoad": 0.26142096997145275,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 4,
+     "finishedAt": 22.26,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "timed out",
+       "fired": false,
+       "after": 0.76,
+       "at": 13.86
+      },
+      {
+       "label": "LEFT CELL up?",
+       "startedAt": 18.04,
+       "outcome": "CellUp (gate opened on the approach)",
+       "fired": true,
+       "after": 0.02,
+       "at": 18.06
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait Wait for TIP or CELL up (holds 4)",
+      " 0.70 command SpinUp (holds 4)",
+      " 9.00 Wait for TIP or CELL up: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.48 turret: switched to the low-end CELL at y 50.6 (holds 4)",
+      "12.56 turret: on target 0.08 s after the side switch (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.86 RIGHT CELL up?: 750 ms passed after 0.76 s (holds 4)",
+      "13.86 path to LEFT_AUTO_HIVE (holds 4)",
+      "15.98 turret: switched to the high-end CELL at y 90.7 (holds 4)",
+      "16.12 turret: on target 0.14 s after the side switch (holds 4)",
+      "17.94 turret: the fire step began 2.0 s after the side switch (holds 4)",
+      "17.94 LaunchAll opened the gate on the approach, 5.9 in from the path end (holds 4)",
+      "18.04 wait LEFT CELL up? (holds 4)",
+      "18.06 LEFT CELL up?: CellUp (gate opened on the approach) after 0.02 s (holds 4)",
+      "18.06 command LaunchAll (holds 4)",
+      "18.82 turret: on target when the fire step began (firing from (61, 120) at the high-end CELL) (holds 3)",
+      "18.84 miss: height POLLEN robot 1",
+      "19.30 miss: height POLLEN robot 1",
+      "19.78 miss: height POLLEN robot 1",
+      "20.24 If CellUp: 6.6 s of cards to the next volley, its last piece out 2.5 s in, and the park (2.0 s) end at 31.3 s: no time to park after it, parking now (holds 0)",
+      "20.24 parking from the spot the robot is on (holds 0)",
+      "20.24 path to LEFT_AUTO_HIVE park (holds 0)",
+      "20.26 miss: height POLLEN robot 1",
+      "20.64 miss: shot-long POLLEN robot 1",
+      "21.12 miss: shot-long POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 10.38,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 4,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 4.02
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 4.0 s after PLAY before its first card (partner timing) (holds 4)",
+      " 4.00 command SpinUp (holds 4)",
+      " 4.00 wait Wait for its CELL up (holds 4)",
+      " 4.02 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 4.04 command LaunchAll (holds 4)",
+      " 5.88 turret: on target when the fire step began (firing from (56, 8) at the low-end CELL) (holds 3)",
+      " 5.88 miss: height POLLEN robot 2",
+      " 6.34 miss: height POLLEN robot 2",
+      " 6.80 miss: height POLLEN robot 2",
+      " 7.20 miss: shot-long POLLEN robot 2",
+      " 7.26 path to PARTNER_PARK (holds 0)",
+      " 7.26 miss: height POLLEN robot 2",
+      "10.30 turret: switched to the high-end CELL at y 90.9 (holds 0)",
+      "10.44 turret: on target 0.14 s after the side switch (holds 0)",
+      "16.32 miss: beside red NECTAR robot 2"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 8, scored 5, HIVE tipped at 10.8 s; l-no-cross launched 4, finished at 22.3 s, LEAVE yes, PARK yes; partner-r-launch-park launched 4, finished at 10.4 s, LEAVE yes, PARK yes; 36 AUTO points; TELEOP starts with the raised CELL 26% loaded and 0 held"
+  },
+  {
+   "seed": 5,
+   "log": "seed-5.wpilog",
+   "points": 36,
+   "autoTips": 1,
+   "tipsAt": [
+    9.96
+   ],
+   "launched": 8,
+   "scored": 6,
+   "cellLoad": 0.43429826751749734,
+   "held": 0,
+   "robotsCollidedAt": null,
+   "g409": 0,
+   "robots": [
+    {
+     "auto": "l-no-cross",
+     "launched": 4,
+     "finishedAt": 22.26,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for TIP or CELL up",
+       "startedAt": 0.7,
+       "outcome": "9.0 s on the match clock",
+       "fired": false,
+       "after": 8.3,
+       "at": 9
+      },
+      {
+       "label": "RIGHT CELL up?",
+       "startedAt": 13.1,
+       "outcome": "timed out",
+       "fired": false,
+       "after": 0.76,
+       "at": 13.86
+      },
+      {
+       "label": "LEFT CELL up?",
+       "startedAt": 18.04,
+       "outcome": "CellUp (gate opened on the approach)",
+       "fired": true,
+       "after": 0.02,
+       "at": 18.06
+      }
+     ],
+     "timeline": [
+      " 0.00 command SpinUp (holds 4)",
+      " 0.00 path to LEFT_AUTO_HIVE (holds 4)",
+      " 0.70 wait Wait for TIP or CELL up (holds 4)",
+      " 0.70 command SpinUp (holds 4)",
+      " 9.00 Wait for TIP or CELL up: 9.0 s on the match clock after 8.30 s (holds 4)",
+      " 9.00 path under the HIVE to RIGHT_AUTO_FIX_TIP (holds 4)",
+      "12.48 turret: switched to the low-end CELL at y 50.6 (holds 4)",
+      "12.56 turret: on target 0.08 s after the side switch (holds 4)",
+      "13.10 wait RIGHT CELL up? (holds 4)",
+      "13.86 RIGHT CELL up?: 750 ms passed after 0.76 s (holds 4)",
+      "13.86 path to LEFT_AUTO_HIVE (holds 4)",
+      "15.98 turret: switched to the high-end CELL at y 90.7 (holds 4)",
+      "16.12 turret: on target 0.14 s after the side switch (holds 4)",
+      "17.94 turret: the fire step began 2.0 s after the side switch (holds 4)",
+      "17.94 LaunchAll opened the gate on the approach, 5.9 in from the path end (holds 4)",
+      "18.04 wait LEFT CELL up? (holds 4)",
+      "18.06 LEFT CELL up?: CellUp (gate opened on the approach) after 0.02 s (holds 4)",
+      "18.06 command LaunchAll (holds 4)",
+      "18.82 turret: on target when the fire step began (firing from (61, 120) at the high-end CELL) (holds 3)",
+      "18.84 miss: height POLLEN robot 1",
+      "19.30 miss: height POLLEN robot 1",
+      "19.78 miss: height POLLEN robot 1",
+      "20.24 If CellUp: 6.6 s of cards to the next volley, its last piece out 2.5 s in, and the park (2.0 s) end at 31.3 s: no time to park after it, parking now (holds 0)",
+      "20.24 parking from the spot the robot is on (holds 0)",
+      "20.24 path to LEFT_AUTO_HIVE park (holds 0)",
+      "20.26 miss: height POLLEN robot 1",
+      "21.12 miss: shot-long POLLEN robot 1"
+     ]
+    },
+    {
+     "auto": "partner-r-launch-park",
+     "launched": 4,
+     "finishedAt": 10.38,
+     "leave": true,
+     "park": true,
+     "illegalStart": null,
+     "crossedAt": null,
+     "hitHiveAt": null,
+     "hitFlowerAt": null,
+     "pushedIn": null,
+     "pushStartedAt": null,
+     "pushEndedAt": null,
+     "pushingS": null,
+     "waits": [
+      {
+       "label": "Wait for its CELL up",
+       "startedAt": 4,
+       "outcome": "CellUp",
+       "fired": true,
+       "after": 0.02,
+       "at": 4.02
+      }
+     ],
+     "timeline": [
+      " 0.00 waits 4.0 s after PLAY before its first card (partner timing) (holds 4)",
+      " 4.00 command SpinUp (holds 4)",
+      " 4.00 wait Wait for its CELL up (holds 4)",
+      " 4.02 Wait for its CELL up: CellUp after 0.02 s (holds 4)",
+      " 4.04 command LaunchAll (holds 4)",
+      " 5.88 turret: on target when the fire step began (firing from (56, 8) at the low-end CELL) (holds 3)",
+      " 5.88 miss: height POLLEN robot 2",
+      " 6.34 miss: height POLLEN robot 2",
+      " 6.80 miss: height POLLEN robot 2",
+      " 7.26 path to PARTNER_PARK (holds 0)",
+      " 7.26 miss: height POLLEN robot 2",
+      " 8.12 miss: shot-long POLLEN robot 2",
+      "10.30 turret: switched to the high-end CELL at y 90.9 (holds 0)",
+      "10.42 turret: on target 0.12 s after the side switch (holds 0)"
+     ]
+    }
+   ],
+   "summary": "l-no-cross + partner-r-launch-park RED: launched 8, scored 6, HIVE tipped at 10.0 s; l-no-cross launched 4, finished at 22.3 s, LEAVE yes, PARK yes; partner-r-launch-park launched 4, finished at 10.4 s, LEAVE yes, PARK yes; 36 AUTO points; TELEOP starts with the raised CELL 43% loaded and 0 held"
+  }
+ ],
+ "auto": "l-no-cross",
+ "commit": "c39d6b01bd5833f80129fd1486afae97a0cfbdb6",
+ "branch": "claude/partner-catalog",
+ "pp": "TeamCode/autos/l-no-cross.pp",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/45815477462",
+ "finishedAt": "2026-11-26T12:11:32.168931+00:00",
+ "request": {
+  "pp": "TeamCode/autos/l-no-cross.pp",
+  "spec": "LNoCrossAuto",
+  "design": "real robot",
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10
+  ],
+  "partnerSeeds": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "alliance": "RED",
+  "calibration": "belding",
+  "partners": [
+   {
+    "name": "RIGHT-SHOOT-PARK, last shot at 2 s (seen 9 of 32: 7 hit, 2 missed)",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 2
+   },
+   {
+    "name": "RIGHT-SHOOT-PARK, last shot at 5 s (seen 9 of 32: 7 hit, 2 missed)",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 5
+   },
+   {
+    "name": "last shot at 8 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs)",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8
+   },
+   {
+    "name": "last shot at 12 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs)",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 12
+   },
+   {
+    "name": "misses, said 8 s",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8,
+    "fails": "misses"
+   },
+   {
+    "name": "RIGHT-SHOOT-PARK misses, said 5 s (seen 2 of 32)",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 5,
+    "fails": "misses"
+   },
+   {
+    "name": "dead on its start (never seen: no partner sat on RIGHT_START all AUTO in 32 runs), said 8 s",
+    "partner": "PartnerRBrokenDownAuto",
+    "lastShotS": 8
+   },
+   {
+    "name": "dead on its start (never seen: no partner sat on RIGHT_START all AUTO in 32 runs), said 8 s, WAIT FOR PARTNER FIX",
+    "partner": "PartnerRBrokenDownAuto",
+    "lastShotS": 8,
+    "picks": {
+     "if no TIP 1": "WAIT FOR PARTNER FIX"
+    }
+   },
+   {
+    "name": "misses, said 8 s, WAIT FOR PARTNER FIX",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8,
+    "fails": "misses",
+    "picks": {
+     "if no TIP 1": "WAIT FOR PARTNER FIX"
+    }
+   },
+   {
+    "name": "late: starts 4 s late, wait left as drawn",
+    "partner": "PartnerRLaunchParkAuto",
+    "timing": {
+     "startDelayS": 4
+    }
+   },
+   {
+    "name": "late: starts 6 s late, wait left as drawn",
+    "partner": "PartnerRLaunchParkAuto",
+    "timing": {
+     "startDelayS": 6
+    }
+   },
+   {
+    "name": "last shot at 12 s (later than any seen: RIGHT-SHOOT-PARK last shots 1.0 to 5.3 s in 9 runs), Endgame TIPS FIRST",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 12,
+    "picks": {
+     "Endgame": "TIPS FIRST"
+    }
+   },
+   {
+    "name": "misses, said 8 s, Endgame TIPS FIRST",
+    "partner": "PartnerRLaunchParkAuto",
+    "lastShotS": 8,
+    "fails": "misses",
+    "picks": {
+     "Endgame": "TIPS FIRST"
+    }
+   },
+   {
+    "name": "late: starts 4 s late, wait left as drawn, Endgame TIPS FIRST",
+    "partner": "PartnerRLaunchParkAuto",
+    "timing": {
+     "startDelayS": 4
+    },
+    "picks": {
+     "Endgame": "TIPS FIRST"
+    }
+   },
+   {
+    "name": "late: starts 6 s late, wait left as drawn, Endgame TIPS FIRST",
+    "partner": "PartnerRLaunchParkAuto",
+    "timing": {
+     "startDelayS": 6
+    },
+    "picks": {
+     "Endgame": "TIPS FIRST"
+    }
+   }
+  ],
+  "metadata": {
+   "AutoSource": "l-no-cross.pp",
+   "SavedBy": "dustinhans; TIP-came-after-all drive turns clear of the centre line",
+   "SavedAt": "2026-11-18T20:50:00+00:00",
+   "SimNote": "Fresh run from master 23 Nov 2026: real robot (turret aiming), as both robots run now",
+   "SourceCommit": "c39d6b01bd5833f80129fd1486afae97a0cfbdb6",
+   "SourceBranch": "claude/partner-catalog",
+   "SourcePath": "TeamCode/autos/l-no-cross.pp",
+   "SimRun": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/45815477462"
+  },
+  "usual": true
+ },
+ "typicalSeed": 3,
+ "bestSeed": 3,
+ "logs": {
+  "3": "l-no-cross-c39d6b0-partner-r-launch-park-late-starts-4-s-late-wait-left-as-drawn-seed-3.wpilog"
+ },
+ "folder": "partner-r-launch-park/late-starts-4-s-late-wait-left-as-drawn"
+}

@@ -1,0 +1,43 @@
+{
+ "auto": "r-solo",
+ "commit": "c6533c88e6452801ac79afba077f29e0d14b5fee",
+ "branch": "claude/relaxed-brahmagupta-fpt0e3",
+ "pp": "TeamCode/autos/r-solo.pp",
+ "spec": "RSoloAuto@50",
+ "design": "real robot, turret locked forward, POLLEN only",
+ "alliance": "RED",
+ "runUrl": "https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/runs/41602887424",
+ "finishedAt": "2026-11-03T08:25:44.654106+00:00",
+ "runs": [
+  {
+   "partner": null,
+   "partnerName": null,
+   "folder": "r-solo",
+   "result": "r-solo/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-solo/latest.json",
+   "bestSeed": 9,
+   "typicalSeed": 5,
+   "meanPoints": 48.0
+  },
+  {
+   "partner": "PartnerLStillAuto",
+   "partnerName": "partner-l-still",
+   "folder": "r-solo/with/partner-l-still",
+   "result": "r-solo/with/partner-l-still/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-solo/with/partner-l-still/latest.json",
+   "bestSeed": 9,
+   "typicalSeed": 5,
+   "meanPoints": 48.0
+  },
+  {
+   "partner": "PartnerPark1Auto",
+   "partnerName": "partner-park-1",
+   "folder": "r-solo/with/partner-park-1",
+   "result": "r-solo/with/partner-park-1/c6533c88e6452801ac79afba077f29e0d14b5fee/result.json",
+   "latest": "r-solo/with/partner-park-1/latest.json",
+   "bestSeed": 9,
+   "typicalSeed": 5,
+   "meanPoints": 56.0
+  }
+ ]
+}
