@@ -2163,38 +2163,10 @@
                                 "name": "LaunchAll"
                               },
                               {
-                                "id": "c210-choice",
-                                "kind": "firstOf",
-                                "label": "R's FLOWER load pick, set the same here: with TIP 3 R parks left, so park by the wall",
-                                "choice": "FLOWER load",
-                                "rows": [
-                                  {
-                                    "when": [
-                                      "FLOWER load"
-                                    ],
-                                    "label": "TIP 3",
-                                    "cards": [
-                                      {
-                                        "id": "c209-roff-wall-park",
-                                        "kind": "path",
-                                        "lineId": "roff-wall-park",
-                                        "park": true
-                                      }
-                                    ]
-                                  },
-                                  {
-                                    "afterMs": 0,
-                                    "label": "SURE TIP 2",
-                                    "cards": [
-                                      {
-                                        "id": "c211-roff-park-sure",
-                                        "kind": "path",
-                                        "lineId": "roff-park-sure",
-                                        "park": true
-                                      }
-                                    ]
-                                  }
-                                ]
+                                "id": "c209-roff-wall-park",
+                                "kind": "path",
+                                "lineId": "roff-wall-park",
+                                "park": true
                               }
                             ]
                           }
@@ -2437,85 +2409,57 @@
                         "name": "LaunchAll"
                       },
                       {
-                        "id": "c208-choice",
+                        "id": "c61-callnectar2-0",
+                        "kind": "action",
+                        "name": "CallNectar"
+                      },
+                      {
+                        "id": "c201-roff-turn2",
+                        "kind": "path",
+                        "lineId": "roff-turn2-b",
+                        "park": false
+                      },
+                      {
+                        "id": "c207-hold",
                         "kind": "firstOf",
-                        "label": "R's FLOWER load pick, set the same here: TIP 3 takes NECTAR 2; SURE TIP 2 parks at once (R comes round to this end)",
-                        "choice": "FLOWER load",
+                        "label": "Hold for NECTAR 2 (TIP 2 earned it), intake on: until it is in, or 26.0 s",
+                        "alongside": "CatchNectar",
                         "rows": [
                           {
                             "when": [
-                              "FLOWER load"
+                              "NectarIn"
                             ],
-                            "label": "TIP 3",
                             "cards": [
                               {
-                                "id": "c61-callnectar2-0",
-                                "kind": "action",
-                                "name": "CallNectar"
-                              },
-                              {
-                                "id": "c201-roff-turn2",
-                                "kind": "path",
-                                "lineId": "roff-turn2-b",
-                                "park": false
-                              },
-                              {
-                                "id": "c207-hold",
+                                "id": "c202-check",
                                 "kind": "firstOf",
-                                "label": "Hold for NECTAR 2 (TIP 2 earned it), intake on: until it is in, or 26.0 s",
-                                "alongside": "CatchNectar",
+                                "label": "RIGHT still up? (fire NECTAR 2 at RIGHT: TIP 3's spare)",
                                 "rows": [
                                   {
                                     "when": [
-                                      "NectarIn"
+                                      "CellUp"
                                     ],
                                     "cards": [
                                       {
-                                        "id": "c202-check",
-                                        "kind": "firstOf",
-                                        "label": "RIGHT still up? (fire NECTAR 2 at RIGHT: TIP 3's spare)",
-                                        "rows": [
-                                          {
-                                            "when": [
-                                              "CellUp"
-                                            ],
-                                            "cards": [
-                                              {
-                                                "id": "c203-launchoneaimed",
-                                                "kind": "action",
-                                                "name": "LaunchOneAimed"
-                                              },
-                                              {
-                                                "id": "c204-turn2-park",
-                                                "kind": "path",
-                                                "lineId": "turn2-park-b-1",
-                                                "park": true
-                                              }
-                                            ]
-                                          },
-                                          {
-                                            "afterMs": 150,
-                                            "cards": [
-                                              {
-                                                "id": "c205-turn2-park",
-                                                "kind": "path",
-                                                "lineId": "turn2-park-b-2",
-                                                "park": true
-                                              }
-                                            ]
-                                          }
-                                        ]
+                                        "id": "c203-launchoneaimed",
+                                        "kind": "action",
+                                        "name": "LaunchOneAimed"
+                                      },
+                                      {
+                                        "id": "c204-turn2-park",
+                                        "kind": "path",
+                                        "lineId": "turn2-park-b-1",
+                                        "park": true
                                       }
                                     ]
                                   },
                                   {
-                                    "afterMs": 26000,
-                                    "matchClock": true,
+                                    "afterMs": 150,
                                     "cards": [
                                       {
-                                        "id": "c206-turn2-park",
+                                        "id": "c205-turn2-park",
                                         "kind": "path",
-                                        "lineId": "turn2-park-b-3",
+                                        "lineId": "turn2-park-b-2",
                                         "park": true
                                       }
                                     ]
@@ -2525,13 +2469,13 @@
                             ]
                           },
                           {
-                            "afterMs": 0,
-                            "label": "SURE TIP 2",
+                            "afterMs": 26000,
+                            "matchClock": true,
                             "cards": [
                               {
-                                "id": "c42-roff-park",
+                                "id": "c206-turn2-park",
                                 "kind": "path",
-                                "lineId": "roff-park-7",
+                                "lineId": "turn2-park-b-3",
                                 "park": true
                               }
                             ]

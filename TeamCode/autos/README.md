@@ -85,8 +85,9 @@ match-clock limit that leaves its park:
   until LEFT is up (at most 22.3 s).
 - **No TIP 2 by 21.5 s (L):** L takes its WALL FLOWER load back up the lane and fires at LEFT if it is still up.
 - **R's GARDEN gather short (lane not full):** R keeps the SCORING FLOWER load at the left end and tops LEFT up with it.
-- **INIT row `FLOWER load` (R):** TIP 3, as drawn; SURE TIP 2 always checks LEFT after the pick and tops it up. Pick SURE
-  TIP 2 beside a partner whose shots are weak.
+- **No INIT row** (mentor, 28 Nov 2026): R's SCORING FLOWER load always goes to RIGHT for TIP 3 when the GARDEN load was
+  full; a late TIP 2 is L's fallback above. The `FLOWER load` row it replaced had to be set the same on both robots, and
+  deciding it on the field instead would need both robots to agree on when TIP 2 came, which no trigger records.
 - **R's park from the left end** waits to 22.6 s, then goes nose first down the corridor and round the HIVE's foot, so it
   never meets L in the outer lane; L's lane paths run at x 33 to pass a parked R.
 

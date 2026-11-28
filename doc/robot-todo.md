@@ -443,7 +443,7 @@ median 20 ms on both robots at both events; the subsystems' updates are 18 of it
 
 ## Human NECTAR in AUTO: L-RightUnderHive's NECTAR shot (either robot, a NECTAR of each colour, a second person, the phone)
 
-The draft to run is `auto/r-right-under-hive-nectar2` (both NECTARs; it includes `auto/l-right-under-hive-turn-first`).
+Master's R-RightUnderHive with L-RightUnderHive (both NECTARs, PR #792).
 **NECTAR 1:** once LEFT is up, L lights the alliance colour (`CallNectar`), turns on the spot at `LEFT_AUTO_OFFSET` to
 215° (`L_NECTAR_TURN`: its intake at the LOADING ZONE, the turret on the LEFT CELL about 84° left of forward), fires its
 preloads there turret-aimed (`LaunchAllAimed`, `kit.commandAwayFromPark`) while the human player rolls the NECTAR TIP 1
@@ -451,7 +451,7 @@ earned, holds with the intake on (`CatchNectar`) until `NectarIn` or at most 2.5
 and leaves for the WALL FLOWER. **NECTAR 2:** after its WALL FLOWER volley at `RIGHT_AUTO_OFFSET`, L lights again, turns
 to 106.5° (`L_NECTAR2_SHOT`), holds until `NectarIn` or 26.0 s, fires it at RIGHT (the turret about 45° right) and
 parks at `L_WALL_PARK`; R, if RIGHT is already up when it arrives, fires and parks at `LEFT_PARK` back under the HIVE.
-Both robots' `FLOWER load` row must be set the same (mismatched, they collide every time in the simulator). None of it
+There is no INIT row to set (the old `FLOWER load` row is gone: R always takes TIP 3). None of it
 has run on a robot. Simulated at Fruitport rates with FLOWER picks 4 of 4 and no feed jams: 91 of 120 three-TIP runs,
 every one parked, one contact; the failures are NECTARs not caught (NECTAR 1 82 of 120, NECTAR 2 71 of 108) with a
 missed shot, so the checks below in this order decide it.
@@ -520,7 +520,7 @@ missed shot, so the checks below in this order decide it.
 - [ ] **A volley that fires nothing with balls in the lane** (any Auto, any run): count it with the volleys it was
       among. The simulator assumes no feed jams (`BeldingCalibration.feedJamChance` 0): at 10% a volley the pair's
       three-TIP runs fall from 91 to 50 of 120, so the real rate matters. The count goes in a PR.
-- [ ] **Then the whole pair, filmed,** both `FLOWER load` rows the same, a human player for both NECTARs: five runs,
+- [ ] **Then the whole pair, filmed,** a human player for both NECTARs: five runs,
       the match logs pulled (`tools/pull-logs`).
 
 ## The NECTAR gate (Fruitport, 21 Nov): before the State Championship

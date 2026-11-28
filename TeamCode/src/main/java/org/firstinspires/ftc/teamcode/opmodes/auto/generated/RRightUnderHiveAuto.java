@@ -33,7 +33,7 @@ public final class RRightUnderHiveAuto {
     public static final String DRAWN_FOR = "RED";
 
     /** What the drive team may change during INIT, on gamepad 1's D-pad; nothing changed, the Auto runs as drawn. */
-    public static final AutoOption[] OPTIONS = {AutoOption.choice("FLOWER load", "TIP 3", "SURE TIP 2")};
+    public static final AutoOption[] OPTIONS = {};
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
@@ -131,51 +131,6 @@ public final class RRightUnderHiveAuto {
         Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1Start = p.of(14.5, 117.4, 95.7);
         Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1End = p.of(14.5, 117.4, 90);
         Pose nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment2Start = p.of(14.5, 117.4, 90);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl1 = p.of(38, 121, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl2 = p.of(32.5, 106, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl3 = p.of(32.5, 86, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl4 = p.of(32.5, 76, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl5 = p.of(32.5, 72, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl6 = p.of(14.5, 70, 0);
-        Pose sureTip2GuardScoringFlowerStagingToRightParkWallControl7 = p.of(14.5, 80, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl1 = p.of(32, 121, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl2 = p.of(33, 104, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl3 = p.of(33, 86, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl4 = p.of(33, 76, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl5 = p.of(33, 72, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl6 = p.of(14.5, 70, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallControl7 = p.of(14.5, 80, 0);
-        Pose sureTip2GuardRLeftCatchToRightParkWallSegment1Start = p.of(14.5, 92.5, 268.9);
-        Pose sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridorControl1 = p.of(61, 100, 0);
-        Pose sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridorControl2 = p.of(60.5, 60, 0);
-        Pose sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
-        Pose sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
-        Pose sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridorControl1 = p.of(61, 100, 0);
-        Pose sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridorControl2 = p.of(60.5, 60, 0);
-        Pose sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
-        Pose sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
-        Pose sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridorControl1 = p.of(61, 100, 0);
-        Pose sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridorControl2 = p.of(60.5, 60, 0);
-        Pose sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
-        Pose sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl1 = p.of(59, 8, 0);
-        Pose sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl2 = p.of(26, 12, 0);
-        Pose sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl3 = p.of(22, 50, 0);
-        Pose sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
         Pose shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl1 = p.of(30, 12, 0);
         Pose shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl2 = p.of(61, 14, 0);
         Pose shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl3 = p.of(61, 40, 0);
@@ -275,19 +230,6 @@ public final class RRightUnderHiveAuto {
         Path rightNotUpOuterLaneRRightCatchNoseFirstToThePark = Paths.curve(rRightCatch, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl1, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl2, rightNotUpOuterLaneRRightCatchNoseFirstToTheParkControl3, rParkNoseIn).linear(rRightCatch, rParkNoseIn);
         Path outerLaneRRightCatchNoseFirstToThePark = Paths.curve(rRightCatch, outerLaneRRightCatchNoseFirstToTheParkControl1, outerLaneRRightCatchNoseFirstToTheParkControl2, outerLaneRRightCatchNoseFirstToTheParkControl3, rParkNoseIn).linear(rRightCatch, rParkNoseIn);
         Path nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark = Paths.curve(rRightCatch, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl1, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl2, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl3, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl4, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl5, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl6, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkControl7, leftPark).heading(Interpolator.piecewise().until(0.55, Interpolator.linear(nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1Start, nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment1End)).until(1, Interpolator.linear(nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftParkSegment2Start, leftPark)));
-        Path sureTip2RLeftCatchToScoringFlowerStaging = Paths.line(rLeftCatch, scoringFlowerStaging).linear(rLeftCatch, scoringFlowerStaging);
-        Path sureTip2GuardScoringFlowerStagingToRightParkWall = Paths.curve(scoringFlowerStaging, sureTip2GuardScoringFlowerStagingToRightParkWallControl1, sureTip2GuardScoringFlowerStagingToRightParkWallControl2, sureTip2GuardScoringFlowerStagingToRightParkWallControl3, sureTip2GuardScoringFlowerStagingToRightParkWallControl4, sureTip2GuardScoringFlowerStagingToRightParkWallControl5, sureTip2GuardScoringFlowerStagingToRightParkWallControl6, sureTip2GuardScoringFlowerStagingToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(rParkNoseIn, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
-        Path sureTip2ScoringFlowerStagingToRLeftCatch = Paths.line(scoringFlowerStaging, rLeftCatch).linear(scoringFlowerStaging, rLeftCatch);
-        Path sureTip2GuardRLeftCatchToRightParkWall = Paths.curve(rLeftCatch, sureTip2GuardRLeftCatchToRightParkWallControl1, sureTip2GuardRLeftCatchToRightParkWallControl2, sureTip2GuardRLeftCatchToRightParkWallControl3, sureTip2GuardRLeftCatchToRightParkWallControl4, sureTip2GuardRLeftCatchToRightParkWallControl5, sureTip2GuardRLeftCatchToRightParkWallControl6, sureTip2GuardRLeftCatchToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(sureTip2GuardRLeftCatchToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
-        Path sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridor = Paths.curve(rLeftCatch, sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridorControl1, sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridorControl2, rUnderExit).linear(rLeftCatch, rUnderExit);
-        Path sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl1, sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl2, sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl3, sureTip2TooLateToTopUpGuardRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
-        Path sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl1, sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl2, sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl3, sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
-        Path sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridor = Paths.curve(rLeftCatch, sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridorControl1, sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridorControl2, rUnderExit).linear(rLeftCatch, rUnderExit);
-        Path sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl1, sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl2, sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl3, sureTip2ToppedUpGuardRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
-        Path sureTip2ToppedUpRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl1, sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl2, sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl3, sureTip2ToppedUpRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
-        Path sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridor = Paths.curve(rLeftCatch, sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridorControl1, sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridorControl2, rUnderExit).linear(rLeftCatch, rUnderExit);
-        Path sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl1, sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl2, sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl3, sureTip2Tip2CameGuardRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
-        Path sureTip2Tip2CameRoundTheHiveSFootToRightParkWall = Paths.curve(rUnderExit, sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl1, sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl2, sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl3, sureTip2Tip2CameRoundTheHiveSFootToRightParkWallControl4, rightParkWall).constant(rightParkWall);
         Path shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatch = Paths.curve(gardenStaging, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl1, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl2, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl3, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl4, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl5, shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl6, rLeftCatch).linear(gardenStaging, rLeftCatch);
         Path shortGatherGuardRLeftCatchToRightParkWall2 = Paths.curve(rLeftCatch, shortGatherGuardRLeftCatchToRightParkWall2Control1, shortGatherGuardRLeftCatchToRightParkWall2Control2, shortGatherGuardRLeftCatchToRightParkWall2Control3, shortGatherGuardRLeftCatchToRightParkWall2Control4, shortGatherGuardRLeftCatchToRightParkWall2Control5, shortGatherGuardRLeftCatchToRightParkWall2Control6, shortGatherGuardRLeftCatchToRightParkWall2Control7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(shortGatherGuardRLeftCatchToRightParkWall2Segment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
         Path shortGatherLeftNeverUpRLeftCatchNoseFirstDownTheCorridor = Paths.curve(rLeftCatch, shortGatherLeftNeverUpRLeftCatchNoseFirstDownTheCorridorControl1, shortGatherLeftNeverUpRLeftCatchNoseFirstDownTheCorridorControl2, rUnderExit).linear(rLeftCatch, rUnderExit);
@@ -337,10 +279,10 @@ public final class RRightUnderHiveAuto {
                                                                                         kit.path("Full lane, late: R_LEFT_CATCH nose first down the corridor → Full lane, late: Round the HIVE's foot to RIGHT_PARK_WALL", Paths.path(fullLaneLateRLeftCatchNoseFirstDownTheCorridor, fullLaneLateRoundTheHiveSFootToRightParkWall), 5.9))),
                                                                         kit.when("Always").then(
                                                                                 kit.guarded("If Always", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9,
-                                                                                        kit.route("FLOWER load", 0, () -> kit.path("R_LEFT_CATCH to SCORING_FLOWER_STAGING", rLeftCatchToScoringFlowerStaging, 1.3, guardAfterLeftSfScoringFlowerStagingToRightParkWall, 2.9)),
-                                                                                        kit.route("FLOWER load", 0, () -> kit.command("PickFlower", 8)),
-                                                                                        kit.route("FLOWER load", 0, () -> kit.path("SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH", scoringFlowerBackwardDownTheCorridorUnderTheHiveToRRightCatch, 3.2, guardAfterSfDownOuterLaneRRightCatchNoseFirstToThePark, 2.9)),
-                                                                                        kit.route("FLOWER load", 0, () -> kit.firstOf("RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+                                                                                        kit.path("R_LEFT_CATCH to SCORING_FLOWER_STAGING", rLeftCatchToScoringFlowerStaging, 1.3, guardAfterLeftSfScoringFlowerStagingToRightParkWall, 2.9),
+                                                                                        kit.command("PickFlower", 8),
+                                                                                        kit.path("SCORING FLOWER backward down the corridor under the HIVE to R_RIGHT_CATCH", scoringFlowerBackwardDownTheCorridorUnderTheHiveToRRightCatch, 3.2, guardAfterSfDownOuterLaneRRightCatchNoseFirstToThePark, 2.9),
+                                                                                        kit.firstOf("RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
                                                                                                 kit.afterMs(300).then(
                                                                                                         kit.guarded("Timed out", rightNotUpOuterLaneRRightCatchNoseFirstToThePark, 2.9,
                                                                                                                 kit.firstOf("RIGHT up? (TIP 2 came)",
@@ -354,31 +296,7 @@ public final class RRightUnderHiveAuto {
                                                                                                 kit.when("RightCellUp").then(
                                                                                                         kit.guarded("If RightCellUp", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7,
                                                                                                                 kit.command("LaunchAll"),
-                                                                                                                kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7))))),
-                                                                                        kit.route("FLOWER load", 1, () -> kit.path("SURE TIP 2: R_LEFT_CATCH to SCORING_FLOWER_STAGING", sureTip2RLeftCatchToScoringFlowerStaging, 1.3, sureTip2GuardScoringFlowerStagingToRightParkWall, 2.9)),
-                                                                                        kit.route("FLOWER load", 1, () -> kit.command("PickFlower", 8)),
-                                                                                        kit.route("FLOWER load", 1, () -> kit.path("SURE TIP 2: SCORING_FLOWER_STAGING to R_LEFT_CATCH", sureTip2ScoringFlowerStagingToRLeftCatch, 1.3, sureTip2GuardRLeftCatchToRightParkWall, 2.8)),
-                                                                                        kit.route("FLOWER load", 1, () -> kit.firstOf("TIP 2, if LEFT has its 8, has come by now",
-                                                                                                kit.atMatchSeconds(19.8))),
-                                                                                        kit.route("FLOWER load", 1, () -> kit.firstOf("LEFT still up? (TIP 2 has not come: this load tops LEFT up)",
-                                                                                                kit.when("LeftCellUp").then(
-                                                                                                        kit.firstOf("Time to top LEFT up?",
-                                                                                                                kit.atMatchSeconds(21.3).then(
-                                                                                                                        kit.guarded("Timed out", sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWall, 3.2,
-                                                                                                                                kit.firstOf("Until L is off the outer lane",
-                                                                                                                                        kit.atMatchSeconds(22.6)),
-                                                                                                                                kit.path("SURE TIP 2, too late to top up: R_LEFT_CATCH nose first down the corridor → SURE TIP 2, too late to top up: Round the HIVE's foot to RIGHT_PARK_WALL", Paths.path(sureTip2TooLateToTopUpRLeftCatchNoseFirstDownTheCorridor, sureTip2TooLateToTopUpRoundTheHiveSFootToRightParkWall), 5.9))),
-                                                                                                                kit.when("Always").then(
-                                                                                                                        kit.guarded("If Always", sureTip2ToppedUpRoundTheHiveSFootToRightParkWall, 3.2,
-                                                                                                                                kit.command("LaunchAll"),
-                                                                                                                                kit.firstOf("Until L is off the outer lane",
-                                                                                                                                        kit.atMatchSeconds(22.6)),
-                                                                                                                                kit.path("SURE TIP 2, topped up: R_LEFT_CATCH nose first down the corridor → SURE TIP 2, topped up: Round the HIVE's foot to RIGHT_PARK_WALL", Paths.path(sureTip2ToppedUpRLeftCatchNoseFirstDownTheCorridor, sureTip2ToppedUpRoundTheHiveSFootToRightParkWall), 5.9))))),
-                                                                                                kit.afterMs(150).then(
-                                                                                                        kit.guarded("Timed out", sureTip2Tip2CameRoundTheHiveSFootToRightParkWall, 3.2,
-                                                                                                                kit.firstOf("Until L is off the outer lane",
-                                                                                                                        kit.atMatchSeconds(22.6)),
-                                                                                                                kit.path("SURE TIP 2, TIP 2 came: R_LEFT_CATCH nose first down the corridor → SURE TIP 2, TIP 2 came: Round the HIVE's foot to RIGHT_PARK_WALL", Paths.path(sureTip2Tip2CameRLeftCatchNoseFirstDownTheCorridor, sureTip2Tip2CameRoundTheHiveSFootToRightParkWall), 5.9)))))))))))),
+                                                                                                                kit.path("NECTAR 2 lane clear: R_RIGHT_CATCH nose first up the corridor under the HIVE to LEFT_PARK", nectar2LaneClearRRightCatchNoseFirstUpTheCorridorUnderTheHiveToLeftPark, 3.7))))))))))),
                                 kit.afterMs(100).then(
                                         kit.guarded("Timed out", shortGatherGuardRLeftCatchToRightParkWall2, 2.8,
                                                 kit.path("Short gather: GARDEN backward up the corridor under the HIVE to R_LEFT_CATCH", shortGatherGardenBackwardUpTheCorridorUnderTheHiveToRLeftCatch, 3.8, shortGatherGuardRLeftCatchToRightParkWall2, 2.8),

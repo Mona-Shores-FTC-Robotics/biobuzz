@@ -3368,81 +3368,47 @@
                             ],
                             "cards": [
                               {
-                                "id": "c28-choice",
+                                "id": "c5-left-sf",
+                                "kind": "path",
+                                "lineId": "left-sf",
+                                "park": false
+                              },
+                              {
+                                "id": "c6-pickflower",
+                                "kind": "action",
+                                "name": "PickFlower",
+                                "timeoutS": 8
+                              },
+                              {
+                                "id": "c7-sf-down",
+                                "kind": "path",
+                                "lineId": "sf-down",
+                                "park": false
+                              },
+                              {
+                                "id": "c202-check",
                                 "kind": "firstOf",
-                                "label": "SCORING FLOWER load: to RIGHT for TIP 3, or to LEFT first",
-                                "choice": "FLOWER load",
+                                "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
                                 "rows": [
                                   {
-                                    "when": [
-                                      "FLOWER load"
-                                    ],
-                                    "label": "TIP 3",
+                                    "afterMs": 300,
                                     "cards": [
                                       {
-                                        "id": "c5-left-sf",
-                                        "kind": "path",
-                                        "lineId": "left-sf",
-                                        "park": false
-                                      },
-                                      {
-                                        "id": "c6-pickflower",
-                                        "kind": "action",
-                                        "name": "PickFlower",
-                                        "timeoutS": 8
-                                      },
-                                      {
-                                        "id": "c7-sf-down",
-                                        "kind": "path",
-                                        "lineId": "sf-down",
-                                        "park": false
-                                      },
-                                      {
-                                        "id": "c202-check",
+                                        "id": "c11-check",
                                         "kind": "firstOf",
-                                        "label": "RIGHT up already? (TIP 2 came in time for L's NECTAR 2: fire, park left)",
+                                        "label": "RIGHT up? (TIP 2 came)",
                                         "rows": [
                                           {
-                                            "afterMs": 300,
+                                            "afterMs": 24200,
                                             "cards": [
                                               {
-                                                "id": "c11-check",
-                                                "kind": "firstOf",
-                                                "label": "RIGHT up? (TIP 2 came)",
-                                                "rows": [
-                                                  {
-                                                    "afterMs": 24200,
-                                                    "cards": [
-                                                      {
-                                                        "id": "c10-right-park",
-                                                        "kind": "path",
-                                                        "lineId": "right-park-3",
-                                                        "park": true
-                                                      }
-                                                    ],
-                                                    "matchClock": true
-                                                  },
-                                                  {
-                                                    "when": [
-                                                      "RightCellUp"
-                                                    ],
-                                                    "cards": [
-                                                      {
-                                                        "id": "c8-launchall",
-                                                        "kind": "action",
-                                                        "name": "LaunchAll"
-                                                      },
-                                                      {
-                                                        "id": "c9-right-park",
-                                                        "kind": "path",
-                                                        "lineId": "right-park-2",
-                                                        "park": true
-                                                      }
-                                                    ]
-                                                  }
-                                                ]
+                                                "id": "c10-right-park",
+                                                "kind": "path",
+                                                "lineId": "right-park-3",
+                                                "park": true
                                               }
-                                            ]
+                                            ],
+                                            "matchClock": true
                                           },
                                           {
                                             "when": [
@@ -3450,14 +3416,14 @@
                                             ],
                                             "cards": [
                                               {
-                                                "id": "c203-launchall",
+                                                "id": "c8-launchall",
                                                 "kind": "action",
                                                 "name": "LaunchAll"
                                               },
                                               {
-                                                "id": "c201-right-left-park",
+                                                "id": "c9-right-park",
                                                 "kind": "path",
-                                                "lineId": "right-left-park",
+                                                "lineId": "right-park-2",
                                                 "park": true
                                               }
                                             ]
@@ -3467,157 +3433,20 @@
                                     ]
                                   },
                                   {
-                                    "afterMs": 0,
-                                    "label": "SURE TIP 2",
+                                    "when": [
+                                      "RightCellUp"
+                                    ],
                                     "cards": [
                                       {
-                                        "id": "c24-left-sf",
-                                        "kind": "path",
-                                        "lineId": "left-sf-2",
-                                        "park": false
-                                      },
-                                      {
-                                        "id": "c25-pickflower",
+                                        "id": "c203-launchall",
                                         "kind": "action",
-                                        "name": "PickFlower",
-                                        "timeoutS": 8
+                                        "name": "LaunchAll"
                                       },
                                       {
-                                        "id": "c26-sf-left",
+                                        "id": "c201-right-left-park",
                                         "kind": "path",
-                                        "lineId": "sf-left",
-                                        "park": false
-                                      },
-                                      {
-                                        "id": "c27-hold",
-                                        "kind": "firstOf",
-                                        "label": "TIP 2, if LEFT has its 8, has come by now",
-                                        "rows": [
-                                          {
-                                            "afterMs": 19800,
-                                            "matchClock": true,
-                                            "cards": []
-                                          }
-                                        ]
-                                      },
-                                      {
-                                        "id": "c23-check",
-                                        "kind": "firstOf",
-                                        "label": "LEFT still up? (TIP 2 has not come: this load tops LEFT up)",
-                                        "rows": [
-                                          {
-                                            "when": [
-                                              "LeftCellUp"
-                                            ],
-                                            "cards": [
-                                              {
-                                                "id": "c19-check",
-                                                "kind": "firstOf",
-                                                "label": "Time to top LEFT up?",
-                                                "rows": [
-                                                  {
-                                                    "afterMs": 21300,
-                                                    "cards": [
-                                                      {
-                                                        "id": "c16-hold",
-                                                        "kind": "firstOf",
-                                                        "label": "Until L is off the outer lane",
-                                                        "rows": [
-                                                          {
-                                                            "afterMs": 22600,
-                                                            "matchClock": true,
-                                                            "cards": []
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "id": "c17-left-down",
-                                                        "kind": "path",
-                                                        "lineId": "left-down-2",
-                                                        "park": false,
-                                                        "through": true
-                                                      },
-                                                      {
-                                                        "id": "c18-exit-park",
-                                                        "kind": "path",
-                                                        "lineId": "exit-park-4",
-                                                        "park": true
-                                                      }
-                                                    ],
-                                                    "matchClock": true
-                                                  },
-                                                  {
-                                                    "when": [
-                                                      "Always"
-                                                    ],
-                                                    "cards": [
-                                                      {
-                                                        "id": "c12-launchall",
-                                                        "kind": "action",
-                                                        "name": "LaunchAll"
-                                                      },
-                                                      {
-                                                        "id": "c13-hold",
-                                                        "kind": "firstOf",
-                                                        "label": "Until L is off the outer lane",
-                                                        "rows": [
-                                                          {
-                                                            "afterMs": 22600,
-                                                            "matchClock": true,
-                                                            "cards": []
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "id": "c14-left-down",
-                                                        "kind": "path",
-                                                        "lineId": "left-down",
-                                                        "park": false,
-                                                        "through": true
-                                                      },
-                                                      {
-                                                        "id": "c15-exit-park",
-                                                        "kind": "path",
-                                                        "lineId": "exit-park-2",
-                                                        "park": true
-                                                      }
-                                                    ]
-                                                  }
-                                                ]
-                                              }
-                                            ]
-                                          },
-                                          {
-                                            "afterMs": 150,
-                                            "cards": [
-                                              {
-                                                "id": "c20-hold",
-                                                "kind": "firstOf",
-                                                "label": "Until L is off the outer lane",
-                                                "rows": [
-                                                  {
-                                                    "afterMs": 22600,
-                                                    "matchClock": true,
-                                                    "cards": []
-                                                  }
-                                                ]
-                                              },
-                                              {
-                                                "id": "c21-left-down",
-                                                "kind": "path",
-                                                "lineId": "left-down-3",
-                                                "park": false,
-                                                "through": true
-                                              },
-                                              {
-                                                "id": "c22-exit-park",
-                                                "kind": "path",
-                                                "lineId": "exit-park-6",
-                                                "park": true
-                                              }
-                                            ]
-                                          }
-                                        ]
+                                        "lineId": "right-left-park",
+                                        "park": true
                                       }
                                     ]
                                   }
