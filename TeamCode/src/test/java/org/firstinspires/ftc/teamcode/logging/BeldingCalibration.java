@@ -231,9 +231,21 @@ final class BeldingCalibration {
      */
     static boolean rollerFillsLane = true;
 
+    /**
+     * Whether every FLOWER pick that reaches its FLOWER fills the lane to four, on both robots: the mentor's
+     * assumption for planning (28 Nov 2026, "assume we get the FLOWER picks to 4/4"), not a measurement. On for
+     * Fruitport ({@link FruitportCalibration#use}); off for Belding, whose picks predate it.
+     */
+    static boolean flowerPicksFull = false;
+
     /** Whether the robot at {@code index} fills its lane on a pick or a gather that reaches the pieces ({@link #rollerStick}). */
     static boolean rollerFills(int index) {
         return on && rollerFillsLane && rollerStick(robotFor(index));
+    }
+
+    /** Whether the robot at {@code index}'s FLOWER picks fill the lane: {@link #flowerPicksFull} or its roller ({@link #rollerFills}). */
+    static boolean flowerPickFills(int index) {
+        return (on && flowerPicksFull) || rollerFills(index);
     }
 
     /** Whether every load of the robot at {@code index} is four ({@link #robotFor(int)} "full"): a FLOWER pick's, and a GARDEN gather's too. */

@@ -27,7 +27,8 @@ package org.firstinspires.ftc.teamcode.logging;
  *       off) instead of filling the lane every time. <b>These counts are not pickup</b> (mentor, 28 Nov 2026): a
  *       volley that fired 0 had a robot holding 4, so the simulator keeps every piece a pick collects and a short
  *       volley is a feed jam ({@link BeldingCalibration#feedJamChance}, not yet calibrated), its pieces left in
- *       the lane.</li>
+ *       the lane. Every FLOWER pick that reaches its FLOWER fills the lane to four, on both robots
+ *       ({@link BeldingCalibration#flowerPicksFull}): the mentor's planning assumption (28 Nov 2026).</li>
  *   <li><b>How many launched pieces stay in the CELL</b> ({@link #STAY_IN}): <b>0.94 at {@link #AUTO_HIVE_RANGE_IN}</b>
  *       (39.2 in), the one range Fruitport's Autos fired from: {@code RIGHT_AUTO_HIVE} at the RIGHT CELL and its
  *       twin {@code LEFT_AUTO_HIVE} at the LEFT CELL are the same distance out. It is the one share that best fits
@@ -138,7 +139,9 @@ final class FruitportCalibration {
         wholeFeedChanceBefore = BeldingCalibration.wholeFeedChance;
         rollerFillsBefore = BeldingCalibration.rollerFillsLane;
         shortVolleysBefore = BeldingCalibration.shortVolleysRunTheFeed;
+        flowerPicksFullBefore = BeldingCalibration.flowerPicksFull;
         BeldingCalibration.on = true;
+        BeldingCalibration.flowerPicksFull = true;
         BeldingCalibration.STAY_IN = STAY_IN;
         BeldingCalibration.IR_WALL = IR_WALL;
         BeldingCalibration.IR_SCORING = IR_SCORING;
@@ -164,5 +167,8 @@ final class FruitportCalibration {
         BeldingCalibration.wholeFeedChance = wholeFeedChanceBefore;
         BeldingCalibration.rollerFillsLane = rollerFillsBefore;
         BeldingCalibration.shortVolleysRunTheFeed = shortVolleysBefore;
+        BeldingCalibration.flowerPicksFull = flowerPicksFullBefore;
     }
+
+    private static boolean flowerPicksFullBefore;
 }

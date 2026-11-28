@@ -2868,12 +2868,13 @@ public final class AutoSim {
                         // The Belding calibration: of the pieces picked, only as many as that robot's next volley
                         // fired there get as far as the launcher (a short pick, a wedge, a jam on the feed side).
                         boolean full = BeldingCalibration.on && BeldingCalibration.fullLoads(index);
-                        if ((BeldingCalibration.rollerFills(index) || full) && end == EndCondition.NATURALLY) {
+                        if ((BeldingCalibration.flowerPickFills(index) || full) && end == EndCondition.NATURALLY) {
                             // The roller stick (19429), or every load four (the best case): a pick that reached the FLOWER fills the lane.
                             if (reachedDwell[0]) {
                                 int more = sim.topUpFromFlower(body, pickFlowerAt[0], pickFlowerAt[1], 4);
                                 if (more > 0) pending.add("PickFlower: " + more + " more taken, "
-                                        + (full ? "a full load (best case)" : "the roller stick fills the lane"));
+                                        + (full ? "a full load (best case)" : BeldingCalibration.flowerPicksFull
+                                        ? "a full load (FLOWER picks assumed 4 of 4)" : "the roller stick fills the lane"));
                             }
                         }
                         // Otherwise the robot keeps every piece the pick collected: pickup, feed and scoring are separate
