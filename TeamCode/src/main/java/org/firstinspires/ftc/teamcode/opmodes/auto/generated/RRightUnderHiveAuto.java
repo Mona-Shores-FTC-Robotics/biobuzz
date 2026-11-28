@@ -37,7 +37,7 @@ public final class RRightUnderHiveAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(55.6, 7.7, 180);
+        return poses(rotated).of(55.6, 7.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -51,12 +51,13 @@ public final class RRightUnderHiveAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose gardenStaging = p.of(11.5, 22.1, 270);
         Pose scoringFlowerStaging = p.of(47.2, 119.3, 90);
-        Pose rightStartGarden = p.of(55.6, 7.7, 180);
         Pose rRightCatch = p.of(59.2, 18.5, 95.7);
         Pose rLeftCatch = p.of(61.4, 122.9, 268.9);
         Pose rightParkWall = p.of(14.5, 92.5, 270);
         Pose rParkNoseIn = p.of(14.5, 92.5, 90);
         Pose rUnderExit = p.of(60, 34, 270);
+        Pose rightStart = p.of(55.6, 7.7, 90);
+        Pose rightAutoHive = p.of(59.2, 20.9, 96.1);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose guardAfterStartGardenGardenToRightParkWallControl1 = p.of(30, 30, 0);
@@ -245,7 +246,8 @@ public final class RRightUnderHiveAuto {
         Pose shortGatherTip2CameRoundTheHiveSFootToRightParkWallControl4 = p.of(14, 70, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path rightStartStraightToGardenStaging = Paths.line(rightStartGarden, gardenStaging).linear(rightStartGarden, gardenStaging);
+        Path rightStartToRightAutoHive = Paths.line(rightStart, rightAutoHive).linear(rightStart, rightAutoHive);
+        Path rightAutoHiveStraightToGardenStaging = Paths.line(rightAutoHive, gardenStaging).linear(rightAutoHive, gardenStaging);
         Path guardAfterStartGardenGardenToRightParkWall = Paths.curve(gardenStaging, guardAfterStartGardenGardenToRightParkWallControl1, guardAfterStartGardenGardenToRightParkWallControl2, guardAfterStartGardenGardenToRightParkWallControl3, guardAfterStartGardenGardenToRightParkWallControl4, rightParkWall).constant(rightParkWall);
         Path gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatch = Paths.curve(gardenStaging, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl1, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl2, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl3, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl4, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl5, gardenBackwardUpTheCorridorUnderTheHiveToRLeftCatchControl6, rLeftCatch).linear(gardenStaging, rLeftCatch);
         Path guardAfterGardenLeftRLeftCatchToRightParkWall = Paths.curve(rLeftCatch, guardAfterGardenLeftRLeftCatchToRightParkWallControl1, guardAfterGardenLeftRLeftCatchToRightParkWallControl2, guardAfterGardenLeftRLeftCatchToRightParkWallControl3, guardAfterGardenLeftRLeftCatchToRightParkWallControl4, guardAfterGardenLeftRLeftCatchToRightParkWallControl5, guardAfterGardenLeftRLeftCatchToRightParkWallControl6, guardAfterGardenLeftRLeftCatchToRightParkWallControl7, rightParkWall).heading(Interpolator.piecewise().until(0.2, Interpolator.linear(guardAfterGardenLeftRLeftCatchToRightParkWallSegment1Start, rightParkWall)).until(1, Interpolator.constant(rightParkWall)));
@@ -299,8 +301,9 @@ public final class RRightUnderHiveAuto {
         return kit.sequence(
                 kit.guarded("Auto", guardAfterStartGardenGardenToRightParkWall, 2.6,
                         kit.command("SpinUp"),
+                        kit.path("RIGHT_START to RIGHT_AUTO_HIVE", rightStartToRightAutoHive, 1.1),
                         kit.command("LaunchAll"),
-                        kit.path("RIGHT_START straight to GARDEN_STAGING", rightStartStraightToGardenStaging, 2, guardAfterStartGardenGardenToRightParkWall, 2.6),
+                        kit.path("RIGHT_AUTO_HIVE straight to GARDEN_STAGING", rightAutoHiveStraightToGardenStaging, 2, guardAfterStartGardenGardenToRightParkWall, 2.6),
                         kit.command("GardenGather", 5.5),
                         kit.firstOf("Lane full after the gather? (short: LEFT will need the FLOWER load)",
                                 kit.when("IntakeFull").then(
