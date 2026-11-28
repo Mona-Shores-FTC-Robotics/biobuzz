@@ -15,13 +15,16 @@ package org.firstinspires.ftc.teamcode.logging;
  * <p><b>What Fruitport sets, and from what:</b>
  * <ul>
  *   <li><b>How many pieces a volley after a FLOWER pick fires</b> ({@link #IR_WALL}, {@link #IR_SCORING},
- *       {@link #UV_WALL}, {@link #UV_SCORING}), 20 volleys. Infrared (19429, the roller stick, limp that day):
- *       after the WALL FLOWER 1, 3, 4, 3, 4, 1 (Q-2, Q-17, Q-23, Q-28, Q-39, M-6; Q-23's volley was 5, one of them a
- *       preload left from the first), after the SCORING FLOWER 3, 4, 4, 2 (Q-2, Q-17, Q-28, Q-39): four in 4 of 10.
- *       Ultraviolet (20245, the passive stick): after the WALL FLOWER 4 six times (Q-4, Q-11, Q-20, Q-28, Q-42, M-7),
- *       after the SCORING FLOWER 0, 4, 4, 4 (Q-4, Q-11, Q-28, Q-42): four in 9 of 10. So 19429's roller stick does
- *       not fill the lane here ({@link BeldingCalibration#rollerFillsLane} off): the measured volleys replace the
- *       mentor's 19 Nov observation, until its stick, held out since 22 Nov, is logged.</li>
+ *       {@link #UV_WALL}, {@link #UV_SCORING}): <b>both robots four in 9 of 10.</b> Ultraviolet (20245, the passive
+ *       stick) is its ten logged volleys: after the WALL FLOWER 4 six times (Q-4, Q-11, Q-20, Q-28, Q-42, M-7),
+ *       after the SCORING FLOWER 0, 4, 4, 4 (Q-4, Q-11, Q-28, Q-42). Infrared (19429) is given the same loads, on the
+ *       mentor's word (28 Nov 2026): its stick was fixed, and it was 9 of 10 or better by its last matches there.
+ *       <b>The logs do not show that:</b> its ten volleys, counted the same way, fired 1, 3, 4, 3, 4, 1 after the
+ *       WALL FLOWER (Q-2, Q-17, Q-23, Q-28, Q-39, M-6) and 3, 4, 4, 2 after the SCORING FLOWER (Q-2, Q-17, Q-28,
+ *       Q-39), four in 4 of 10, and its last three matches 3, 4, 4, 2 and 1. Those are kept as
+ *       {@link #IR_WALL_LOGGED} and {@link #IR_SCORING_LOGGED}; {@code BIOBUZZ_FRUITPORT_19429_LOADS=logged} runs
+ *       with them. Either way 19429's roller stick draws its loads here ({@link BeldingCalibration#rollerFillsLane}
+ *       off) instead of filling the lane every time.</li>
  *   <li><b>How many launched pieces stay in the CELL</b> ({@link #STAY_IN}): <b>0.94 at {@link #AUTO_HIVE_RANGE_IN}</b>
  *       (39.2 in), the one range Fruitport's Autos fired from: {@code RIGHT_AUTO_HIVE} at the RIGHT CELL and its
  *       twin {@code LEFT_AUTO_HIVE} at the LEFT CELL are the same distance out. It is the one share that best fits
@@ -93,9 +96,13 @@ final class FruitportCalibration {
             {AUTO_HIVE_RANGE_IN, env("BIOBUZZ_FRUITPORT_STAY_AUTO_HIVE", 0.94)},
             {53.9, 0.90}};
 
-    /** Balls each robot's volley after a FLOWER pick fired, by the launcher wheels' dips, capped at the lane's four. */
-    static final int[] IR_WALL = {1, 3, 4, 3, 4, 1}, IR_SCORING = {3, 4, 4, 2};
+    /** Balls 20245's volley after a FLOWER pick fired, by the launcher wheels' dips, capped at the lane's four. */
     static final int[] UV_WALL = {4, 4, 4, 4, 4, 4}, UV_SCORING = {0, 4, 4, 4};
+    /** 19429's volleys as its Fruitport logs counted them, four in 4 of 10: not the default (see the class comment). */
+    static final int[] IR_WALL_LOGGED = {1, 3, 4, 3, 4, 1}, IR_SCORING_LOGGED = {3, 4, 4, 2};
+    private static final boolean IR_LOGGED = "logged".equals(System.getenv("BIOBUZZ_FRUITPORT_19429_LOADS"));
+    /** 19429's loads: 20245's, four in 9 of 10 (mentor, 28 Nov 2026), unless the logged ones are asked for. */
+    static final int[] IR_WALL = IR_LOGGED ? IR_WALL_LOGGED : UV_WALL, IR_SCORING = IR_LOGGED ? IR_SCORING_LOGGED : UV_SCORING;
 
     /** The least a pick stays on the FLOWER, s: master's whole dwell, as every Fruitport pick stayed. */
     static final double PICK_DWELL_S = env("BIOBUZZ_FRUITPORT_PICK_DWELL", 2.0);
